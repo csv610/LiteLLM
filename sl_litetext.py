@@ -1,14 +1,15 @@
 import streamlit as st
-from litellm import completion
-import base64
-from PIL import Image
 import time
 
-OPENAI_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
-OLLAMA_MODELS = ["ollama/llama3.2", "ollama/phi4"]
-GEMINI_MODELS = ["gemini/gemini-2.0-flash", "gemini/gemini-2.0-flash-lite-preview-02-05", "gemini/gemini-2.0-pro-exp-02-05", "gemini/gemini-2.0-flash-thinking-exp-01-21"]
+from litellm import completion
+import time
 
-MODELS = OPENAI_MODELS + OLLAMA_MODELS + GEMINI_MODELS
+class ModelConfig:
+    OPENAI_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
+    OLLAMA_MODELS = ["ollama/llama3.2", "ollama/phi4"]
+    GEMINI_MODELS = ["gemini/gemini-2.0-flash", "gemini/gemini-2.0-flash-lite-preview-02-05", "gemini/gemini-2.0-pro-exp-02-05", "gemini/gemini-2.0-flash-thinking-exp-01-21"]
+    
+    MODELS = OPENAI_MODELS + OLLAMA_MODELS + GEMINI_MODELS
 
 class LiteText:
     @staticmethod
@@ -29,12 +30,13 @@ def streamlit_app():
     st.set_page_config(layout="wide")
     st.title("Litellm Text")
 
-    model_index = st.sidebar.selectbox("Select a model", range(len(MODELS)), format_func=lambda i: MODELS[i])
+    model_index = st.sidebar.selectbox("Select a model", range(len(ModelConfig.MODELS)), format_func=lambda i: ModelConfig.MODELS[i])
 
     prompt = st.text_input("Ask Question", "What are blackhole and their future?")
     if st.button("Get Answer"):
+       model = ModelConfig.MODELS[model_index]
        with st.spinner("Processing... Please wait."):
-            result = LiteText.get_response(prompt, MODELS[model_index])
+            result = LiteText.get_response(prompt, model)
        st.write(result.get("response", "Error occurred"))
        st.write(f"**Response Time:** {result.get('response_time', 0):.2f} seconds")
        st.write(f"**Word Count:** {result.get('word_count', 0)}")

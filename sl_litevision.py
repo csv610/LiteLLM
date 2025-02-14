@@ -4,11 +4,12 @@ import base64
 from PIL import Image
 import time
 
-OPENAI_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
-OLLAMA_MODELS = ["ollama/llava", "ollama/llava-llama3", "ollama/bakllava"]
-GEMINI_MODELS = ["gemini/gemini-2.0-flash", "gemini/gemini-2.0-flash-lite-preview-02-05", "gemini/gemini-2.0-pro-exp-02-05", "gemini/gemini-2.0-flash-thinking-exp-01-21"]
+class ModelConfig:
+      OPENAI_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
+      OLLAMA_MODELS = ["ollama/llava", "ollama/llava-llama3", "ollama/bakllava"]
+      GEMINI_MODELS = ["gemini/gemini-2.0-flash", "gemini/gemini-2.0-flash-lite-preview-02-05", "gemini/gemini-2.0-pro-exp-02-05", "gemini/gemini-2.0-flash-thinking-exp-01-21"]
 
-MODELS = OPENAI_MODELS + OLLAMA_MODELS + GEMINI_MODELS
+      MODELS = OPENAI_MODELS + OLLAMA_MODELS + GEMINI_MODELS
 
 class LiteVision:
     @staticmethod
@@ -31,7 +32,7 @@ class LiteVision:
             end_time = time.time()
             response_time = end_time - start_time
             word_count = len(response_text.split())
-            return {"response": response_text, "response_time": response_time, "word_count": word_count}
+            return {"text": response_text, "response_time": response_time, "word_count": word_count}
         except FileNotFoundError:
             return {"error": f"File '{image_file}' not found", "response_time": 0, "word_count": 0}
         except Exception as e:
@@ -42,7 +43,7 @@ def streamlit_app():
     st.title("Litellm Vision")
 
     uploaded_file = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg"])
-    model_index = st.sidebar.selectbox("Select a model", range(len(MODELS)), format_func=lambda i: MODELS[i])
+    model_index = st.sidebar.selectbox("Select a model", range(len(ModelConfig.MODELS)), format_func=lambda i: ModelConfig.MODELS[i])
     fit_image   = st.sidebar.checkbox("Fit image", False)
 
     if uploaded_file:
@@ -58,8 +59,9 @@ def streamlit_app():
         prompt = st.text_input("Ask Question", "Describe the image")
         if st.button("Get Answer"):
             with st.spinner("Processing... Please wait."):
-                result = LiteVision.get_response(prompt, image_path, MODELS[model_index])
-            st.write(result.get("response", "Error occurred"))
+                model  = ModelConfig.MODELS[model_index]
+                result = LiteVision.get_response(prompt, image_path, model)
+            st.write(result.get("text", "Error occurred"))
             st.write(f"**Response Time:** {result.get('response_time', 0):.2f} seconds")
             st.write(f"**Word Count:** {result.get('word_count', 0)}")
 
