@@ -1,6 +1,6 @@
 .PHONY: help venv venv-activate install install-dev test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
 
-VENV_DIR := venv
+VENV_DIR := litenv
 PYTHON := python3
 PIP := $(VENV_DIR)/bin/pip
 PYTHON_VENV := $(VENV_DIR)/bin/python
@@ -37,7 +37,7 @@ help:
 
 # Virtual environment targets
 venv:
-	@echo "Creating virtual environment..."
+	@echo "Creating virtual environment (litenv)..."
 	$(PYTHON) -m venv $(VENV_DIR)
 	@echo "Virtual environment created at $(VENV_DIR)/"
 	@echo "To activate, run: source $(VENV_DIR)/bin/activate (Linux/macOS) or $(VENV_DIR)\Scripts\activate (Windows)"
