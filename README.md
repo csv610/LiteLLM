@@ -32,6 +32,31 @@ export GEMINI_API_KEY="your-gemini-key"
 
 For Ollama models, ensure Ollama is running locally.
 
+## Project Structure
+
+```
+LiteLLM/
+├── src/
+│   ├── __init__.py
+│   └── litellm_tools/
+│       ├── __init__.py
+│       ├── config.py       # Shared model configuration
+│       ├── text.py         # LiteText module
+│       └── vision.py       # LiteVision module
+├── scripts/
+│   ├── cli_litetext.py          # CLI for text queries
+│   ├── cli_litevision.py        # CLI for image analysis
+│   ├── streamlit_litetext.py    # Web UI for text
+│   └── streamlit_litevision.py  # Web UI for vision
+├── tests/
+│   ├── __init__.py
+│   └── test_litetext.py    # Unit tests
+├── README.md
+├── LICENSE
+├── requirements.txt
+└── .gitignore
+```
+
 ## Usage
 
 ### LiteText CLI
@@ -39,7 +64,7 @@ For Ollama models, ensure Ollama is running locally.
 Query language models from the command line:
 
 ```bash
-python cli_litetext.py -p "Your prompt here" -m 0
+python scripts/cli_litetext.py -p "Your prompt here" -m 0
 ```
 
 #### Arguments:
@@ -52,42 +77,77 @@ python cli_litetext.py -p "Your prompt here" -m 0
 #### Examples:
 ```bash
 # List all available models
-python cli_litetext.py --list-models
+python scripts/cli_litetext.py --list-models
 
 # Query using default model (GPT-4o)
-python cli_litetext.py -p "What is AI?"
+python scripts/cli_litetext.py -p "What is AI?"
 
 # Query using a specific model with custom parameters
-python cli_litetext.py -p "Explain quantum computing" -m 5 --temperature 0.7 --max-tokens 500
+python scripts/cli_litetext.py -p "Explain quantum computing" -m 5 --temperature 0.7 --max-tokens 500
 
 # Use Ollama model
-python cli_litetext.py -p "Hello" -m 2
+python scripts/cli_litetext.py -p "Hello" -m 2
 ```
+
+### LiteText Streamlit Web UI
+
+Run the web interface:
+
+```bash
+streamlit run scripts/streamlit_litetext.py
+```
+
+This provides an interactive web UI with:
+- Model selection dropdown
+- Temperature and token limit sliders
+- Real-time response display
+- Metrics (response time, word count)
 
 ### LiteVision CLI
 
 Analyze images using vision models:
 
 ```bash
-python cli_litevision.py -i path/to/image.jpg -p "Describe the image" -m 0
+python scripts/cli_litevision.py -i path/to/image.jpg -p "Describe the image" -m 0
 ```
 
 #### Arguments:
 - `-i, --image`: Path to the image file (PNG, JPG, PDF) (required)
 - `-p, --prompt`: Prompt to analyze the image (default: "Describe the image")
 - `-m, --model`: Index of the model to use (default: 0)
+- `--temperature`: Sampling temperature (default: 0.2)
+- `--max-tokens`: Maximum tokens in response (default: 1000)
 
 #### Examples:
 ```bash
 # Analyze an image with default prompt
-python cli_litevision.py -i photo.jpg
+python scripts/cli_litevision.py -i photo.jpg
 
 # Analyze with custom prompt
-python cli_litevision.py -i diagram.png -p "What technology is shown here?" -m 3
+python scripts/cli_litevision.py -i diagram.png -p "What technology is shown here?" -m 3
 
 # Use a specific vision model
-python cli_litevision.py -i image.jpg -m 5
+python scripts/cli_litevision.py -i image.jpg -m 5
+
+# List available vision models
+python scripts/cli_litevision.py --list-models
 ```
+
+### LiteVision Streamlit Web UI
+
+Run the web interface:
+
+```bash
+streamlit run scripts/streamlit_litevision.py
+```
+
+This provides an interactive web UI with:
+- Image upload functionality
+- Model selection dropdown
+- Temperature and token limit sliders
+- Image preview with dimensions
+- Real-time analysis results
+- Metrics (response time, word count)
 
 ## Available Models
 
@@ -105,27 +165,40 @@ Use `--list-models` flag to see the indexed list of available models.
 
 ## Architecture
 
-### Core Components
+### Core Modules
 
-- **LiteText** (`cli_litetext.py`): Main class for text generation
-  - `ModelConfig`: Manages available models from different providers
-  - `LiteTextResponse`: Encapsulates response data and metrics
-  - `format_output()`: Formats and displays results
+**`src/litellm_tools/`** - Main library package
 
-- **LiteVision** (`cli_litevision.py`): Main class for image analysis
-  - `ModelConfig`: Vision model configuration
-  - Image encoding to base64 format for API compatibility
-  - Error handling for missing files
+- **config.py**: Centralized model configuration
+  - `ModelConfig`: Manages models from OpenAI, Ollama, and Gemini
+  - Supports both text and vision models
 
-### Supporting Modules
-- `sl_litetext.py`: Streamlit web interface for LiteText
-- `sl_litevision.py`: Streamlit web interface for LiteVision
+- **text.py**: Language model interactions
+  - `LiteText`: Core class for text generation
+  - `LiteTextResponse`: Response data structure with metrics
+  - Error handling with logging
+
+- **vision.py**: Image analysis
+  - `LiteVision`: Core class for image analysis
+  - Image to base64 conversion
+  - Comprehensive error handling
+
+### CLI Scripts (`scripts/`)
+- **cli_litetext.py**: Command-line interface for text queries
+- **cli_litevision.py**: Command-line interface for image analysis
+- **streamlit_litetext.py**: Web UI for text queries
+- **streamlit_litevision.py**: Web UI for image analysis
 
 ## Testing
 
 Run the test suite:
 ```bash
-python -m pytest test_cli_litetext.py -v
+python -m pytest tests/ -v
+```
+
+Or run specific tests:
+```bash
+python -m pytest tests/test_litetext.py -v
 ```
 
 ## Requirements
