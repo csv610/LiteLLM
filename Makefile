@@ -1,9 +1,18 @@
-.PHONY: help install install-dev test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
+.PHONY: help venv venv-activate install install-dev test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
+
+VENV_DIR := venv
+PYTHON := python3
+PIP := $(VENV_DIR)/bin/pip
+PYTHON_VENV := $(VENV_DIR)/bin/python
 
 # Default target
 help:
 	@echo "LiteLLM - Makefile Commands"
 	@echo "=============================="
+	@echo ""
+	@echo "Virtual Environment:"
+	@echo "  make venv                 Create virtual environment"
+	@echo "  make venv-activate        Show activation command"
 	@echo ""
 	@echo "Installation:"
 	@echo "  make install              Install dependencies"
@@ -22,41 +31,60 @@ help:
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean                Remove cache and build files"
+	@echo "  make clean-venv           Remove virtual environment"
+	@echo "  make clean-all            Full cleanup (cache + venv)"
+	@echo ""
+
+# Virtual environment targets
+venv:
+	@echo "Creating virtual environment..."
+	$(PYTHON) -m venv $(VENV_DIR)
+	@echo "Virtual environment created at $(VENV_DIR)/"
+	@echo "To activate, run: source $(VENV_DIR)/bin/activate (Linux/macOS) or $(VENV_DIR)\Scripts\activate (Windows)"
+
+venv-activate:
+	@echo "To activate the virtual environment, run:"
+	@echo ""
+	@echo "  source $(VENV_DIR)/bin/activate"
 	@echo ""
 
 # Installation targets
-install:
-	pip install -r requirements.txt
+install: venv
+	$(PIP) install --upgrade pip
+	$(PIP) install -r requirements.txt
+	@echo "Dependencies installed in virtual environment"
 
-install-dev:
-	pip install -r requirements.txt
-	pip install pylint black pytest-cov
+install-dev: venv
+	$(PIP) install --upgrade pip
+	$(PIP) install -r requirements.txt
+	$(PIP) install pylint black pytest-cov
+	@echo "Development dependencies installed in virtual environment"
 
 # Testing and linting
 test:
-	python -m pytest tests/ -v --cov=lite --cov-report=html
+	$(PYTHON_VENV) -m pytest tests/ -v --cov=lite --cov-report=html
 
 test-watch:
-	python -m pytest tests/ -v --tb=short -s
+	$(PYTHON_VENV) -m pytest tests/ -v --tb=short -s
 
 lint:
-	pylint lite/litellm_tools/ scripts/
+	$(VENV_DIR)/bin/pylint lite/litellm_tools/ scripts/
 
 format:
-	black lite/ scripts/ tests/
+	$(VENV_DIR)/bin/black lite/ scripts/ tests/
 
 # Running applications
 run-cli-text:
-	python scripts/cli_litetext.py --list-models
+	$(PYTHON_VENV) scripts/cli_litetext.py --list-models
 
 run-cli-vision:
-	python scripts/cli_litevision.py --help
+	$(PYTHON_VENV) scripts/cli_litevision.py --help
 
 run-web-text:
-	streamlit run scripts/streamlit_litetext.py
+	$(VENV_DIR)/bin/streamlit run scripts/streamlit_litetext.py
 
 run-web-vision:
-	streamlit run scripts/streamlit_litevision.py
+	$(VENV_DIR)/bin/streamlit run scripts/streamlit_litevision.py
 
 # Cleanup
 clean:
@@ -68,3 +96,10 @@ clean:
 	find . -type f -name ".DS_Store" -delete
 	find . -type f -name "temp_*" -delete
 	@echo "Cleaned up cache and build files"
+
+clean-venv:
+	rm -rf $(VENV_DIR)
+	@echo "Removed virtual environment"
+
+clean-all: clean clean-venv
+	@echo "Full cleanup complete"
