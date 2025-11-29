@@ -5,7 +5,7 @@ import argparse
 import logging
 import sys
 
-from src.litellm_tools import LiteText, ModelConfig
+from lite.litellm_tools import LiteText, ModelConfig
 
 # Configure logging
 logging.basicConfig(

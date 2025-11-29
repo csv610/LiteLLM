@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
-from src.litellm_tools import ModelConfig, LiteText, LiteTextResponse
+from lite.litellm_tools import ModelConfig, LiteText, LiteTextResponse
 
 
 class TestModelConfig:
@@ -92,7 +92,7 @@ class TestLiteText:
         response = LiteText.get_response("   ", "openai/gpt-4o")
         assert response.is_success() is False
 
-    @patch("src.litellm_tools.text.completion")
+    @patch("lite.litellm_tools.text.completion")
     def test_get_response_success(self, mock_completion):
         """Test successful API response."""
         # Mock the completion response
@@ -107,7 +107,7 @@ class TestLiteText:
         assert response.word_count == 5
         assert response.response_time > 0
 
-    @patch("src.litellm_tools.text.completion")
+    @patch("lite.litellm_tools.text.completion")
     def test_get_response_with_custom_params(self, mock_completion):
         """Test API response with custom temperature and max_tokens."""
         mock_response = MagicMock()
@@ -124,7 +124,7 @@ class TestLiteText:
         assert call_kwargs["temperature"] == 0.5
         assert call_kwargs["max_tokens"] == 500
 
-    @patch("src.litellm_tools.text.completion")
+    @patch("lite.litellm_tools.text.completion")
     def test_get_response_api_error(self, mock_completion):
         """Test handling of API error."""
         from litellm import APIError
@@ -136,7 +136,7 @@ class TestLiteText:
         assert response.is_success() is False
         assert "API Error" in response.error
 
-    @patch("src.litellm_tools.text.completion")
+    @patch("lite.litellm_tools.text.completion")
     def test_get_response_unexpected_error(self, mock_completion):
         """Test handling of unexpected error."""
         mock_completion.side_effect = ValueError("Unexpected error")
@@ -146,7 +146,7 @@ class TestLiteText:
         assert response.is_success() is False
         assert "Unexpected error" in response.error
 
-    @patch("src.litellm_tools.text.completion")
+    @patch("lite.litellm_tools.text.completion")
     def test_word_count(self, mock_completion):
         """Test word count calculation."""
         mock_response = MagicMock()

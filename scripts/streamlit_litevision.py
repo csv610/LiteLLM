@@ -8,10 +8,10 @@ import sys
 import streamlit as st
 from PIL import Image
 
-# Add src to path for imports
+# Add lite to path for imports
 sys.path.insert(0, "/Users/csv610/Projects/LiteLLM")
 
-from src.litellm_tools import LiteVision, ModelConfig
+from lite.litellm_tools import LiteVision, ModelConfig
 
 # Configure logging
 logging.basicConfig(

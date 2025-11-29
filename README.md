@@ -36,21 +36,21 @@ For Ollama models, ensure Ollama is running locally.
 
 ```
 LiteLLM/
-├── src/
+├── lite/                        # Core library package
 │   ├── __init__.py
 │   └── litellm_tools/
 │       ├── __init__.py
-│       ├── config.py       # Shared model configuration
-│       ├── text.py         # LiteText module
-│       └── vision.py       # LiteVision module
-├── scripts/
+│       ├── config.py            # Shared model configuration
+│       ├── text.py              # LiteText module
+│       └── vision.py            # LiteVision module
+├── scripts/                     # CLI and web applications
 │   ├── cli_litetext.py          # CLI for text queries
 │   ├── cli_litevision.py        # CLI for image analysis
 │   ├── streamlit_litetext.py    # Web UI for text
 │   └── streamlit_litevision.py  # Web UI for vision
-├── tests/
+├── tests/                       # Unit tests
 │   ├── __init__.py
-│   └── test_litetext.py    # Unit tests
+│   └── test_litetext.py         # Unit tests
 ├── README.md
 ├── LICENSE
 ├── requirements.txt
@@ -167,7 +167,7 @@ Use `--list-models` flag to see the indexed list of available models.
 
 ### Core Modules
 
-**`src/litellm_tools/`** - Main library package
+**`lite/litellm_tools/`** - Main library package
 
 - **config.py**: Centralized model configuration
   - `ModelConfig`: Manages models from OpenAI, Ollama, and Gemini
