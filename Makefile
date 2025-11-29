@@ -1,7 +1,7 @@
 .PHONY: help venv venv-activate install install-dev test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
 
 VENV_DIR := litenv
-PYTHON := python3
+PYTHON := python3.12
 PIP := $(VENV_DIR)/bin/pip
 PYTHON_VENV := $(VENV_DIR)/bin/python
 
@@ -37,10 +37,14 @@ help:
 
 # Virtual environment targets
 venv:
-	@echo "Creating virtual environment (litenv)..."
-	$(PYTHON) -m venv $(VENV_DIR)
-	@echo "Virtual environment created at $(VENV_DIR)/"
-	@echo "To activate, run: source $(VENV_DIR)/bin/activate (Linux/macOS) or $(VENV_DIR)\Scripts\activate (Windows)"
+	@if [ -d $(VENV_DIR) ]; then \
+		echo "Virtual environment already exists at $(VENV_DIR)/"; \
+	else \
+		echo "Creating virtual environment (litenv)..."; \
+		$(PYTHON) -m venv $(VENV_DIR); \
+		echo "Virtual environment created at $(VENV_DIR)/"; \
+		echo "To activate, run: source $(VENV_DIR)/bin/activate (Linux/macOS) or $(VENV_DIR)\Scripts\activate (Windows)"; \
+	fi
 
 venv-activate:
 	@echo "To activate the virtual environment, run:"
@@ -50,13 +54,17 @@ venv-activate:
 
 # Installation targets
 install: venv
-	$(PIP) install --upgrade pip
+	$(PIP) install --upgrade pip setuptools wheel
+	$(PIP) install --only-binary :all: pyarrow 2>/dev/null || true
 	$(PIP) install -r requirements.txt
+	$(PIP) install -e .
 	@echo "Dependencies installed in virtual environment"
 
 install-dev: venv
-	$(PIP) install --upgrade pip
+	$(PIP) install --upgrade pip setuptools wheel
+	$(PIP) install --only-binary :all: pyarrow 2>/dev/null || true
 	$(PIP) install -r requirements.txt
+	$(PIP) install -e .
 	$(PIP) install pylint black pytest-cov
 	@echo "Development dependencies installed in virtual environment"
 

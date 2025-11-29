@@ -129,7 +129,12 @@ class TestLiteText:
         """Test handling of API error."""
         from litellm import APIError
 
-        mock_completion.side_effect = APIError("API connection failed")
+        mock_completion.side_effect = APIError(
+            status_code=500,
+            message="API connection failed",
+            llm_provider="openai",
+            model="gpt-4o"
+        )
 
         response = LiteText.get_response("Test", "openai/gpt-4o")
 

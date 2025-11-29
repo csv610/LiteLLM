@@ -1,7 +1,16 @@
-"""Configuration for available models organized by provider."""
+"""Configuration for available models and vision processing parameters."""
 
 from dataclasses import dataclass
 from typing import List
+
+# Vision model defaults
+DEFAULT_TEMPERATURE = 0.2
+DEFAULT_MAX_TOKENS = 2000
+DEFAULT_PROMPT = "Describe this image in detail"
+
+# Image processing
+SUPPORTED_IMAGE_TYPES = ("jpg", "jpeg", "png", "gif", "webp")
+IMAGE_MIME_TYPE = "image/jpeg"
 
 
 @dataclass

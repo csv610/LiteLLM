@@ -1,11 +1,13 @@
 """LiteVision module for image analysis using language models."""
 
-import base64
 import logging
 import time
-from typing import Dict, Optional
+from typing import Any, Dict
 
 from litellm import completion
+
+from image_utils import ImageUtils
+from response_processor import ResponseProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -13,64 +15,40 @@ logger = logging.getLogger(__name__)
 class LiteVision:
     """Main class for interacting with vision models for image analysis."""
 
-    DEFAULT_TEMPERATURE = 0.2
-    DEFAULT_MAX_TOKENS = 1000
-
-    @staticmethod
-    def image_to_base64(image_path: str) -> Optional[str]:
+    def generate_text(
+        self,
+        image_path: str,
+        prompt: str,
+        model: str,
+        temperature: float = 0.2,
+        max_tokens: int = 2000,
+    ) -> Dict[str, Any]:
         """
-        Convert an image file to base64 encoding.
+        Generate text from an image with a given prompt using the specified model.
 
         Args:
             image_path: Path to the image file
-
-        Returns:
-            Base64 encoded image URL, or None if file not found
-
-        Raises:
-            FileNotFoundError: If the image file doesn't exist
-        """
-        try:
-            with open(image_path, "rb") as file:
-                file_data = file.read()
-                encoded_file = base64.b64encode(file_data).decode("utf-8")
-                base64_url = f"data:image/jpeg;base64,{encoded_file}"
-            return base64_url
-        except FileNotFoundError:
-            logger.error(f"Image file not found: {image_path}")
-            raise
-
-    @staticmethod
-    def get_response(
-        prompt: str,
-        image_file: str,
-        model: str,
-        temperature: float = DEFAULT_TEMPERATURE,
-        max_tokens: int = DEFAULT_MAX_TOKENS,
-    ) -> Dict[str, any]:
-        """
-        Analyze an image with a given prompt using the specified model.
-
-        Args:
             prompt: The prompt to analyze the image
-            image_file: Path to the image file
             model: The model identifier (e.g., "openai/gpt-4o")
             temperature: Sampling temperature (default: 0.2)
-            max_tokens: Maximum tokens in response (default: 1000)
+            max_tokens: Maximum tokens in response (default: 2000)
 
         Returns:
-            Dictionary containing 'text', 'response_time', 'word_count', or 'error'
+            Dictionary containing analysis result or error
         """
         try:
-            start_time = time.time()
             logger.info(f"Analyzing image with model: {model}")
 
-            base64_url = LiteVision.image_to_base64(image_file)
+            # Encode image
+            base64_url = ImageUtils.encode_to_base64(image_path)
+
+            # Build message
             image_content = [
                 {"type": "text", "text": prompt},
                 {"type": "image_url", "image_url": {"url": base64_url}},
             ]
 
+            # Call API
             response = completion(
                 model=model,
                 messages=[{"role": "user", "content": image_content}],
@@ -78,21 +56,41 @@ class LiteVision:
                 max_tokens=max_tokens,
             )
 
-            response_time = time.time() - start_time
-            response_text = response.choices[0].message.content
-            word_count = len(response_text.split())
+            # Extract and format response
+            response_text = ResponseProcessor.extract_text(response)
+            if not response_text:
+                return ResponseProcessor.format_error("No response text received")
 
-            logger.info(f"Image analysis completed in {response_time:.2f} seconds")
-            return {
-                "text": response_text,
-                "response_time": response_time,
-                "word_count": word_count,
-            }
+            return response_text
+
         except FileNotFoundError as e:
             error_msg = f"File not found: {str(e)}"
             logger.error(error_msg)
-            return {"error": error_msg, "response_time": 0, "word_count": 0}
+            return ResponseProcessor.format_error(error_msg)
         except Exception as e:
             error_msg = f"Error analyzing image: {str(e)}"
             logger.error(error_msg)
-            return {"error": error_msg, "response_time": 0, "word_count": 0}
+            return ResponseProcessor.format_error(error_msg)
+
+
+def main():
+    """Main function to demonstrate LiteVision usage."""
+    from cli import VisionCLI
+
+    args = VisionCLI.parse_arguments()
+
+    client = LiteVision()
+
+    result = client.generate_text(
+        image_path=args.image_path,
+        prompt=args.prompt,
+        model=args.model,
+        temperature=args.temperature,
+        max_tokens=args.max_tokens,
+    )
+
+    print(result)
+
+
+if __name__ == "__main__":
+    main()
