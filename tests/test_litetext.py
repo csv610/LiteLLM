@@ -5,11 +5,11 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add lite directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lite'))
+# Add root directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from lite_client import LiteClient
-from config import ModelConfig
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig
 
 
 class TestModelConfig:
@@ -71,7 +71,7 @@ class TestLiteClient:
         assert message[0]["content"][0]["type"] == "text"
         assert message[0]["content"][0]["text"] == prompt
 
-    @patch('image_utils.ImageUtils.encode_to_base64')
+    @patch('lite.image_utils.ImageUtils.encode_to_base64')
     def test_create_message_with_image(self, mock_encode):
         """Test creating a message with text and image."""
         mock_encode.return_value = "data:image/jpeg;base64,fake_base64_data"
@@ -107,8 +107,8 @@ class TestLiteClient:
         """Test that empty prompt with image uses default prompt."""
         client = LiteClient()
 
-        with patch('lite_client.completion') as mock_completion:
-            with patch('image_utils.ImageUtils.encode_to_base64'):
+        with patch('lite.lite_client.completion') as mock_completion:
+            with patch('lite.image_utils.ImageUtils.encode_to_base64'):
                 mock_response = MagicMock()
                 mock_response.choices[0].message.content = "Image description"
                 mock_completion.return_value = mock_response
@@ -119,7 +119,7 @@ class TestLiteClient:
                 # Verify that completion was called with "Describe the image"
                 mock_completion.assert_called_once()
 
-    @patch('lite_client.completion')
+    @patch('lite.lite_client.completion')
     def test_generate_text_success(self, mock_completion):
         """Test successful text generation."""
         mock_response = MagicMock()
@@ -132,7 +132,7 @@ class TestLiteClient:
         assert result == "This is a test response"
         mock_completion.assert_called_once()
 
-    @patch('lite_client.completion')
+    @patch('lite.lite_client.completion')
     def test_generate_text_with_custom_temperature(self, mock_completion):
         """Test text generation with custom temperature."""
         mock_response = MagicMock()
@@ -146,7 +146,7 @@ class TestLiteClient:
         call_kwargs = mock_completion.call_args[1]
         assert call_kwargs["temperature"] == 0.8
 
-    @patch('lite_client.completion')
+    @patch('lite.lite_client.completion')
     def test_generate_text_api_error(self, mock_completion):
         """Test handling of API error."""
         from litellm import APIError
@@ -164,7 +164,7 @@ class TestLiteClient:
         assert isinstance(result, str)
         assert "Error" in result
 
-    @patch('lite_client.completion')
+    @patch('lite.lite_client.completion')
     def test_generate_text_file_error(self, mock_completion):
         """Test handling of file not found error."""
         mock_completion.side_effect = FileNotFoundError("Image file not found")
@@ -175,7 +175,7 @@ class TestLiteClient:
         assert isinstance(result, dict)
         assert "error" in result
 
-    @patch('lite_client.completion')
+    @patch('lite.lite_client.completion')
     def test_generate_text_unexpected_error(self, mock_completion):
         """Test handling of unexpected error."""
         mock_completion.side_effect = ValueError("Unexpected error")

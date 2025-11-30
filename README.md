@@ -37,19 +37,44 @@ For Ollama models, ensure Ollama is running locally.
 ```
 LiteLLM/
 ├── lite/                        # Core library package
+│   ├── __init__.py              # Package exports
 │   ├── config.py                # Model configuration
 │   ├── image_utils.py           # Image processing utilities
 │   ├── logging_config.py        # Logging configuration
 │   └── lite_client.py           # Unified LiteClient for text and vision operations
-├── scripts/                     # CLI and web applications
-│   ├── liteclient_cli.py        # Unified CLI for text and vision
-│   └── streamlit_liteclient.py  # Unified web UI for text and vision
+├── app/                         # Applications layer
+│   ├── __init__.py
+│   ├── cli/                     # Command-line interfaces
+│   │   ├── __init__.py
+│   │   └── liteclient_cli.py    # Unified CLI for text and vision
+│   ├── web/                     # Web applications
+│   │   ├── __init__.py
+│   │   └── streamlit_liteclient.py # Unified web UI for text and vision
+│   └── integrations/            # Domain-specific integrations
+│       ├── drugbank/            # DrugBank medicine information
+│       │   ├── __init__.py
+│       │   ├── drugbank_medicine.py
+│       │   └── medicine_info.py
+│       └── nobel_prize_info.py  # Nobel Prize information
+├── utilities/                   # Experimental utilities
+│   ├── __init__.py
+│   ├── perplx_chat.py          # Perplexity provider
+│   ├── gemini_chat.py          # Gemini chat utilities
+│   ├── google_search.py        # Google search
+│   ├── url_explain.py          # URL explanation
+│   └── websearch.py            # Web search
 ├── tests/                       # Unit tests
-│   └── test_litetext.py         # Unit tests
-├── README.md
-├── LICENSE
-├── requirements.txt
-└── .gitignore
+│   ├── __init__.py
+│   ├── test_litetext.py        # Unit tests for core library
+│   └── jsonout.py              # Test utilities
+├── .env.example                 # Environment variables template
+├── requirements.txt             # Production dependencies
+├── requirements-dev.txt         # Development dependencies
+├── setup.py                     # Package configuration
+├── Makefile                     # Build automation
+├── README.md                    # This file
+├── LICENSE                      # MIT License
+└── .gitignore                   # Git ignore rules
 ```
 
 ## Usage
@@ -59,7 +84,14 @@ LiteLLM/
 Use the unified CLI for both text generation and image analysis:
 
 ```bash
-python scripts/liteclient_cli.py --question "Your prompt here"
+python app/cli/liteclient_cli.py --question "Your prompt here"
+```
+
+Or use the Makefile:
+
+```bash
+make run-cli-text      # List available models
+make run-cli-vision    # Show CLI help
 ```
 
 #### Arguments:
@@ -72,28 +104,28 @@ python scripts/liteclient_cli.py --question "Your prompt here"
 #### Text Query Examples:
 ```bash
 # Simple text query
-python scripts/liteclient_cli.py -q "What is AI?"
+python app/cli/liteclient_cli.py -q "What is AI?"
 
 # Text query with custom model and temperature
-python scripts/liteclient_cli.py -q "Explain quantum computing" -m 5 -t 0.7
+python app/cli/liteclient_cli.py -q "Explain quantum computing" -m 5 -t 0.7
 
 # List available text models
-python scripts/liteclient_cli.py --list-models
+python app/cli/liteclient_cli.py --list-models
 ```
 
 #### Image Analysis Examples:
 ```bash
 # Analyze an image with default prompt
-python scripts/liteclient_cli.py -i photo.jpg
+python app/cli/liteclient_cli.py -i photo.jpg
 
 # Analyze with custom prompt
-python scripts/liteclient_cli.py -i diagram.png -q "What technology is shown here?"
+python app/cli/liteclient_cli.py -i diagram.png -q "What technology is shown here?"
 
 # Vision analysis with specific model
-python scripts/liteclient_cli.py -i image.jpg -m 3 -t 0.5
+python app/cli/liteclient_cli.py -i image.jpg -m 3 -t 0.5
 
 # List available vision models
-python scripts/liteclient_cli.py --list-models vision
+python app/cli/liteclient_cli.py --list-models vision
 ```
 
 ### Streamlit Web UI
@@ -101,7 +133,13 @@ python scripts/liteclient_cli.py --list-models vision
 Run the unified interactive web interface:
 
 ```bash
-streamlit run scripts/streamlit_liteclient.py
+streamlit run app/web/streamlit_liteclient.py
+```
+
+Or use the Makefile:
+
+```bash
+make run-web
 ```
 
 This provides an interactive web interface with:
@@ -125,8 +163,13 @@ This provides an interactive web interface with:
 
 Use `--list-models` flag with the CLI to see the indexed list of available models:
 ```bash
-python scripts/liteclient_cli.py --list-models        # Text models
-python scripts/liteclient_cli.py --list-models vision # Vision models
+python app/cli/liteclient_cli.py --list-models        # Text models
+python app/cli/liteclient_cli.py --list-models vision # Vision models
+```
+
+Or use the Makefile shortcut:
+```bash
+make run-cli-text  # List text models
 ```
 
 ## Architecture

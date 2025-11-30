@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from config import IMAGE_MIME_TYPE
+from .config import IMAGE_MIME_TYPE
 
 logger = logging.getLogger(__name__)
 

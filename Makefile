@@ -24,10 +24,9 @@ help:
 	@echo "  make format               Format code with black"
 	@echo ""
 	@echo "Running Applications:"
-	@echo "  make run-cli-text         Run LiteText CLI"
-	@echo "  make run-cli-vision       Run LiteVision CLI"
-	@echo "  make run-web-text         Run LiteText web UI (Streamlit)"
-	@echo "  make run-web-vision       Run LiteVision web UI (Streamlit)"
+	@echo "  make run-cli-text         Run CLI with list models"
+	@echo "  make run-cli-vision       Run CLI help"
+	@echo "  make run-web              Run web UI (Streamlit)"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean                Remove cache and build files"
@@ -76,23 +75,20 @@ test-watch:
 	$(PYTHON_VENV) -m pytest tests/ -v --tb=short -s
 
 lint:
-	$(VENV_DIR)/bin/pylint lite/ scripts/
+	$(VENV_DIR)/bin/pylint lite/ app/ tests/
 
 format:
-	$(VENV_DIR)/bin/black lite/ scripts/ tests/
+	$(VENV_DIR)/bin/black lite/ app/ tests/
 
 # Running applications
 run-cli-text:
-	$(PYTHON_VENV) scripts/cli_litetext.py --list-models
+	$(PYTHON_VENV) app/cli/liteclient_cli.py --list-models
 
 run-cli-vision:
-	$(PYTHON_VENV) scripts/cli_litevision.py --help
+	$(PYTHON_VENV) app/cli/liteclient_cli.py --help
 
-run-web-text:
-	$(VENV_DIR)/bin/streamlit run scripts/streamlit_litetext.py
-
-run-web-vision:
-	$(VENV_DIR)/bin/streamlit run scripts/streamlit_litevision.py
+run-web:
+	$(VENV_DIR)/bin/streamlit run app/web/streamlit_liteclient.py
 
 # Cleanup
 clean:

@@ -6,8 +6,8 @@ from typing import Any, Dict, Optional, Union
 
 from litellm import completion, APIError
 
-from config import ModelConfig
-from image_utils import ImageUtils
+from .config import ModelConfig
+from .image_utils import ImageUtils
 
 logger = logging.getLogger(__name__)
 
