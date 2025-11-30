@@ -164,6 +164,7 @@ class LiteClient:
 ```
 LiteLLM/
 ├── lite/                          # Core library package (346 lines)
+│   ├── __init__.py                # Package initialization
 │   ├── config.py                  # Model configuration (58 lines)
 │   ├── image_utils.py             # Image processing (62 lines)
 │   ├── logging_config.py          # Logging setup (60 lines)
@@ -177,13 +178,17 @@ LiteLLM/
 │   ├── __init__.py                # Package marker
 │   └── test_litetext.py           # Unit tests (216 lines)
 │
+├── examples/                      # Usage examples
+│   ├── README.md                  # Examples documentation
+│   └── simple_example.py          # Basic litellm usage example
+│
 ├── Makefile                       # Development automation (114 lines)
 ├── setup.py                       # Package configuration (27 lines)
 ├── requirements.txt               # Dependencies (6 lines)
 ├── README.md                      # User documentation (230 lines)
+├── CLAUDE.md                      # AI assistant guide (this file)
 ├── LICENSE                        # MIT License
-├── .gitignore                     # Git ignore rules
-└── text.py                        # Simple test script
+└── .gitignore                     # Git ignore rules
 ```
 
 ### Key Files & Their Purposes
@@ -197,7 +202,7 @@ LiteLLM/
 | `logging_config.py` | Centralized logging configuration | `setup_logging()` |
 | `lite_client.py` | Main client implementation | `LiteClient` |
 
-**Note**: The `lite/` directory is missing an `__init__.py` file. Add one if needed for package imports.
+**Note**: The `lite/` directory now has an `__init__.py` file that exports `LiteClient` and `ModelConfig` for convenient package-level imports.
 
 #### Application Scripts (`scripts/`)
 
