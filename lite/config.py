@@ -19,23 +19,14 @@ class ModelConfig:
 
     OPENAI_TEXT_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
     OLLAMA_TEXT_MODELS = ["ollama/llama3.2", "ollama/phi4"]
-    GEMINI_TEXT_MODELS = [
-        "gemini/gemini-2.0-flash",
-        "gemini/gemini-2.0-flash-lite-preview-02-05",
-        "gemini/gemini-2.0-pro-exp-02-05",
-        "gemini/gemini-2.0-flash-thinking-exp-01-21",
-    ]
+    GEMINI_TEXT_MODELS = ["gemini/gemini-2.5-flash", "gemini/gemini-2.5-flash-lite"]
+    PERPLEXITY_TEXT_MODELS = ["perplexity/sonar", "perplexity/sonar-pro"]
 
     OPENAI_VISION_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
     OLLAMA_VISION_MODELS = ["ollama/llava", "ollama/llava-llama3", "ollama/bakllava"]
-    GEMINI_VISION_MODELS = [
-        "gemini/gemini-2.0-flash",
-        "gemini/gemini-2.0-flash-lite-preview-02-05",
-        "gemini/gemini-2.0-pro-exp-02-05",
-        "gemini/gemini-2.0-flash-thinking-exp-01-21",
-    ]
+    GEMINI_VISION_MODELS = ["gemini/gemini-2.5-flash", "gemini/gemini-2.5-flash-lite"]
 
-    TEXT_MODELS = OPENAI_TEXT_MODELS + OLLAMA_TEXT_MODELS + GEMINI_TEXT_MODELS
+    TEXT_MODELS = OPENAI_TEXT_MODELS + OLLAMA_TEXT_MODELS + GEMINI_TEXT_MODELS + PERPLEXITY_TEXT_MODELS
     VISION_MODELS = OPENAI_VISION_MODELS + OLLAMA_VISION_MODELS + GEMINI_VISION_MODELS
 
     @classmethod
