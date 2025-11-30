@@ -76,7 +76,7 @@ test-watch:
 	$(PYTHON_VENV) -m pytest tests/ -v --tb=short -s
 
 lint:
-	$(VENV_DIR)/bin/pylint lite/litellm_tools/ scripts/
+	$(VENV_DIR)/bin/pylint lite/ scripts/
 
 format:
 	$(VENV_DIR)/bin/black lite/ scripts/ tests/
