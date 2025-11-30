@@ -83,7 +83,7 @@ class LiteClient:
             logger.error(error_msg)
             return {"error": error_msg} if image_path else error_msg
         except ValueError as e:
-            error_msg = f"Validation error: {str(e)}"
+            error_msg = f"Validation Error: {str(e)}"
             logger.error(error_msg)
             return {"error": error_msg} if image_path else error_msg
         except APIError as e:
