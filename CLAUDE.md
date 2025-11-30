@@ -179,8 +179,21 @@ LiteLLM/
 │   └── test_litetext.py           # Unit tests (216 lines)
 │
 ├── examples/                      # Usage examples
+│   ├── basic/                     # Simple usage examples
+│   │   └── gemini_chat.py
+│   ├── structured_output/         # Pydantic/JSON examples
+│   │   ├── drugbank_medicine.py
+│   │   ├── jsonout.py
+│   │   ├── medicine_info.py
+│   │   └── nobel_prize_info.py
+│   ├── web_search/                # Web search examples
+│   │   ├── google_search.py
+│   │   ├── url_explain.py
+│   │   └── websearch.py
+│   ├── advanced/                  # Advanced patterns
+│   │   └── perplx_chat.py
 │   ├── README.md                  # Examples documentation
-│   └── simple_example.py          # Basic litellm usage example
+│   └── simple_example.py          # Basic litellm usage
 │
 ├── Makefile                       # Development automation (114 lines)
 ├── setup.py                       # Package configuration (27 lines)
