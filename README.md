@@ -1,13 +1,13 @@
 # LiteLLM
 
-A collection of CLI tools for interacting with language models and vision models from multiple providers (OpenAI, Ollama, Google Gemini) using the LiteLLM library.
+A unified CLI tool for interacting with language models and vision models from multiple providers (OpenAI, Ollama, Google Gemini) using the LiteLLM library.
 
 ## Features
 
-- **LiteText**: Query language models with customizable temperature and token limits
-- **LiteVision**: Analyze images using multimodal vision models
+- **Unified LiteClient**: Single interface for text generation and image analysis
 - Support for multiple providers: OpenAI, Ollama, and Google Gemini
-- Command-line interfaces for both text and vision operations
+- Flexible text and vision capabilities in one command
+- Customizable temperature and token limits
 - Response timing and word count metrics
 - Comprehensive error handling
 
@@ -40,14 +40,12 @@ LiteLLM/
 │   ├── config.py                # Model configuration
 │   ├── image_utils.py           # Image processing utilities
 │   ├── logging_config.py        # Logging configuration
-│   └── lite_client.py           # Unified LiteClient for text and vision
+│   └── lite_client.py           # Unified LiteClient for text and vision operations
 ├── scripts/                     # CLI and web applications
-│   ├── cli_litetext.py          # CLI for text queries
-│   ├── cli_litevision.py        # CLI for image analysis
-│   ├── streamlit_litetext.py    # Web UI for text
-│   └── streamlit_litevision.py  # Web UI for vision
+│   ├── liteclient_cli.py        # Unified CLI for text and vision
+│   └── streamlit_liteclient.py  # Unified web UI for text and vision
 ├── tests/                       # Unit tests
-│   └── test_litetext.py         # Unit tests for LiteClient
+│   └── test_litetext.py         # Unit tests
 ├── README.md
 ├── LICENSE
 ├── requirements.txt
@@ -56,124 +54,107 @@ LiteLLM/
 
 ## Usage
 
-### LiteText CLI
+### Unified LiteClient CLI
 
-Query language models from the command line:
+Use the unified CLI for both text generation and image analysis:
 
 ```bash
-python scripts/cli_litetext.py -p "Your prompt here" -m 0
+python scripts/liteclient_cli.py --question "Your prompt here"
 ```
 
 #### Arguments:
-- `-p, --prompt`: Input prompt for the model (required)
+- `-q, --question`: Input prompt for the model (required for text mode)
+- `-i, --image`: Optional path to an image file for vision analysis
 - `-m, --model`: Index of the model to use (default: 0)
-- `--list-models`: Display all available models and their indices
-- `--temperature`: Sampling temperature, 0.0-1.0 (default: 0.2)
-- `--max-tokens`: Maximum tokens in response (default: 1000)
+- `-t, --temperature`: Sampling temperature, 0.0-1.0 (default: 0.2)
+- `--list-models`: List available models (text or vision)
 
-#### Examples:
+#### Text Query Examples:
 ```bash
-# List all available models
-python scripts/cli_litetext.py --list-models
+# Simple text query
+python scripts/liteclient_cli.py -q "What is AI?"
 
-# Query using default model (GPT-4o)
-python scripts/cli_litetext.py -p "What is AI?"
+# Text query with custom model and temperature
+python scripts/liteclient_cli.py -q "Explain quantum computing" -m 5 -t 0.7
 
-# Query using a specific model with custom parameters
-python scripts/cli_litetext.py -p "Explain quantum computing" -m 5 --temperature 0.7 --max-tokens 500
-
-# Use Ollama model
-python scripts/cli_litetext.py -p "Hello" -m 2
+# List available text models
+python scripts/liteclient_cli.py --list-models
 ```
 
-### LiteText Streamlit Web UI
-
-Run the web interface:
-
-```bash
-streamlit run scripts/streamlit_litetext.py
-```
-
-This provides an interactive web UI with:
-- Model selection dropdown
-- Temperature and token limit sliders
-- Real-time response display
-- Metrics (response time, word count)
-
-### LiteVision CLI
-
-Analyze images using vision models:
-
-```bash
-python scripts/cli_litevision.py -i path/to/image.jpg -p "Describe the image" -m 0
-```
-
-#### Arguments:
-- `-i, --image`: Path to the image file (PNG, JPG, PDF) (required)
-- `-p, --prompt`: Prompt to analyze the image (default: "Describe the image")
-- `-m, --model`: Index of the model to use (default: 0)
-- `--temperature`: Sampling temperature (default: 0.2)
-- `--max-tokens`: Maximum tokens in response (default: 1000)
-
-#### Examples:
+#### Image Analysis Examples:
 ```bash
 # Analyze an image with default prompt
-python scripts/cli_litevision.py -i photo.jpg
+python scripts/liteclient_cli.py -i photo.jpg
 
 # Analyze with custom prompt
-python scripts/cli_litevision.py -i diagram.png -p "What technology is shown here?" -m 3
+python scripts/liteclient_cli.py -i diagram.png -q "What technology is shown here?"
 
-# Use a specific vision model
-python scripts/cli_litevision.py -i image.jpg -m 5
+# Vision analysis with specific model
+python scripts/liteclient_cli.py -i image.jpg -m 3 -t 0.5
 
 # List available vision models
-python scripts/cli_litevision.py --list-models
+python scripts/liteclient_cli.py --list-models vision
 ```
 
-### LiteVision Streamlit Web UI
+### Streamlit Web UI
 
-Run the web interface:
+Run the unified interactive web interface:
 
 ```bash
-streamlit run scripts/streamlit_litevision.py
+streamlit run scripts/streamlit_liteclient.py
 ```
 
-This provides an interactive web UI with:
-- Image upload functionality
+This provides an interactive web interface with:
+- Mode selection (Text Generation / Image Analysis)
 - Model selection dropdown
-- Temperature and token limit sliders
-- Image preview with dimensions
-- Real-time analysis results
-- Metrics (response time, word count)
+- Temperature slider
+- Real-time response display
+- Image preview with dimensions (for vision mode)
 
 ## Available Models
 
-### Text Models (LiteText)
+### Text Models
 - OpenAI: `gpt-4o`, `gpt-4o-mini`
 - Ollama: `llama3.2`, `phi4`
 - Google Gemini: `gemini-2.0-flash`, `gemini-2.0-flash-lite-preview-02-05`, `gemini-2.0-pro-exp-02-05`, `gemini-2.0-flash-thinking-exp-01-21`
 
-### Vision Models (LiteVision)
+### Vision Models
 - OpenAI: `gpt-4o`, `gpt-4o-mini`
 - Ollama: `llava`, `llava-llama3`, `bakllava`
 - Google Gemini: `gemini-2.0-flash`, `gemini-2.0-flash-lite-preview-02-05`, `gemini-2.0-pro-exp-02-05`, `gemini-2.0-flash-thinking-exp-01-21`
 
-Use `--list-models` flag to see the indexed list of available models.
+Use `--list-models` flag with the CLI to see the indexed list of available models:
+```bash
+python scripts/liteclient_cli.py --list-models        # Text models
+python scripts/liteclient_cli.py --list-models vision # Vision models
+```
 
 ## Architecture
 
-### Core Modules (`lite/`)
+### Core Module: LiteClient (`lite/lite_client.py`)
+
+The unified `LiteClient` class provides a single interface for both text and vision operations:
+
+**Key Methods:**
+- `generate_text(prompt, model, image_path=None, temperature=0.2)`: Generate text or analyze images
+  - Automatically detects whether to perform text generation or image analysis
+  - Returns error dict for vision operations, string for text operations
+- `create_message(prompt, image_path=None)`: Create formatted messages for the API
+  - Handles multimodal content (text + optional image)
+- `list_models(model_type="text")`: Get available models by type
+- `get_model(index, model_type="text")`: Get specific model by index
+
+**Error Handling:**
+- File not found validation
+- API error catching and reporting
+- Unexpected error logging
+
+### Supporting Modules (`lite/`)
 
 - **config.py**: Model configuration management
   - `ModelConfig`: Centralized configuration for models from OpenAI, Ollama, and Gemini
   - Supports both text and vision models
   - Class methods: `get_model()`, `get_models()`
-
-- **lite_client.py**: Unified client for text and vision operations
-  - `LiteClient`: Unified interface for both text generation and image analysis
-  - Methods: `generate_text()`, `create_message()`, `list_models()`, `get_model()`
-  - Supports multimodal prompts with optional images
-  - Comprehensive error handling for API and file operations
 
 - **image_utils.py**: Image processing utilities
   - Image validation and base64 encoding
@@ -182,11 +163,9 @@ Use `--list-models` flag to see the indexed list of available models.
 - **logging_config.py**: Logging configuration
   - Centralized logging setup for the application
 
-### CLI Scripts (`scripts/`)
-- **cli_litetext.py**: Command-line interface for text queries
-- **cli_litevision.py**: Command-line interface for image analysis
-- **streamlit_litetext.py**: Web UI for text queries
-- **streamlit_litevision.py**: Web UI for image analysis
+### Application Scripts (`scripts/`)
+- **liteclient_cli.py**: Unified CLI for text queries and image analysis
+- **streamlit_liteclient.py**: Unified web UI for text and vision operations
 
 ## Testing
 
@@ -222,18 +201,20 @@ For Ollama, no API key is required if running locally.
 
 ## Error Handling
 
-Both tools include comprehensive error handling:
-- Empty prompt validation
+The LiteClient includes comprehensive error handling:
+- Empty prompt validation (with intelligent defaults for image analysis)
 - File not found handling for images
 - API error catching and reporting
+- Input validation for image files
 - Unexpected error logging
 
 ## Performance Metrics
 
-Both CLI tools output:
-- Response time (in seconds)
-- Word count of the response
-- Error messages if applicable
+The CLI tools provide:
+- Response time tracking
+- Word count of responses
+- Error messages when applicable
+- Verbose logging option for debugging
 
 ## License
 
