@@ -37,20 +37,17 @@ For Ollama models, ensure Ollama is running locally.
 ```
 LiteLLM/
 ├── lite/                        # Core library package
-│   ├── __init__.py
-│   └── litellm_tools/
-│       ├── __init__.py
-│       ├── config.py            # Shared model configuration
-│       ├── text.py              # LiteText module
-│       └── vision.py            # LiteVision module
+│   ├── config.py                # Model configuration
+│   ├── image_utils.py           # Image processing utilities
+│   ├── logging_config.py        # Logging configuration
+│   └── lite_client.py           # Unified LiteClient for text and vision
 ├── scripts/                     # CLI and web applications
 │   ├── cli_litetext.py          # CLI for text queries
 │   ├── cli_litevision.py        # CLI for image analysis
 │   ├── streamlit_litetext.py    # Web UI for text
 │   └── streamlit_litevision.py  # Web UI for vision
 ├── tests/                       # Unit tests
-│   ├── __init__.py
-│   └── test_litetext.py         # Unit tests
+│   └── test_litetext.py         # Unit tests for LiteClient
 ├── README.md
 ├── LICENSE
 ├── requirements.txt
@@ -165,23 +162,25 @@ Use `--list-models` flag to see the indexed list of available models.
 
 ## Architecture
 
-### Core Modules
+### Core Modules (`lite/`)
 
-**`lite/litellm_tools/`** - Main library package
-
-- **config.py**: Centralized model configuration
-  - `ModelConfig`: Manages models from OpenAI, Ollama, and Gemini
+- **config.py**: Model configuration management
+  - `ModelConfig`: Centralized configuration for models from OpenAI, Ollama, and Gemini
   - Supports both text and vision models
+  - Class methods: `get_model()`, `get_models()`
 
-- **text.py**: Language model interactions
-  - `LiteText`: Core class for text generation
-  - `LiteTextResponse`: Response data structure with metrics
-  - Error handling with logging
+- **lite_client.py**: Unified client for text and vision operations
+  - `LiteClient`: Unified interface for both text generation and image analysis
+  - Methods: `generate_text()`, `create_message()`, `list_models()`, `get_model()`
+  - Supports multimodal prompts with optional images
+  - Comprehensive error handling for API and file operations
 
-- **vision.py**: Image analysis
-  - `LiteVision`: Core class for image analysis
-  - Image to base64 conversion
-  - Comprehensive error handling
+- **image_utils.py**: Image processing utilities
+  - Image validation and base64 encoding
+  - Support for multiple image formats (JPG, PNG, GIF, WebP)
+
+- **logging_config.py**: Logging configuration
+  - Centralized logging setup for the application
 
 ### CLI Scripts (`scripts/`)
 - **cli_litetext.py**: Command-line interface for text queries
