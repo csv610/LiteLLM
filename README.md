@@ -194,10 +194,16 @@ The unified `LiteClient` class provides a single interface for both text and vis
 
 ### Supporting Modules (`lite/`)
 
-- **config.py**: Model configuration management
-  - `ModelConfig`: Centralized configuration for models from OpenAI, Ollama, and Gemini
-  - Supports both text and vision models
-  - Class methods: `get_model()`, `get_models()`
+- **config.py**: Model configuration and input validation
+  - `ModelConfig`: Centralized configuration class for models from OpenAI, Ollama, and Gemini
+    - Supports both text and vision models
+    - Class methods: `get_model(index, model_type)`, `get_models(model_type)`
+    - Available models: 8 text models, 7 vision models
+  - `ModelInput`: Dataclass for model interaction inputs with built-in validation
+    - Fields: `user_prompt` (required), `image_path` (optional), `system_prompt` (optional)
+    - Validates user_prompt is not empty (unless image_path is provided)
+    - Normalizes empty system_prompt to None
+    - Auto-defaults to "Describe this image in detail" when user_prompt is empty with image_path
 
 - **image_utils.py**: Image processing utilities
   - Image validation and base64 encoding

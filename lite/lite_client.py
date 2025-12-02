@@ -11,7 +11,6 @@ from .image_utils import ImageUtils
 
 logger = logging.getLogger(__name__)
 
-
 class LiteClient:
     """Unified client for interacting with both text and vision models."""
 
