@@ -1,5 +1,6 @@
 import sys
 import json
+import argparse
 from pathlib import Path
 
 # Add parent directories to path for imports
@@ -18,6 +19,9 @@ class ChapterSuggestion(BaseModel):
     prerequisites: list[str] = Field(default=[], description="What students should know before reading this chapter.")
     learning_objectives: list[str] = Field(..., description="Clear, measurable learning objectives stating exactly what students will be able to understand or do after reading this chapter. Use action verbs like 'identify', 'explain', 'analyze', 'apply', 'evaluate'.")
     page_estimate: int = Field(default=0, description="Estimated number of pages for this chapter.")
+    observations: list[str] = Field(..., description="Hands-on observations and phenomena students should notice or look for related to the chapter content. Provide at least 5 detailed observations.")
+    experiments: list[str] = Field(..., description="Practical experiments or demonstrations students can conduct to verify or explore concepts covered in this chapter. Provide at least 5 detailed experiments.")
+    projects: list[str] = Field(..., description="Real-world projects or creative assignments that allow students to apply the chapter's concepts and learning objectives. Provide at least 5 detailed projects.")
 
 
 class EducationLevel(BaseModel):
@@ -95,8 +99,11 @@ For each chapter include:
 - Prerequisites (what audience needs to know first)
 - Learning objectives (3-5 clear, measurable, action-oriented statements using verbs like: identify, explain, describe, analyze, apply, evaluate, compare, synthesize, appreciate, discover)
 - Estimated page count
+- Observations (AT LEAST 5 hands-on observations or phenomena students should notice or look for)
+- Experiments (AT LEAST 5 practical experiments or demonstrations students can conduct)
+- Projects (AT LEAST 5 real-world projects or creative assignments to apply concepts)
 
-Make sure the learning is truly incremental and builds naturally. For General Public, emphasize engaging storytelling, real-world examples, and the "wow factor" of the subject."""
+Make sure the learning is truly incremental and builds naturally. For General Public, emphasize engaging storytelling, real-world examples, and the "wow factor" of the subject. Adapt the observations, experiments, and projects to be age-appropriate and feasible for the education level."""
 
     model_input = ModelInput(user_prompt=prompt, response_format=BookChaptersResponse)
 
@@ -132,54 +139,39 @@ Make sure the learning is truly incremental and builds naturally. For General Pu
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python bookchapters.py <subject> [OPTIONS]")
-        print()
-        print("Arguments:")
-        print("  subject                    Required. The subject or topic to create curriculum for")
-        print()
-        print("Options:")
-        print("  -l, --level LEVEL          Single education level to focus on")
-        print("                            Available levels: 'Middle School' (0), 'High School' (1),")
-        print("                            'Undergraduate' (2), 'Post-Graduate' (3), 'Professional' (4),")
-        print("                            'General Public' (5)")
-        print("                            Default: Generate curriculum for all 6 levels")
-        print("  -n, --chapters N           Number of chapters to generate")
-        print("                            Default: 12")
-        print("  -m, --model MODEL          Model to use for generation")
-        print("                            Default: 'gemini/gemini-2.5-flash'")
-        print()
-        print("Examples:")
-        print("  python bookchapters.py 'Quantum Physics'")
-        print("  python bookchapters.py 'Climate Change' -l 'High School'")
-        print("  python bookchapters.py 'Machine Learning' --level Undergraduate -n 5")
-        print("  python bookchapters.py 'AI' -l 'Post-Graduate' -n 6 -m 'gpt-4'")
-        print("  python bookchapters.py 'Black Holes' -l 'General Public' -n 8")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Generate chapter suggestions for a subject at a specific education level using LiteClient.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python bookchapters.py 'Quantum Physics'
+  python bookchapters.py 'Climate Change' -l 'High School'
+  python bookchapters.py 'Machine Learning' --level Undergraduate -n 5
+  python bookchapters.py 'AI' -l 'Post-Graduate' -n 6 -m 'gpt-4'
+  python bookchapters.py 'Black Holes' -l 'General Public' -n 8
+        """
+    )
 
-    subject = sys.argv[1]
-    level = None
-    num_chapters = None
-    model_name = None
+    parser.add_argument(
+        "subject",
+        help="The subject or topic to create curriculum for"
+    )
+    parser.add_argument(
+        "-l", "--level",
+        default=None,
+        help="Single education level to focus on. Available levels: 'Middle School' (0), 'High School' (1), 'Undergraduate' (2), 'Post-Graduate' (3), 'Professional' (4), 'General Public' (5). Default: Generate curriculum for all 6 levels"
+    )
+    parser.add_argument(
+        "-n", "--chapters",
+        type=int,
+        default=None,
+        help="Number of chapters to generate (default: 12)"
+    )
+    parser.add_argument(
+        "-m", "--model",
+        default=None,
+        help="Model to use for generation (default: 'gemini/gemini-2.5-flash')"
+    )
 
-    # Parse optional arguments
-    i = 2
-    while i < len(sys.argv):
-        if (sys.argv[i] == '-l' or sys.argv[i] == '--level') and i + 1 < len(sys.argv):
-            level = sys.argv[i + 1]
-            i += 2
-        elif (sys.argv[i] == '-n' or sys.argv[i] == '--chapters') and i + 1 < len(sys.argv):
-            try:
-                num_chapters = int(sys.argv[i + 1])
-            except ValueError:
-                print(f"Error: chapters must be an integer, got '{sys.argv[i + 1]}'")
-                sys.exit(1)
-            i += 2
-        elif (sys.argv[i] == '-m' or sys.argv[i] == '--model') and i + 1 < len(sys.argv):
-            model_name = sys.argv[i + 1]
-            i += 2
-        else:
-            print(f"Unknown argument: {sys.argv[i]}")
-            sys.exit(1)
-
-    cli(subject, level, num_chapters, model_name)
+    args = parser.parse_args()
+    cli(args.subject, args.level, args.chapters, args.model)
