@@ -2,11 +2,11 @@
 
 import argparse
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from litellm import completion, APIError
 
-from .config import ModelConfig
+from .config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
 from .image_utils import ImageUtils
 
 logger = logging.getLogger(__name__)
@@ -14,95 +14,105 @@ logger = logging.getLogger(__name__)
 class LiteClient:
     """Unified client for interacting with both text and vision models."""
 
-    DEFAULT_TEMPERATURE = 0.2
+    @staticmethod
+    def handle_generation_exception(
+        error: Exception,
+        is_image_request: bool
+    ) -> Union[str, Dict[str, Any]]:
+        """
+        Handle exceptions from generate_text with appropriate logging and response format.
+
+        Args:
+            error: The exception that was raised
+            is_image_request: Whether the request involved image analysis
+
+        Returns:
+            Error message formatted as string or dict depending on request type
+        """
+        if isinstance(error, FileNotFoundError):
+            error_msg = f"File error: {str(error)}"
+        elif isinstance(error, ValueError):
+            error_msg = f"Validation Error: {str(error)}"
+        elif isinstance(error, APIError):
+            error_msg = f"API Error: {str(error)}"
+        else:
+            error_msg = f"Unexpected error: {str(error)}"
+
+        logger.error(error_msg)
+
+        # Return dict for image requests, string for text-only requests
+        return {"error": error_msg} if is_image_request else error_msg
+
+    def __init__(self, model_config: Optional[ModelConfig] = None):
+        """
+        Initialize LiteClient with optional ModelConfig.
+
+        Args:
+            model_config: Optional ModelConfig instance for model configuration.
+        """
+        self.model_config = model_config
 
     @staticmethod
-    def create_message(prompt: str, image_path: Optional[str] = None) -> list:
+    def create_message(model_input: ModelInput) -> List[Dict[str, Any]]:
         """
         Create a message for the model.
 
         Args:
-            prompt: The input prompt for the model
-            image_path: Optional path to image file for vision analysis
+            model_input: ModelInput object containing prompt and image parameters
 
         Returns:
             Message list formatted for the completion API
         """
 
-        content = [{"type": "text", "text": prompt}]
+        content = [{"type": "text", "text": model_input.user_prompt}]
 
-        if image_path:
-            base64_url = ImageUtils.encode_to_base64(image_path)
+        if model_input.image_path:
+            base64_url = ImageUtils.encode_to_base64(model_input.image_path)
             content.append({"type": "image_url", "image_url": {"url": base64_url}})
 
         return [{"role": "user", "content": content}]
 
     def generate_text(
         self,
-        prompt: str,
-        model: str,
-        image_path: Optional[str] = None,
-        temperature: float = DEFAULT_TEMPERATURE,
+        model_input: ModelInput,
+        model_config: Optional[ModelConfig] = None,
     ) -> Union[str, Dict[str, Any]]:
         """
         Generate text from a prompt or analyze an image with a prompt.
 
         Args:
-            prompt: The input prompt for the model or image analysis
-            model: The model identifier (e.g., "openai/gpt-4o")
-            temperature: Sampling temperature (default: 0.2)
-            image_path: Optional path to image file for vision analysis
+            model_input: ModelInput object containing prompt and image parameters
+            model_config: Optional ModelConfig object for model configuration.
+                         If not provided, uses the instance's model_config.
 
         Returns:
             Generated text response or error message
         """
-        if not prompt or not prompt.strip():
-            if image_path:
-                prompt = "Describe the image"
-            else:
-                return "Error: Prompt cannot be empty"
-
         try:
-            log_action = "Analyzing image" if image_path else "Generating text"
-            logger.info(f"{log_action} with model: {model}")
+            # Use provided model_config or instance's model_config
+            config = model_config or self.model_config
+            if not config:
+                raise ValueError("ModelConfig must be provided either as argument or during initialization")
+
+            log_action = "Analyzing image" if model_input.image_path else "Generating text"
+            logger.info(f"{log_action} with model: {config.model}")
 
             # Create message and call completion
-            messages = self.create_message(prompt, image_path)
+            messages = self.create_message(model_input)
+
             response = completion(
-                model=model,
+                model=config.model,
                 messages=messages,
-                temperature=temperature,
+                temperature=config.temperature,
             )
 
             logger.info("Request successful")
             return response.choices[0].message.content
 
-        except FileNotFoundError as e:
-            error_msg = f"File error: {str(e)}"
-            logger.error(error_msg)
-            return {"error": error_msg} if image_path else error_msg
-        except ValueError as e:
-            error_msg = f"Validation Error: {str(e)}"
-            logger.error(error_msg)
-            return {"error": error_msg} if image_path else error_msg
-        except APIError as e:
-            error_msg = f"API Error: {str(e)}"
-            logger.error(error_msg)
-            return {"error": error_msg} if image_path else error_msg
         except Exception as e:
-            error_msg = f"Unexpected error: {str(e)}"
-            logger.error(error_msg)
-            return {"error": error_msg} if image_path else error_msg
+            is_image_request = model_input.image_path is not None
+            return self.handle_generation_exception(e, is_image_request)
 
-    @staticmethod
-    def list_models(model_type: str = "text") -> list:
-        """Get list of available models by type."""
-        return ModelConfig.get_models(model_type=model_type)
-
-    @staticmethod
-    def get_model(index: int, model_type: str = "text") -> Optional[str]:
-        """Get model by index and type."""
-        return ModelConfig.get_model(index, model_type=model_type)
 
 
 def main():
@@ -135,8 +145,8 @@ def main():
         "-t",
         "--temperature",
         type=float,
-        default=LiteClient.DEFAULT_TEMPERATURE,
-        help=f"Sampling temperature (default: {LiteClient.DEFAULT_TEMPERATURE})",
+        default=DEFAULT_TEMPERATURE,
+        help=f"Sampling temperature (default: {DEFAULT_TEMPERATURE})",
     )
     parser.add_argument(
         "-v",
@@ -147,16 +157,19 @@ def main():
 
     args = parser.parse_args()
 
-    # Initialize client
-    client = LiteClient()
+    # Initialize client with ModelConfig
+    model_config = ModelConfig(model=args.model, temperature=args.temperature)
+
+    client = LiteClient(model_config=model_config)
+
+    # Create ModelInput
+    model_input = ModelInput(
+        user_prompt=args.question,
+        image_path=args.image_path
+    )
 
     # Single unified generate_text call
-    result = client.generate_text(
-        prompt=args.question,
-        image_path=args.image_path,
-        model=args.model,
-        temperature=args.temperature
-    )
+    result = client.generate_text(model_input=model_input)
 
     print(result)
 
