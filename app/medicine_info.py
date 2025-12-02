@@ -9,15 +9,24 @@ from pydantic import BaseModel, Field
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-
 class MedicineInfo(BaseModel):
     name: str = Field(..., description="The generic name of the medicine.")
     brand_name: str = Field(..., description="The common brand name for the medicine.")
+    alternative_names: list[str] = Field(default=[], description="Other generic names, synonyms, or brand names for the medicine.")
     description: str = Field(..., description="A brief description of how the medicine works and its primary uses.")
     history: str = Field(..., description="A brief history of the medicine including the approval date from medical uses.")
     active_ingredient: str = Field(..., description="The main chemical component of the medicine.")
+    chemical_formula: str = Field(default="", description="The molecular or chemical formula of the medicine.")
     uses: list[str] = Field(..., description="A list of medical conditions the medicine is used to treat.")
+    dosage_information: str = Field(default="", description="Recommended doses, frequency, and administration method.")
     side_effects: list[str] = Field(..., description="A list of common side effects associated with the medicine.")
+    contraindications: list[str] = Field(default=[], description="Medical conditions or circumstances where the medicine should not be used.")
+    drug_interactions: list[str] = Field(default=[], description="Other drugs or substances that may interact with this medicine.")
+    warnings: list[str] = Field(default=[], description="Serious warnings and precautions for this medicine.")
+    storage_instructions: str = Field(default="", description="How to properly store and handle the medicine.")
+    cost_information: str = Field(default="", description="Approximate cost, price ranges, or insurance coverage information.")
+    availability_status: str = Field(default="", description="OTC vs prescription status and regional availability.")
+    manufacturer: str = Field(default="", description="The pharmaceutical company that produces this medicine.")
 
 
 class MedicineResponse(BaseModel):
@@ -42,7 +51,6 @@ def cli(medicine):
         print(json.dumps(data, indent=4))
     else:
         print("Error: Expected string response from model")
-
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

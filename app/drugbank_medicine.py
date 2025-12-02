@@ -1,5 +1,7 @@
 import sys
 import json
+import argparse
+import re
 from pathlib import Path
 from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List
@@ -271,7 +273,7 @@ class References(BaseModel):
 
 class MedicineInfo(BaseModel):
     basic_info: BasicInfo = Field(..., description="Basic medicine information")
-    classification: Classification = Field(None, description="Drug classification")
+    classification: Optional[Classification] = Field(None, description="Drug classification")
     pharmacology: Optional[Pharmacology] = Field(None, description="Pharmacology information")
     indications: Optional[Indications] = Field(None, description="Indications for use")
     administration: Optional[Administration] = Field(None, description="Administration guidelines")
@@ -280,11 +282,21 @@ class MedicineInfo(BaseModel):
     regulation: Optional[Regulation] = Field(None, description="Regulatory information")
     references: Optional[References] = Field(None, description="External references and links")
 
-def cli(medicine):
-    """Fetch comprehensive medicine information using LiteClient."""
-    model = "gemini/gemini-2.5-flash"
+def sanitize_filename(filename: str) -> str:
+    """Sanitize filename to prevent path traversal and invalid characters."""
+    # Remove any path separators and invalid filename characters
+    sanitized = re.sub(r'[<>:"/\\|?*]', '', filename)
+    # Replace multiple spaces with single space
+    sanitized = re.sub(r'\s+', '_', sanitized)
+    # Remove leading/trailing dots and spaces
+    sanitized = sanitized.strip('. ')
+    # Ensure filename is not empty
+    return sanitized if sanitized else "medicine"
 
-    model_config = ModelConfig(model=model, temperature=0.2)
+
+def cli(medicine, model, temperature):
+    """Fetch comprehensive medicine information using LiteClient."""
+    model_config = ModelConfig(model=model, temperature=temperature)
     client = LiteClient(model_config=model_config)
 
     prompt = f"Provide detailed information about the medicine {medicine}."
@@ -293,19 +305,47 @@ def cli(medicine):
     response_content = client.generate_text(model_input=model_input)
 
     # Parse and save the formatted JSON output
-    if isinstance(response_content, str):
+    if not isinstance(response_content, str):
+        print("Error: Expected string response from model", file=sys.stderr)
+        sys.exit(1)
+
+    try:
         data = json.loads(response_content)
-        output_filename = f"{medicine}.json"
+    except json.JSONDecodeError as e:
+        print(f"Error: Failed to parse JSON response: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    sanitized_name = sanitize_filename(medicine)
+    output_filename = f"{sanitized_name}.json"
+
+    try:
         with open(output_filename, "w") as f:
-            f.write(json.dumps(data, indent=4))
+            json.dump(data, f, indent=4)
         print(f"Medicine information saved to {output_filename}")
-    else:
-        print("Error: Expected string response from model")
+    except IOError as e:
+        print(f"Error: Failed to write to file {output_filename}: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python drugbank_medicine.py <medicine_name>")
-        sys.exit(1)
-    medicine = sys.argv[1]
-    cli(medicine)
+    parser = argparse.ArgumentParser(
+        description="Fetch comprehensive medicine information using LiteClient."
+    )
+    parser.add_argument(
+        "medicine",
+        help="Name of the medicine to fetch information for"
+    )
+    parser.add_argument(
+        "-m", "--model",
+        default="gemini/gemini-2.5-flash",
+        help="Model to use (default: gemini/gemini-2.5-flash)"
+    )
+    parser.add_argument(
+        "-t", "--temperature",
+        type=float,
+        default=0.2,
+        help="Temperature for model response (default: 0.2)"
+    )
+
+    args = parser.parse_args()
+    cli(args.medicine, args.model, args.temperature)
 
