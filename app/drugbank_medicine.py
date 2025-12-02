@@ -1,12 +1,16 @@
-
-from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional, List, Dict
-from datetime import datetime
-from enum import Enum
 import sys
 import json
+from pathlib import Path
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Optional, List
+from datetime import datetime
+from enum import Enum
 
-from litellm import completion
+# Add parent directories to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
 
 class DrugType(str, Enum):
@@ -277,25 +281,26 @@ class MedicineInfo(BaseModel):
     references: Optional[References] = Field(None, description="External references and links")
 
 def cli(medicine):
+    """Fetch comprehensive medicine information using LiteClient."""
     model = "gemini/gemini-2.5-flash"
 
-    # Update the user message to request information about a specific medicine
-    messages = [{"role": "user", "content": f"Provide detailed information about the medicine {medicine}."}]
+    model_config = ModelConfig(model=model, temperature=0.2)
+    client = LiteClient(model_config=model_config)
 
-    response = completion(
-        model=model,
-        messages=messages,
-        response_format=MedicineInfo
-    )
+    prompt = f"Provide detailed information about the medicine {medicine}."
+    model_input = ModelInput(user_prompt=prompt, response_format=MedicineInfo)
 
-    # Parse and print the formatted JSON output
-    json_string = response.choices[0].message.content
-    data = json.loads(json_string)
+    response_content = client.generate_text(model_input=model_input)
 
-    output_filename = f"{medicine}.json"
-    with open(output_filename, "w") as f:
-        f.write(json.dumps(data, indent=4))
-    print(f"Medicine information saved to {output_filename}")
+    # Parse and save the formatted JSON output
+    if isinstance(response_content, str):
+        data = json.loads(response_content)
+        output_filename = f"{medicine}.json"
+        with open(output_filename, "w") as f:
+            f.write(json.dumps(data, indent=4))
+        print(f"Medicine information saved to {output_filename}")
+    else:
+        print("Error: Expected string response from model")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

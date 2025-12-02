@@ -12,6 +12,7 @@ class EventsList(BaseModel):
     events: list[CalendarEvent]
 
 model = "gemini/gemini-2.5-flash" 
+model = "perplexity/sonar" 
 
 messages = [{"role": "user", "content": "List 5 important events in the XIX century"}]
 

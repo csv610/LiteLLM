@@ -13,7 +13,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.lite_client import LiteClient
-from lite.config import ModelConfig
+from lite.config import ModelConfig, ModelInput
 
 # Configure logging
 logging.basicConfig(
@@ -34,22 +34,18 @@ def streamlit_app() -> None:
     with st.sidebar:
         st.header("Settings")
 
-        # Get models based on mode
+        # Model selection
         if mode == "Text Generation":
-            models = ModelConfig.get_models("text")
+            model = st.text_input("Model", value="gpt-3.5-turbo")
         else:
-            models = ModelConfig.get_models("vision")
+            model = st.text_input("Model", value="gpt-4-vision")
 
-        model_index = st.selectbox(
-            "Select a model",
-            range(len(models)),
-            format_func=lambda i: models[i],
-        )
         temperature = st.slider(
             "Temperature", min_value=0.0, max_value=1.0, value=0.2, step=0.1
         )
 
-    client = LiteClient()
+    model_config = ModelConfig(model=model, temperature=temperature)
+    client = LiteClient(model_config=model_config)
 
     if mode == "Text Generation":
         st.subheader("Text Generation")
@@ -60,13 +56,9 @@ def streamlit_app() -> None:
         )
 
         if st.button("Generate", type="primary"):
-            model = models[model_index]
             with st.spinner("Processing... Please wait."):
-                result = client.generate_text(
-                    prompt=prompt,
-                    model=model,
-                    temperature=temperature,
-                )
+                model_input = ModelInput(user_prompt=prompt)
+                result = client.generate_text(model_input=model_input)
 
             if isinstance(result, dict) and "error" in result:
                 st.error(f"Error: {result['error']}")
@@ -102,14 +94,9 @@ def streamlit_app() -> None:
             )
 
             if st.button("Analyze", type="primary"):
-                model = models[model_index]
                 with st.spinner("Analyzing image... Please wait."):
-                    result = client.generate_text(
-                        prompt=prompt,
-                        image_path=image_path,
-                        model=model,
-                        temperature=temperature,
-                    )
+                    model_input = ModelInput(user_prompt=prompt, image_path=image_path)
+                    result = client.generate_text(model_input=model_input)
 
                 if isinstance(result, dict) and "error" in result:
                     st.error(f"Error: {result['error']}")

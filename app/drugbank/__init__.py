@@ -1,1 +1,0 @@
-"""DrugBank medicine information integration."""

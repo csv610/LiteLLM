@@ -6,8 +6,13 @@ import os
 import re
 from datetime import datetime
 from typing import Optional
-from litellm import completion
 from pydantic import BaseModel, Field, ValidationError
+
+# Add parent directory to path to import lite module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lite import LiteClient, ModelConfig
+from lite.config import ModelInput
 
 # Configure logging to file only
 def setup_logging(log_file: str = "nobel_prize_info.log") -> logging.Logger:
@@ -200,39 +205,6 @@ Use objective language. Avoid words like "revolutionary," "profound," "amazing,"
 Instead, describe what specifically changed and how we know it changed."""
 
 
-def _extract_winners(response) -> list[PrizeWinner]:
-    """
-    Extract winners from API response.
-
-    Args:
-        response: API response object with Pydantic validated data
-
-    Returns:
-        List of PrizeWinner instances
-
-    Raises:
-        ValueError: If no winners in response
-    """
-    if not response.choices or len(response.choices) == 0:
-        raise ValueError("API returned empty response")
-
-    if not hasattr(response.choices[0], 'message'):
-        raise ValueError("API response missing message field")
-
-    # LiteLLM returns content as JSON string, need to parse back to Pydantic model
-    content_str = response.choices[0].message.content
-
-    if isinstance(content_str, str):
-        prize_response = PrizeResponse.model_validate_json(content_str)
-    else:
-        prize_response = content_str  # In case it's already parsed
-
-    if not prize_response.winners or len(prize_response.winners) == 0:
-        raise ValueError("No winners returned in response")
-
-    return prize_response.winners
-
-
 def _handle_api_error(error: Exception) -> None:
     """
     Handle and translate API errors to meaningful exceptions.
@@ -287,23 +259,31 @@ def fetch_nobel_winners(
 
     logger.info(f"Fetching Nobel Prize information for {category} in {year} using model: {model}")
 
-    messages = [
-        {
-            "role": "user",
-            "content": create_prompt(category, year)
-        }
-    ]
-
     try:
-        response = completion(
-            model=model,
-            messages=messages,
+        # Create ModelConfig and LiteClient
+        model_config = ModelConfig(model=model, temperature=0.2)
+        client = LiteClient(model_config=model_config)
+
+        # Create ModelInput with prompt and response format
+        model_input = ModelInput(
+            user_prompt=create_prompt(category, year),
             response_format=PrizeResponse
         )
 
-        winners = _extract_winners(response)
-        logger.info(f"Successfully fetched {len(winners)} winner(s)")
-        return winners
+        # Generate text using LiteClient
+        response_content = client.generate_text(model_input=model_input)
+
+        # Parse the response
+        if isinstance(response_content, str):
+            prize_response = PrizeResponse.model_validate_json(response_content)
+        else:
+            raise ValueError("Expected string response from model")
+
+        if not prize_response.winners or len(prize_response.winners) == 0:
+            raise ValueError("No winners returned in response")
+
+        logger.info(f"Successfully fetched {len(prize_response.winners)} winner(s)")
+        return prize_response.winners
 
     except Exception as e:
         _handle_api_error(e)

@@ -25,7 +25,7 @@ class ModelConfig:
 class ModelInput:
     """Input parameters for model interactions."""
 
-    user_prompt: str
+    user_prompt: str = ""
     image_path: Optional[str] = None
     system_prompt: Optional[str] = None
     response_format: Optional[str] = None
@@ -42,5 +42,5 @@ class ModelInput:
             self.system_prompt = None
 
         # Normalize empty response_format to None
-        if self.response_format is not None and not self.response_format.strip():
+        if self.response_format is not None and isinstance(self.response_format, str) and not self.response_format.strip():
             self.response_format = None

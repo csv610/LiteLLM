@@ -88,12 +88,12 @@ class LiteClient:
         Returns:
             Generated text response or error message
         """
-        try:
-            # Use provided model_config or instance's model_config
-            config = model_config or self.model_config
-            if not config:
-                raise ValueError("ModelConfig must be provided either as argument or during initialization")
+        # Use provided model_config or instance's model_config
+        config = model_config or self.model_config
+        if not config:
+            raise ValueError("ModelConfig must be provided either as argument or during initialization")
 
+        try:
             log_action = "Analyzing image" if model_input.image_path else "Generating text"
             logger.info(f"{log_action} with model: {config.model}")
 
@@ -104,6 +104,7 @@ class LiteClient:
                 model=config.model,
                 messages=messages,
                 temperature=config.temperature,
+                response_format=model_input.response_format,
             )
 
             logger.info("Request successful")
@@ -112,8 +113,6 @@ class LiteClient:
         except Exception as e:
             is_image_request = model_input.image_path is not None
             return self.handle_generation_exception(e, is_image_request)
-
-
 
 def main():
     """Main entry point for the LiteClient CLI."""

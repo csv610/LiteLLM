@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.lite_client import LiteClient
-from lite.config import ModelConfig
+from lite.config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
 
 # Configure logging
 logging.basicConfig(
@@ -19,17 +19,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-def list_available_models(model_type: str = "text") -> None:
-    """Display all available models with their indices."""
-    models = ModelConfig.get_models(model_type)
-    mode = "text" if model_type == "text" else "vision"
-    print(f"\nAvailable {mode} models:")
-    print("-" * 60)
-    for i, model in enumerate(models):
-        provider = model.split("/")[0].upper()
-        print(f"{i:2d}: [{provider:6s}] {model}")
-    print()
 
 
 def cli_interface() -> None:
@@ -45,10 +34,6 @@ def cli_interface() -> None:
         "  # Image analysis\n"
         "  python liteclient_cli.py -i photo.jpg\n"
         "  python liteclient_cli.py -i diagram.png -q 'What is shown here?' -m 3\n"
-        "\n"
-        "  # List models\n"
-        "  python liteclient_cli.py --list-models\n"
-        "  python liteclient_cli.py --list-models vision",
     )
     parser.add_argument(
         "-q",
@@ -66,31 +51,18 @@ def cli_interface() -> None:
     parser.add_argument(
         "-m",
         "--model",
-        type=int,
-        default=0,
-        help="Index of the model to use (default: 0)",
+        type=str,
+        default="gemini/gemini-2.5-flash",
+        help="Model name to use (default: gemini/gemini-2.5-flash)",
     )
     parser.add_argument(
         "-t",
         "--temperature",
         type=float,
-        default=LiteClient.DEFAULT_TEMPERATURE,
-        help=f"Sampling temperature (default: {LiteClient.DEFAULT_TEMPERATURE})",
+        default=DEFAULT_TEMPERATURE,
+        help=f"Sampling temperature (default: {DEFAULT_TEMPERATURE})",
     )
-    parser.add_argument(
-        "--list-models",
-        nargs="?",
-        const="text",
-        choices=["text", "vision"],
-        help="List available models (text or vision, default: text)",
-    )
-
     args = parser.parse_args()
-
-    # Handle list-models flag
-    if args.list_models is not None:
-        list_available_models(args.list_models)
-        return
 
     # Determine mode based on image argument
     if args.image:
@@ -102,24 +74,14 @@ def cli_interface() -> None:
         if not args.question:
             parser.error("The following arguments are required: -q/--question")
 
-    # Get model
-    model = ModelConfig.get_model(args.model, model_type)
-    if model is None:
-        print(f"Error: Invalid model index {args.model}")
-        list_available_models(model_type)
-        sys.exit(1)
-
     # Execute request
-    client = LiteClient()
-    result = client.generate_text(
-        prompt=args.question,
-        image_path=args.image,
-        model=model,
-        temperature=args.temperature,
-    )
+    model_config = ModelConfig(model=args.model, temperature=args.temperature)
+    client = LiteClient(model_config=model_config)
+    model_input = ModelInput(user_prompt=args.question, image_path=args.image)
+    result = client.generate_text(model_input=model_input)
 
     # Display result
-    print(f"\nModel: {model}")
+    print(f"\nModel: {args.model}")
     print("-" * 60)
 
     if isinstance(result, dict) and "error" in result:
