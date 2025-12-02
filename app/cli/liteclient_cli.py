@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Unified CLI for LiteClient - Query language models and analyze images."""
 
 import argparse
