@@ -45,10 +45,13 @@ def cli(medicine):
 
     response_content = client.generate_text(model_input=model_input)
 
-    # Parse and print the formatted JSON output
+    # Parse and save the formatted JSON output
     if isinstance(response_content, str):
         data = json.loads(response_content)
-        print(json.dumps(data, indent=4))
+        output_file = f"{medicine}.json"
+        with open(output_file, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"Medicine information saved to {output_file}")
     else:
         print("Error: Expected string response from model")
 

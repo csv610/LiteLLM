@@ -145,8 +145,18 @@ def main():
         default=0.2,
         help="Temperature for model (default: 0.2)"
     )
+    parser.add_argument(
+        "-o", "--output-dir",
+        type=str,
+        default=".",
+        help="Output directory for JSON files (default: current directory)"
+    )
 
     args = parser.parse_args()
+
+    # Create output directory if it doesn't exist
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     model_config = ModelConfig(model=args.model, temperature=args.temperature)
     client = LiteClient(model_config=model_config)
@@ -164,7 +174,10 @@ def main():
 
         if element_info:
             output = {"element": element_info.model_dump()}
-            print(json.dumps(output, indent=2, ensure_ascii=False))
+            output_file = output_dir / f"{element}.json"
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(output, f, indent=2, ensure_ascii=False)
+            print(f"Saved to {output_file}", file=sys.stderr)
         else:
             print(f"Failed to fetch {element}", file=sys.stderr)
             sys.exit(1)
@@ -179,13 +192,21 @@ def main():
             element_info = fetch_element_info(element, client)
 
             if element_info:
+                # Save individual element file
+                output = {"element": element_info.model_dump()}
+                output_file = output_dir / f"{element}.json"
+                with open(output_file, "w", encoding="utf-8") as f:
+                    json.dump(output, f, indent=2, ensure_ascii=False)
                 all_elements_data.append(element_info.model_dump())
             else:
                 print(f"Failed to fetch {element}", file=sys.stderr)
 
-        # Output all elements as JSON
+        # Output all elements as a single JSON file
         output = {"elements": all_elements_data, "total_count": len(all_elements_data)}
-        print(json.dumps(output, indent=2, ensure_ascii=False))
+        output_file = output_dir / "all_elements.json"
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(output, f, indent=2, ensure_ascii=False)
+        print(f"Saved to {output_file}", file=sys.stderr)
 
 
 if __name__ == "__main__":
