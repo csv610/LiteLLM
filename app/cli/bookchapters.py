@@ -21,10 +21,10 @@ class ChapterSuggestion(BaseModel):
 
 
 class EducationLevel(BaseModel):
-    level: str = Field(..., description="The education level (e.g., 'Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional').")
-    age_range: str = Field(..., description="The typical age range for this education level.")
+    level: str = Field(..., description="The education level (e.g., 'Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional', 'General Public').")
+    age_range: str = Field(..., description="The typical age range or audience for this education level.")
     chapters: list[ChapterSuggestion] = Field(..., description="List of chapters appropriate for this education level.")
-    rationale: str = Field(..., description="Explanation of why these chapters are appropriate for this level and how they build on previous levels.")
+    rationale: str = Field(..., description="Explanation of why these chapters are appropriate for this level and how they engage the target audience.")
 
 
 class BookChaptersResponse(BaseModel):
@@ -38,10 +38,10 @@ def cli(subject, level=None, num_chapters=None, model_name=None):
 
     Args:
         subject (str): The subject or topic to create curriculum for
-        level (str): The education level (e.g., 'High School', 'Undergraduate')
-                    If None, defaults to all 5 levels: ['Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional']
+        level (str): The education level (e.g., 'High School', 'Undergraduate', 'General Public')
+                    If None, defaults to all 6 levels: ['Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional', 'General Public']
         num_chapters (int): Number of chapters to generate for the level
-                           If None, defaults to an appropriate number based on the level
+                           If None, defaults to 12 chapters
         model_name (str): The model to use for generation
                          Default: 'gemini/gemini-2.5-flash'
     """
@@ -53,8 +53,8 @@ def cli(subject, level=None, num_chapters=None, model_name=None):
 
     # Set defaults if not provided
     if level is None:
-        levels = ['Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional']
-        prompt_header = f"Create a comprehensive curriculum for teaching '{subject}' across all 5 education levels."
+        levels = ['Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional', 'General Public']
+        prompt_header = f"Create a comprehensive curriculum for teaching '{subject}' across all 6 education levels including General Public."
         generate_all_levels = True
     else:
         levels = [level]
@@ -65,18 +65,19 @@ def cli(subject, level=None, num_chapters=None, model_name=None):
     if num_chapters:
         chapters_instruction = f"Generate exactly {num_chapters} chapters."
     else:
-        chapters_instruction = "Generate an appropriate number of chapters (typically 4-7 chapters for single level, with more for higher levels)."
+        chapters_instruction = "Generate exactly 12 chapters."
+        num_chapters = 12
 
     prompt = f"""{prompt_header}
 
 {chapters_instruction}
 
 For the education level(s):
-1. Suggest appropriate chapters that build incrementally on each other
-2. Ensure concepts are age and experience-appropriate
+1. Suggest appropriate chapters that engage and educate the target audience
+2. Ensure concepts are age, experience, and audience-appropriate
 3. Include prerequisites where applicable
 4. For each chapter, provide CLEAR and MEASURABLE LEARNING OBJECTIVES using action verbs (identify, explain, analyze, apply, evaluate, synthesize, etc.)
-5. Learning objectives should state exactly what students will be able to do or understand after completing the chapter
+5. Learning objectives should state exactly what the audience will be able to do or understand after completing the chapter
 
 The curriculum should show logical progression:
 - Middle School: introduces fundamental concepts with simple explanations
@@ -84,17 +85,18 @@ The curriculum should show logical progression:
 - Undergraduate: covers theory, analysis, and practical applications
 - Post-Graduate: includes advanced concepts, research, and specialized topics
 - Professional: focuses on practical application, standards, and industry practices
+- General Public: fascinating topics for general audience with no specialized background, emphasizing curiosity, wonder, and real-world relevance without technical jargon
 
 For each chapter include:
 - Chapter number (sequential within the level)
 - Title
 - Summary of content
 - Key concepts
-- Prerequisites (what students need to know first)
-- Learning objectives (3-5 clear, measurable, action-oriented statements using verbs like: identify, explain, describe, analyze, apply, evaluate, compare, synthesize)
+- Prerequisites (what audience needs to know first)
+- Learning objectives (3-5 clear, measurable, action-oriented statements using verbs like: identify, explain, describe, analyze, apply, evaluate, compare, synthesize, appreciate, discover)
 - Estimated page count
 
-Make sure the learning is truly incremental and builds naturally."""
+Make sure the learning is truly incremental and builds naturally. For General Public, emphasize engaging storytelling, real-world examples, and the "wow factor" of the subject."""
 
     model_input = ModelInput(user_prompt=prompt, response_format=BookChaptersResponse)
 
@@ -103,10 +105,25 @@ Make sure the learning is truly incremental and builds naturally."""
     # Parse and save the formatted JSON output
     if isinstance(response_content, str):
         data = json.loads(response_content)
+        # Generate automatic filename with numeric level codes
+        subject_normalized = subject.replace(' ', '_').lower()
+
+        # Map education levels to numeric codes
+        level_codes = {
+            'Middle School': '0',
+            'High School': '1',
+            'Undergraduate': '2',
+            'Post-Graduate': '3',
+            'Professional': '4',
+            'General Public': '5'
+        }
+
         if level:
-            output_file = f"{subject.replace(' ', '_').lower()}_{level.replace(' ', '_').lower()}_chapters.json"
+            level_code = level_codes.get(level, '0')
+            output_file = f"{subject_normalized}_{level_code}.json"
         else:
-            output_file = f"{subject.replace(' ', '_').lower()}_chapters.json"
+            output_file = f"{subject_normalized}_all.json"
+
         with open(output_file, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Chapter suggestions for '{subject}' ({level if level else 'All Levels'}) saved to {output_file}")
@@ -123,11 +140,12 @@ if __name__ == "__main__":
         print()
         print("Options:")
         print("  -l, --level LEVEL          Single education level to focus on")
-        print("                            Available levels: 'Middle School', 'High School', 'Undergraduate',")
-        print("                            'Post-Graduate', 'Professional'")
-        print("                            Default: Generate curriculum for all 5 levels")
+        print("                            Available levels: 'Middle School' (0), 'High School' (1),")
+        print("                            'Undergraduate' (2), 'Post-Graduate' (3), 'Professional' (4),")
+        print("                            'General Public' (5)")
+        print("                            Default: Generate curriculum for all 6 levels")
         print("  -n, --chapters N           Number of chapters to generate")
-        print("                            Default: Auto-determined based on appropriateness")
+        print("                            Default: 12")
         print("  -m, --model MODEL          Model to use for generation")
         print("                            Default: 'gemini/gemini-2.5-flash'")
         print()
@@ -136,6 +154,7 @@ if __name__ == "__main__":
         print("  python bookchapters.py 'Climate Change' -l 'High School'")
         print("  python bookchapters.py 'Machine Learning' --level Undergraduate -n 5")
         print("  python bookchapters.py 'AI' -l 'Post-Graduate' -n 6 -m 'gpt-4'")
+        print("  python bookchapters.py 'Black Holes' -l 'General Public' -n 8")
         sys.exit(1)
 
     subject = sys.argv[1]
