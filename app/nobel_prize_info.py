@@ -66,6 +66,36 @@ class GlossaryItem(BaseModel):
     definition: str = Field(..., description="Clear, concise definition of the term")
 
 
+class PersonalBackground(BaseModel):
+    """Early life and educational background of the laureate."""
+    birth_date: str = Field(..., description="Birth date (format: YYYY-MM-DD or approximate year if exact date unknown)")
+    birth_place: str = Field(..., description="Place of birth (city, country)")
+    nationality: str = Field(..., description="Primary nationality/nationalities")
+    family_background: str = Field(..., description="Family background, parents' professions, and early influences. Include relevant family members who influenced their career.")
+    education: list[str] = Field(..., description="Chronological list of educational institutions and degrees (e.g., 'B.Sc. Physics, University of X (1975)', 'Ph.D. Chemistry, University of Y (1980)')", min_length=1)
+    early_influences: str = Field(..., description="Key people, mentors, or experiences that shaped their scientific interests and career direction during formative years")
+
+
+class CareerPosition(BaseModel):
+    """Represents a single career position or role."""
+    title: str = Field(..., description="Job title or position (e.g., 'Professor of Physics', 'Research Scientist')")
+    institution: str = Field(..., description="Institution or organization name")
+    location: str = Field(..., description="City and country of the institution")
+    start_year: int = Field(..., description="Start year of position", ge=1900, le=2025)
+    end_year: Optional[int] = Field(None, description="End year of position (null if current)")
+    description: str = Field(..., description="Brief description of role and responsibilities")
+
+
+class BroaderRecognition(BaseModel):
+    """Recognition, awards, and broader roles outside the Nobel Prize."""
+    honors_and_awards: list[str] = Field(..., description="List of major awards and honors received (excluding Nobel Prize)", min_length=1)
+    academy_memberships: list[str] = Field(..., description="Memberships in prestigious academies and societies (e.g., 'Fellow of the Royal Society', 'Member of National Academy of Sciences')", min_length=1)
+    editorial_roles: list[str] = Field(..., description="Editorial positions in scientific journals and publications", min_length=0)
+    mentorship_contributions: str = Field(..., description="Notable students, postdocs, and collaborators mentored; their achievements and contributions to science")
+    leadership_roles: list[str] = Field(..., description="Leadership positions in scientific organizations, departments, or research initiatives", min_length=0)
+    public_engagement: str = Field(..., description="Public communication, outreach efforts, scientific advocacy, or policy influence. Include speaking engagements, public lectures, and involvement in science communication.")
+
+
 class PrizeWinner(BaseModel):
     """Represents a Nobel Prize winner and their contribution."""
 
@@ -76,6 +106,11 @@ class PrizeWinner(BaseModel):
         ...,
         description="Objective, concise description of the scientific work that won the prize. Focus on what was discovered/invented, not superlatives."
     )
+
+    # Biographical Information
+    personal_background: PersonalBackground = Field(..., description="Early life, education, and family background of the laureate")
+    career_timeline: list[CareerPosition] = Field(..., description="Chronological list of major career positions and institutional affiliations", min_length=1)
+    broader_recognition: BroaderRecognition = Field(..., description="Honors, recognition, and broader roles in the scientific community outside the Nobel Prize")
 
     # Historical context - objective facts
     history: str = Field(
@@ -187,19 +222,44 @@ def create_prompt(category: str, year: str) -> str:
 IMPORTANT: Focus on factual, educational content. Avoid subjective language and superlatives.
 
 For each winner, provide:
-1. Contribution: What they discovered or invented (facts only)
-2. History: Chronological facts with dates, names, methods used
-3. Impact: Measurable changes in scientific understanding - what became possible?
-4. Foundation: Specific cross-disciplinary influence with concrete examples
-5. Applications: Real-world uses, not speculative
-6. Relevancy: How the idea is still valid and relevant today - explain current research, active fields using this work, and practical uses in modern science/industry
-7. Advancements: Specific improvements and extensions with dates
-8. Refinements: Methodological and theoretical improvements
-9. Gaps: Unknown questions, limitations, and unsolved problems
-10. Keywords: Important keywords and technical terms related to the discovery (core concepts, methods, substances, phenomena, and fields)
-11. Learning Objectives: What a student can learn from this discovery (conceptual understanding, methodological approaches, problem-solving techniques, insights into the scientific process)
-12. FAQ: Frequently asked questions with answers (include common misconceptions, practical questions, and educational queries)
-13. Glossary: Dictionary of key terms and concepts with clear, concise definitions (specialized vocabulary, technical terminology, important concepts needed to understand the work)
+
+BIOGRAPHICAL INFORMATION:
+1. Personal Background:
+   - Birth date and place
+   - Nationality
+   - Family background and parents' professions
+   - Educational timeline with institutions, degrees, and years
+   - Early influences and mentors who shaped their scientific direction
+
+2. Career Timeline:
+   - Chronological list of major positions (title, institution, location, start/end years)
+   - Key roles including postdoctoral positions, faculty appointments, research leadership
+   - Institutional affiliations and their significance
+
+3. Broader Recognition:
+   - Major awards and honors (excluding Nobel Prize)
+   - Academy and society memberships
+   - Editorial roles in scientific journals
+   - Notable students, postdocs, and collaborators mentored
+   - Leadership positions in scientific organizations
+   - Public engagement, outreach, and scientific advocacy efforts
+
+SCIENTIFIC WORK:
+4. Contribution: What they discovered or invented (facts only)
+5. History: Chronological facts with dates, names, methods used
+6. Impact: Measurable changes in scientific understanding - what became possible?
+7. Foundation: Specific cross-disciplinary influence with concrete examples
+8. Applications: Real-world uses, not speculative
+9. Relevancy: How the idea is still valid and relevant today - explain current research, active fields using this work, and practical uses in modern science/industry
+10. Advancements: Specific improvements and extensions with dates
+11. Refinements: Methodological and theoretical improvements
+12. Gaps: Unknown questions, limitations, and unsolved problems
+
+EDUCATIONAL CONTENT:
+13. Keywords: Important keywords and technical terms related to the discovery (core concepts, methods, substances, phenomena, and fields)
+14. Learning Objectives: What a student can learn from this discovery (conceptual understanding, methodological approaches, problem-solving techniques, insights into the scientific process)
+15. FAQ: Frequently asked questions with answers (include common misconceptions, practical questions, and educational queries)
+16. Glossary: Dictionary of key terms and concepts with clear, concise definitions (specialized vocabulary, technical terminology, important concepts needed to understand the work)
 
 Use objective language. Avoid words like "revolutionary," "profound," "amazing," "transformed."
 Instead, describe what specifically changed and how we know it changed."""
