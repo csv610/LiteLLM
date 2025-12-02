@@ -64,6 +64,7 @@ class ModelInput:
     user_prompt: str
     image_path: Optional[str] = None
     system_prompt: Optional[str] = None
+    response_format: Optional[str] = None
 
     def __post_init__(self):
         """Validate input after initialization."""
@@ -75,3 +76,7 @@ class ModelInput:
         # Normalize empty system_prompt to None
         if self.system_prompt is not None and not self.system_prompt.strip():
             self.system_prompt = None
+
+        # Normalize empty response_format to None
+        if self.response_format is not None and not self.response_format.strip():
+            self.response_format = None
