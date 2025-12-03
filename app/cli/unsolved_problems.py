@@ -68,7 +68,6 @@ class UnsolvedProblem(BaseModel):
 class UnsolvedProblemsResponse(BaseModel):
     """Response containing a list of unsolved problems."""
     topic: str = Field(..., description="The topic for which unsolved problems are listed")
-    count: int = Field(..., description="Number of unsolved problems in the list")
     problems: list[UnsolvedProblem]
 
 

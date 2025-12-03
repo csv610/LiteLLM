@@ -19,8 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-
-def cli_interface() -> None:
+def main_cli() -> None:
     """Parse command-line arguments and execute the unified LiteClient."""
     parser = argparse.ArgumentParser(
         description="Unified CLI for LiteClient - Text generation and image analysis",
@@ -61,6 +60,13 @@ def cli_interface() -> None:
         default=DEFAULT_TEMPERATURE,
         help=f"Sampling temperature (default: {DEFAULT_TEMPERATURE})",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        help="Path to output file to save the response",
+    )
     args = parser.parse_args()
 
     # Determine mode based on image argument
@@ -89,6 +95,11 @@ def cli_interface() -> None:
     else:
         print(f"Response: {result}\n")
 
+        # Save to output file if specified
+        if args.output:
+            with open(args.output, "w") as f:
+                f.write(result)
+            print(f"Response saved to {args.output}")
 
 if __name__ == "__main__":
-    cli_interface()
+    main_cli()
