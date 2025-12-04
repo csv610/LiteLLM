@@ -85,21 +85,22 @@ def main_cli() -> None:
     model_input = ModelInput(user_prompt=args.question, image_path=args.image)
     result = client.generate_text(model_input=model_input)
 
-    # Display result
-    print(f"\nModel: {args.model}")
-    print("-" * 60)
-
     if isinstance(result, dict) and "error" in result:
-        print(f"Error: {result['error']}")
+        if not args.output:
+            print(f"\nModel: {args.model}")
+            print("-" * 60)
+            print(f"Error: {result['error']}")
         sys.exit(1)
     else:
-        print(f"Response: {result}\n")
-
         # Save to output file if specified
         if args.output:
             with open(args.output, "w") as f:
                 f.write(result)
-            print(f"Response saved to {args.output}")
+        else:
+            # Display result only if no output file
+            print(f"\nModel: {args.model}")
+            print("-" * 60)
+            print(f"Response: {result}\n")
 
 if __name__ == "__main__":
     main_cli()

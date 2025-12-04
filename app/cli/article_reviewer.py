@@ -51,7 +51,7 @@ class ArticleReviewResponse(BaseModel):
     deletions: list[DeleteModel] = Field(default=[], description="List of content to remove")
     modifications: list[ModifyModel] = Field(default=[], description="List of content to modify")
     insertions: list[InsertModel] = Field(default=[], description="List of content to insert")
-    proofreading_rules_applied: dict = Field(..., description="Dictionary of proofreading rule categories and their specific rules")
+    proofreading_rules_applied: list[str] = Field(default=[], description="List of proofreading rule categories that were applied during the review")
 
 
 class ArticleReviewer:
@@ -132,14 +132,21 @@ INSTRUCTIONS:
 2. Identify specific issues and categorize them as deletions, modifications, or insertions
 3. For each issue, provide:
    - The exact line number
-   - The problematic content (for deletions and modifications)
-   - Clear, actionable reason
+   - The complete, full text (for deletions and modifications)
+   - Clear, specific, and actionable reason
    - Severity level (low, medium, high, critical)
+4. ALL suggestions must be COMPLETE and UNAMBIGUOUS:
+   - Never provide partial or fragmented text
+   - Include full sentences or phrases, not excerpts
+   - Make suggestions ready to implement without additional interpretation
+   - Be specific about what to do, not vague
 
 DELETION SUGGESTIONS:
 - Remove redundant phrases, unnecessary words, or irrelevant content
 - Flag repeated information
 - Remove unsupported claims or outdated references
+- REQUIREMENT: Provide the COMPLETE phrase or sentence to be deleted
+NOTE: Do NOT include empty lines or whitespace issues as deletions - these are cosmetic and not substantive.
 
 MODIFICATION SUGGESTIONS:
 - Improve clarity and readability
@@ -147,6 +154,7 @@ MODIFICATION SUGGESTIONS:
 - Enhance word choice for precision
 - Convert passive to active voice where appropriate
 - Break up overly long sentences
+- REQUIREMENT: Provide the COMPLETE original text and COMPLETE suggested replacement (full sentences or phrases, not fragments)
 
 INSERTION SUGGESTIONS:
 - Add missing context or explanations
@@ -154,6 +162,7 @@ INSERTION SUGGESTIONS:
 - Add examples for clarity
 - Include introduction/conclusion if missing
 - Add transitions between ideas
+- REQUIREMENT: Provide COMPLETE, ready-to-use content for insertion (full sentences or paragraphs)
 
 SCORING GUIDELINES:
 - 90-100: Excellent - minimal issues, professional quality
@@ -162,14 +171,25 @@ SCORING GUIDELINES:
 - 60-69: Poor - significant issues requiring revision
 - Below 60: Very Poor - substantial revision needed
 
-Provide a fair assessment based on the total number and severity of issues found."""
+Provide a fair assessment based on the total number and severity of issues found. Focus on substantive content issues, not cosmetic formatting."""
 
         model_input = ModelInput(user_prompt=prompt, response_format=ArticleReviewResponse)
         response_content = self.client.generate_text(model_input=model_input)
 
         if isinstance(response_content, str):
             data = json.loads(response_content)
-            return ArticleReviewResponse(**data)
+            review = ArticleReviewResponse(**data)
+
+            # Filter out cosmetic empty line deletions
+            review.deletions = [
+                d for d in review.deletions
+                if d.content.strip() != ""  # Remove deletions that are just empty lines
+            ]
+
+            # Recalculate total issues
+            review.total_issues = len(review.deletions) + len(review.modifications) + len(review.insertions)
+
+            return review
         else:
             raise ValueError("Expected string response from model")
 
@@ -185,6 +205,9 @@ Provide a fair assessment based on the total number and severity of issues found
         """
         if output_filename is None:
             output_filename = f"article_review_{int(time.time())}.json"
+        else:
+            if not output_filename.endswith('.json'):
+                output_filename = f"{output_filename}_review.json"
 
         with open(output_filename, 'w') as f:
             json.dump(review.model_dump(), f, indent=4)
@@ -205,7 +228,7 @@ Provide a fair assessment based on the total number and severity of issues found
         print(f"Total Issues Found: {review.total_issues}")
         print(f"  - Deletions: {len(review.deletions)}")
         print(f"  - Modifications: {len(review.modifications)}")
-        print(f"  - Insertions: {len(review.insertions)}\n")
+        print(f"  - Insertions: {len(review.insertions)}")
 
         # Print deletions
         if review.deletions:
@@ -242,20 +265,21 @@ Provide a fair assessment based on the total number and severity of issues found
         print(f"\n{'='*80}\n")
 
 
-def cli(article_text, model_name=None):
+def cli(article_text, model_name=None, output_filename=None):
     """Review an article and provide detailed feedback on deletions, modifications, and insertions.
 
     Args:
         article_text (str): The full text of the article to review
         model_name (str): The model to use for review
                          Default: 'gemini/gemini-2.5-flash'
+        output_filename (str): Optional output filename for the review
     """
     if model_name is None:
         model_name = "gemini/gemini-2.5-flash"
 
     reviewer = ArticleReviewer(model_name=model_name)
     review = reviewer.review(article_text)
-    output_file = reviewer.save_review(review)
+    output_file = reviewer.save_review(review, output_filename=output_filename)
     reviewer.print_review(review)
     print(f"Full review saved to: {output_file}\n")
 
@@ -280,6 +304,11 @@ Examples:
         "-m", "--model",
         default=None,
         help="Model to use for review (default: 'gemini/gemini-2.5-flash')"
+    )
+    parser.add_argument(
+        "-o", "--output",
+        default=None,
+        help="Output filename for the review (default: {input_filename}_review.json or article_review_{timestamp}.json)"
     )
 
     args = parser.parse_args()
@@ -312,4 +341,4 @@ Examples:
         # If file doesn't exist, treat input as direct article text
         article_text = args.article
 
-    cli(article_text, args.model)
+    cli(article_text, args.model, args.output)
