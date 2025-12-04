@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 # Vision model defaults
-DEFAULT_TEMPERATURE = 0.2
+DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MAX_TOKENS = 2000
 DEFAULT_PROMPT = "Describe this image in detail"
 
