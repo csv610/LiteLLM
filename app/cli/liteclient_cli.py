@@ -1,5 +1,3 @@
-"""Unified CLI for LiteClient - Query language models and analyze images."""
-
 import argparse
 import logging
 import sys
