@@ -1,5 +1,7 @@
 """Core LiteLLM library."""
 
+__version__ = "0.1.0"
+
 from .lite_client import LiteClient
 from .config import ModelConfig
 from .image_utils import ImageUtils

@@ -22,6 +22,15 @@ class ModelConfig:
 
 
 @dataclass
+class ChatConfig:
+    """Configuration for chat session management."""
+
+    max_history: int = 10
+    auto_save: bool = False
+    save_dir: str = "."
+
+
+@dataclass
 class ModelInput:
     """Input parameters for model interactions."""
 

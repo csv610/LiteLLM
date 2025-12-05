@@ -70,8 +70,7 @@ class LiteChat:
         self.conversation_history: List[Dict[str, Any]] = []
         self.conversation_file: Optional[str] = None
         self._file_initialized = False
-        self.image_cache: Dict[int, List[Dict[str, Any]]] = {}  # Maps turn_number -> images
-        self._turn_counter = 0  # Global turn counter for image tracking
+        self.current_image_path: Optional[str] = None  # Hold the current image for the API call
 
     @staticmethod
     def _format_content(content: Any) -> str:
@@ -89,38 +88,6 @@ class LiteChat:
             return " ".join(text_parts) if text_parts else str(content)
         return str(content)
 
-    def _reconstruct_messages_with_images(self) -> List[Dict[str, Any]]:
-        """
-        Reconstruct messages by merging conversation history with cached images.
-
-        Images are always included from the cache, regardless of whether their
-        original message is still in history (after trimming).
-
-        Returns:
-            Full message list with images included for API calls
-        """
-        reconstructed = []
-        for idx, msg in enumerate(self.conversation_history):
-            if idx in self.image_cache:
-                # User message with images - reconstruct full content
-                content = msg["content"].copy() if isinstance(msg["content"], list) else [{"type": "text", "text": msg["content"]}]
-                content.extend(self.image_cache[idx])
-                reconstructed.append({"role": msg["role"], "content": content})
-            else:
-                # No images - use as-is
-                reconstructed.append(msg)
-
-        # Add any cached images that don't correspond to messages in current history
-        # (these are from messages that were trimmed but images should persist)
-        for cache_idx, image_blocks in self.image_cache.items():
-            if cache_idx >= len(self.conversation_history):
-                # This is a cached image from a trimmed message - add a synthetic message for it
-                reconstructed.append({
-                    "role": "user",
-                    "content": image_blocks
-                })
-
-        return reconstructed
 
     def add_message_to_history(self, role: str, content: Any) -> None:
         """
@@ -151,7 +118,7 @@ class LiteChat:
 
     def create_message(self, model_input: ModelInput) -> List[Dict[str, Any]]:
         """
-        Create a message for the model, including conversation history.
+        Create a message for the model, including conversation history and image if provided.
 
         Args:
             model_input: ModelInput object containing prompt and image parameters
@@ -162,28 +129,25 @@ class LiteChat:
         if not model_input.user_prompt or not model_input.user_prompt.strip():
             raise ValueError("user_prompt cannot be empty")
 
-        # Build content with text
-        text_content = [{"type": "text", "text": model_input.user_prompt}]
-        image_blocks = []
+        # Add text-only prompt to history
+        self.add_message_to_history("user", model_input.user_prompt)
 
-        # Handle images separately
+        # Build messages from history
+        messages = self.conversation_history.copy()
+
+        # If image is provided, add it to the last user message
         if model_input.image_path:
+            self.current_image_path = model_input.image_path
             base64_url = ImageUtils.encode_to_base64(model_input.image_path)
             image_block = {"type": "image_url", "image_url": {"url": base64_url}}
-            image_blocks.append(image_block)
+            # Wrap the last user message content as a list with text and image
+            last_msg = messages[-1]
+            last_msg["content"] = [
+                {"type": "text", "text": last_msg["content"]},
+                image_block
+            ]
 
-        # Cache images using turn counter (persists even if message is trimmed from history)
-        if image_blocks:
-            self.image_cache[self._turn_counter] = image_blocks
-
-        # Increment turn counter for next message
-        self._turn_counter += 1
-
-        # Add text-only content to history
-        self.add_message_to_history("user", text_content)
-
-        # Return reconstructed messages with images for API call
-        return self._reconstruct_messages_with_images()
+        return messages
 
     def generate_text(
         self,
@@ -241,10 +205,9 @@ class LiteChat:
             return self.handle_generation_exception(e, is_image_request)
 
     def reset_conversation(self) -> None:
-        """Clear conversation history, image cache, and turn counter."""
+        """Clear conversation history and current image."""
         self.conversation_history = []
-        self.image_cache = {}
-        self._turn_counter = 0
+        self.current_image_path = None
         logger.info("Conversation history cleared")
 
     def get_conversation_history(self) -> List[Dict[str, Any]]:
@@ -286,6 +249,7 @@ class LiteChat:
                 assistant_content = self._format_content(assistant_msg["content"])
                 f.write(f"**{assistant_role}:** {assistant_content}\n\n")
             logger.info(f"Conversation appended to {self.conversation_file}")
+
 
 def cli():
     """Main entry point for the LiteChat CLI interactive chat."""
@@ -361,7 +325,7 @@ def cli():
         first_image_path = None
 
     # Build help text based on auto-save setting
-    help_text = "Interactive multi-turn chat mode. Type 'exit' to quit, 'history' to view conversation, 'clear' to reset."
+    help_text = "Interactive multi-turn chat mode. Commands: 'exit', 'history', 'clear'."
     if args.auto_save:
         help_text += f" Conversations auto-save to '{args.save_dir}' after each turn."
     print(f"{help_text}\n")
