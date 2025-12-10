@@ -315,8 +315,10 @@ def cli(medicine, model, temperature):
         print(f"Error: Failed to parse JSON response: {e}", file=sys.stderr)
         sys.exit(1)
 
-    sanitized_name = sanitize_filename(medicine)
-    output_filename = f"{sanitized_name}.json"
+    sanitized_name = sanitize_filename(medicine).lower()
+    output_dir = Path("outputs")
+    output_dir.mkdir(exist_ok=True)
+    output_filename = output_dir / f"{sanitized_name}.json"
 
     try:
         with open(output_filename, "w") as f:

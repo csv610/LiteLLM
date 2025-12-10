@@ -193,18 +193,24 @@ Provide a fair assessment based on the total number and severity of issues found
         else:
             raise ValueError("Expected string response from model")
 
-    def save_review(self, review: ArticleReviewResponse, output_filename: str = None) -> str:
+    def save_review(self, review: ArticleReviewResponse, output_filename: str = None, input_filename: str = None) -> str:
         """Save the review to a JSON file.
 
         Args:
             review: The ArticleReviewResponse to save
-            output_filename: Optional filename for the output file. If not provided, generates a timestamped filename.
+            output_filename: Optional filename for the output file. If not provided, uses input_filename.
+            input_filename: The input filename to use as base for output filename.
 
         Returns:
             str: The path to the saved file
         """
         if output_filename is None:
-            output_filename = f"article_review_{int(time.time())}.json"
+            if input_filename:
+                # Extract base filename without extension
+                base_name = Path(input_filename).stem
+                output_filename = f"{base_name}_review.json"
+            else:
+                output_filename = f"article_review_{int(time.time())}.json"
         else:
             if not output_filename.endswith('.json'):
                 output_filename = f"{output_filename}_review.json"
@@ -265,7 +271,7 @@ Provide a fair assessment based on the total number and severity of issues found
         print(f"\n{'='*80}\n")
 
 
-def cli(article_text, model_name=None, output_filename=None):
+def cli(article_text, model_name=None, output_filename=None, input_filename=None):
     """Review an article and provide detailed feedback on deletions, modifications, and insertions.
 
     Args:
@@ -273,13 +279,14 @@ def cli(article_text, model_name=None, output_filename=None):
         model_name (str): The model to use for review
                          Default: 'gemini/gemini-2.5-flash'
         output_filename (str): Optional output filename for the review
+        input_filename (str): The input filename to use as base for output filename
     """
     if model_name is None:
         model_name = "gemini/gemini-2.5-flash"
 
     reviewer = ArticleReviewer(model_name=model_name)
     review = reviewer.review(article_text)
-    output_file = reviewer.save_review(review, output_filename=output_filename)
+    output_file = reviewer.save_review(review, output_filename=output_filename, input_filename=input_filename)
     reviewer.print_review(review)
     print(f"Full review saved to: {output_file}\n")
 
@@ -315,8 +322,10 @@ Examples:
 
     # Try to load from file first, otherwise treat as direct text
     article_text = args.article
+    input_filename = None
     try:
         with open(args.article, 'r', encoding='utf-8') as f:
+            input_filename = args.article
             if args.article.endswith('.json'):
                 data = json.load(f)
                 # Handle various JSON structures - look for common article fields
@@ -341,4 +350,4 @@ Examples:
         # If file doesn't exist, treat input as direct article text
         article_text = args.article
 
-    cli(article_text, args.model, args.output)
+    cli(article_text, args.model, args.output, input_filename)

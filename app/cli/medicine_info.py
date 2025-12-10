@@ -54,7 +54,10 @@ def cli(medicine):
     # Parse and save the formatted JSON output
     if isinstance(response_content, str):
         data = json.loads(response_content)
-        output_file = f"{medicine}.json"
+        outputs_dir = Path(__file__).parent / "outputs"
+        outputs_dir.mkdir(exist_ok=True)
+        filename = medicine.lower().replace(" ", "_")
+        output_file = outputs_dir / f"{filename}.json"
         with open(output_file, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Medicine information saved to {output_file}")
