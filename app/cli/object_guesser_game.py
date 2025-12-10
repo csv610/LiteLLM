@@ -201,7 +201,7 @@ def main():
         description="Play an object guessing game with an LLM"
     )
     parser.add_argument(
-        "--model",
+        "-m", "--model",
         default="gemini/gemini-2.5-flash",
         help="Model to use (default: gemini/gemini-2.5-flash)",
     )
