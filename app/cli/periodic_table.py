@@ -164,9 +164,9 @@ def main():
     # Fetch specific element or all elements
     if args.element:
         # Fetch specific element
-        element = args.element
+        element = args.element.capitalize()
         if element not in ALL_ELEMENTS:
-            print(f"Error: '{element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
+            print(f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
             sys.exit(1)
 
         print(f"Fetching {element}...", file=sys.stderr)
