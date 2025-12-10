@@ -4,6 +4,7 @@ import json
 import sys
 import os
 import re
+from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
@@ -27,7 +28,7 @@ class FAQConfig:
 	difficulty: str
 	model: Optional[str] = None
 	output_dir: str = "."
-	log_file: str = "faq_generator.log"
+	log_file: str = str(Path(__file__).parent / "logs" / "faq_generator.log")
 
 	VALID_DIFFICULTIES = ["simple", "medium", "hard", "research"]
 	MIN_FAQS = 1

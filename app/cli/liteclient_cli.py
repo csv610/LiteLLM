@@ -11,7 +11,7 @@ from lite.config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
 from logging_util import setup_logging
 
 # Configure logging
-logger = setup_logging("liteclient_cli.log")
+logger = setup_logging(str(Path(__file__).parent / "logs" / "liteclient_cli.log"))
 
 
 def main_cli() -> None:

@@ -5,17 +5,18 @@ import sys
 import os
 import re
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field, ValidationError
 
-# Add parent directory to path to import lite module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add project root directory to path to import lite module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from lite import LiteClient, ModelConfig
-from lite.config import ModelInput
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 from logging_util import setup_logging
 
-logger = setup_logging("nobel_prize_info.log")
+logger = setup_logging(str(Path(__file__).parent / "logs" / "nobel_prize_info.log"))
 
 # ==============================================================================
 # Pydantic Models

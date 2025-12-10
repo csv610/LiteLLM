@@ -4,6 +4,7 @@ import json
 import sys
 import os
 import re
+from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field, ValidationError
 
@@ -14,7 +15,7 @@ from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 from logging_util import setup_logging
 
-logger = setup_logging("unsolved.log")
+logger = setup_logging(str(Path(__file__).parent / "logs" / "unsolved.log"))
 
 # ==============================================================================
 # Pydantic Models
