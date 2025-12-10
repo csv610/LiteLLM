@@ -1,5 +1,6 @@
 import sys
 import json
+import logging
 from pathlib import Path
 
 # Add parent directories to path for imports
@@ -8,6 +9,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from pydantic import BaseModel, Field
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from logging_util import setup_logging
+
+# Configure logging
+log_file = Path(__file__).parent / "logs" / "medicine_info.log"
+logger = setup_logging(str(log_file))
 
 class MedicineInfo(BaseModel):
     name: str = Field(..., description="The generic name of the medicine.")

@@ -12,42 +12,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
+from logging_util import setup_logging
 
-# Configure logging to file only
-def setup_logging(log_file: str = "unsolved.log") -> logging.Logger:
-    """
-    Configure logging to write to file only.
-
-    Args:
-        log_file: Path to log file
-
-    Returns:
-        Configured logger instance
-    """
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    # File handler with restricted permissions
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.INFO)
-    file_format = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    file_handler.setFormatter(file_format)
-
-    # Add handlers to logger
-    logger.addHandler(file_handler)
-
-    # Set restrictive file permissions (owner read/write only)
-    try:
-        os.chmod(log_file, 0o600)
-    except OSError:
-        pass  # File may not exist yet, permissions will be set on first write
-
-    return logger
-
-logger = setup_logging()
+logger = setup_logging("unsolved.log")
 
 # ==============================================================================
 # Pydantic Models

@@ -8,13 +8,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
+from logging_util import setup_logging
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
+logger = setup_logging("liteclient_cli.log")
 
 
 def main_cli() -> None:

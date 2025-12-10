@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
+from logging_util import setup_logging
 
 # ==============================================================================
 # Configuration Dataclass
@@ -140,43 +141,8 @@ class FAQGenerator:
 			config: FAQConfig dataclass with generator settings
 		"""
 		self.config = config
-		self.logger = self._setup_logging(config.log_file)
+		self.logger = setup_logging(config.log_file)
 		self.model = config.model or os.getenv("FAQ_MODEL", "gemini/gemini-2.5-flash")
-
-	@staticmethod
-	def _setup_logging(log_file: str) -> logging.Logger:
-		"""
-		Configure logging to write to file only.
-
-		Args:
-			log_file: Path to log file
-
-		Returns:
-			Configured logger instance
-		"""
-		logger = logging.getLogger(__name__)
-		logger.setLevel(logging.INFO)
-
-		# Remove existing handlers to avoid duplicates
-		logger.handlers.clear()
-
-		# File handler with restricted permissions
-		file_handler = logging.FileHandler(log_file)
-		file_handler.setLevel(logging.INFO)
-		file_format = logging.Formatter(
-			'%(asctime)s - %(levelname)s - %(message)s',
-			datefmt='%Y-%m-%d %H:%M:%S'
-		)
-		file_handler.setFormatter(file_format)
-		logger.addHandler(file_handler)
-
-		# Set restrictive file permissions (owner read/write only)
-		try:
-			os.chmod(log_file, 0o600)
-		except OSError:
-			pass  # File may not exist yet
-
-		return logger
 
 	def _read_content_file(self, file_path: str) -> str:
 		"""
