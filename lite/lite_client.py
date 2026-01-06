@@ -63,6 +63,11 @@ class LiteClient:
         Returns:
             Message list formatted for the completion API
         """
+        messages = []
+
+        # Add system message if provided
+        if model_input.system_prompt:
+            messages.append({"role": "system", "content": model_input.system_prompt})
 
         content = [{"type": "text", "text": model_input.user_prompt}]
 
@@ -70,7 +75,9 @@ class LiteClient:
             base64_url = ImageUtils.encode_to_base64(model_input.image_path)
             content.append({"type": "image_url", "image_url": {"url": base64_url}})
 
-        return [{"role": "user", "content": content}]
+        messages.append({"role": "user", "content": content})
+
+        return messages
 
     def generate_text(
         self,

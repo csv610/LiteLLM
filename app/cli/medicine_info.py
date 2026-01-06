@@ -1,5 +1,6 @@
 import sys
 import json
+import argparse
 import logging
 from pathlib import Path
 
@@ -39,34 +40,118 @@ class MedicineResponse(BaseModel):
     medicine: MedicineInfo
 
 
-def cli(medicine):
-    """Fetch medicine information using LiteClient."""
-    model = "gemini/gemini-2.5-flash"
+def create_client(model: str, temperature: float = 0.2) -> LiteClient:
+    """Create and return a configured LiteClient instance."""
+    try:
+        model_config = ModelConfig(model=model, temperature=temperature)
+        client = LiteClient(model_config=model_config)
+        logger.info(f"Client created with model: {model}, temperature: {temperature}")
+        return client
+    except Exception as e:
+        logger.error(f"Failed to create client: {e}")
+        raise
 
-    model_config = ModelConfig(model=model, temperature=0.2)
-    client = LiteClient(model_config=model_config)
 
+def generate_prompt(medicine: str) -> str:
+    """Generate the prompt for medicine information query."""
     prompt = f"Provide detailed information about the medicine {medicine}."
-    model_input = ModelInput(user_prompt=prompt, response_format=MedicineResponse)
+    logger.debug(f"Generated prompt: {prompt}")
+    return prompt
 
-    response_content = client.generate_text(model_input=model_input)
 
-    # Parse and save the formatted JSON output
-    if isinstance(response_content, str):
+def fetch_medicine_data(client: LiteClient, medicine: str) -> str | None:
+    """Fetch medicine information from the API."""
+    try:
+        prompt = generate_prompt(medicine)
+        model_input = ModelInput(user_prompt=prompt, response_format=MedicineResponse)
+        response_content = client.generate_text(model_input=model_input)
+
+        if not isinstance(response_content, str):
+            logger.error("Expected string response from model")
+            return None
+
+        logger.info(f"Successfully fetched data for medicine: {medicine}")
+        return response_content
+    except Exception as e:
+        logger.error(f"Failed to fetch medicine data: {e}")
+        return None
+
+
+def parse_response(response_content: str) -> dict | None:
+    """Parse JSON response content."""
+    try:
         data = json.loads(response_content)
-        outputs_dir = Path(__file__).parent / "outputs"
-        outputs_dir.mkdir(exist_ok=True)
+        logger.debug("Successfully parsed JSON response")
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON response: {e}")
+        return None
+
+
+def save_result(medicine: str, data: dict, output_dir: Path = None) -> Path | None:
+    """Save medicine information to a JSON file."""
+    try:
+        if output_dir is None:
+            output_dir = Path(__file__).parent / "outputs"
+
+        output_dir.mkdir(exist_ok=True)
         filename = medicine.lower().replace(" ", "_")
-        output_file = outputs_dir / f"{filename}.json"
+        output_file = output_dir / f"{filename}.json"
+
         with open(output_file, 'w') as f:
             json.dump(data, f, indent=4)
+
+        logger.info(f"Medicine information saved to {output_file}")
         print(f"Medicine information saved to {output_file}")
-    else:
-        print("Error: Expected string response from model")
+        return output_file
+    except Exception as e:
+        logger.error(f"Failed to save result: {e}")
+        return None
+
+
+def cli(medicine: str, model: str, temperature: float = 0.2):
+    """Main CLI function to fetch and save medicine information."""
+    try:
+        client = create_client(model, temperature)
+        response_content = fetch_medicine_data(client, medicine)
+
+        if response_content is None:
+            print("Error: Failed to fetch medicine information")
+            return
+
+        data = parse_response(response_content)
+
+        if data is None:
+            print("Error: Failed to parse response")
+            return
+
+        output_file = save_result(medicine, data)
+
+        if output_file is None:
+            print("Error: Failed to save results")
+    except Exception as e:
+        logger.error(f"Unexpected error in cli: {e}")
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python medicine_info.py <medicine_name>")
-        sys.exit(1)
-    medicine = sys.argv[1]
-    cli(medicine)
+    parser = argparse.ArgumentParser(
+        description="Fetch detailed medicine information using AI"
+    )
+    parser.add_argument(
+        "medicine",
+        help="The name of the medicine to fetch information about"
+    )
+    parser.add_argument(
+        "-m", "--model",
+        default="gemini/gemini-2.5-flash",
+        help="The model to use for generating medicine information (default: gemini/gemini-2.5-flash)"
+    )
+    parser.add_argument(
+        "-t", "--temperature",
+        type=float,
+        default=0.2,
+        help="Temperature for model response (default: 0.2)"
+    )
+
+    args = parser.parse_args()
+    cli(args.medicine, args.model, args.temperature)
