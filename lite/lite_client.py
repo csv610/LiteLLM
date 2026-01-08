@@ -71,9 +71,16 @@ class LiteClient:
 
         content = [{"type": "text", "text": model_input.user_prompt}]
 
+        # Handle single image (backward compatibility)
         if model_input.image_path:
             base64_url = ImageUtils.encode_to_base64(model_input.image_path)
             content.append({"type": "image_url", "image_url": {"url": base64_url}})
+
+        # Handle multiple images
+        if model_input.image_paths:
+            for image_path in model_input.image_paths:
+                base64_url = ImageUtils.encode_to_base64(image_path)
+                content.append({"type": "image_url", "image_url": {"url": base64_url}})
 
         messages.append({"role": "user", "content": content})
 
@@ -101,7 +108,12 @@ class LiteClient:
             raise ValueError("ModelConfig must be provided either as argument or during initialization")
 
         try:
-            log_action = "Analyzing image" if model_input.image_path else "Generating text"
+            if model_input.image_path or model_input.image_paths:
+                num_images = 1 if model_input.image_path else 0
+                num_images += len(model_input.image_paths) if model_input.image_paths else 0
+                log_action = f"Analyzing {num_images} image(s)"
+            else:
+                log_action = "Generating text"
             logger.info(f"{log_action} with model: {config.model}")
 
             # Create message and call completion
@@ -118,7 +130,7 @@ class LiteClient:
             return response.choices[0].message.content
 
         except Exception as e:
-            is_image_request = model_input.image_path is not None
+            is_image_request = model_input.image_path is not None or model_input.image_paths is not None
             return self.handle_generation_exception(e, is_image_request)
 
 def main():

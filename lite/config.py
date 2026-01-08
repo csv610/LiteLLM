@@ -1,7 +1,7 @@
 """Configuration for available models and vision processing parameters."""
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union, List, Dict
 
 # Vision model defaults
 DEFAULT_TEMPERATURE = 0.7
@@ -36,14 +36,15 @@ class ModelInput:
 
     user_prompt: str = ""
     image_path: Optional[str] = None
+    image_paths: Optional[list[str]] = None
     system_prompt: Optional[str] = None
     response_format: Optional[str] = None
 
     def __post_init__(self):
         """Validate input after initialization."""
         if not self.user_prompt or not self.user_prompt.strip():
-            if not self.image_path:
-                raise ValueError("user_prompt cannot be empty unless an image_path is provided")
+            if not self.image_path and not self.image_paths:
+                raise ValueError("user_prompt cannot be empty unless an image_path(s) is provided")
             self.user_prompt = DEFAULT_PROMPT
 
         # Normalize empty system_prompt to None
@@ -53,3 +54,13 @@ class ModelInput:
         # Normalize empty response_format to None
         if self.response_format is not None and isinstance(self.response_format, str) and not self.response_format.strip():
             self.response_format = None
+
+
+@dataclass
+class MCQInput:
+    """Input parameters for multiple-choice question solving."""
+
+    question: str
+    options: Union[List[str], Dict[str, str]]
+    context: Optional[str] = None
+    image_paths: Optional[List[str]] = None
