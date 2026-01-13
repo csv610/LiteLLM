@@ -5,6 +5,7 @@ import logging
 from typing import Any, Dict, List, Optional, Union
 
 from litellm import completion, APIError
+from pydantic import BaseModel
 
 from .config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
 from .image_utils import ImageUtils
@@ -13,6 +14,44 @@ logger = logging.getLogger(__name__)
 
 class LiteClient:
     """Unified client for interacting with both text and vision models."""
+
+    @staticmethod
+    def _clean_json_response(response_content: str) -> str:
+        """
+        Clean and repair common JSON issues from LLM responses.
+
+        Args:
+            response_content: Raw response from LLM
+
+        Returns:
+            Cleaned JSON string
+
+        Raises:
+            ValueError: If JSON cannot be repaired
+        """
+        # Remove non-breaking spaces and other common problematic Unicode characters
+        cleaned = response_content.replace('\xa0', ' ').replace('\u200b', '').replace('\ufeff', '')
+
+        # Strip leading/trailing whitespace
+        cleaned = cleaned.strip()
+
+        # Try to find and extract JSON object
+        if not cleaned.startswith('{'):
+            # Try to find the first { and extract from there
+            start_idx = cleaned.find('{')
+            if start_idx != -1:
+                cleaned = cleaned[start_idx:]
+
+        # If JSON doesn't end with }, try to fix it
+        if not cleaned.endswith('}'):
+            # Find the last } and truncate there
+            end_idx = cleaned.rfind('}')
+            if end_idx != -1:
+                cleaned = cleaned[:end_idx + 1]
+            else:
+                raise ValueError("Could not find valid JSON structure in response")
+
+        return cleaned
 
     @staticmethod
     def handle_generation_exception(
@@ -90,7 +129,7 @@ class LiteClient:
         self,
         model_input: ModelInput,
         model_config: Optional[ModelConfig] = None,
-    ) -> Union[str, Dict[str, Any]]:
+    ) -> Union[str, Dict[str, Any], BaseModel]:
         """
         Generate text from a prompt or analyze an image with a prompt.
 
@@ -100,7 +139,7 @@ class LiteClient:
                          If not provided, uses the instance's model_config.
 
         Returns:
-            Generated text response or error message
+            Generated text response (string, parsed Pydantic model, or error dict)
         """
         # Use provided model_config or instance's model_config
         config = model_config or self.model_config
@@ -127,7 +166,16 @@ class LiteClient:
             )
 
             logger.info("Request successful")
-            return response.choices[0].message.content
+            response_content = response.choices[0].message.content
+
+            # If response_format is a Pydantic model, parse and validate the response
+            if model_input.response_format and isinstance(model_input.response_format, type) and issubclass(model_input.response_format, BaseModel):
+                cleaned_response = self._clean_json_response(response_content)
+                parsed_response = model_input.response_format.model_validate_json(cleaned_response)
+                logger.info(f"Successfully parsed response as {model_input.response_format.__name__}")
+                return parsed_response
+
+            return response_content
 
         except Exception as e:
             is_image_request = model_input.image_path is not None or model_input.image_paths is not None

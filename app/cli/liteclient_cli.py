@@ -22,55 +22,66 @@ def main_cli() -> None:
         epilog="Examples:\n"
         "  # Text query\n"
         "  python liteclient_cli.py -q 'What is AI?'\n"
-        "  python liteclient_cli.py -q 'Explain quantum computing' -m 5 -t 0.7\n"
+        "  python liteclient_cli.py -q 'Explain quantum computing' -t 0.7\n"
+        "  python liteclient_cli.py -q 'What is AI?' -m gpt-4\n"
         "\n"
-        "  # Image analysis\n"
+        "  # Image analysis (local file)\n"
         "  python liteclient_cli.py -i photo.jpg\n"
-        "  python liteclient_cli.py -i diagram.png -q 'What is shown here?' -m 3\n"
+        "  python liteclient_cli.py -i diagram.png -q 'What is shown here?'\n"
+        "\n"
+        "  # Image analysis (URL)\n"
+        "  python liteclient_cli.py -i https://example.com/image.jpg -q 'What is this?'\n"
     )
     parser.add_argument(
         "-q",
         "--question",
         type=str,
-        help="Input prompt for the model or image analysis",
+        help="Text prompt or question for the model. Required for text mode. "
+             "Optional for image mode (defaults to 'Describe the image')",
     )
     parser.add_argument(
         "-i",
         "--image",
         type=str,
         default=None,
-        help="Path to the image file (PNG, JPG, PDF) for vision analysis",
+        help="Path to image file (PNG, JPG, PDF) or HTTP(S) URL for vision analysis. "
+             "When provided, enables vision mode; when omitted, uses text mode",
     )
     parser.add_argument(
         "-m",
         "--model",
         type=str,
-        default="gemini/gemini-2.5-flash",
-        help="Model name to use (default: gemini/gemini-2.5-flash)",
+        default="ollama/gemma3",
+        help="Model identifier to use for generation (e.g., 'ollama/gemma3', 'gpt-4', etc.). "
+             "Default: ollama/gemma3",
     )
     parser.add_argument(
         "-t",
         "--temperature",
         type=float,
         default=DEFAULT_TEMPERATURE,
-        help=f"Sampling temperature (default: {DEFAULT_TEMPERATURE})",
+        help=f"Sampling temperature controlling output randomness (0.0=deterministic, 1.0=more random). "
+             f"Default: {DEFAULT_TEMPERATURE}",
     )
     parser.add_argument(
         "-o",
         "--output",
         type=str,
         default=None,
-        help="Path to output file to save the response",
+        help="Optional path to output file for saving the response. "
+             "If not specified, response is printed to stdout",
     )
     args = parser.parse_args()
 
+    # Validate temperature range
+    if not (0.0 <= args.temperature <= 2.0):
+        parser.error(f"Temperature must be between 0.0 and 2.0, got {args.temperature}")
+
     # Determine mode based on image argument
     if args.image:
-        model_type = "vision"
         if not args.question:
             args.question = "Describe the image"
     else:
-        model_type = "text"
         if not args.question:
             parser.error("The following arguments are required: -q/--question")
 
@@ -81,21 +92,30 @@ def main_cli() -> None:
     result = client.generate_text(model_input=model_input)
 
     if isinstance(result, dict) and "error" in result:
+        error_msg = f"Error: {result['error']}"
+        logger.error(error_msg)
         if not args.output:
             print(f"\nModel: {args.model}")
             print("-" * 60)
-            print(f"Error: {result['error']}")
+            print(error_msg)
         sys.exit(1)
     else:
         # Save to output file if specified
         if args.output:
-            with open(args.output, "w") as f:
-                f.write(result)
+            try:
+                with open(args.output, "w") as f:
+                    f.write(result)
+                logger.info(f"Response saved to {args.output}")
+            except IOError as e:
+                logger.error(f"Failed to write output file: {e}")
+                print(f"Error: Could not write to file '{args.output}': {e}", file=sys.stderr)
+                sys.exit(1)
         else:
             # Display result only if no output file
             print(f"\nModel: {args.model}")
             print("-" * 60)
             print(f"Response: {result}\n")
+            logger.info("Response generated successfully")
 
 if __name__ == "__main__":
     main_cli()

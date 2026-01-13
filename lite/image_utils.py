@@ -2,8 +2,11 @@
 
 import base64
 import logging
+import tempfile
+import urllib.request
 from pathlib import Path
 from typing import Optional, List, Tuple, Literal, Dict, Union
+from urllib.parse import urlparse
 from PIL import Image
 from PIL.Image import Exif
 import io
@@ -61,6 +64,70 @@ def _validate_directory_exists(directory_path: str) -> Path:
     if not directory.is_dir():
         raise ValueError(f"Path is not a directory: {directory_path}")
     return directory
+
+
+def _is_url(path: str) -> bool:
+    """
+    Check if a string is a valid HTTP(S) URL.
+
+    Private helper to detect URLs.
+    """
+    try:
+        parsed = urlparse(path)
+        return parsed.scheme in ('http', 'https') and bool(parsed.netloc)
+    except Exception:
+        return False
+
+
+def _download_from_url(url: str) -> str:
+    """
+    Download image from URL to a temporary file.
+
+    Private helper for downloading remote images.
+
+    Args:
+        url: HTTP(S) URL of the image to download
+
+    Returns:
+        Path to the temporary file containing the downloaded image
+
+    Raises:
+        ValueError: If the URL is invalid or download fails
+    """
+    try:
+        # Validate URL format
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            raise ValueError(f"Invalid URL: {url}")
+
+        # Get file extension from URL
+        path = parsed.path.lower()
+        if path.endswith('.jpg') or path.endswith('.jpeg'):
+            suffix = '.jpg'
+        elif path.endswith('.png'):
+            suffix = '.png'
+        elif path.endswith('.webp'):
+            suffix = '.webp'
+        elif path.endswith('.gif'):
+            suffix = '.gif'
+        else:
+            suffix = '.jpg'  # Default to jpg
+
+        # Download to temporary file
+        temp_file = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+        temp_path = temp_file.name
+        temp_file.close()
+
+        logger.info(f"Downloading image from {url}")
+        urllib.request.urlretrieve(url, temp_path)
+        logger.info(f"Image downloaded to {temp_path}")
+
+        return temp_path
+
+    except urllib.error.URLError as e:
+        raise ValueError(f"Failed to download image from {url}: {e}")
+    except Exception as e:
+        raise ValueError(f"Error downloading image from {url}: {e}")
 
 
 # API constraints
@@ -285,8 +352,10 @@ class ImageUtils:
         """
         Convert an image file to base64 encoding.
 
+        Supports both local file paths and HTTP(S) URLs.
+
         Args:
-            image_path: Path to the image file
+            image_path: Path to the image file or HTTP(S) URL
 
         Returns:
             Base64 encoded image URL in data URI format
@@ -295,6 +364,14 @@ class ImageUtils:
             FileNotFoundError: If the image file doesn't exist
             ValueError: If file is not a valid image or exceeds size limit
         """
+        # Download from URL if necessary
+        if _is_url(image_path):
+            try:
+                image_path = _download_from_url(image_path)
+            except ValueError as e:
+                logger.error(f"Failed to download image from URL: {e}")
+                raise
+
         path = Path(image_path)
 
         if not path.exists():

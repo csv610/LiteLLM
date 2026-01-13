@@ -5,7 +5,7 @@ import sys
 import os
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, NoReturn
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
 
@@ -27,12 +27,15 @@ class FAQConfig:
 	num_faqs: int
 	difficulty: str
 	model: Optional[str] = None
+	temperature: float = 0.3
 	output_dir: str = "."
 	log_file: str = str(Path(__file__).parent / "logs" / "faq_generator.log")
 
 	VALID_DIFFICULTIES = ["simple", "medium", "hard", "research"]
 	MIN_FAQS = 1
 	MAX_FAQS = 100
+	MIN_TEMPERATURE = 0.0
+	MAX_TEMPERATURE = 2.0
 
 	def __post_init__(self) -> None:
 		"""Validate configuration after initialization."""
@@ -59,6 +62,12 @@ class FAQConfig:
 		if self.difficulty not in self.VALID_DIFFICULTIES:
 			raise ValueError(
 				f"Difficulty must be one of: {', '.join(self.VALID_DIFFICULTIES)}"
+			)
+
+		# Validate temperature
+		if not (self.MIN_TEMPERATURE <= self.temperature <= self.MAX_TEMPERATURE):
+			raise ValueError(
+				f"Temperature must be between {self.MIN_TEMPERATURE} and {self.MAX_TEMPERATURE}"
 			)
 
 		# Validate model if provided
@@ -121,11 +130,11 @@ class FAQResponse(BaseModel):
 
 
 # ==============================================================================
-# FAQ Generator Class
+# Prompt Builder Class
 # ==============================================================================
 
-class FAQGenerator:
-	"""Generate frequently asked questions on a given topic with selectable difficulty levels."""
+class PromptBuilder:
+	"""Builds prompts for FAQ generation with configurable difficulty levels."""
 
 	DIFFICULTY_DESC = {
 		"simple": "beginner-friendly and basic concepts that anyone can understand",
@@ -133,6 +142,162 @@ class FAQGenerator:
 		"hard": "advanced topics requiring specialized knowledge and deeper understanding",
 		"research": "cutting-edge research questions, open problems, and expert-level discussions"
 	}
+
+	QUALITY_CRITERIA = """
+QUALITY CRITERIA - ACADEMIC STANDARDS:
+- Each question must be complete, standalone, and self-contained (understandable without external context)
+- Questions must be precise, unambiguous, and professionally worded
+- ANSWERS MUST BE OBJECTIVE, NOT SUBJECTIVE - avoid questions requiring opinions, beliefs, or personal judgment
+- ANSWERS MUST BE VERIFIABLE FROM PEER-REVIEWED LITERATURE, ACADEMIC TEXTBOOKS, AND AUTHORITATIVE SCIENTIFIC SOURCES
+- ONLY ask questions with definitive, measurable, scientifically-supported answers
+- Avoid vague, open-ended, interpretive, or opinion-based questions
+- Avoid questions about "best," "better," or subjective preferences without objective metrics
+- Each question must meet the highest academic and scientific standards
+- Questions should be suitable for academic papers, textbooks, and peer-reviewed publications"""
+
+	SEMANTIC_DIVERSITY = """
+SEMANTIC DIVERSITY REQUIREMENTS:
+- Each question must address a DIFFERENT semantic concept or aspect of the domain
+- Questions must NOT be paraphrases or variations of the same underlying question
+- Avoid asking about the same concept from only slightly different angles
+- Each question should explore a fundamentally distinct topic area, perspective, or problem domain
+- Vary the question types: cause-effect, comparison, application, theory, challenges, evolution, relationships"""
+
+	QUESTION_FORMAT = """
+STRICT REQUIREMENTS - GENERATE QUESTIONS NOT IMPERATIVES:
+
+1. ALL questions MUST be formatted as actual questions using interrogative sentence structure
+2. Questions MUST start with question words: "What," "How," "Why," "When," "Where," "Which," "Can," "Does," "Is," "Should," etc.
+3. Do NOT generate imperatives (commands like "Explain," "Describe," "Elaborate," "Differentiate")"""
+
+	def __init__(self, num_faqs: int, difficulty: str):
+		"""
+		Initialize the prompt builder.
+
+		Args:
+			num_faqs: Number of FAQs to generate
+			difficulty: Difficulty level (simple, medium, hard, research)
+		"""
+		self.num_faqs = num_faqs
+		self.difficulty = difficulty
+		self.level_desc = self.DIFFICULTY_DESC.get(difficulty, "intermediate level")
+
+	def _get_research_guidance(self, context: str = "") -> str:
+		"""
+		Get research-level guidance for prompt.
+
+		Args:
+			context: Optional context (topic or "content" for file-based)
+
+		Returns:
+			Research guidance string or empty string if not research level
+		"""
+		if self.difficulty != "research":
+			return ""
+
+		context_str = f" in {context}" if context else ""
+		return f"""
+RESEARCH-LEVEL FOCUS:
+- Generate questions about OPEN PROBLEMS and unsolved challenges{context_str}
+- Focus on CUTTING-EDGE research directions and recent advances that challenge prior assumptions
+- Ask about CURRENT RESEARCH GAPS and what remains unknown or contested
+- Include questions about EXPERIMENTAL METHODOLOGIES used to investigate phenomena{context_str}
+- Ask about LIMITATIONS of current theories, models, or approaches in this field
+- Include questions about COMPETING THEORIES or different interpretations of research findings
+- Focus on FUTURE RESEARCH DIRECTIONS and emerging methodologies
+- Ask about INTERDISCIPLINARY CONNECTIONS and novel approaches from other fields
+- Include questions that leading RESEARCHERS AND EXPERTS actively debate or investigate{context_str}
+- Questions should address what scholars do NOT yet know or where consensus is evolving"""
+
+	def _get_content_specific_requirements(self) -> str:
+		"""
+		Get content-specific requirements for file-based FAQ generation.
+
+		Returns:
+			Content-specific requirements string
+		"""
+		return """
+4. Do NOT ask about facts explicitly stated in the content
+5. Do NOT ask about information directly inferrable from the content
+6. Instead, generate questions about:
+   - Prerequisites and foundational concepts needed to understand this topic
+   - Common misconceptions or frequently confused concepts in this domain
+   - Practical tips, best practices, and common mistakes people make
+   - Related fields, alternative approaches, or competing solutions
+   - How this topic relates to other domains or real-world applications
+   - Historical context or evolution of concepts in this field
+   - Questions that require domain expertise but are independent from the provided text"""
+
+	def _get_topic_question_types(self) -> str:
+		"""Get question type suggestions for topic-based generation."""
+		if self.difficulty == "research":
+			return "open problems, cutting-edge advances, research gaps, methodologies, limitations, competing theories, future directions, interdisciplinary connections, emerging consensus"
+		return "fundamentals, comparison, application, challenges, best practices, evolution, relationships, controversies"
+
+	def build_content_prompt(self, content: str) -> str:
+		"""
+		Build prompt for content-based FAQ generation.
+
+		Args:
+			content: File content to analyze
+
+		Returns:
+			Formatted prompt string
+		"""
+		return f"""Analyze the following content to understand its domain and topic. Then generate {self.num_faqs} frequently asked questions with {self.level_desc} answers.
+
+Content:
+{content}
+
+{self.QUESTION_FORMAT}{self._get_content_specific_requirements()}{self._get_research_guidance()}
+
+{self.SEMANTIC_DIVERSITY}
+
+{self.QUALITY_CRITERIA}
+
+For each FAQ, provide:
+1. Question: A rigorous, academically-sound {self.level_desc} question formatted as an actual interrogative sentence, independent from the content, semantically distinct from other questions, precisely formulated, with an OBJECTIVE answer verifiable from peer-reviewed sources
+2. Answer: A comprehensive, academically rigorous answer grounded in peer-reviewed literature, established theories, and empirical evidence, NOT the provided content"""
+
+	def build_topic_prompt(self, topic: str) -> str:
+		"""
+		Build prompt for topic-based FAQ generation.
+
+		Args:
+			topic: Topic to generate FAQs about
+
+		Returns:
+			Formatted prompt string
+		"""
+		question_types = self._get_topic_question_types()
+		return f"""Generate {self.num_faqs} frequently asked questions about {topic} with {self.level_desc} answers.
+
+{self.QUESTION_FORMAT}{self._get_research_guidance(topic)}
+
+SEMANTIC DIVERSITY REQUIREMENTS:
+- Each question must address a DIFFERENT semantic concept or aspect of {topic}
+- Questions must NOT be paraphrases or variations of the same underlying question
+- Avoid asking about the same concept from only slightly different angles
+- Each question should explore a fundamentally distinct topic area, perspective, or problem domain
+- Vary the question types: {question_types}
+
+{self.QUALITY_CRITERIA}
+- Questions should cover established knowledge and empirically-supported practices in the domain
+- Answers should be comprehensive, rigorous, and grounded in peer-reviewed scholarship
+
+For each FAQ, provide:
+1. Question: A rigorous, academically-sound {self.level_desc} question formatted as an actual interrogative sentence, precise, professionally worded, semantically distinct from other questions, and with an OBJECTIVE answer verifiable from peer-reviewed sources
+2. Answer: A comprehensive, academically rigorous answer grounded in peer-reviewed literature, established theories, and empirical evidence in the field
+
+Generate questions that leading researchers and experts in {topic} would ask. Ensure all questions are formatted as actual interrogative sentences, are unique, semantically diverse, rigorous, and have objective answers supported by peer-reviewed literature and established consensus. Each question should explore a different facet of the topic at an academic standard."""
+
+
+# ==============================================================================
+# FAQ Generator Class
+# ==============================================================================
+
+class FAQGenerator:
+	"""Generate frequently asked questions on a given topic with selectable difficulty levels."""
 
 	def __init__(self, config: FAQConfig):
 		"""
@@ -143,7 +308,8 @@ class FAQGenerator:
 		"""
 		self.config = config
 		self.logger = setup_logging(config.log_file)
-		self.model = config.model or os.getenv("FAQ_MODEL", "gemini/gemini-2.5-flash")
+		self.model = config.model or "ollama/gemma3"
+		self.prompt_builder = PromptBuilder(config.num_faqs, config.difficulty)
 
 	def _read_content_file(self, file_path: str) -> str:
 		"""
@@ -166,10 +332,7 @@ class FAQGenerator:
 		except IOError as e:
 			raise ValueError(f"Failed to read content file: {e}")
 
-	def _create_prompt(
-		self,
-		content: Optional[str] = None
-	) -> str:
+	def _create_prompt(self, content: Optional[str] = None) -> str:
 		"""
 		Create the prompt for generating FAQs.
 
@@ -179,132 +342,13 @@ class FAQGenerator:
 		Returns:
 			Formatted prompt string for the LLM
 		"""
-		level_desc = self.DIFFICULTY_DESC.get(self.config.difficulty, "intermediate level")
-		is_research = self.config.difficulty == "research"
-
 		if content:
-			# Build content-based prompt with research-specific guidance if applicable
-			research_guidance = ""
-			if is_research:
-				research_guidance = """
-RESEARCH-LEVEL FOCUS:
-- Generate questions about OPEN PROBLEMS and unsolved challenges in this field
-- Focus on CUTTING-EDGE research directions and recent advances that challenge prior assumptions
-- Ask about CURRENT RESEARCH GAPS and what remains unknown or contested
-- Include questions about EXPERIMENTAL METHODOLOGIES used to investigate phenomena
-- Ask about LIMITATIONS of current theories, models, or approaches
-- Include questions about COMPETING THEORIES or different interpretations of research findings
-- Focus on FUTURE RESEARCH DIRECTIONS and emerging methodologies
-- Ask about INTERDISCIPLINARY CONNECTIONS and novel approaches from other fields
-- Include questions that leading RESEARCHERS AND EXPERTS actively debate or investigate
-- Questions should address what scholars do NOT yet know or where consensus is evolving"""
+			return self.prompt_builder.build_content_prompt(content)
 
-			prompt = f"""Analyze the following content to understand its domain and topic. Then generate {self.config.num_faqs} frequently asked questions with {level_desc} answers.
+		topic = self.config.get_topic() or "this topic"
+		return self.prompt_builder.build_topic_prompt(topic)
 
-Content:
-{content}
-
-STRICT REQUIREMENTS - GENERATE QUESTIONS NOT IMPERATIVES:
-
-1. ALL questions MUST be formatted as actual questions using interrogative sentence structure
-2. Questions MUST start with question words: "What," "How," "Why," "When," "Where," "Which," "Can," "Does," "Is," "Should," etc.
-3. Do NOT generate imperatives (commands like "Explain," "Describe," "Elaborate," "Differentiate")
-4. Do NOT ask about facts explicitly stated in the content
-5. Do NOT ask about information directly inferrable from the content
-6. Instead, generate questions about:
-   - Prerequisites and foundational concepts needed to understand this topic
-   - Common misconceptions or frequently confused concepts in this domain
-   - Practical tips, best practices, and common mistakes people make
-   - Related fields, alternative approaches, or competing solutions
-   - How this topic relates to other domains or real-world applications
-   - Historical context or evolution of concepts in this field
-   - Questions that require domain expertise but are independent from the provided text{research_guidance}
-
-SEMANTIC DIVERSITY REQUIREMENTS:
-- Each question must address a DIFFERENT semantic concept or aspect of the domain
-- Questions must NOT be paraphrases or variations of the same underlying question
-- Avoid asking about the same concept from only slightly different angles
-- Each question should explore a fundamentally distinct topic area, perspective, or problem domain
-- Vary the question types: cause-effect, comparison, application, theory, challenges, evolution, relationships
-
-QUALITY CRITERIA - ACADEMIC STANDARDS:
-- Each question must be complete, standalone, and self-contained (understandable without external context)
-- Questions must be precise, unambiguous, and professionally worded
-- ANSWERS MUST BE OBJECTIVE, NOT SUBJECTIVE - avoid questions requiring opinions, beliefs, or personal judgment
-- ANSWERS MUST BE VERIFIABLE FROM PEER-REVIEWED LITERATURE, ACADEMIC TEXTBOOKS, AND AUTHORITATIVE SCIENTIFIC SOURCES
-- ONLY ask questions with definitive, measurable, scientifically-supported answers
-- Avoid vague, open-ended, interpretive, or opinion-based questions
-- Avoid questions about "best," "better," or subjective preferences without objective metrics
-- Each question must meet the highest academic and scientific standards
-- Questions should be suitable for academic papers, textbooks, and peer-reviewed publications
-- Each question must be substantially different from others (both semantically and conceptually)
-- Questions should test depth of knowledge from established scholarship, not just recall
-- Answers should be comprehensive, rigorous, and cite established theories, methodologies, and empirical findings
-- Answers must NOT be sourced from the provided content but from general academic knowledge
-- Answers should reflect peer-reviewed understanding and established consensus in the field
-
-For each FAQ, provide:
-1. Question: A rigorous, academically-sound {level_desc} question formatted as an actual interrogative sentence, independent from the content, semantically distinct from other questions, precisely formulated, with an OBJECTIVE answer verifiable from peer-reviewed sources
-2. Answer: A comprehensive, academically rigorous answer grounded in peer-reviewed literature, established theories, and empirical evidence, NOT the provided content"""
-		else:
-			topic = self.config.get_topic() or "this topic"
-
-			# Build topic-based prompt with research-specific guidance if applicable
-			research_guidance = ""
-			if is_research:
-				research_guidance = """
-RESEARCH-LEVEL FOCUS:
-- Generate questions about OPEN PROBLEMS and unsolved challenges in {topic}
-- Focus on CUTTING-EDGE research directions and recent advances that challenge prior assumptions
-- Ask about CURRENT RESEARCH GAPS and what remains unknown or contested
-- Include questions about EXPERIMENTAL METHODOLOGIES used to investigate phenomena in {topic}
-- Ask about LIMITATIONS of current theories, models, or approaches in this field
-- Include questions about COMPETING THEORIES or different interpretations of research findings
-- Focus on FUTURE RESEARCH DIRECTIONS and emerging methodologies
-- Ask about INTERDISCIPLINARY CONNECTIONS and novel approaches from other fields
-- Include questions that leading RESEARCHERS AND EXPERTS actively debate or investigate in {topic}
-- Questions should address what scholars do NOT yet know or where consensus is evolving"""
-				question_types = "open problems, cutting-edge advances, research gaps, methodologies, limitations, competing theories, future directions, interdisciplinary connections, emerging consensus"
-			else:
-				question_types = "fundamentals, comparison, application, challenges, best practices, evolution, relationships, controversies"
-
-			prompt = f"""Generate {self.config.num_faqs} frequently asked questions about {topic} with {level_desc} answers.
-
-STRICT REQUIREMENTS - GENERATE QUESTIONS NOT IMPERATIVES:
-
-1. ALL questions MUST be formatted as actual questions using interrogative sentence structure
-2. Questions MUST start with question words: "What," "How," "Why," "When," "Where," "Which," "Can," "Does," "Is," "Should," etc.
-3. Do NOT generate imperatives (commands like "Explain," "Describe," "Elaborate," "Differentiate"){research_guidance}
-
-SEMANTIC DIVERSITY REQUIREMENTS:
-- Each question must address a DIFFERENT semantic concept or aspect of {topic}
-- Questions must NOT be paraphrases or variations of the same underlying question
-- Avoid asking about the same concept from only slightly different angles
-- Each question should explore a fundamentally distinct topic area, perspective, or problem domain
-- Vary the question types: {question_types}
-
-QUALITY CRITERIA - ACADEMIC STANDARDS:
-- Each question must be complete, standalone, and self-contained (understandable without additional context)
-- Questions must be precise, unambiguous, and professionally worded
-- ANSWERS MUST BE OBJECTIVE, NOT SUBJECTIVE - avoid questions requiring opinions, beliefs, or personal judgment
-- ANSWERS MUST BE VERIFIABLE FROM PEER-REVIEWED LITERATURE, ACADEMIC TEXTBOOKS, AND AUTHORITATIVE SCIENTIFIC SOURCES
-- ONLY ask questions with definitive, measurable, scientifically-supported answers
-- Avoid vague, open-ended, interpretive, or opinion-based questions
-- Avoid questions about "best," "better," or subjective preferences without objective metrics
-- Each question must meet the highest academic and scientific standards
-- Questions should be suitable for academic papers, textbooks, and peer-reviewed publications
-- Questions should cover established knowledge and empirically-supported practices in the domain
-- Answers should be comprehensive, rigorous, and grounded in peer-reviewed scholarship
-
-For each FAQ, provide:
-1. Question: A rigorous, academically-sound {level_desc} question formatted as an actual interrogative sentence, precise, professionally worded, semantically distinct from other questions, and with an OBJECTIVE answer verifiable from peer-reviewed sources
-2. Answer: A comprehensive, academically rigorous answer grounded in peer-reviewed literature, established theories, and empirical evidence in the field
-
-Generate questions that leading researchers and experts in {topic} would ask. Ensure all questions are formatted as actual interrogative sentences, are unique, semantically diverse, rigorous, and have objective answers supported by peer-reviewed literature and established consensus. Each question should explore a different facet of the topic at an academic standard."""
-
-		return prompt
-
-	def _handle_api_error(self, error: Exception) -> None:
+	def _handle_api_error(self, error: Exception) -> NoReturn:
 		"""
 		Handle and translate API errors to meaningful exceptions.
 
@@ -312,7 +356,7 @@ Generate questions that leading researchers and experts in {topic} would ask. En
 			error: Exception raised during API call
 
 		Raises:
-			RuntimeError: With appropriate error message
+			RuntimeError: Always raises with appropriate error message
 		"""
 		error_str = str(error).lower()
 
@@ -355,7 +399,7 @@ Generate questions that leading researchers and experts in {topic} would ask. En
 
 		try:
 			# Create ModelConfig and LiteClient
-			model_config = ModelConfig(model=self.model, temperature=0.3)
+			model_config = ModelConfig(model=self.model, temperature=self.config.temperature)
 			client = LiteClient(model_config=model_config)
 
 			# Create ModelInput with prompt and response format
@@ -364,16 +408,13 @@ Generate questions that leading researchers and experts in {topic} would ask. En
 				response_format=FAQResponse
 			)
 
-			# Generate text using LiteClient
-			response_content = client.generate_text(model_input=model_input)
+			# Generate text using LiteClient (returns parsed FAQResponse)
+			response = client.generate_text(model_input=model_input)
 
-			# Parse the response
-			if isinstance(response_content, str):
-				response = FAQResponse.model_validate_json(response_content)
-			else:
-				raise ValueError("Expected string response from model")
+			if not isinstance(response, FAQResponse):
+				raise ValueError("Expected FAQResponse object from model")
 
-			if not response.faqs or len(response.faqs) == 0:
+			if not response.faqs:
 				raise ValueError("No FAQs returned in response")
 
 			self.logger.info(f"Successfully generated {len(response.faqs)} FAQ(s)")
@@ -407,8 +448,6 @@ Generate questions that leading researchers and experts in {topic} would ask. En
 			"source_type": source_label,
 			"source": self.config.input_source,
 			"difficulty": self.config.difficulty,
-			"num_faqs_requested": self.config.num_faqs,
-			"num_faqs_generated": len(faqs),
 			"faqs": [faq.model_dump() for faq in faqs]
 		}
 
@@ -416,7 +455,7 @@ Generate questions that leading researchers and experts in {topic} would ask. En
 			with open(output_path, 'w', encoding='utf-8') as f:
 				json.dump(data_to_save, f, indent=4)
 
-			os.chmod(output_path, 0o600)
+			os.chmod(output_path, 0o644)
 			self.logger.info(f"Successfully saved {len(faqs)} FAQ(s) to {output_path}")
 			return output_path
 
@@ -431,61 +470,57 @@ Generate questions that leading researchers and experts in {topic} would ask. En
 
 def validate_num_faqs(num_str: str) -> int:
 	"""
-	Validate and convert number of FAQs string to integer.
+	Validate number of FAQs is in valid range.
 
 	Args:
-		num_str: Number of FAQs as string
+		num_str: Number as string
 
 	Returns:
-		Number of FAQs as integer
+		Validated integer
 
 	Raises:
-		argparse.ArgumentTypeError: If number is invalid
+		argparse.ArgumentTypeError: If invalid
 	"""
 	try:
 		num = int(num_str)
-		if num < FAQConfig.MIN_FAQS:
-			raise argparse.ArgumentTypeError(
-				f"Number of FAQs must be at least {FAQConfig.MIN_FAQS}, got {num}"
-			)
-		if num > FAQConfig.MAX_FAQS:
-			raise argparse.ArgumentTypeError(
-				f"Number of FAQs cannot exceed {FAQConfig.MAX_FAQS}, got {num}"
-			)
-		return num
 	except ValueError:
+		raise argparse.ArgumentTypeError(f"Must be an integer, got '{num_str}'")
+
+	if num < FAQConfig.MIN_FAQS or num > FAQConfig.MAX_FAQS:
 		raise argparse.ArgumentTypeError(
-			f"Number of FAQs must be a valid integer, got '{num_str}'"
+			f"Must be between {FAQConfig.MIN_FAQS}-{FAQConfig.MAX_FAQS}, got {num}"
 		)
+	return num
 
 
 def validate_input_source(source_str: str) -> str:
 	"""
-	Validate input source (can be a topic string or filename).
+	Validate input source (file path or topic string).
 
 	Args:
-		source_str: Input source (topic or filename)
+		source_str: Input source to validate
 
 	Returns:
 		Validated input source
 
 	Raises:
-		argparse.ArgumentTypeError: If input is invalid
+		argparse.ArgumentTypeError: If invalid
 	"""
-	if not source_str or len(source_str) < 1:
+	if not source_str or not source_str.strip():
 		raise argparse.ArgumentTypeError("Input source cannot be empty")
 
-	# If it's a file, verify it exists
+	source_str = source_str.strip()
+
+	# If file exists, accept it
 	if os.path.exists(source_str):
 		return source_str
 
-	# Otherwise, treat it as a topic and validate length
+	# Otherwise validate as topic string
 	if len(source_str) < 2 or len(source_str) > 100:
 		raise argparse.ArgumentTypeError(
-			"Topic must be between 2 and 100 characters, or provide a valid file path"
+			"Topic must be 2-100 characters (or provide valid file path)"
 		)
-
-	return source_str.strip()
+	return source_str
 
 
 def validate_difficulty(difficulty_str: str) -> str:
@@ -499,13 +534,12 @@ def validate_difficulty(difficulty_str: str) -> str:
 		Normalized difficulty level
 
 	Raises:
-		argparse.ArgumentTypeError: If difficulty is invalid
+		argparse.ArgumentTypeError: If invalid
 	"""
 	difficulty = difficulty_str.lower().strip()
 	if difficulty not in FAQConfig.VALID_DIFFICULTIES:
 		raise argparse.ArgumentTypeError(
-			f"Difficulty must be one of: {', '.join(FAQConfig.VALID_DIFFICULTIES)}. "
-			f"Got '{difficulty_str}'"
+			f"Must be: {', '.join(FAQConfig.VALID_DIFFICULTIES)}, got '{difficulty_str}'"
 		)
 	return difficulty
 
@@ -529,9 +563,6 @@ Examples:
   # Generate FAQs from content file
   python faq_generator.py -i content.txt -n 5 -d research
   python faq_generator.py --input article.md --num-faqs 10 --difficulty medium
-
-  # Using environment variable for model
-  FAQ_MODEL=gpt-4 python faq_generator.py -i "Physics" -n 10 -d medium
 		"""
 	)
 
@@ -541,16 +572,17 @@ Examples:
 		required=True,
 		type=validate_input_source,
 		dest="input_source",
-		help="Input source: either a topic string or path to content file"
+		help="Input source: topic string (2-100 chars) or path to content file (txt, md, etc). "
+		     "If a file path exists, file is processed; otherwise treated as topic string"
 	)
 
 	parser.add_argument(
 		"-n",
 		"--num-faqs",
-		required=True,
+		default=5,
 		type=validate_num_faqs,
 		dest="num_faqs",
-		help="Number of FAQs to generate (1-50)"
+		help="Number of FAQs to generate (1-100). Determines how many question-answer pairs to create"
 	)
 
 	parser.add_argument(
@@ -561,7 +593,9 @@ Examples:
 		type=validate_difficulty,
 		dest="difficulty",
 		choices=FAQConfig.VALID_DIFFICULTIES,
-		help="Difficulty level for FAQs (simple, medium, hard, research) (default: medium)"
+		help="Difficulty level: simple (beginner-friendly), medium (intermediate, practical), "
+		     "hard (advanced, specialized knowledge), research (cutting-edge, open problems). "
+		     "Default: medium"
 	)
 
 	parser.add_argument(
@@ -569,7 +603,18 @@ Examples:
 		"--model",
 		default=None,
 		dest="model",
-		help="LLM model to use (default: $FAQ_MODEL or gemini/gemini-2.5-flash)"
+		help="LLM model identifier in format 'provider/model' (e.g., 'ollama/gemma3', 'gpt-4', 'claude-3-opus'). "
+		     "Default: ollama/gemma3"
+	)
+
+	parser.add_argument(
+		"-t",
+		"--temperature",
+		type=float,
+		default=0.3,
+		dest="temperature",
+		help="Sampling temperature controlling output randomness (0.0-2.0). Lower values = more deterministic. "
+		     "Default: 0.3"
 	)
 
 	parser.add_argument(
@@ -577,7 +622,7 @@ Examples:
 		"--output",
 		default=".",
 		dest="output_dir",
-		help="Output directory for FAQ file (default: current directory)"
+		help="Output directory path for saving FAQ JSON file. Directory must exist. Default: current directory"
 	)
 
 	return parser
@@ -600,6 +645,7 @@ def main() -> int:
 			num_faqs=args.num_faqs,
 			difficulty=args.difficulty,
 			model=args.model,
+			temperature=args.temperature,
 			output_dir=args.output_dir
 		)
 
