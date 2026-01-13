@@ -11,6 +11,29 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
 
+# Module-level constants
+EDUCATION_LEVELS = [
+    'Middle School',
+    'High School',
+    'Undergraduate',
+    'Post-Graduate',
+    'Professional',
+    'General Public'
+]
+
+LEVEL_CODES = {
+    'Middle School': '0',
+    'High School': '1',
+    'Undergraduate': '2',
+    'Post-Graduate': '3',
+    'Professional': '4',
+    'General Public': '5'
+}
+
+DEFAULT_MODEL = "ollama/gemma3"
+DEFAULT_CHAPTERS = 12
+
+
 class ChapterSuggestion(BaseModel):
     chapter_number: int = Field(..., description="The sequential number of the chapter within the education level.")
     title: str = Field(..., description="The title of the chapter.")
@@ -37,44 +60,16 @@ class BookChaptersResponse(BaseModel):
     education_levels: list[EducationLevel] = Field(..., description="List of education levels with their corresponding chapters.")
 
 
-def cli(subject, level=None, num_chapters=None, model_name=None):
-    """Generate chapter suggestions for a subject at a specific education level using LiteClient.
-
-    Args:
-        subject (str): The subject or topic to create curriculum for
-        level (str): The education level (e.g., 'High School', 'Undergraduate', 'General Public')
-                    If None, defaults to all 6 levels: ['Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional', 'General Public']
-        num_chapters (int): Number of chapters to generate for the level
-                           If None, defaults to 12 chapters
-        model_name (str): The model to use for generation
-                         Default: 'gemini/gemini-2.5-flash'
-    """
-    if model_name is None:
-        model_name = "gemini/gemini-2.5-flash"
-
-    model_config = ModelConfig(model=model_name, temperature=0.2)
-    client = LiteClient(model_config=model_config)
-
-    # Set defaults if not provided
+def build_prompt(subject, level, num_chapters):
+    """Build the prompt for chapter generation."""
     if level is None:
-        levels = ['Middle School', 'High School', 'Undergraduate', 'Post-Graduate', 'Professional', 'General Public']
-        prompt_header = f"Create a comprehensive curriculum for teaching '{subject}' across all 6 education levels including General Public."
-        generate_all_levels = True
+        header = f"Create a comprehensive curriculum for teaching '{subject}' across all 6 education levels including General Public."
     else:
-        levels = [level]
-        prompt_header = f"Create a curriculum for teaching '{subject}' at the {level} level."
-        generate_all_levels = False
+        header = f"Create a curriculum for teaching '{subject}' at the {level} level."
 
-    chapters_instruction = ""
-    if num_chapters:
-        chapters_instruction = f"Generate exactly {num_chapters} chapters."
-    else:
-        chapters_instruction = "Generate exactly 12 chapters."
-        num_chapters = 12
+    return f"""{header}
 
-    prompt = f"""{prompt_header}
-
-{chapters_instruction}
+Generate exactly {num_chapters} chapters.
 
 For the education level(s):
 1. Suggest appropriate chapters that engage and educate the target audience
@@ -105,72 +100,95 @@ For each chapter include:
 
 Make sure the learning is truly incremental and builds naturally. For General Public, emphasize engaging storytelling, real-world examples, and the "wow factor" of the subject. Adapt the observations, experiments, and projects to be age-appropriate and feasible for the education level."""
 
+
+def generate_filename(subject, level):
+    """Generate output filename based on subject and level."""
+    subject_normalized = subject.replace(' ', '_').lower()
+    level_code = LEVEL_CODES.get(level, '0') if level else 'all'
+    return f"{subject_normalized}_{level_code}.json"
+
+
+def save_response(data, filename):
+    """Save response data to JSON file."""
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+
+def cli(subject, level=None, num_chapters=DEFAULT_CHAPTERS, model_name=DEFAULT_MODEL):
+    """Generate chapter suggestions for a subject at a specific education level using LiteClient.
+
+    Args:
+        subject (str): The subject or topic to create curriculum for
+        level (str): The education level. If None, generates for all levels.
+        num_chapters (int): Number of chapters to generate
+        model_name (str): The model to use for generation
+    """
+    model_config = ModelConfig(model=model_name, temperature=0.2)
+    client = LiteClient(model_config=model_config)
+
+    prompt = build_prompt(subject, level, num_chapters)
     model_input = ModelInput(user_prompt=prompt, response_format=BookChaptersResponse)
 
-    response_content = client.generate_text(model_input=model_input)
+    response = client.generate_text(model_input=model_input)
 
-    # Parse and save the formatted JSON output
-    if isinstance(response_content, str):
-        data = json.loads(response_content)
-        # Generate automatic filename with numeric level codes
-        subject_normalized = subject.replace(' ', '_').lower()
-
-        # Map education levels to numeric codes
-        level_codes = {
-            'Middle School': '0',
-            'High School': '1',
-            'Undergraduate': '2',
-            'Post-Graduate': '3',
-            'Professional': '4',
-            'General Public': '5'
-        }
-
-        if level:
-            level_code = level_codes.get(level, '0')
-            output_file = f"{subject_normalized}_{level_code}.json"
-        else:
-            output_file = f"{subject_normalized}_all.json"
-
-        with open(output_file, 'w') as f:
-            json.dump(data, f, indent=4)
-        print(f"Chapter suggestions for '{subject}' ({level if level else 'All Levels'}) saved to {output_file}")
+    # Handle both Pydantic model and string responses
+    if isinstance(response, BookChaptersResponse):
+        data = response.model_dump()
+    elif isinstance(response, str):
+        data = json.loads(response)
     else:
-        print("Error: Expected string response from model")
+        raise ValueError(f"Unexpected response type: {type(response).__name__}")
+
+    output_file = generate_filename(subject, level)
+    save_response(data, output_file)
+
+    level_display = level if level else 'All Levels'
+    print(f"Chapter suggestions for '{subject}' ({level_display}) saved to {output_file}")
 
 
 if __name__ == "__main__":
+    levels_help = '\n'.join(f"  {code}: {level}" for level, code in LEVEL_CODES.items())
+
     parser = argparse.ArgumentParser(
-        description="Generate chapter suggestions for a subject at a specific education level using LiteClient.",
+        description="Generate educational curriculum chapters for any subject across education levels.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
+        epilog=f"""
+Education Levels:
+{levels_help}
+
 Examples:
+  # Generate for all 6 levels (default)
   python bookchapters.py 'Quantum Physics'
+
+  # Generate for specific level
   python bookchapters.py 'Climate Change' -l 'High School'
-  python bookchapters.py 'Machine Learning' --level Undergraduate -n 5
-  python bookchapters.py 'AI' -l 'Post-Graduate' -n 6 -m 'gpt-4'
-  python bookchapters.py 'Black Holes' -l 'General Public' -n 8
+  python bookchapters.py 'Machine Learning' -l Undergraduate -n 5
+
+  # Use custom model
+  python bookchapters.py 'AI' -l 'Post-Graduate' -m 'openai/gpt-4'
+  python bookchapters.py 'Black Holes' -l 'General Public' -n 8 -m 'anthropic/claude-3-5-sonnet'
         """
     )
 
     parser.add_argument(
         "subject",
-        help="The subject or topic to create curriculum for"
+        help="Subject or topic to create curriculum for"
     )
     parser.add_argument(
         "-l", "--level",
         default=None,
-        help="Single education level to focus on. Available levels: 'Middle School' (0), 'High School' (1), 'Undergraduate' (2), 'Post-Graduate' (3), 'Professional' (4), 'General Public' (5). Default: Generate curriculum for all 6 levels"
+        help="Education level (0-5). Omit to generate for all 6 levels"
     )
     parser.add_argument(
         "-n", "--chapters",
         type=int,
-        default=None,
-        help="Number of chapters to generate (default: 12)"
+        default=DEFAULT_CHAPTERS,
+        help=f"Number of chapters per level (default: {DEFAULT_CHAPTERS})"
     )
     parser.add_argument(
         "-m", "--model",
-        default=None,
-        help="Model to use for generation (default: 'gemini/gemini-2.5-flash')"
+        default=DEFAULT_MODEL,
+        help=f"LLM model to use (default: {DEFAULT_MODEL})"
     )
 
     args = parser.parse_args()

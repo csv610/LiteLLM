@@ -233,32 +233,6 @@ Use objective language. Avoid words like "revolutionary," "profound," "amazing,"
 Instead, describe what specifically changed and how we know it changed."""
 
 
-def _handle_api_error(error: Exception) -> None:
-    """
-    Handle and translate API errors to meaningful exceptions.
-
-    Args:
-        error: Exception raised during API call
-
-    Raises:
-        RuntimeError: With appropriate error message
-    """
-    error_str = str(error).lower()
-
-    if "401" in str(error) or "authentication" in error_str:
-        logger.error("Authentication failed: Check your API credentials")
-        raise RuntimeError("API authentication failed. Check LITELLM_API_KEY or model-specific credentials.")
-    elif "429" in str(error):
-        logger.error("Rate limit exceeded")
-        raise RuntimeError("API rate limit exceeded. Please try again later.")
-    elif "404" in str(error):
-        logger.error("Model not found")
-        raise RuntimeError("Model not found or not available.")
-    else:
-        logger.error(f"Unexpected error: {error}")
-        raise RuntimeError(f"Failed to fetch Nobel Prize information: {error}")
-
-
 def fetch_nobel_winners(
     category: str,
     year: str,
@@ -287,34 +261,21 @@ def fetch_nobel_winners(
 
     logger.info(f"Fetching Nobel Prize information for {category} in {year} using model: {model}")
 
-    try:
-        # Create ModelConfig and LiteClient
-        model_config = ModelConfig(model=model, temperature=0.2)
-        client = LiteClient(model_config=model_config)
+    # Create ModelConfig and LiteClient
+    model_config = ModelConfig(model=model, temperature=0.2)
+    client = LiteClient(model_config=model_config)
 
-        # Create ModelInput with prompt and response format
-        model_input = ModelInput(
-            user_prompt=create_prompt(category, year),
-            response_format=PrizeResponse
-        )
+    # Create ModelInput with prompt and response format
+    model_input = ModelInput(
+        user_prompt=create_prompt(category, year),
+        response_format=PrizeResponse
+    )
 
-        # Generate text using LiteClient
-        response_content = client.generate_text(model_input=model_input)
+    # Generate text using LiteClient (validation handled by client)
+    prize_response = client.generate_text(model_input=model_input)
 
-        # Parse the response
-        if isinstance(response_content, str):
-            prize_response = PrizeResponse.model_validate_json(response_content)
-        else:
-            raise ValueError("Expected string response from model")
-
-        if not prize_response.winners or len(prize_response.winners) == 0:
-            raise ValueError("No winners returned in response")
-
-        logger.info(f"Successfully fetched {len(prize_response.winners)} winner(s)")
-        return prize_response.winners
-
-    except Exception as e:
-        _handle_api_error(e)
+    logger.info(f"Successfully fetched {len(prize_response.winners)} winner(s)")
+    return prize_response.winners
 
 
 # ==============================================================================
@@ -435,13 +396,8 @@ def main() -> int:
 
         winners = fetch_nobel_winners(args.category, str(args.year), model=args.model)
 
-        if not winners:
-            logger.error("No winners returned from API")
-            print("Error: No winners found for the specified category and year.")
-            return 1
-
         # Save to JSON file with format: {category}_{year}.json
-        output_filename = os.path.basename(f"{args.category.lower()}_{args.year}.json")
+        output_filename = f"{args.category.lower()}_{args.year}.json"
 
         data_to_save = {
             "category": args.category,
@@ -463,17 +419,9 @@ def main() -> int:
 
         return 0
 
-    except RuntimeError as e:
-        logger.error(f"Runtime error: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        return 1
-    except IOError as e:
-        logger.error(f"File I/O error: {e}")
-        return 1
     except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
+        logger.exception(f"Error: {e}")
+        print(f"Error: {e}")
         return 1
 
 
