@@ -302,17 +302,19 @@ def cli(medicine, model, temperature):
     prompt = f"Provide detailed information about the medicine {medicine}."
     model_input = ModelInput(user_prompt=prompt, response_format=MedicineInfo)
 
-    response_content = client.generate_text(model_input=model_input)
+    response = client.generate_text(model_input=model_input)
 
-    # Parse and save the formatted JSON output
-    if not isinstance(response_content, str):
-        print("Error: Expected string response from model", file=sys.stderr)
-        sys.exit(1)
-
-    try:
-        data = json.loads(response_content)
-    except json.JSONDecodeError as e:
-        print(f"Error: Failed to parse JSON response: {e}", file=sys.stderr)
+    # Handle both Pydantic model and string responses
+    if isinstance(response, MedicineInfo):
+        data = response.model_dump()
+    elif isinstance(response, str):
+        try:
+            data = json.loads(response)
+        except json.JSONDecodeError as e:
+            print(f"Error: Failed to parse JSON response: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print(f"Error: Unexpected response type: {type(response).__name__}", file=sys.stderr)
         sys.exit(1)
 
     sanitized_name = sanitize_filename(medicine).lower()
@@ -330,22 +332,32 @@ def cli(medicine, model, temperature):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Fetch comprehensive medicine information using LiteClient."
+        description="Fetch comprehensive medicine information (pharmacology, safety, interactions, regulatory data).",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python drugbank_medicine.py aspirin
+  python drugbank_medicine.py ibuprofen -t 0.1
+  python drugbank_medicine.py metformin -m anthropic/claude-3-5-sonnet
+
+Output:
+  Results are saved to outputs/{medicine_name}.json
+        """
     )
     parser.add_argument(
         "medicine",
-        help="Name of the medicine to fetch information for"
+        help="Medicine name (e.g., 'aspirin', 'ibuprofen', 'metformin')"
     )
     parser.add_argument(
         "-m", "--model",
-        default="gemini/gemini-2.5-flash",
-        help="Model to use (default: gemini/gemini-2.5-flash)"
+        default="ollama/gemma3",
+        help="LLM model to use (default: ollama/gemma3)"
     )
     parser.add_argument(
         "-t", "--temperature",
         type=float,
         default=0.2,
-        help="Temperature for model response (default: 0.2)"
+        help="Temperature for model response (0.0-1.0, lower=more deterministic, default: 0.2)"
     )
 
     args = parser.parse_args()
