@@ -1,0 +1,613 @@
+"""drugs_comparison - Compare medicines side-by-side across clinical, regulatory, and practical metrics.
+
+This module enables comprehensive comparison of two medicines to help healthcare professionals
+and patients make informed treatment decisions. It generates structured comparison matrices
+with clinical effectiveness data, safety profiles, regulatory information, cost analysis, and
+contextual recommendations. All comparisons are powered by the MedKit AI client with validated
+Pydantic schemas.
+
+QUICK START:
+    from drugs_comparison import DrugsComparison, DrugsComparisonConfig
+
+    config = DrugsComparisonConfig(
+        medicine1="Aspirin",
+        medicine2="Ibuprofen",
+        use_case="pain relief"
+    )
+    comparison = DrugsComparison(config).compare()
+    print(comparison.comparison_summary.more_effective)
+
+COMMON USES:
+    1. Drug selection guidance - comparing treatment options with efficacy and safety data
+    2. Cost-benefit analysis - evaluating affordability and insurance coverage patterns
+    3. Patient education - explaining differences between medication alternatives
+    4. Clinical decision support - contextual recommendations by patient age and conditions
+    5. Regulatory comparison - comparing FDA approval status and safety warnings
+
+KEY FEATURES AND COVERAGE AREAS:
+    - Clinical Metrics: effectiveness ratings, efficacy rates, onset of action, side effects
+    - Regulatory Metrics: FDA approval status, approval type, black box warnings, alerts
+    - Practical Metrics: availability status, cost ranges, insurance coverage, formulations
+    - Comparison Summary: side-by-side analysis of effectiveness, safety, cost, accessibility
+    - Contextual Recommendations: tailored guidance for acute/chronic use, age groups, cost-sensitive patients
+    - Narrative Analysis: detailed prose comparison of similarities and differences
+    - Evidence Quality: assessment of supporting evidence strength
+"""
+
+import logging
+import sys
+import json
+import argparse
+from pathlib import Path
+from typing import Optional
+from dataclasses import dataclass, field
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+from medkit.core.medkit_client import MedKitClient, MedKitConfig
+from medkit.utils.pydantic_prompt_generator import PromptStyle
+from medkit.utils.logging_config import setup_logger
+
+from drugs_comparison_models import (
+    MedicinesComparisonResult,
+)
+
+# Configure logging
+logger = setup_logger(__name__)
+logger.info("="*80)
+logger.info("Drugs Comparison Module Initialized")
+logger.info("="*80)
+
+
+@dataclass
+class DrugsComparisonConfig(MedKitConfig):
+    """
+    Configuration for drugs_comparison.
+
+    Inherits from StorageConfig for LMDB database settings:
+    - db_path: Auto-generated path to drugs_comparison.lmdb
+    - db_capacity_mb: Database capacity (default 500 MB)
+    - db_store: Whether to cache results (default True)
+    - db_overwrite: Whether to refresh cache (default False)
+    """
+    """Configuration for drugs comparison."""
+    output_path: Optional[Path] = None
+    verbosity: bool = False
+    prompt_style: PromptStyle = PromptStyle.DETAILED
+    enable_cache: bool = True
+
+    def __post_init__(self):
+        """Set default db_path if not provided, then validate."""
+        if self.db_path is None:
+            self.db_path = str(
+                Path(__file__).parent.parent / "storage" / "drugs_comparison.lmdb"
+            )
+        # Call parent validation
+        super().__post_init__()
+
+class DrugsComparison:
+    """Compares two medicines based on provided configuration."""
+
+    def __init__(self, config: DrugsComparisonConfig):
+        self.config = config
+
+        # Load model name from ModuleConfig
+        model_name = "ollama/gemma2:12b"  # Default model for this module
+
+        self.client = MedKitClient(model_name=model_name)
+
+    def compare(
+        self,
+        medicine1: str,
+        medicine2: str,
+        use_case: Optional[str] = None,
+        patient_age: Optional[int] = None,
+        patient_conditions: Optional[str] = None,
+    ) -> MedicinesComparisonResult:
+        """
+        Compares two medicines across clinical, regulatory, and practical metrics.
+
+        Args:
+            medicine1: Name of the first medicine
+            medicine2: Name of the second medicine
+            use_case: Use case or indication for comparison (optional)
+            patient_age: Patient's age in years (optional, 0-150)
+            patient_conditions: Patient's medical conditions (optional, comma-separated)
+
+        Returns:
+            MedicinesComparisonResult: Comprehensive side-by-side comparison
+        """
+        # Validate inputs
+        if not medicine1 or not medicine1.strip():
+            raise ValueError("Medicine 1 name cannot be empty")
+        if not medicine2 or not medicine2.strip():
+            raise ValueError("Medicine 2 name cannot be empty")
+        if patient_age is not None and (patient_age < 0 or patient_age > 150):
+            raise ValueError("Age must be between 0 and 150 years")
+
+        logger.info("-" * 80)
+        logger.info(f"Starting drugs comparison analysis")
+        logger.info(f"Medicine 1: {medicine1}")
+        logger.info(f"Medicine 2: {medicine2}")
+        logger.info(f"Prompt Style: {self.config.prompt_style.value if hasattr(self.config.prompt_style, 'value') else self.config.prompt_style}")
+
+        output_path = self.config.output_path
+        if output_path is None:
+            medicine1_clean = medicine1.lower().replace(' ', '_')
+            medicine2_clean = medicine2.lower().replace(' ', '_')
+            output_path = Path("outputs") / f"{medicine1_clean}_vs_{medicine2_clean}_comparison.json"
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Output path: {output_path}")
+
+        context_parts = [f"Comparing {medicine1} and {medicine2}"]
+        if use_case:
+            context_parts.append(f"Use case: {use_case}")
+            logger.info(f"Use case: {use_case}")
+        if patient_age is not None:
+            context_parts.append(f"Patient age: {patient_age} years")
+            logger.info(f"Patient age: {patient_age}")
+        if patient_conditions:
+            context_parts.append(f"Patient conditions: {patient_conditions}")
+            logger.info(f"Patient conditions: {patient_conditions}")
+
+        context = ". ".join(context_parts) + "."
+        logger.debug(f"Context: {context}")
+
+        logger.info("Calling MedKitClient.generate_text()...")
+        try:
+            result = self.client.generate_text(
+                prompt=f"Detailed side-by-side comparison between {medicine1} and {medicine2}. {context}",
+                schema=MedicinesComparisonResult,
+            )
+
+            logger.info(f"✓ Successfully compared medicines")
+            logger.info(f"More Effective: {result.comparison_summary.more_effective[:100] if result.comparison_summary.more_effective else 'N/A'}...")
+            logger.info(f"More Affordable: {result.comparison_summary.more_affordable[:100] if result.comparison_summary.more_affordable else 'N/A'}...")
+            logger.info("-" * 80)
+            return result
+        except Exception as e:
+            logger.error(f"✗ Error comparing medicines: {e}")
+            logger.exception("Full exception details:")
+            logger.info("-" * 80)
+            raise
+
+
+def get_drugs_comparison(
+    medicine1: str,
+    medicine2: str,
+    config: DrugsComparisonConfig,
+    use_case: Optional[str] = None,
+    patient_age: Optional[int] = None,
+    patient_conditions: Optional[str] = None,
+) -> MedicinesComparisonResult:
+    """
+    Get drugs comparison.
+
+    This is a convenience function that instantiates and runs the
+    DrugsComparison analyzer.
+
+    Args:
+        medicine1: Name of the first medicine
+        medicine2: Name of the second medicine
+        config: Configuration object for the analysis
+        use_case: Use case or indication for comparison (optional)
+        patient_age: Patient's age in years (optional)
+        patient_conditions: Patient's medical conditions (optional)
+
+    Returns:
+        MedicinesComparisonResult: The result of the analysis
+    """
+    analyzer = DrugsComparison(config)
+    return analyzer.compare(
+        medicine1=medicine1,
+        medicine2=medicine2,
+        use_case=use_case,
+        patient_age=patient_age,
+        patient_conditions=patient_conditions,
+    )
+
+
+def create_cli_parser() -> argparse.ArgumentParser:
+    """
+    Create and configure the argument parser for the CLI.
+
+    Returns:
+        argparse.ArgumentParser: Configured parser for command-line arguments
+    """
+    parser = argparse.ArgumentParser(
+        description="Medicines Comparison Tool - Compare two medicines side-by-side",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Basic comparison
+  python drugs_comparison.py "Aspirin" "Ibuprofen"
+
+  # With use case
+  python drugs_comparison.py "Lisinopril" "Losartan" --use-case "hypertension management"
+
+  # With patient details
+  python drugs_comparison.py "Metformin" "Glipizide" --age 68 --conditions "type-2 diabetes, kidney disease"
+
+  # With custom output
+  python drugs_comparison.py "Atorvastatin" "Simvastatin" --output comparison.json --verbose
+        """,
+    )
+
+    # Required arguments
+    parser.add_argument(
+        "medicine1",
+        type=str,
+        help="Name of the first medicine to compare",
+    )
+
+    parser.add_argument(
+        "medicine2",
+        type=str,
+        help="Name of the second medicine to compare",
+    )
+
+    # Optional arguments
+    parser.add_argument(
+        "--use-case",
+        "-u",
+        type=str,
+        default=None,
+        help="Use case or indication for the comparison (e.g., 'pain relief', 'hypertension')",
+    )
+
+    parser.add_argument(
+        "--age",
+        "-a",
+        type=int,
+        default=None,
+        help="Patient's age in years (0-150)",
+    )
+
+    parser.add_argument(
+        "--conditions",
+        "-c",
+        type=str,
+        default=None,
+        help="Patient's medical conditions (comma-separated)",
+    )
+
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=Path,
+        default=None,
+        help="Output file path for results (default: outputs/{medicine1}_vs_{medicine2}_comparison.json)",
+    )
+
+    parser.add_argument(
+        "--prompt-style",
+        "-p",
+        type=str,
+        choices=["detailed", "concise", "balanced"],
+        default="detailed",
+        help="Prompt style for analysis (default: detailed)",
+    )
+
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        default=False,
+        help="Enable verbose logging output",
+    )
+
+    parser.add_argument(
+        "--json-output",
+        "-j",
+        action="store_true",
+        default=False,
+        help="Output results as JSON to stdout (in addition to file)",
+    )
+
+    return parser
+
+
+def parse_prompt_style(style_str: str) -> PromptStyle:
+    """
+    Parse prompt style string to PromptStyle enum.
+
+    Args:
+        style_str: String representation of prompt style
+
+    Returns:
+        PromptStyle: The corresponding enum value
+
+    Raises:
+        ValueError: If style string is not a valid prompt style
+    """
+    style_mapping = {
+        "detailed": PromptStyle.DETAILED,
+        "concise": PromptStyle.CONCISE,
+        "balanced": PromptStyle.BALANCED,
+    }
+
+    if style_str.lower() not in style_mapping:
+        raise ValueError(
+            f"Invalid prompt style: {style_str}. "
+            f"Choose from: {', '.join(style_mapping.keys())}"
+        )
+
+    return style_mapping[style_str.lower()]
+
+
+def print_results(result: MedicinesComparisonResult, verbose: bool = False) -> None:
+    """
+    Print comparison results in a formatted manner using rich.
+
+    Args:
+        result: The analysis result to print
+        verbose: Whether to print detailed information
+    """
+    console = Console()
+
+    # Print comparison summary
+    summary = result.comparison_summary
+    summary_text = (
+        f"[bold]More Effective:[/bold] {summary.more_effective}\n"
+        f"[bold]Safer Option:[/bold] {summary.safer_option}\n"
+        f"[bold]More Affordable:[/bold] {summary.more_affordable}\n"
+        f"[bold]Easier Access:[/bold] {summary.easier_access}\n\n"
+        f"[bold]Key Differences:[/bold]"
+    )
+
+    console.print(
+        Panel(
+            summary_text,
+            title="Comparison Summary",
+            border_style="cyan",
+        )
+    )
+
+    differences = [diff.strip() for diff in summary.key_differences.split(",")]
+    for diff in differences:
+        console.print(f"  • {diff}")
+    console.print()
+
+    # Clinical metrics table
+    clinical_table = Table(title="Clinical Metrics", border_style="blue")
+    clinical_table.add_column("Metric", style="cyan")
+    clinical_table.add_column(result.medicine1_clinical.medicine_name, style="magenta")
+    clinical_table.add_column(result.medicine2_clinical.medicine_name, style="magenta")
+
+    clinical_table.add_row(
+        "Effectiveness",
+        result.medicine1_clinical.effectiveness_rating.value,
+        result.medicine2_clinical.effectiveness_rating.value,
+    )
+    clinical_table.add_row(
+        "Efficacy Rate",
+        result.medicine1_clinical.efficacy_rate,
+        result.medicine2_clinical.efficacy_rate,
+    )
+    clinical_table.add_row(
+        "Onset of Action",
+        result.medicine1_clinical.onset_of_action,
+        result.medicine2_clinical.onset_of_action,
+    )
+    clinical_table.add_row(
+        "Safety Rating",
+        result.medicine1_clinical.safety_rating.value,
+        result.medicine2_clinical.safety_rating.value,
+    )
+
+    console.print(clinical_table)
+
+    # Black box warnings if present
+    if result.medicine1_clinical.black_box_warning or result.medicine2_clinical.black_box_warning:
+        console.print("[bold yellow]Black Box Warnings:[/bold yellow]")
+        if result.medicine1_clinical.black_box_warning:
+            console.print(f"  {result.medicine1_clinical.medicine_name}: {result.medicine1_clinical.black_box_warning}")
+        if result.medicine2_clinical.black_box_warning:
+            console.print(f"  {result.medicine2_clinical.medicine_name}: {result.medicine2_clinical.black_box_warning}")
+        console.print()
+
+    # Regulatory information table
+    reg_table = Table(title="Regulatory Information", border_style="blue")
+    reg_table.add_column("Aspect", style="cyan")
+    reg_table.add_column(result.medicine1_regulatory.medicine_name, style="magenta")
+    reg_table.add_column(result.medicine2_regulatory.medicine_name, style="magenta")
+
+    reg_table.add_row(
+        "FDA Status",
+        result.medicine1_regulatory.fda_approval_status,
+        result.medicine2_regulatory.fda_approval_status,
+    )
+    reg_table.add_row(
+        "Approval Date",
+        result.medicine1_regulatory.approval_date,
+        result.medicine2_regulatory.approval_date,
+    )
+    reg_table.add_row(
+        "Approval Type",
+        result.medicine1_regulatory.approval_type,
+        result.medicine2_regulatory.approval_type,
+    )
+    reg_table.add_row(
+        "Generic Available",
+        "Yes" if result.medicine1_regulatory.generic_available else "No",
+        "Yes" if result.medicine2_regulatory.generic_available else "No",
+    )
+
+    console.print(reg_table)
+
+    # Practical information table
+    practical_table = Table(title="Practical Information", border_style="blue")
+    practical_table.add_column("Aspect", style="cyan")
+    practical_table.add_column(result.medicine1_practical.medicine_name, style="magenta")
+    practical_table.add_column(result.medicine2_practical.medicine_name, style="magenta")
+
+    practical_table.add_row(
+        "Availability",
+        result.medicine1_practical.availability_status.value,
+        result.medicine2_practical.availability_status.value,
+    )
+    practical_table.add_row(
+        "Typical Cost",
+        result.medicine1_practical.typical_cost_range,
+        result.medicine2_practical.typical_cost_range,
+    )
+    practical_table.add_row(
+        "Insurance Coverage",
+        result.medicine1_practical.insurance_coverage,
+        result.medicine2_practical.insurance_coverage,
+    )
+
+    console.print(practical_table)
+
+    # Print recommendations
+    recs = result.recommendations
+    console.print("[bold cyan]Clinical Recommendations:[/bold cyan]")
+
+    if recs.for_acute_conditions:
+        console.print(
+            Panel(
+                recs.for_acute_conditions,
+                title="For Acute Conditions",
+                border_style="green",
+            )
+        )
+
+    if recs.for_chronic_conditions:
+        console.print(
+            Panel(
+                recs.for_chronic_conditions,
+                title="For Chronic Conditions",
+                border_style="green",
+            )
+        )
+
+    if recs.for_elderly_patients:
+        console.print(
+            Panel(
+                recs.for_elderly_patients,
+                title="For Elderly Patients",
+                border_style="green",
+            )
+        )
+
+    if recs.for_cost_sensitive:
+        console.print(
+            Panel(
+                recs.for_cost_sensitive,
+                title="For Cost-Sensitive Patients",
+                border_style="green",
+            )
+        )
+
+    console.print(
+        Panel(
+            recs.overall_recommendation,
+            title="Overall Recommendation",
+            border_style="cyan",
+        )
+    )
+
+    # Print narrative analysis
+    console.print(
+        Panel(
+            result.narrative_analysis,
+            title="Detailed Analysis",
+            border_style="magenta",
+        )
+    )
+
+    # Print evidence quality and limitations
+    console.print(
+        Panel(
+            result.evidence_quality,
+            title="Evidence Quality",
+            border_style="yellow",
+        )
+    )
+
+    console.print("[bold yellow]Limitations:[/bold yellow]")
+    limitations = [lim.strip() for lim in result.limitations.split(",")]
+    for lim in limitations:
+        console.print(f"  • {lim}")
+
+
+def main() -> int:
+    """
+    Main entry point for the drugs comparison CLI.
+
+    Returns:
+        int: Exit code (0 for success, 1 for error)
+    """
+    parser = create_cli_parser()
+    args = parser.parse_args()
+
+    # Configure logging verbosity
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+
+    try:
+        # Parse prompt style
+        prompt_style = parse_prompt_style(args.prompt_style)
+
+        # Create configuration
+        config = DrugsComparisonConfig(
+            output_path=args.output,
+            verbosity=args.verbose,
+            prompt_style=prompt_style,
+        )
+
+        logger.info(f"Configuration created successfully")
+
+        # Run analysis
+        analyzer = DrugsComparison(config)
+        result = analyzer.compare(
+            medicine1=args.medicine1,
+            medicine2=args.medicine2,
+            use_case=args.use_case,
+            patient_age=args.age,
+            patient_conditions=args.conditions,
+        )
+
+        # Print results
+        print_results(result, verbose=args.verbose)
+
+        # Save results to file
+        if args.output:
+            output_path = args.output
+        else:
+            medicine1_clean = args.medicine1.lower().replace(' ', '_')
+            medicine2_clean = args.medicine2.lower().replace(' ', '_')
+            output_path = Path("outputs") / f"{medicine1_clean}_vs_{medicine2_clean}_comparison.json"
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, "w") as f:
+            f.write(result.model_dump_json(indent=2))
+
+        logger.info(f"✓ Results saved to {output_path}")
+        print(f"\n✓ Results saved to: {output_path}")
+
+        # Output JSON to stdout if requested
+        if args.json_output:
+            print(f"\n{result.model_dump_json(indent=2)}")
+
+        return 0
+
+    except ValueError as e:
+        print(f"\n❌ Invalid input: {e}", file=sys.stderr)
+        logger.error(f"Invalid input: {e}")
+        return 1
+    except Exception as e:
+        print(f"\n❌ Error: {e}", file=sys.stderr)
+        logger.error(f"Unexpected error: {e}")
+        logger.exception("Full exception details:")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
