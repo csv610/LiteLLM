@@ -2,6 +2,7 @@ import sys
 import json
 import argparse
 from pathlib import Path
+from tqdm import tqdm
 
 # Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -107,24 +108,8 @@ ALL_ELEMENTS = [
     "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"
 ]
 
-def fetch_element_info(element: str, client: LiteClient) -> ElementInfo | None:
-    """Fetch information for a single element."""
-    try:
-        prompt = f"Provide detailed information about the periodic table element {element}."
-        model_input = ModelInput(user_prompt=prompt, response_format=ElementResponse)
-        response_content = client.generate_text(model_input=model_input)
-
-        if isinstance(response_content, str):
-            data = json.loads(response_content)
-            return ElementInfo(**data.get("element", {}))
-        return None
-    except Exception as e:
-        print(f"Error fetching {element}: {str(e)}", file=sys.stderr)
-        return None
-
-
-def main():
-    """Fetch information for periodic table elements."""
+def arguments_parser():
+    """Parse command-line arguments for the element info CLI."""
     parser = argparse.ArgumentParser(
         description="Fetch periodic table element information"
     )
@@ -136,8 +121,8 @@ def main():
     parser.add_argument(
         "-m", "--model",
         type=str,
-        default="gemini/gemini-2.5-flash",
-        help="Model to use (default: gemini/gemini-2.5-flash)"
+        default="ollama/gemma3:12b",
+        help="Model to use (default: ollama/gemma3:12b)"
     )
     parser.add_argument(
         "-t", "--temperature",
@@ -151,8 +136,30 @@ def main():
         default=".",
         help="Output directory for JSON files (default: current directory)"
     )
+    return parser.parse_args()
 
-    args = parser.parse_args()
+
+def fetch_element_info(element: str, client: LiteClient) -> ElementInfo | None:
+    """Fetch information for a single element."""
+    try:
+        prompt = f"Provide detailed information about the periodic table element {element}."
+        model_input = ModelInput(user_prompt=prompt, response_format=ElementResponse)
+        response_content = client.generate_text(model_input=model_input)
+
+        if isinstance(response_content, ElementResponse):
+            return response_content.element
+        elif isinstance(response_content, str):
+            data = json.loads(response_content)
+            return ElementInfo(**data.get("element", {}))
+        return None
+    except Exception as e:
+        tqdm.write(f"Error fetching {element}: {str(e)}", file=sys.stderr)
+        return None
+
+
+def element_info_cli():
+    """Fetch information for periodic table elements."""
+    args = arguments_parser()
 
     # Create output directory if it doesn't exist
     output_dir = Path(args.output_dir)
@@ -169,7 +176,6 @@ def main():
             print(f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
             sys.exit(1)
 
-        print(f"Fetching {element}...", file=sys.stderr)
         element_info = fetch_element_info(element, client)
 
         if element_info:
@@ -184,11 +190,9 @@ def main():
     else:
         # Fetch all elements
         all_elements_data = []
+        failed_elements = []
 
-        print(f"Fetching information for {len(ALL_ELEMENTS)} elements...", file=sys.stderr)
-
-        for i, element in enumerate(ALL_ELEMENTS, 1):
-            print(f"[{i}/{len(ALL_ELEMENTS)}] Fetching {element}...", file=sys.stderr)
+        for element in tqdm(ALL_ELEMENTS, desc="Fetching elements", unit="element"):
             element_info = fetch_element_info(element, client)
 
             if element_info:
@@ -198,16 +202,21 @@ def main():
                 with open(output_file, "w", encoding="utf-8") as f:
                     json.dump(output, f, indent=2, ensure_ascii=False)
                 all_elements_data.append(element_info.model_dump())
-            else:
-                print(f"Failed to fetch {element}", file=sys.stderr)
 
-        # Output all elements as a single JSON file
-        output = {"elements": all_elements_data, "total_count": len(all_elements_data)}
-        output_file = output_dir / "all_elements.json"
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
-        print(f"Saved to {output_file}", file=sys.stderr)
+                # Save consolidated file after each element
+                consolidated_output = {"elements": all_elements_data, "total_count": len(all_elements_data)}
+                consolidated_file = output_dir / "all_elements.json"
+                with open(consolidated_file, "w", encoding="utf-8") as f:
+                    json.dump(consolidated_output, f, indent=2, ensure_ascii=False)
+            else:
+                failed_elements.append(element)
+
+        # Print summary
+        print(f"\nCompleted: {len(all_elements_data)}/{len(ALL_ELEMENTS)} elements fetched", file=sys.stderr)
+        if failed_elements:
+            print(f"Failed: {len(failed_elements)} elements", file=sys.stderr)
+            print(f"Failed elements: {', '.join(failed_elements)}", file=sys.stderr)
 
 
 if __name__ == "__main__":
-    main()
+    element_info_cli()

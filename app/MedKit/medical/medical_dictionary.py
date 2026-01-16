@@ -1,28 +1,3 @@
-"""Medical Dictionary - AI-generated medical term definitions and explanations.
-
-Generates comprehensive medical dictionary entries for any medical term including definitions,
-detailed explanations, contraindications, and clinical categorization using structured LLM outputs.
-
-QUICK START:
-    from medical_dictionary import MedicalDictionaryGenerator
-    dictionary = MedicalDictionaryGenerator()
-    entry = dictionary.generate("Hypertension")
-    print(entry.definition)
-
-COMMON USES:
-    - Generate medical definitions for healthcare professionals and patients
-    - Create structured medical glossaries and reference materials
-    - Support patient education with accurate medical terminology
-    - Build knowledge bases with categorized medical terms
-    - Provide contraindications and clinical context for conditions
-
-KEY CONCEPTS:
-    - MedicalTerm schema defines structured entry format (term, definition, explanation)
-    - Categories: Disease, Anatomy, Procedure, Medication, Symptom, Sign, Treatment, Physiology, Clinical, Neurology
-    - Uses MedKitClient for LLM-powered generation with medical expert prompting
-    - Supports batch queries and interactive CLI mode for term lookups
-"""
-
 import argparse
 import json
 from pathlib import Path

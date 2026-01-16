@@ -19,19 +19,20 @@ class ObjectGuessingGame:
     thought of by the user through yes/no questions.
     """
 
-    def __init__(self, model: str = "gemini/gemini-2.5-flash", temperature: float = 0.7):
+    def __init__(self, model: str = "ollama/gemma3", temperature: float = 0.7, max_questions: int = 20):
         """
         Initialize the guessing game.
 
         Args:
             model: The model to use for generating questions
             temperature: Temperature for model responses (0.7 for more varied questions)
+            max_questions: Maximum number of questions allowed (default: 20)
         """
         self.model_config = ModelConfig(model=model, temperature=temperature)
         self.client = LiteClient(model_config=self.model_config)
         self.conversation_history = []
         self.question_count = 0
-        self.max_questions = 20
+        self.max_questions = max_questions
 
     def add_to_history(self, role: str, content: str):
         """Add a message to conversation history."""
@@ -193,7 +194,7 @@ Only ask yes/no questions (or make a guess when you're confident)."""
         return False
 
 
-def main():
+def object_guesser_cli():
     """Main entry point for the game."""
     import argparse
 
@@ -202,8 +203,8 @@ def main():
     )
     parser.add_argument(
         "-m", "--model",
-        default="gemini/gemini-2.5-flash",
-        help="Model to use (default: gemini/gemini-2.5-flash)",
+        default="ollama/gemma3",
+        help="Model to use (default: ollama/gemma3)",
     )
     parser.add_argument(
         "--temperature",
@@ -211,12 +212,18 @@ def main():
         default=0.7,
         help="Temperature for model responses (default: 0.7)",
     )
+    parser.add_argument(
+        "--max-questions",
+        type=int,
+        default=20,
+        help="Maximum number of questions allowed (default: 20)",
+    )
 
     args = parser.parse_args()
 
-    game = ObjectGuessingGame(model=args.model, temperature=args.temperature)
+    game = ObjectGuessingGame(model=args.model, temperature=args.temperature, max_questions=args.max_questions)
     game.play()
 
 
 if __name__ == "__main__":
-    main()
+    object_guesser_cli()

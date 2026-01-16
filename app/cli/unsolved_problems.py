@@ -43,7 +43,7 @@ class UnsolvedProblemsResponse(BaseModel):
 # Core Functions
 # ==============================================================================
 
-def create_prompt(topic: str, num_problems: int) -> str:
+def create_user_prompt(topic: str, num_problems: int) -> str:
     """
     Create the prompt for fetching unsolved problems in a given topic.
 
@@ -117,7 +117,7 @@ def fetch_unsolved_problems(
         RuntimeError: If API call fails or required credentials are missing
     """
     if model is None:
-        model = os.getenv("UNSOLVED_MODEL", "gemini/gemini-2.5-flash")
+        model = os.getenv("UNSOLVED_MODEL", "ollama/gemma3")
 
     if not re.match(r'^[a-zA-Z0-9\-\./_]+$', model):
         raise ValueError(f"Invalid model name: {model}. Only alphanumeric characters, hyphens, slashes, dots, and underscores are allowed.")
@@ -134,7 +134,7 @@ def fetch_unsolved_problems(
 
         # Create ModelInput with prompt and response format
         model_input = ModelInput(
-            user_prompt=create_prompt(topic, num_problems),
+            user_prompt=create_user_prompt(topic, num_problems),
             response_format=UnsolvedProblemsResponse
         )
 
@@ -144,8 +144,10 @@ def fetch_unsolved_problems(
         # Parse the response
         if isinstance(response_content, str):
             response = UnsolvedProblemsResponse.model_validate_json(response_content)
+        elif isinstance(response_content, UnsolvedProblemsResponse):
+            response = response_content
         else:
-            raise ValueError("Expected string response from model")
+            raise ValueError(f"Unexpected response type: {type(response_content)}")
 
         if not response.problems or len(response.problems) == 0:
             raise ValueError("No unsolved problems returned in response")
@@ -253,7 +255,7 @@ Examples:
         "-m",
         default=None,
         dest="model",
-        help="LLM model to use (default: $UNSOLVED_MODEL or gemini/gemini-2.5-flash)"
+        help="LLM model to use (default: $UNSOLVED_MODEL or ollama/gemma3)"
     )
 
     return parser
