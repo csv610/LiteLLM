@@ -11,15 +11,14 @@ import logging
 import json
 import re
 from pathlib import Path
-from typing import Dict, Optional, List
-from pydantic import BaseModel, Field
-from enum import Enum
-from tqdm import tqdm
+from typing import Dict, Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from tqdm import tqdm
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from hilbert_problems_models import HilbertProblem, ProblemStatus
 
 # Setup logging
 logging.basicConfig(
@@ -31,26 +30,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
-
-
-class ProblemStatus(str, Enum):
-    """Status of Hilbert problems."""
-    SOLVED = "solved"
-    UNSOLVED = "unsolved"
-    PARTIALLY_SOLVED = "partially_solved"
-
-
-class HilbertProblem(BaseModel):
-    """Structured data for a Hilbert problem."""
-    number: int = Field(description="Problem number (1-23)")
-    title: str = Field(description="Title of the problem")
-    description: str = Field(description="Mathematical description of the problem")
-    status: ProblemStatus = Field(description="Current status of the problem")
-    solved_by: Optional[str] = Field(description="Mathematician(s) who solved it")
-    solution_year: Optional[int] = Field(description="Year the problem was solved")
-    solution_method: str = Field(description="Detailed explanation of the solution method")
-    related_fields: List[str] = Field(description="Related mathematical fields")
-    notes: str = Field(description="Additional notes and implications")
 
 
 class HilbertProblemsGuide:
