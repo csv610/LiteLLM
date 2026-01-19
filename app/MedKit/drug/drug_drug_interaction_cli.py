@@ -1,68 +1,41 @@
-"""
-drug_drug_interaction.py - Drug-Drug Interaction Analysis
+"""Module docstring - Drug-Drug Interaction Analysis.
 
 Analyze potential harmful interactions between two medicines and provide comprehensive
-clinical recommendations using structured data models and the MedKit AI client
-with schema-aware prompting.
+clinical recommendations using structured data models and the LiteClient with schema-aware prompting.
 
-This module helps healthcare providers identify dangerous drug combinations and
-understand the mechanisms, clinical effects, and management strategies for interactions.
-
-QUICK START:
-    from drug_drug_interaction import DrugDrugInteraction, DrugDrugInteractionConfig
-
-    # Configure the analysis
-    config = DrugDrugInteractionConfig(medicine1="aspirin", medicine2="ibuprofen")
-
-    # Create an analyzer and get the interaction
-    interaction = DrugDrugInteraction(config).analyze()
-
-    # Check severity
-    if interaction.severity_level.value in ["SIGNIFICANT", "CONTRAINDICATED"]:
-        print(f"⚠️ Serious interaction: {interaction.mechanism_of_interaction}")
-
-    # Get management recommendations
-    print(f"Recommendations: {interaction.management_recommendations}")
-
-COMMON USES:
-    1. Identify dangerous drug combinations before prescribing
-    2. Counsel patients on medication compatibility
-    3. Review patient medications for interactions
-    4. Support polypharmacy management in elderly patients
-    5. Generate clinical decision support recommendations
-    6. Create interaction reports for healthcare providers
-
-KEY CONCEPTS:
-    - DrugInteractionSeverity: How serious the interaction is (NONE to CONTRAINDICATED)
-    - ConfidenceLevel: Strength of evidence (HIGH, MODERATE, LOW)
-    - DataSourceType: Where the interaction evidence comes from
-    - DrugInteractionDetails: Complete information about the interaction
-
-INTERACTION INFORMATION:
-    - Mechanism of interaction: How drugs interact chemically/pharmacologically
-    - Clinical effects: Observable symptoms and complications
-    - Management recommendations: How to handle the interaction
-    - Timing considerations: Spacing between doses
-    - Monitoring requirements: What to watch for
+This module helps healthcare providers identify dangerous drug combinations and understand
+the mechanisms, clinical effects, and management strategies for interactions.
 """
 
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
+import json
 import logging
 import sys
-import json
-import argparse
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from drug_drug_interaction_models import (
     DrugInteractionSeverity,
     ConfidenceLevel,
@@ -73,49 +46,46 @@ from drug_drug_interaction_models import (
     DrugInteractionResult,
 )
 
-# Configure logging
-logger = setup_logger(__name__)
-logger.info("="*80)
-logger.info("Drug-Drug Interaction Module Initialized")
-logger.info("="*80)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
+
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class DrugDrugInteractionConfig(MedKitConfig):
-    """
-    Configuration for drug-drug interaction analysis.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to drug_drug_interaction.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
-    """
+class DrugDrugInteractionConfig:
+    """Configuration for drug-drug interaction analysis."""
     output_path: Optional[Path] = None
     verbosity: bool = False
-    prompt_style: PromptStyle = PromptStyle.DETAILED
     enable_cache: bool = True
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "drug_drug_interaction.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
 
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 
 class DrugDrugInteraction:
     """Analyzes drug-drug interactions based on provided configuration."""
 
     def __init__(self, config: DrugDrugInteractionConfig):
         self.config = config
-
-        # Load model name from ModuleConfig
-        model_name = "ollama/gemma3:12b"  # Default model for this module
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma3", temperature=0.7)
+        )
 
     def analyze(
         self,
@@ -152,7 +122,6 @@ class DrugDrugInteraction:
         logger.info(f"Starting drug-drug interaction analysis")
         logger.info(f"Drug 1: {medicine1}")
         logger.info(f"Drug 2: {medicine2}")
-        logger.info(f"Prompt Style: {self.config.prompt_style.value if hasattr(self.config.prompt_style, 'value') else self.config.prompt_style}")
 
         output_path = self.config.output_path
         if output_path is None:
@@ -180,11 +149,13 @@ class DrugDrugInteraction:
         context = ". ".join(context_parts) + "."
         logger.debug(f"Context: {context}")
 
-        logger.info("Calling MedKitClient.generate_text()...")
+        logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.client.generate_text(
-                prompt=f"{medicine1} and {medicine2} interaction analysis. {context}",
-                schema=DrugInteractionResult,
+                model_input=ModelInput(
+                    user_prompt=f"{medicine1} and {medicine2} interaction analysis. {context}",
+                    response_format=DrugInteractionResult,
+                )
             )
 
             logger.info(f"✓ Successfully analyzed interaction")
@@ -235,6 +206,11 @@ def get_drug_drug_interaction(
         dosage2=dosage2,
         medical_conditions=medical_conditions,
     )
+
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 
 
 def create_cli_parser() -> argparse.ArgumentParser:
@@ -352,35 +328,12 @@ Examples:
     return parser
 
 
-def parse_prompt_style(style_str: str) -> PromptStyle:
-    """
-    Parse prompt style string to PromptStyle enum.
-
-    Args:
-        style_str: String representation of prompt style
-
-    Returns:
-        PromptStyle: The corresponding enum value
-
-    Raises:
-        ValueError: If style string is not a valid prompt style
-    """
-    style_mapping = {
-        "detailed": PromptStyle.DETAILED,
-        "concise": PromptStyle.CONCISE,
-        "balanced": PromptStyle.BALANCED,
-    }
-
-    if style_str.lower() not in style_mapping:
-        raise ValueError(
-            f"Invalid prompt style: {style_str}. "
-            f"Choose from: {', '.join(style_mapping.keys())}"
-        )
-
-    return style_mapping[style_str.lower()]
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
 
 
-def print_results(result: DrugInteractionResult, verbose: bool = False) -> None:
+def print_result(result: DrugInteractionResult, verbose: bool = False) -> None:
     """
     Print interaction analysis results in a formatted manner using rich.
 
@@ -512,6 +465,15 @@ def print_results(result: DrugInteractionResult, verbose: bool = False) -> None:
     )
 
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
+
+
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
+
 def main() -> int:
     """
     Main entry point for the drug-drug interaction CLI.
@@ -529,30 +491,27 @@ def main() -> int:
         logging.getLogger().setLevel(logging.INFO)
 
     try:
-        # Parse prompt style
-        prompt_style = parse_prompt_style(args.prompt_style)
-
         # Create configuration
         config = DrugDrugInteractionConfig(
-            medicine1=args.medicine1,
-            medicine2=args.medicine2,
-            age=args.age,
-            dosage1=args.dosage1,
-            dosage2=args.dosage2,
-            medical_conditions=args.conditions,
-            output_path=args.output,
-            use_schema_prompt=not args.no_schema,
-            prompt_style=prompt_style,
+            output_path=args.output if hasattr(args, 'output') else None,
+            verbosity=args.verbose if hasattr(args, 'verbose') else False,
         )
 
         logger.info(f"Configuration created successfully")
 
         # Run analysis
         analyzer = DrugDrugInteraction(config)
-        result = analyzer.analyze()
+        result = analyzer.analyze(
+            medicine1=args.medicine1,
+            medicine2=args.medicine2,
+            age=args.age if hasattr(args, 'age') else None,
+            dosage1=args.dosage1 if hasattr(args, 'dosage1') else None,
+            dosage2=args.dosage2 if hasattr(args, 'dosage2') else None,
+            medical_conditions=args.conditions if hasattr(args, 'conditions') else None,
+        )
 
         # Print results
-        print_results(result, verbose=args.verbose)
+        print_result(result, verbose=args.verbose)
 
         # Save results to file
         if args.output:
@@ -586,6 +545,10 @@ def main() -> int:
         logger.exception("Full exception details:")
         return 1
 
+
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
 if __name__ == "__main__":
     sys.exit(main())

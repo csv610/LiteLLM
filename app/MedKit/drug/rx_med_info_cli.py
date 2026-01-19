@@ -42,7 +42,10 @@ KEY FEATURES AND COVERAGE AREAS:
 """
 
 import requests
+import sys
 from typing import Optional, Dict, Any, List, Union
+from rich.console import Console
+from rich.panel import Panel
 
 class RxClassClient:
     BASE_URL = "https://rxnav.nlm.nih.gov/REST/rxclass"
@@ -158,6 +161,26 @@ class RxClassClient:
         return self._get("/spellingsuggestions.json", params=params)
 
 
+def print_result(result: Any, verbose: bool = False) -> None:
+    """Print result in a formatted manner using rich."""
+    console = Console()
+
+    if result is None:
+        return
+
+    # Handle dictionary results
+    if isinstance(result, dict):
+        formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in result.items()])
+    else:
+        formatted_text = str(result)
+
+    console.print(Panel(
+        formatted_text,
+        title="Result",
+        border_style="cyan",
+    ))
+
+
 def cli():
     """CLI function for RxClassClient examples."""
     client = RxClassClient()
@@ -194,5 +217,5 @@ def cli():
 
 
 if __name__ == "__main__":
-    cli()
+    sys.exit(cli() or 0)
 

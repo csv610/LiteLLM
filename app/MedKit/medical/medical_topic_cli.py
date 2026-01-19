@@ -1,208 +1,309 @@
-import json
-import sys
-import logging
+"""Module docstring - Medical Topic Information Generator.
+
+Generate comprehensive, evidence-based medical topic information using structured
+data models and the LiteClient with schema-aware prompting for clinical reference
+and patient education purposes.
+"""
+
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
 import argparse
+import json
+import logging
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, field
 from typing import Optional
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.medical.medical_faq import FAQGenerator
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from rich.console import Console
+from rich.panel import Panel
 
-import hashlib
-from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from medical_topic_models import MedicalTopic
 
-# Configure logging
-logger = setup_logger(__name__)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# ============================================================================ 
-# CONFIGURATION
-# ============================================================================ 
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class Config(MedKitConfig):
-    """Configuration for the medical topic generator."""
+class MedicalTopicConfig:
+    """Configuration for generating medical topic information."""
+    output_path: Optional[Path] = None
+    output_dir: Path = Path("outputs")
+    verbosity: bool = False
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "medical_topic.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
 
-# ============================================================================ 
-# MEDICAL TOPIC GENERATOR CLASS
-# ============================================================================ 
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 
 class MedicalTopicGenerator:
-    """Generate comprehensive information for medical topics."""
+    """Generates comprehensive medical topic information based on provided configuration."""
 
-    def __init__(self, config: Optional[Config] = None):
-        """Initialize the generator."""
-        self.config = config or Config()
-        # Load model name from ModuleConfig
+    def __init__(self, config: MedicalTopicConfig):
+        self.config = config
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma3", temperature=0.7)
+        )
+        self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
-        model_name = "gemini-1.5-flash"  # Default model for this module
+        if self.config.verbosity:
+            logger.setLevel("DEBUG")
+        else:
+            logger.setLevel("INFO")
 
-        
+        logger.info(f"Initialized MedicalTopicGenerator")
+        if self.config.verbosity:
+            logger.debug(f"Config: {self.config}")
 
-        self.client = MedKitClient(model_name=model_name)
-        self.topic_name: Optional[str] = None
-        self.output_path: Optional[Path] = None
-
-        # Apply verbosity level to logger
-        verbosity_levels = {0: "CRITICAL", 1: "ERROR", 2: "WARNING", 3: "INFO", 4: "DEBUG"}
-        logger.setLevel(verbosity_levels.get(self.config.verbosity, "WARNING"))
-        logging.getLogger("medkit").setLevel(verbosity_levels.get(self.config.verbosity, "WARNING"))
-
-    def generate(self, topic_name: str, output_path: Optional[Path] = None) -> MedicalTopic:
+    def generate(
+        self,
+        topic: str,
+        output_path: Optional[str] = None,
+    ) -> MedicalTopic:
         """
-        Generate and save comprehensive medical topic information.
+        Generates comprehensive medical topic information.
 
         Args:
-            topic_name: Name of the medical topic.
-            output_path: Optional path to save the JSON output.
+            topic: Name of the medical topic
+            output_path: Optional path to save the output JSON file
 
         Returns:
-            The generated MedicalTopic object.
-        
-        Raises:
-            ValueError: If topic_name is empty.
+            MedicalTopic: Validated medical topic object
         """
-        if not topic_name or not topic_name.strip():
+        if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
 
-        self.topic_name = topic_name
+        logger.info("-" * 80)
+        logger.info(f"Starting medical topic information generation")
+        logger.info(f"Topic Name: {topic}")
 
-        if output_path is None:
-            output_path = self.config.output_dir / f"{topic_name.lower().replace(' ', '_')}_topic.json"
-        
-        self.output_path = output_path
+        output_path_obj = Path(output_path) if output_path else None
+        if output_path_obj is None:
+            output_path_obj = self.config.output_dir / f"{topic.lower().replace(' ', '_')}_topic.json"
 
-        logger.info(f"Starting medical topic information generation for: {topic_name}")
+        output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Output path: {output_path_obj}")
 
-        topic_info = self._generate_info()
-        
-        self._embed_faq(topic_info)
-
-        self.save(topic_info, self.output_path)
-        self.print_summary(topic_info)
-        
-        return topic_info
-
-    def _generate_info(self) -> MedicalTopic:
-        """Generates the topic information."""
-        prompt = f"""Generate comprehensive medical information for the topic: {self.topic_name}
-
-Include:
-1. Definition and overview
-2. Epidemiology (prevalence, incidence, demographics)
-3. Pathophysiology and mechanisms
-4. Risk factors and etiology
-5. Clinical presentation and symptoms
-6. Diagnostic criteria and tests
-7. Differential diagnosis
-8. Treatment options
-9. Prognosis and complications
-10. Prevention strategies
-11. Cross-references to related topics (see_also) - include similar conditions, related treatments, complications that can become independent conditions, conditions that may co-occur, and preventive topics
-
-For see_also cross-references, identify:
-- Related medical topics that help readers understand the full context
-- Types of connections (similar condition, related treatment, complication, risk factor, prevention, differential diagnosis, co-occurrence, etc.)
-- Brief explanation of why each topic is relevant
-
-Provide accurate, evidence-based medical information."""
-
-        result = self.client.generate_text(
-            prompt,
-            schema=MedicalTopic
-        )
-        return result
-
-    def _embed_faq(self, topic_info: MedicalTopic) -> None:
-        """Generates and embeds a patient-friendly FAQ."""
-        logger.info(f"Generating FAQs for: {self.topic_name}")
+        logger.info("Calling LiteClient.generate_text()...")
         try:
-            faq_generator = FAQGenerator()
-            faq = faq_generator.generate_patient_faq(self.topic_name)
-            topic_info.faq = faq
-            logger.info(f"✓ FAQ generated and embedded: {len(faq.faqs)} questions")
+            prompt = f"Generate comprehensive information for the medical topic: {topic}."
+            logger.debug(f"Prompt: {prompt}")
+
+            result = self.client.generate_text(
+                model_input=ModelInput(
+                    user_prompt=prompt,
+                    response_format=MedicalTopic,
+                )
+            )
+
+            logger.info(f"✓ Successfully generated medical topic information")
+            logger.info("-" * 80)
+            return result
         except Exception as e:
-            logger.warning(f"Warning: FAQ generation failed: {e}")
-            topic_info.faq = None
+            logger.error(f"✗ Error generating medical topic information: {e}")
+            logger.exception("Full exception details:")
+            logger.info("-" * 80)
+            raise
 
-    def save(self, topic_info: MedicalTopic, output_path: Path) -> Path:
+    def save(self, topic_info: MedicalTopic, output_path: str):
         """
-        Save the generated topic information to a JSON file.
+        Saves the medical topic information to a JSON file.
+
+        Args:
+            topic_info: The MedicalTopic object to save
+            output_path: Path where the JSON file should be saved
         """
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(topic_info.model_dump(), f, indent=2)
-        
-        logger.info(f"✓ Topic information with FAQ saved to {output_path}")
-        return output_path
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Saving medical topic information to: {output_file}")
 
-    def print_summary(self, topic_info: MedicalTopic) -> None:
-        """
-        Print a summary of the generated topic information.
-        """
-        if not self.config.verbose:
-            return
+        try:
+            with open(output_file, "w") as f:
+                json.dump(topic_info.model_dump(), f, indent=2)
+            file_size = output_file.stat().st_size
+            logger.info(f"✓ Successfully saved medical topic information")
+            logger.info(f"File: {output_file}")
+            logger.info(f"File size: {file_size} bytes")
+        except Exception as e:
+            logger.error(f"✗ Error saving medical topic information: {e}")
+            logger.exception("Full exception details:")
+            raise
 
-        print("\n" + "="*70)
-        print(f"MEDICAL TOPIC SUMMARY: {topic_info.overview.topic_name}")
-        print("="*70)
-        print(f"  - Category: {topic_info.overview.topic_category}")
-        print(f"  - Specialties: {topic_info.overview.medical_specialties}")
 
-        if topic_info.faq:
-            print("\n📋 FAQ Summary:")
-            print(f"  - Questions: {len(topic_info.faq.faqs)}")
-            print(f"  - When to Seek Care: {len(topic_info.faq.when_to_seek_care)} criteria")
-            print(f"  - Misconceptions: {len(topic_info.faq.misconceptions)} addressed")
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 
-        print(f"\n✓ Generation complete. Saved to {self.output_path}")
+def print_result(result: MedicalTopic, verbose: bool = False) -> None:
+    """Print result in a formatted manner using rich."""
+    console = Console()
 
-def get_topic_info(topic_name: str, output_path: Optional[Path] = None, verbose: bool = False) -> MedicalTopic:
+    # Extract main fields from the result model
+    result_dict = result.model_dump()
+
+    # Create a formatted panel showing the result
+    # Use semantic formatting: green for success/positive, yellow for warnings, blue for info
+    # Display the data in organized sections
+
+    for section_name, section_value in result_dict.items():
+        if section_value is not None:
+            if isinstance(section_value, dict):
+                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
+            else:
+                formatted_text = str(section_value)
+
+            console.print(Panel(
+                formatted_text,
+                title=section_name.replace('_', ' ').title(),
+                border_style="cyan",
+            ))
+
+
+def get_topic_info(
+    topic: str,
+    config: MedicalTopicConfig,
+    output_path: Optional[str] = None,
+) -> Optional[MedicalTopic]:
     """
-    High-level function to generate and optionally save topic information.
+    Get comprehensive medical topic information.
+
+    Args:
+        topic: Name of the medical topic
+        config: Configuration object for the generation
+        output_path: Optional path to save the output JSON file
+
+    Returns:
+        MedicalTopic: The result of the generation, or None if it fails
     """
-    config = Config(verbose=verbose)
-    generator = MedicalTopicGenerator(config=config)
-    return generator.generate(topic_name, output_path)
+    try:
+        generator = MedicalTopicGenerator(config)
+        return generator.generate(topic=topic, output_path=output_path)
+    except Exception as e:
+        logger.error(f"Failed to generate medical topic information: {e}")
+        return None
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate comprehensive information for a medical topic.")
-    parser.add_argument("-i", "--topic", type=str, required=True, help="The name of the medical topic to generate information for.")
-    parser.add_argument("-o", "--output", type=str, help="Optional: The path to save the output JSON file.")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Show verbose console output.")
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
+
+
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
+
+def main() -> int:
+    """
+    CLI entry point for generating medical topic information.
+    """
+    logger.info("="*80)
+    logger.info("MEDICAL TOPIC CLI - Starting")
+    logger.info("="*80)
+
+    parser = argparse.ArgumentParser(
+        description="Generate comprehensive medical topic information.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python medical_topic_cli.py -i inflammation
+  python medical_topic_cli.py -i "immune response" -o output.json -v
+  python medical_topic_cli.py -i metabolism -d outputs/topics
+        """
+    )
+    parser.add_argument(
+        "-i", "--topic",
+        required=True,
+        help="The name of the medical topic to generate information for."
+    )
+    parser.add_argument(
+        "-o", "--output",
+        help="Path to save the output JSON file."
+    )
+    parser.add_argument(
+        "-d", "--output-dir",
+        default="outputs",
+        help="Directory for output files (default: outputs)."
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose/debug logging output."
+    )
 
     args = parser.parse_args()
-    print("Starting ...")
-    get_topic_info( args.topic, args.output, args.verbose)
-    print(f"Success: output stored in outputs/{args.output}")
+
+    config = MedicalTopicConfig(
+        output_path=Path(args.output) if args.output else None,
+        output_dir=Path(args.output_dir),
+        verbosity=args.verbose
+    )
+
+    logger.info(f"CLI Arguments:")
+    logger.info(f"  Topic: {args.topic}")
+    logger.info(f"  Output Dir: {args.output_dir}")
+    logger.info(f"  Output File: {args.output if args.output else 'Default'}")
+    logger.info(f"  Verbose: {args.verbose}")
+
+    try:
+        generator = MedicalTopicGenerator(config)
+        topic_info = generator.generate(topic=args.topic, output_path=args.output)
+
+        if topic_info is None:
+            logger.error("✗ Failed to generate medical topic information.")
+            sys.exit(1)
+
+        # Display formatted result
+        print_result(topic_info, args.verbose)
+
+        if args.output:
+            generator.save(topic_info, args.output)
+        else:
+            default_path = config.output_dir / f"{args.topic.lower().replace(' ', '_')}_topic.json"
+            generator.save(topic_info, str(default_path))
+
+        logger.info("="*80)
+        logger.info("✓ Medical topic information generation completed successfully")
+        logger.info("="*80)
+        return 0
+    except Exception as e:
+        logger.error("="*80)
+        logger.error(f"✗ Medical topic information generation failed: {e}")
+        logger.exception("Full exception details:")
+        logger.error("="*80)
+        sys.exit(1)
 
 
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
-    def close(self):
-        """Close LMDB storage and release resources."""
-        if self.storage:
-            try:
-                self.storage.close()
-                logger.info("LMDB storage closed successfully.")
-            except Exception as e:
-                logger.error(f"Error closing LMDB storage: {e}")
-
-    def __enter__(self):
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.close()
+if __name__ == "__main__":
+    sys.exit(main())

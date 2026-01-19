@@ -1,8 +1,8 @@
 """
-medical_test_info.py - Medical Test Information Generator
+Medical Test Information Generator
 
 Generate comprehensive, evidence-based medical test documentation using structured
-data models and the MedKit AI client with schema-aware prompting.
+data models and LiteClient with schema-aware prompting.
 
 This module creates detailed information about medical tests and diagnostics for
 clinicians and patient education.
@@ -10,45 +10,60 @@ clinicians and patient education.
 For usage guide, see medical_test_info_guide.md
 """
 
-import json
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS (Alphabetically Sorted)
+# ==============================================================================
 import argparse
+import json
+import logging
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, field
 from typing import Optional
 
-from medkit.utils.logging_config import setup_logger
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from pydantic import BaseModel
+from rich.console import Console
+from rich.panel import Panel
 
-import hashlib
-from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
-
+# ==============================================================================
+# LITECLIENT SETUP
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 from medical_test_info_models import MedicalTestInfo
 
-# Configure logging
-logger = setup_logger(__name__)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# ============================================================================ 
-# CONFIGURATION
-# ============================================================================ 
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class Config(MedKitConfig):
+class Config:
     """Configuration for the medical test info generator."""
     enable_cache: bool = True
     verbosity: int = 2  # 0=CRITICAL, 1=ERROR, 2=WARNING (default), 3=INFO, 4=DEBUG
+    output_dir: Path = Path("outputs")
+    model: str = "gemini-1.5-flash"
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "medical_test_info.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
-
-# ============================================================================
-# MEDICAL TEST INFO GENERATOR CLASS
-# ============================================================================ 
+# ==============================================================================
+# MAIN CLASS: MEDICAL TEST INFO GENERATOR
+# ==============================================================================
 
 class MedicalTestInfoGenerator:
     """Generate comprehensive information for medical tests."""
@@ -56,13 +71,7 @@ class MedicalTestInfoGenerator:
     def __init__(self, config: Optional[Config] = None):
         """Initialize the generator with a configuration."""
         self.config = config or Config()
-        # Load model name from ModuleConfig
-
-        model_name = "gemini-1.5-flash"  # Default model for this module
-
-        
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(ModelConfig(model=self.config.model, temperature=0.7))
         self.test_name: Optional[str] = None
         self.output_path: Optional[Path] = None
 
@@ -117,7 +126,12 @@ Provide accurate, evidence-based medical test information."""
         logger.info(f"Generating medical test information for: {test_name}")
         try:
             prompt = self.build_user_prompt(test_name)
-            result = self.client.generate_text(prompt, schema=MedicalTestInfo)
+            result = self.client.generate_text(
+                model_input=ModelInput(
+                    user_prompt=prompt,
+                    response_format=MedicalTestInfo,
+                )
+            )
             logger.info(f"Successfully generated medical test information for: {test_name}")
             return result
         except Exception as e:
@@ -198,6 +212,35 @@ Provide accurate, evidence-based medical test information."""
         print(f"  - Sample Type: {test_info.specimen_information.sample_type}")
         print(f"\n✓ Generation complete. Saved to {self.output_path}")
 
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
+
+def print_result(result: MedicalTestInfo, verbose: bool = False) -> None:
+    """Print medical test information in a formatted manner using rich."""
+    console = Console()
+
+    # Extract main fields from the result model
+    result_dict = result.model_dump()
+
+    # Create a formatted panel showing the result
+    for section_name, section_value in result_dict.items():
+        if section_value is not None:
+            if isinstance(section_value, dict):
+                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
+            else:
+                formatted_text = str(section_value)
+
+            console.print(Panel(
+                formatted_text,
+                title=section_name.replace('_', ' ').title(),
+                border_style="cyan",
+            ))
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
+
 def get_medical_test_info(test_name: str, output_path: Optional[Path] = None) -> MedicalTestInfo:
     """
     High-level function to generate and optionally save test information.
@@ -205,6 +248,9 @@ def get_medical_test_info(test_name: str, output_path: Optional[Path] = None) ->
     generator = MedicalTestInfoGenerator()
     return generator.generate(test_name, output_path)
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
 
 def argument_parser() -> argparse.ArgumentParser:
     """
@@ -232,14 +278,33 @@ def argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def cli():
-    parser = argument_parser()
-    args = parser.parse_args()
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
 
-    generator = MedicalTestInfoGenerator()
-    output_file_path = Path(args.output) if args.output else None
+def main() -> int:
+    """
+    Main CLI entry point for the medical test information generator.
 
-    generator.generate(test_name=args.test, output_path=output_file_path)
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    try:
+        parser = argument_parser()
+        args = parser.parse_args()
+        generator = MedicalTestInfoGenerator()
+        output_file_path = Path(args.output) if args.output else None
+        result = generator.generate(test_name=args.test, output_path=output_file_path)
+        if result:
+            print_result(result)
+        return 0
+    except Exception as e:
+        logger.error(f"CLI execution failed: {e}")
+        return 1
+
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
 if __name__ == "__main__":
-   cli()
+    sys.exit(main())

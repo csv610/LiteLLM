@@ -2,20 +2,46 @@
 Depression Screening Assessment
 
 Evaluate patient depression status through structured screening questions
-and validated assessment tools using BaseModel definitions and the MedKit
+and validated assessment tools using BaseModel definitions and the LiteClient
 AI client with schema-aware prompting.
 """
 
-import sys
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
 import json
+import logging
+import sys
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Any, Dict, List, Optional
 
-# Fix import paths
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from pydantic import BaseModel, Field
+
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.pydantic_prompt_generator import PromptStyle
-from core.medkit_client import MedKitClient
+
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class DepressionQuestion(BaseModel):
@@ -268,7 +294,7 @@ class DepressionScreeningAssessment(BaseModel):
 
 
 def generate_depression_questions(
-    client: MedKitClient,
+    client: LiteClient,
     patient_context: Optional[str] = None,
     prompt_style: PromptStyle = PromptStyle.DETAILED,
 ) -> DepressionTestQuestions:
@@ -276,7 +302,7 @@ def generate_depression_questions(
     Generate depression screening questions using LLM.
 
     Args:
-        client: MedKitClient instance for LLM access
+        client: LiteClient instance for LLM access
         patient_context: Optional patient-specific context for personalized questions
         prompt_style: Style of schema prompt (DETAILED, CONCISE, TECHNICAL)
 
@@ -325,7 +351,7 @@ Return structured JSON matching the exact schema provided, with all required fie
 
 
 def ask_depression_screening_questions(
-    client: Optional[MedKitClient] = None,
+    client: Optional[LiteClient] = None,
     patient_context: Optional[str] = None,
     prompt_style: PromptStyle = PromptStyle.DETAILED,
 ) -> dict:
@@ -665,7 +691,7 @@ def evaluate_depression_screening(
     output_path: Optional[Path] = None,
     use_schema_prompt: bool = True,
     prompt_style: PromptStyle = PromptStyle.DETAILED,
-    client: Optional[MedKitClient] = None,
+    client: Optional[LiteClient] = None,
     patient_context: Optional[str] = None,
 ) -> DepressionScreeningAssessment:
     """
@@ -696,9 +722,8 @@ def evaluate_depression_screening(
     return assessment
 
 
-if __name__ == '__main__':
-    import argparse
-
+def main() -> int:
+    """Main entry point for depression screening assessment."""
     parser = argparse.ArgumentParser(
         description="Conduct depression screening assessment for a patient",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -793,6 +818,11 @@ Depression Screening Protocol:
 
     except Exception as e:
         print(f"✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        logger.error("Error during depression screening assessment", exc_info=True)
+        return 1
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

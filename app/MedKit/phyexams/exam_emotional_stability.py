@@ -2,18 +2,45 @@
 Emotional Stability Assessment
 
 Evaluate patient emotional stability through structured questionnaire
-using BaseModel definitions and the MedKit AI client with schema-aware prompting.
+using BaseModel definitions and the LiteClient AI client with schema-aware prompting.
 """
 
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
+import json
+import logging
 import sys
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
-# Fix import paths
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from pydantic import BaseModel, Field
+
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from core.medkit_client import MedKitClient
 from utils.pydantic_prompt_generator import PromptStyle
+
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class MoodAssessment(BaseModel):
@@ -363,9 +390,8 @@ def evaluate_emotional_stability(
     return assessment
 
 
-if __name__ == '__main__':
-    import argparse
-
+def main() -> int:
+    """Main entry point for emotional stability assessment."""
     parser = argparse.ArgumentParser(
         description="Evaluate patient emotional stability through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -408,6 +434,11 @@ Examples:
 
     except Exception as e:
         print(f"✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        logger.error("Error during emotional stability assessment", exc_info=True)
+        return 1
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

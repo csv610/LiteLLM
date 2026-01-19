@@ -1,66 +1,37 @@
-"""
-medicine_info.py - Comprehensive Medicine Information Generator
+"""Module docstring - Medicine Information Generator.
 
 Generate comprehensive, evidence-based pharmaceutical documentation using structured
-data models and the MedKit AI client with schema-aware prompting.
-
-This module creates detailed medication information for patient education, clinical
-reference, and medication counseling purposes.
-
-QUICK START:
-    from medicine_info import MedicineInfoGenerator, MedicineInfoConfig
-
-    # Configure the analysis (settings only)
-    config = MedicineInfoConfig(
-        output_path=None,  # optional
-        verbosity=False
-    )
-
-    # Create a generator and get the info
-    med_info = MedicineInfoGenerator(config).generate(
-        medicine="aspirin"
-    )
-
-    # Access different sections
-    print(med_info.general_information.generic_name)
-    print(med_info.general_information.brand_names)
-    print(med_info.usage_and_administration.dosage_and_administration)
-
-COMMON USES:
-    1. Generate patient medication information sheets
-    2. Create pharmacist counseling materials
-    3. Provide clinical reference information
-    4. Support medication selection decisions
-    5. Generate medication safety information
-    6. Create multilingual patient education materials
-
-COVERAGE AREAS:
-    - General information (names, strengths, forms)
-    - Classification (therapeutic, pharmacological)
-    - Uses and indications
-    - Dosage and administration
-    - Adverse effects and side effects
-    - Drug interactions and contraindications
-    - Precautions and warnings
-    - Storage and handling
-    - Special populations (pregnancy, elderly, pediatric)
+data models and the LiteClient with schema-aware prompting for patient education and
+clinical reference purposes.
 """
 
-import sys
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
 import json
 import logging
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, field
 from typing import Optional
 
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from medkit.core.medkit_client import MedKitClient
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
-from medkit.utils.storage_config import StorageConfig
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from medicine_info_models import (
     MedicineGeneralInformation,
     TherapeuticClassification,
@@ -81,59 +52,45 @@ from medicine_info_models import (
     MedicineInfoResult,
 )
 
-# Configure logging
-logger = setup_logger(__name__)
-logger.info("="*80)
-logger.info("Medicine Info Module Initialized")
-logger.info("="*80)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class MedicineInfoConfig(StorageConfig):
-    """
-    Configuration for generating medicine information.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to medicine_info.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
-    """
+class MedicineInfoConfig:
+    """Configuration for generating medicine information."""
     output_path: Optional[Path] = None
-    output_dir: Path = field(default_factory=lambda: Path("outputs"))
-    verbosity: bool = False  # If True, enable detailed debug logging
-    prompt_style: PromptStyle = PromptStyle.DETAILED
+    output_dir: Path = Path("outputs")
+    verbosity: bool = False
     enable_cache: bool = True
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        # Auto-generate db_path for this module if not set
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "medicine_info.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
 
-
-# ============================================================================
-# MEDICINE INFO GENERATOR
-# ============================================================================
-
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 
 class MedicineInfoGenerator:
     """Generates comprehensive medicine information based on provided configuration."""
 
     def __init__(self, config: MedicineInfoConfig):
         self.config = config
-
-        # Load model name from ModuleConfig
-        model_name = "ollama/gemma3:12b"  # Default model for this module
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma3", temperature=0.7)
+        )
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Apply verbosity to logger
@@ -172,7 +129,6 @@ class MedicineInfoGenerator:
         logger.info("-" * 80)
         logger.info(f"Starting medicine information generation")
         logger.info(f"Medicine Name: {medicine}")
-        logger.info(f"Prompt Style: {self.config.prompt_style.value if hasattr(self.config.prompt_style, 'value') else self.config.prompt_style}")
 
         # Determine output path
         output_path = self.config.output_path
@@ -197,14 +153,16 @@ class MedicineInfoGenerator:
         logger.debug(f"Context: {context}")
 
         # Generate medicine information
-        logger.info("Calling MedKitClient.generate_text()...")
+        logger.info("Calling LiteClient.generate_text()...")
         try:
             prompt = f"Generate comprehensive information for the medicine: {medicine}. {context}"
             logger.debug(f"Prompt: {prompt}")
 
             result = self.client.generate_text(
-                prompt=prompt,
-                schema=MedicineInfoResult,
+                model_input=ModelInput(
+                    user_prompt=prompt,
+                    response_format=MedicineInfoResult,
+                )
             )
 
             logger.info(f"✓ Successfully generated medicine information")
@@ -244,9 +202,9 @@ class MedicineInfoGenerator:
             raise
 
 
-# ============================================================================
+# ==============================================================================
 # HELPER FUNCTIONS
-# ============================================================================
+# ==============================================================================
 
 def get_medicine_info(
     medicine: str,
@@ -281,11 +239,11 @@ def get_medicine_info(
         return None
 
 
-# ============================================================================
-# DISPLAY FUNCTIONS
-# ============================================================================
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
 
-def print_results(medicine_info: MedicineInfoResult) -> None:
+def print_result(medicine_info: MedicineInfoResult) -> None:
     """
     Print medicine information in a formatted manner using rich.
 
@@ -409,17 +367,16 @@ def print_results(medicine_info: MedicineInfoResult) -> None:
     )
 
 
-# ============================================================================
-# CLI INTERFACE
-# ============================================================================
-
-import argparse
-
-import hashlib
-from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
 
 
-def main():
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
+
+def main() -> int:
     """
     CLI entry point for generating medicine information.
     """
@@ -497,7 +454,7 @@ Examples:
             sys.exit(1)
 
         # Display results
-        print_results(medicine_info)
+        print_result(medicine_info)
 
         # Save if output path is specified
         if args.output:
@@ -518,5 +475,9 @@ Examples:
         sys.exit(1)
 
 
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

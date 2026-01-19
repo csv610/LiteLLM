@@ -3,20 +3,46 @@ Breast and Axillae Assessment
 
 Evaluate patient breast and axillary system through structured examination including
 inspection, palpation, lymph node assessment, and symptom evaluation
-using BaseModel definitions and the MedKit AI client with schema-aware prompting.
+using BaseModel definitions and the LiteClient AI client with schema-aware prompting.
 """
 
-import sys
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
 import json
-from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Optional, List
+import logging
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# Fix import paths
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from pydantic import BaseModel, Field
+
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.pydantic_prompt_generator import PromptStyle
-from core.medkit_client import MedKitClient
+
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class BreastQuestion(BaseModel):
@@ -107,7 +133,7 @@ class BreastAxillaeAssessment(BaseModel):
 
 
 def generate_breast_questions(
-    client: MedKitClient,
+    client: LiteClient,
     patient_context: Optional[str] = None,
     prompt_style: PromptStyle = PromptStyle.DETAILED,
 ) -> BreastTestQuestions:
@@ -153,7 +179,7 @@ Return structured JSON matching the exact schema provided, with all required fie
 
 
 def ask_breast_questions(
-    client: Optional[MedKitClient] = None,
+    client: Optional[LiteClient] = None,
     patient_context: Optional[str] = None,
     prompt_style: PromptStyle = PromptStyle.DETAILED,
 ) -> dict:
@@ -353,7 +379,7 @@ def evaluate_breast_axillae(
     output_path: Optional[Path] = None,
     use_schema_prompt: bool = True,
     prompt_style: PromptStyle = PromptStyle.DETAILED,
-    client: Optional[MedKitClient] = None,
+    client: Optional[LiteClient] = None,
     patient_context: Optional[str] = None,
 ) -> BreastAxillaeAssessment:
     """
@@ -381,9 +407,8 @@ def evaluate_breast_axillae(
     return assessment
 
 
-if __name__ == '__main__':
-    import argparse
-
+def main() -> int:
+    """Main entry point for breast and axillae assessment."""
     parser = argparse.ArgumentParser(
         description="Evaluate patient breast and axillary system through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -452,6 +477,11 @@ Breast and Axillae Assessment Protocol:
 
     except Exception as e:
         print(f"✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        logger.error("Error during breast and axillae assessment", exc_info=True)
+        return 1
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

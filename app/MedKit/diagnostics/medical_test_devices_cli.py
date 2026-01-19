@@ -1,39 +1,52 @@
-import json
 import argparse
-from pathlib import Path
+import json
+import logging
+import sys
+
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
-from medkit.utils.logging_config import setup_logger
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
+from pydantic import BaseModel
+from rich.console import Console
+from rich.panel import Panel
 
+# ==============================================================================
+# LITECLIENT SETUP
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 from medical_test_devices_models import MedicalDeviceInfo
 
-# Configure logging
-logger = setup_logger(__name__)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# ============================================================================ 
-# CONFIGURATION
-# ============================================================================ 
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class Config(MedKitConfig):
+class Config:
     """Configuration for the medical test device generator."""
     enable_cache: bool = True
     verbosity: int = 2  # 0=CRITICAL, 1=ERROR, 2=WARNING (default), 3=INFO, 4=DEBUG
+    output_dir: Path = Path("outputs")
+    model: str = "ollama/gemma3:12b"
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "medical_test_devices.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
-
-# ============================================================================
-# MEDICAL TEST DEVICE GENERATOR CLASS
-# ============================================================================
+# ==============================================================================
+# MAIN CLASS: MEDICAL TEST DEVICE GENERATOR
+# ==============================================================================
 
 class MedicalTestDeviceGenerator:
     """Generate comprehensive information for medical test devices."""
@@ -41,8 +54,7 @@ class MedicalTestDeviceGenerator:
     def __init__(self, config: Optional[Config] = None):
         """Initialize the generator."""
         self.config = config or Config()
-        model_name = "ollama/gemma3:12b"  # Default model for this module
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(ModelConfig(model=self.config.model, temperature=0.7))
 
         # Apply verbosity level to logger
         verbosity_levels = {
@@ -129,8 +141,10 @@ Provide accurate, evidence-based medical device information."""
         try:
             prompt = self.build_user_prompt(device_name)
             result = self.client.generate_text(
-                prompt,
-                schema=MedicalDeviceInfo
+                model_input=ModelInput(
+                    user_prompt=prompt,
+                    response_format=MedicalDeviceInfo,
+                )
             )
             logger.info(f"Successfully generated comprehensive information for {device_name}.")
             return result
@@ -178,6 +192,35 @@ Provide accurate, evidence-based medical device information."""
         print(f"  - Manufacturer: {device_info.manufacturer_and_support.manufacturer_name}")
         print(f"\n✓ Generation complete. Saved to {output_path}")
 
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
+
+def print_result(result: MedicalDeviceInfo, verbose: bool = False) -> None:
+    """Print medical device information in a formatted manner using rich."""
+    console = Console()
+
+    # Extract main fields from the result model
+    result_dict = result.model_dump()
+
+    # Create a formatted panel showing the result
+    for section_name, section_value in result_dict.items():
+        if section_value is not None:
+            if isinstance(section_value, dict):
+                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
+            else:
+                formatted_text = str(section_value)
+
+            console.print(Panel(
+                formatted_text,
+                title=section_name.replace('_', ' ').title(),
+                border_style="cyan",
+            ))
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
+
 def get_device_info(device_name: str, output_path: Optional[Path] = None) -> MedicalDeviceInfo:
     """
     High-level function to generate and optionally save device information.
@@ -185,6 +228,9 @@ def get_device_info(device_name: str, output_path: Optional[Path] = None) -> Med
     generator = MedicalTestDeviceGenerator()
     return generator.generate(device_name, output_path)
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
 
 def argument_parser():
     """
@@ -200,14 +246,32 @@ def argument_parser():
     return parser.parse_args()
 
 
-def cli():
-    args = argument_parser()
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
 
-    generator = MedicalTestDeviceGenerator()
+def main() -> int:
+    """
+    Main CLI entry point for the medical test device generator.
 
-    output_file_path = Path(args.output) if args.output else None
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    try:
+        args = argument_parser()
+        generator = MedicalTestDeviceGenerator()
+        output_file_path = Path(args.output) if args.output else None
+        result = generator.generate(device_name=args.input, output_path=output_file_path)
+        if result:
+            print_result(result)
+        return 0
+    except Exception as e:
+        logger.error(f"CLI execution failed: {e}")
+        return 1
 
-    generator.generate(device_name=args.input, output_path=output_file_path)
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
 if __name__ == "__main__":
-   cli()
+    sys.exit(main())

@@ -1,73 +1,37 @@
-"""
-similar_drugs.py - Similar Medicines Finder and Comparator
+"""Module docstring - Similar Medicines Finder and Comparator.
 
 Find alternative medicines with similar active ingredients, therapeutic classes, and
-mechanisms of action. Provides detailed comparisons of top 10-15 alternatives to help
-identify suitable substitutes using structured data and MedKit AI analysis.
-
-This module helps identify appropriate alternative medications when the primary drug is
-unavailable, contraindicated, or causing adverse effects.
-
-QUICK START:
-    from similar_drugs import SimilarDrugs, SimilarDrugsConfig
-
-    # Configure the analysis (settings only)
-    config = SimilarDrugsConfig(
-        output_path=None,  # optional
-        verbosity=False,
-        prompt_style="DETAILED"
-    )
-
-    # Create an analyzer and get the alternatives
-    alternatives = SimilarDrugs(config).find(
-        medicine_name="ibuprofen",
-        include_generics=True
-    )
-
-    # Review similar options
-    for category in alternatives.categorized_results:
-        for drug in category.medicines[:3]:
-            print(f"{drug.medicine_name}: {drug.similarity_category.value}")
-            print(f"  Efficacy: {drug.efficacy_comparison.value}")
-
-COMMON USES:
-    1. Find alternative medications when primary drug is unavailable
-    2. Identify options when patient has contraindications
-    3. Compare efficacy and side effects of similar drugs
-    4. Support medication selection decisions
-    5. Generate patient education on medication alternatives
-    6. Manage drug allergies with suitable substitutes
-
-SIMILARITY BASIS:
-    - SAME_INGREDIENT: Contains the same active ingredient
-    - SAME_THERAPEUTIC_CLASS: Treats the same conditions similarly
-    - SIMILAR_MECHANISM: Works through similar pharmacological mechanisms
-
-KEY INFORMATION PROVIDED:
-    - Alternative medicine names
-    - Similarity basis and strength
-    - Efficacy comparison to original drug
-    - Availability and cost considerations
-    - Substitutability rating
-    - Important considerations for switching
+mechanisms of action. Provides detailed comparisons to help identify suitable substitutes.
 """
 
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
+import json
 import logging
 import sys
-import json
-import argparse
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field
 
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from similar_drugs_models import (
     SimilarityCategory,
     EfficacyComparison,
@@ -77,49 +41,45 @@ from similar_drugs_models import (
     SimilarMedicinesResult,
 )
 
-# Configure logging
-logger = setup_logger(__name__)
-logger.info("="*80)
-logger.info("Similar Drugs Module Initialized")
-logger.info("="*80)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
+
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class SimilarDrugsConfig(MedKitConfig):
-    """
-    Configuration for similar_drugs.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to similar_drugs.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
-    """
+class SimilarDrugsConfig:
     """Configuration for finding similar drugs."""
     output_path: Optional[Path] = None
     verbosity: bool = False
-    prompt_style: PromptStyle = PromptStyle.DETAILED
     enable_cache: bool = True
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "similar_drugs.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 
 class SimilarDrugs:
     """Finds similar drugs based on provided configuration."""
 
     def __init__(self, config: SimilarDrugsConfig):
         self.config = config
-
-        # Load model name from ModuleConfig
-        model_name = "gemini-1.5-flash"  # Default model for this module
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma2", temperature=0.7)
+        )
 
     def find(
         self,
@@ -164,8 +124,10 @@ class SimilarDrugs:
         context = ". ".join(context_parts) + "."
 
         result = self.client.generate_text(
-            prompt=f"Find the top 10-15 most similar medicines to {medicine_name} - prioritize same active ingredients, then therapeutic class, then similar mechanism. {context}",
-            schema=SimilarMedicinesResult,
+            model_input=ModelInput(
+                user_prompt=f"Find the top 10-15 most similar medicines to {medicine_name} - prioritize same active ingredients, then therapeutic class, then similar mechanism. {context}",
+                response_format=SimilarMedicinesResult,
+            )
         )
 
         return result
@@ -201,6 +163,11 @@ def get_similar_medicines(
         patient_age=patient_age,
         patient_conditions=patient_conditions,
     )
+
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 
 
 def create_cli_parser() -> argparse.ArgumentParser:
@@ -303,35 +270,12 @@ Examples:
     return parser
 
 
-def parse_prompt_style(style_str: str) -> PromptStyle:
-    """
-    Parse prompt style string to PromptStyle enum.
-
-    Args:
-        style_str: String representation of prompt style
-
-    Returns:
-        PromptStyle: The corresponding enum value
-
-    Raises:
-        ValueError: If style string is not a valid prompt style
-    """
-    style_mapping = {
-        "detailed": PromptStyle.DETAILED,
-        "concise": PromptStyle.CONCISE,
-        "balanced": PromptStyle.BALANCED,
-    }
-
-    if style_str.lower() not in style_mapping:
-        raise ValueError(
-            f"Invalid prompt style: {style_str}. "
-            f"Choose from: {', '.join(style_mapping.keys())}"
-        )
-
-    return style_mapping[style_str.lower()]
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
 
 
-def print_results(result: SimilarMedicinesResult, verbose: bool = False) -> None:
+def print_result(result: SimilarMedicinesResult, verbose: bool = False) -> None:
     """
     Print similar medicines results in a formatted manner using rich.
 
@@ -439,6 +383,15 @@ def print_results(result: SimilarMedicinesResult, verbose: bool = False) -> None
     )
 
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
+
+
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
+
 def main() -> int:
     """
     Main entry point for the similar drugs CLI.
@@ -456,14 +409,10 @@ def main() -> int:
         logging.getLogger().setLevel(logging.INFO)
 
     try:
-        # Parse prompt style
-        prompt_style = parse_prompt_style(args.prompt_style)
-
         # Create configuration
         config = SimilarDrugsConfig(
-            output_path=args.output,
-            verbosity=args.verbose,
-            prompt_style=prompt_style,
+            output_path=args.output if hasattr(args, 'output') else None,
+            verbosity=args.verbose if hasattr(args, 'verbose') else False,
         )
 
         logger.info(f"Configuration created successfully")
@@ -472,13 +421,13 @@ def main() -> int:
         analyzer = SimilarDrugs(config)
         result = analyzer.find(
             medicine_name=args.medicine_name,
-            include_generics=args.include_generics,
-            patient_age=args.age,
-            patient_conditions=args.conditions,
+            include_generics=args.include_generics if hasattr(args, 'include_generics') else True,
+            patient_age=args.age if hasattr(args, 'age') else None,
+            patient_conditions=args.conditions if hasattr(args, 'conditions') else None,
         )
 
         # Print results
-        print_results(result, verbose=args.verbose)
+        print_result(result, verbose=args.verbose)
 
         # Save results to file
         if args.output:
@@ -511,6 +460,10 @@ def main() -> int:
         logger.exception("Full exception details:")
         return 1
 
+
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
 if __name__ == "__main__":
     sys.exit(main())

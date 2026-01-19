@@ -53,6 +53,28 @@ CLI USAGE:
 import requests
 import sys
 from typing import Optional, Dict, Any
+from rich.console import Console
+from rich.panel import Panel
+
+
+def print_result(result: Any, verbose: bool = False) -> None:
+    """Print result in a formatted manner using rich."""
+    console = Console()
+
+    if result is None:
+        return
+
+    # Handle dictionary results
+    if isinstance(result, dict):
+        formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in result.items()])
+    else:
+        formatted_text = str(result)
+
+    console.print(Panel(
+        formatted_text,
+        title="Result",
+        border_style="cyan",
+    ))
 
 
 class RxNormError(Exception):
@@ -309,5 +331,5 @@ def cli():
 
 
 if __name__ == "__main__":
-    cli()
+    sys.exit(cli() or 0)
 

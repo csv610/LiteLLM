@@ -1,221 +1,315 @@
+"""Module docstring - Medical Decision Guide Generator.
+
+Generate medical decision trees for symptom assessment using structured data models
+and the LiteClient with schema-aware prompting for clinical decision support.
+"""
+
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
 import argparse
-import sys
+import json
 import logging
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from rich.console import Console
+from rich.panel import Panel
 
-import hashlib
-from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
-from medical_decision_guide_models import DecisionNode, Outcome, MedicalDecisionGuide
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
-# Configure logging
-logger = setup_logger(__name__)
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
+from medical_decision_guide_models import MedicalDecisionGuide
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class Config(MedKitConfig):
-    """Configuration for the medical decision guide generator."""
+class MedicalDecisionGuideConfig:
+    """Configuration for generating medical decision guides."""
+    output_path: Optional[Path] = None
+    output_dir: Path = Path("outputs")
+    verbosity: bool = False
 
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "medical_decision_guide.lmdb"
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
+
+class MedicalDecisionGuideGenerator:
+    """Generates medical decision guides based on provided configuration."""
+
+    def __init__(self, config: MedicalDecisionGuideConfig):
+        self.config = config
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma3", temperature=0.7)
+        )
+        self.config.output_dir.mkdir(parents=True, exist_ok=True)
+
+        if self.config.verbosity:
+            logger.setLevel("DEBUG")
+        else:
+            logger.setLevel("INFO")
+
+        logger.info(f"Initialized MedicalDecisionGuideGenerator")
+        if self.config.verbosity:
+            logger.debug(f"Config: {self.config}")
+
+    def generate(
+        self,
+        symptom: str,
+        output_path: Optional[str] = None,
+    ) -> MedicalDecisionGuide:
+        """
+        Generates a medical decision guide for symptom assessment.
+
+        Args:
+            symptom: Name of the symptom
+            output_path: Optional path to save the output JSON file
+
+        Returns:
+            MedicalDecisionGuide: Validated decision guide object
+        """
+        # Validate inputs
+        if not symptom or not str(symptom).strip():
+            raise ValueError("Symptom name cannot be empty")
+
+        logger.info("-" * 80)
+        logger.info(f"Starting decision guide generation")
+        logger.info(f"Symptom Name: {symptom}")
+
+        # Determine output path
+        output_path_obj = Path(output_path) if output_path else None
+        if output_path_obj is None:
+            output_path_obj = self.config.output_dir / f"{symptom.lower().replace(' ', '_')}_decision_tree.json"
+
+        output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Output path: {output_path_obj}")
+
+        # Generate decision guide
+        logger.info("Calling LiteClient.generate_text()...")
+        try:
+            prompt = f"Generate a comprehensive medical decision tree for: {symptom}."
+            logger.debug(f"Prompt: {prompt}")
+
+            result = self.client.generate_text(
+                model_input=ModelInput(
+                    user_prompt=prompt,
+                    response_format=MedicalDecisionGuide,
+                )
             )
-        # Call parent validation
-        super().__post_init__()
 
-def append_decision_tree_suffix(output_path: Path) -> Path:
-    """
-    Append '_decision_tree' suffix to filename if not already present.
+            logger.info(f"✓ Successfully generated decision guide")
+            logger.info("-" * 80)
+            return result
+        except Exception as e:
+            logger.error(f"✗ Error generating decision guide: {e}")
+            logger.exception("Full exception details:")
+            logger.info("-" * 80)
+            raise
 
-    Args:
-        output_path: Path to the output file
+    def save(self, guide: MedicalDecisionGuide, output_path: str):
+        """
+        Saves the decision guide to a JSON file.
 
-    Returns:
-        Path with '_decision_tree' appended before the file extension
-    """
-    if output_path.name.endswith("decision_tree.json"):
-        return output_path
+        Args:
+            guide: The MedicalDecisionGuide object to save
+            output_path: Path where the JSON file should be saved
+        """
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Saving decision guide to: {output_file}")
 
-    stem = output_path.stem
-    suffix = output_path.suffix
-    return output_path.parent / f"{stem}_decision_tree{suffix}"
+        try:
+            with open(output_file, "w") as f:
+                json.dump(guide.model_dump(), f, indent=2)
+            file_size = output_file.stat().st_size
+            logger.info(f"✓ Successfully saved decision guide")
+            logger.info(f"File: {output_file}")
+            logger.info(f"File size: {file_size} bytes")
+        except Exception as e:
+            logger.error(f"✗ Error saving decision guide: {e}")
+            logger.exception("Full exception details:")
+            raise
+
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
+
+def print_result(result: MedicalDecisionGuide, verbose: bool = False) -> None:
+    """Print result in a formatted manner using rich."""
+    console = Console()
+
+    # Extract main fields from the result model
+    result_dict = result.model_dump()
+
+    # Create a formatted panel showing the result
+    # Use semantic formatting: green for success/positive, yellow for warnings, blue for info
+    # Display the data in organized sections
+
+    for section_name, section_value in result_dict.items():
+        if section_value is not None:
+            if isinstance(section_value, dict):
+                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
+            else:
+                formatted_text = str(section_value)
+
+            console.print(Panel(
+                formatted_text,
+                title=section_name.replace('_', ' ').title(),
+                border_style="cyan",
+            ))
 
 
 def create_decision_tree(
-    symptom_name: str,
-    output_path: Path,
-    age_group: str = "all",
-    prompt_style: PromptStyle = PromptStyle.DETAILED,
-    tree_depth: int = 3,
-) -> MedicalDecisionGuide:
+    symptom: str,
+    config: MedicalDecisionGuideConfig,
+    output_path: Optional[str] = None,
+) -> Optional[MedicalDecisionGuide]:
     """
-    Create a decision tree for medical symptom assessment.
+    Create a medical decision tree for symptom assessment.
 
     Args:
-        symptom_name: Name of the symptom to create a tree for
-        output_path: Path to save the decision tree JSON file
-        age_group: Target age group (all, pediatric, adult, geriatric)
-        prompt_style: Style of schema prompt (DETAILED, CONCISE, TECHNICAL)
-        tree_depth: Maximum depth of decision tree (1-5, default: 3)
+        symptom: Name of the symptom
+        config: Configuration object for the generation
+        output_path: Optional path to save the output JSON file
 
     Returns:
-        MedicalDecisionGuide: Validated decision tree object
-
-    Raises:
-        ValueError: If symptom_name is empty or tree_depth is invalid
+        MedicalDecisionGuide: The result of the generation, or None if it fails
     """
-    if not symptom_name or not symptom_name.strip():
-        raise ValueError("Symptom name cannot be empty")
-
-    if not (1 <= tree_depth <= 5):
-        raise ValueError("tree_depth must be between 1 and 5")
-
-    # Load model name from ModuleConfig
-
-
-    model_name = "gemini-1.5-pro"  # Default model for this module
+    try:
+        generator = MedicalDecisionGuideGenerator(config)
+        return generator.generate(symptom=symptom, output_path=output_path)
+    except Exception as e:
+        logger.error(f"Failed to generate decision guide: {e}")
+        return None
 
 
-    
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
 
 
-    client = MedKitClient(model_name=model_name)
-    output_path = Path(output_path)
-    output_path = append_decision_tree_suffix(output_path)
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
 
-    # Build context for prompt
-    age_context = f"Focus on {age_group} population." if age_group != "all" else "Cover all age groups."
-    depth_context = f"Create a decision tree with approximately {tree_depth} levels of depth (more levels = more detailed assessment)."
+def main() -> int:
+    """
+    CLI entry point for generating medical decision guides.
+    """
+    logger.info("="*80)
+    logger.info("MEDICAL DECISION GUIDE CLI - Starting")
+    logger.info("="*80)
 
-    result = client.generate(
-        subject=f"Decision tree for {symptom_name} assessment ({age_group})",
-        schema=MedicalDecisionGuide,
-        output_path=output_path,
-        specialty="Medicine/General",
-        use_schema_prompt=True,
-        prompt_style=prompt_style,
-        context=f"{age_context} {depth_context}",
-    )
-
-    return result
-
-
-if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="Create medical decision trees for symptom assessment",
+        description="Generate medical decision trees for symptom assessment.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Create default decision tree
-  python medical_decision_guide.py -i "Fever" -o outputs/fever.json
-
-  # Create pediatric tree with depth 4
-  python medical_decision_guide.py -i "Fever" -o outputs/fever.json -a pediatric -d 4
-
-  # Create with concise style
-  python medical_decision_guide.py -i "Sore Throat" -o outputs/sore_throat.json --concise
-
-  # Create adult cough tree with maximum depth
-  python medical_decision_guide.py -i "Cough" -o outputs/cough.json -a adult -d 5
+  python medical_decision_guide_cli.py -i fever
+  python medical_decision_guide_cli.py -i "sore throat" -o output.json -v
+  python medical_decision_guide_cli.py -i cough -d outputs/guides
         """
     )
-
     parser.add_argument(
         "-i", "--symptom",
-        nargs='+',
-        help="Name of the symptom to create tree for"
+        required=True,
+        help="The name of the symptom to generate a decision tree for."
     )
     parser.add_argument(
         "-o", "--output",
-        type=Path,
-        help="Path to save decision tree JSON file"
+        help="Path to save the output JSON file."
     )
     parser.add_argument(
-        "-a", "--age-group",
-        choices=["all", "pediatric", "adult", "geriatric"],
-        default="all",
-        help="Target age group (default: all)"
+        "-d", "--output-dir",
+        default="outputs",
+        help="Directory for output files (default: outputs)."
     )
     parser.add_argument(
-        "--concise",
+        "-v", "--verbose",
         action="store_true",
-        help="Use concise prompt style"
-    )
-    parser.add_argument(
-        "-d", "--depth",
-        type=int,
-        choices=[1, 2, 3, 4, 5],
-        default=3,
-        help="Tree depth: 1=simple, 3=detailed, 5=very detailed (default: 3)"
-    )
-    parser.add_argument(
-        "-v", "--verbosity",
-        type=int,
-        choices=[0, 1, 2, 3, 4],
-        default=2,
-        help="Verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)"
+        help="Enable verbose/debug logging output."
     )
 
     args = parser.parse_args()
 
-    # Configure logging based on verbosity level
-    config = Config(verbosity=args.verbosity)
-    verbosity_levels = {0: "CRITICAL", 1: "ERROR", 2: "WARNING", 3: "INFO", 4: "DEBUG"}
-    logger.setLevel(verbosity_levels.get(config.verbosity, "WARNING"))
+    # Create configuration
+    config = MedicalDecisionGuideConfig(
+        output_path=Path(args.output) if args.output else None,
+        output_dir=Path(args.output_dir),
+        verbosity=args.verbose
+    )
 
+    logger.info(f"CLI Arguments:")
+    logger.info(f"  Symptom: {args.symptom}")
+    logger.info(f"  Output Dir: {args.output_dir}")
+    logger.info(f"  Output File: {args.output if args.output else 'Default'}")
+    logger.info(f"  Verbose: {args.verbose}")
+
+    # Generate decision guide
     try:
-        symptom_name = " ".join(args.symptom)
-        prompt_style = PromptStyle.CONCISE if args.concise else PromptStyle.DETAILED
+        generator = MedicalDecisionGuideGenerator(config)
+        guide = generator.generate(symptom=args.symptom, output_path=args.output)
 
-        # Calculate actual output path
-        output_path = append_decision_tree_suffix(Path(args.output))
+        if guide is None:
+            logger.error("✗ Failed to generate decision guide.")
+            sys.exit(1)
 
-        guide = create_decision_tree(
-            symptom_name=symptom_name,
-            output_path=args.output,
-            age_group=args.age_group,
-            prompt_style=prompt_style,
-            tree_depth=args.depth,
-        )
+        # Display formatted result
+        print_result(guide, args.verbose)
 
-        if config.verbosity >= 3:  # INFO level or higher
-            print(f"✓ Decision tree created for '{symptom_name}'")
-            print(f"  Saved to: {output_path}")
+        # Save if output path is specified
+        if args.output:
+            generator.save(guide, args.output)
+        else:
+            # Save to default location
+            default_path = config.output_dir / f"{args.symptom.lower().replace(' ', '_')}_decision_tree.json"
+            generator.save(guide, str(default_path))
 
-    except ValueError as e:
-        print(f"✗ Validation error: {e}")
-        sys.exit(1)
+        logger.info("="*80)
+        logger.info("✓ Decision guide generation completed successfully")
+        logger.info("="*80)
+        return 0
     except Exception as e:
-        print(f"✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error("="*80)
+        logger.error(f"✗ Decision guide generation failed: {e}")
+        logger.exception("Full exception details:")
+        logger.error("="*80)
         sys.exit(1)
 
 
-    def close(self):
-        """Close LMDB storage and release resources."""
-        if self.storage:
-            try:
-                self.storage.close()
-                logger.info("LMDB storage closed successfully.")
-            except Exception as e:
-                logger.error(f"Error closing LMDB storage: {e}")
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
-    def __enter__(self):
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.close()
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,24 +1,37 @@
 """Drug-Disease Interaction Analysis module."""
 
-import sys
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
 import argparse
-import logging
 import json
+import logging
+import sys
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
 from pathlib import Path
-from typing import Optional
-from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple
 
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
-console = Console()
-
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from drug_disease_interaction_models import (
     InteractionSeverity,
     ConfidenceLevel,
@@ -34,49 +47,52 @@ from drug_disease_interaction_models import (
     DrugDiseaseInteractionResult,
 )
 
-# Configure logging
-logger = setup_logger(__name__)
-logger.info("="*80)
-logger.info("Drug-Disease Interaction Module Initialized")
-logger.info("="*80)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
 
 
+# ==============================================================================
+# ENUMS
+# ==============================================================================
+class PromptStyle(str, Enum):
+    DETAILED = "detailed"
+    CONCISE = "concise"
+    BALANCED = "balanced"
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 @dataclass
-class DrugDiseaseInteractionConfig(MedKitConfig):
-    """
-    Configuration for drug_disease_interaction.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to drug_disease_interaction.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
-    """
+class DrugDiseaseInteractionConfig:
     """Configuration for drug-disease interaction analysis."""
     output_path: Optional[Path] = None
     verbosity: bool = False
     prompt_style: PromptStyle = PromptStyle.DETAILED
     enable_cache: bool = True
+    model: str = "ollama/gemma3"
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "drug_disease_interaction.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
-
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 class DrugDiseaseInteraction:
     """Analyzes drug-disease interactions based on provided configuration."""
 
     def __init__(self, config: DrugDiseaseInteractionConfig):
         self.config = config
-
-        # Load model name from ModuleConfig
-        model_name = "ollama/gemma3:12b"  # Default model for this module
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(
+            ModelConfig(model=config.model, temperature=0.7)
+        )
 
     def analyze(
         self,
@@ -111,7 +127,6 @@ class DrugDiseaseInteraction:
         logger.info(f"Starting drug-disease interaction analysis")
         logger.info(f"Medicine: {medicine_name}")
         logger.info(f"Condition: {condition_name}")
-        logger.info(f"Prompt Style: {self.config.prompt_style.value if hasattr(self.config.prompt_style, 'value') else self.config.prompt_style}")
 
         output_path = self.config.output_path
         if output_path is None:
@@ -136,11 +151,13 @@ class DrugDiseaseInteraction:
         context = ". ".join(context_parts) + "."
         logger.debug(f"Context: {context}")
 
-        logger.info("Calling MedKitClient.generate_text()...")
+        logger.info("Calling LiteClient...")
         try:
             result = self.client.generate_text(
-                prompt=f"{medicine_name} use in patients with {condition_name}. {context}",
-                schema=DrugDiseaseInteractionResult,
+                model_input=ModelInput(
+                    user_prompt=f"{medicine_name} use in patients with {condition_name}. {context}",
+                    response_format=DrugDiseaseInteractionResult,
+                )
             )
 
             logger.info(f"✓ Successfully analyzed disease interaction")
@@ -154,142 +171,9 @@ class DrugDiseaseInteraction:
             logger.info("-" * 80)
             raise
 
-
-def get_drug_disease_interaction(
-    medicine_name: str,
-    condition_name: str,
-    config: DrugDiseaseInteractionConfig,
-    condition_severity: Optional[str] = None,
-    age: Optional[int] = None,
-    other_medications: Optional[str] = None,
-) -> DrugDiseaseInteractionResult:
-    """
-    Get drug-disease interaction analysis.
-
-    This is a convenience function that instantiates and runs the
-    DrugDiseaseInteraction analyzer.
-
-    Args:
-        medicine_name: Name of the medicine to analyze
-        condition_name: Name of the medical condition
-        config: Configuration object for the analysis
-        condition_severity: Severity of the condition (optional)
-        age: Patient age in years (optional)
-        other_medications: Other medications patient is taking (optional)
-
-    Returns:
-        DrugDiseaseInteractionResult: The result of the analysis
-    """
-    analyzer = DrugDiseaseInteraction(config)
-    return analyzer.analyze(
-        medicine_name=medicine_name,
-        condition_name=condition_name,
-        condition_severity=condition_severity,
-        age=age,
-        other_medications=other_medications,
-    )
-
-
-def create_cli_parser() -> argparse.ArgumentParser:
-    """
-    Create and configure the argument parser for the CLI.
-
-    Returns:
-        argparse.ArgumentParser: Configured parser for command-line arguments
-    """
-    parser = argparse.ArgumentParser(
-        description="Drug-Disease Interaction Analyzer - Assess how medical conditions affect medicines",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Basic analysis
-  python drug_disease_interaction.py "Metformin" "Kidney Disease"
-
-  # With condition severity
-  python drug_disease_interaction.py "Warfarin" "Liver Disease" --condition-severity severe
-
-  # With patient details and other medications
-  python drug_disease_interaction.py "Lisinopril" "Hypertension" --age 72 --other-medications "Atorvastatin, Aspirin"
-
-  # With custom output
-  python drug_disease_interaction.py "NSAIDs" "Asthma" --output interaction.json --verbose
-        """,
-    )
-
-    # Required arguments
-    parser.add_argument(
-        "medicine_name",
-        type=str,
-        help="Name of the medicine to analyze",
-    )
-
-    parser.add_argument(
-        "condition_name",
-        type=str,
-        help="Name of the medical condition",
-    )
-
-    # Optional arguments
-    parser.add_argument(
-        "--condition-severity",
-        "-s",
-        type=str,
-        default=None,
-        help="Severity of the condition (mild, moderate, severe)",
-    )
-
-    parser.add_argument(
-        "--age",
-        "-a",
-        type=int,
-        default=None,
-        help="Patient's age in years (0-150)",
-    )
-
-    parser.add_argument(
-        "--other-medications",
-        "-m",
-        type=str,
-        default=None,
-        help="Other medications the patient is taking (comma-separated)",
-    )
-
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=Path,
-        default=None,
-        help="Output file path for results (default: outputs/{medicine}_{condition}_interaction.json)",
-    )
-
-    parser.add_argument(
-        "--prompt-style",
-        "-p",
-        type=str,
-        choices=["detailed", "concise", "balanced"],
-        default="detailed",
-        help="Prompt style for analysis (default: detailed)",
-    )
-
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        default=False,
-        help="Enable verbose logging output",
-    )
-
-    parser.add_argument(
-        "--json-output",
-        "-j",
-        action="store_true",
-        default=False,
-        help="Output results as JSON to stdout (in addition to file)",
-    )
-
-    return parser
-
-
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 def parse_prompt_style(style_str: str) -> PromptStyle:
     """
     Parse prompt style string to PromptStyle enum.
@@ -317,8 +201,10 @@ def parse_prompt_style(style_str: str) -> PromptStyle:
 
     return style_mapping[style_str.lower()]
 
-
-def print_results(result: DrugDiseaseInteractionResult, verbose: bool = False) -> None:
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
+def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) -> None:
     """
     Print interaction analysis results in a formatted manner using rich formatting.
 
@@ -495,7 +381,118 @@ def print_results(result: DrugDiseaseInteractionResult, verbose: bool = False) -
     )
     console.print()
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
+def create_argument_parser() -> argparse.ArgumentParser:
+    """
+    Create and configure the argument parser for the CLI.
 
+    Returns:
+        argparse.ArgumentParser: Configured parser for command-line arguments
+    """
+    parser = argparse.ArgumentParser(
+        description="Drug-Disease Interaction Analyzer - Assess how medical conditions affect medicines",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Basic analysis
+  python drug_disease_interaction.py "Metformin" "Kidney Disease"
+
+  # With condition severity
+  python drug_disease_interaction.py "Warfarin" "Liver Disease" --condition-severity severe
+
+  # With patient details and other medications
+  python drug_disease_interaction.py "Lisinopril" "Hypertension" --age 72 --other-medications "Atorvastatin, Aspirin"
+
+  # With custom output
+  python drug_disease_interaction.py "NSAIDs" "Asthma" --output interaction.json --verbose
+        """,
+    )
+
+    # Required arguments
+    parser.add_argument(
+        "medicine_name",
+        type=str,
+        help="Name of the medicine to analyze",
+    )
+
+    parser.add_argument(
+        "condition_name",
+        type=str,
+        help="Name of the medical condition",
+    )
+
+    # Optional arguments
+    parser.add_argument(
+        "--condition-severity",
+        "-s",
+        type=str,
+        default=None,
+        help="Severity of the condition (mild, moderate, severe)",
+    )
+
+    parser.add_argument(
+        "--age",
+        "-a",
+        type=int,
+        default=None,
+        help="Patient's age in years (0-150)",
+    )
+
+    parser.add_argument(
+        "--other-medications",
+        "-m",
+        type=str,
+        default=None,
+        help="Other medications the patient is taking (comma-separated)",
+    )
+
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=Path,
+        default=None,
+        help="Output file path for results (default: outputs/{medicine}_{condition}_interaction.json)",
+    )
+
+    parser.add_argument(
+        "--prompt-style",
+        "-p",
+        type=str,
+        choices=["detailed", "concise", "balanced"],
+        default="detailed",
+        help="Prompt style for analysis (default: detailed)",
+    )
+
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        default=False,
+        help="Enable verbose logging output",
+    )
+
+    parser.add_argument(
+        "--json-output",
+        "-j",
+        action="store_true",
+        default=False,
+        help="Output results as JSON to stdout (in addition to file)",
+    )
+
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="ollama/gemma3",
+        help="LLM model to use for analysis (default: ollama/gemma3)",
+    )
+
+    return parser
+
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
 def main() -> int:
     """
     Main entry point for the drug-disease interaction CLI.
@@ -503,7 +500,7 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, 1 for error)
     """
-    parser = create_cli_parser()
+    parser = create_argument_parser()
     args = parser.parse_args()
 
     # Configure logging verbosity
@@ -521,6 +518,7 @@ def main() -> int:
             output_path=args.output,
             verbosity=args.verbose,
             prompt_style=prompt_style,
+            model=args.model,
         )
 
         logger.info(f"Configuration created successfully")
@@ -536,7 +534,7 @@ def main() -> int:
         )
 
         # Print results
-        print_results(result, verbose=args.verbose)
+        print_result(result, verbose=args.verbose)
 
         # Save results to file
         if args.output:
@@ -570,6 +568,10 @@ def main() -> int:
         logger.exception("Full exception details:")
         return 1
 
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

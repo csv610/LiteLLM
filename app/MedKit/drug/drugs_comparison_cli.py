@@ -1,102 +1,80 @@
-"""drugs_comparison - Compare medicines side-by-side across clinical, regulatory, and practical metrics.
+"""Module docstring - Medicines Comparison Tool.
 
-This module enables comprehensive comparison of two medicines to help healthcare professionals
-and patients make informed treatment decisions. It generates structured comparison matrices
-with clinical effectiveness data, safety profiles, regulatory information, cost analysis, and
-contextual recommendations. All comparisons are powered by the MedKit AI client with validated
-Pydantic schemas.
-
-QUICK START:
-    from drugs_comparison import DrugsComparison, DrugsComparisonConfig
-
-    config = DrugsComparisonConfig(
-        medicine1="Aspirin",
-        medicine2="Ibuprofen",
-        use_case="pain relief"
-    )
-    comparison = DrugsComparison(config).compare()
-    print(comparison.comparison_summary.more_effective)
-
-COMMON USES:
-    1. Drug selection guidance - comparing treatment options with efficacy and safety data
-    2. Cost-benefit analysis - evaluating affordability and insurance coverage patterns
-    3. Patient education - explaining differences between medication alternatives
-    4. Clinical decision support - contextual recommendations by patient age and conditions
-    5. Regulatory comparison - comparing FDA approval status and safety warnings
-
-KEY FEATURES AND COVERAGE AREAS:
-    - Clinical Metrics: effectiveness ratings, efficacy rates, onset of action, side effects
-    - Regulatory Metrics: FDA approval status, approval type, black box warnings, alerts
-    - Practical Metrics: availability status, cost ranges, insurance coverage, formulations
-    - Comparison Summary: side-by-side analysis of effectiveness, safety, cost, accessibility
-    - Contextual Recommendations: tailored guidance for acute/chronic use, age groups, cost-sensitive patients
-    - Narrative Analysis: detailed prose comparison of similarities and differences
-    - Evidence Quality: assessment of supporting evidence strength
+Compare medicines side-by-side across clinical, regulatory, and practical metrics to help
+healthcare professionals and patients make informed treatment decisions.
 """
 
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
+import json
 import logging
 import sys
-import json
-import argparse
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field
 
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from drugs_comparison_models import (
     MedicinesComparisonResult,
 )
 
-# Configure logging
-logger = setup_logger(__name__)
-logger.info("="*80)
-logger.info("Drugs Comparison Module Initialized")
-logger.info("="*80)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
+
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class DrugsComparisonConfig(MedKitConfig):
-    """
-    Configuration for drugs_comparison.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to drugs_comparison.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
-    """
+class DrugsComparisonConfig:
     """Configuration for drugs comparison."""
     output_path: Optional[Path] = None
     verbosity: bool = False
-    prompt_style: PromptStyle = PromptStyle.DETAILED
     enable_cache: bool = True
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "drugs_comparison.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 
 class DrugsComparison:
     """Compares two medicines based on provided configuration."""
 
     def __init__(self, config: DrugsComparisonConfig):
         self.config = config
-
-        # Load model name from ModuleConfig
-        model_name = "ollama/gemma2:12b"  # Default model for this module
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma2", temperature=0.7)
+        )
 
     def compare(
         self,
@@ -131,7 +109,6 @@ class DrugsComparison:
         logger.info(f"Starting drugs comparison analysis")
         logger.info(f"Medicine 1: {medicine1}")
         logger.info(f"Medicine 2: {medicine2}")
-        logger.info(f"Prompt Style: {self.config.prompt_style.value if hasattr(self.config.prompt_style, 'value') else self.config.prompt_style}")
 
         output_path = self.config.output_path
         if output_path is None:
@@ -156,11 +133,13 @@ class DrugsComparison:
         context = ". ".join(context_parts) + "."
         logger.debug(f"Context: {context}")
 
-        logger.info("Calling MedKitClient.generate_text()...")
+        logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.client.generate_text(
-                prompt=f"Detailed side-by-side comparison between {medicine1} and {medicine2}. {context}",
-                schema=MedicinesComparisonResult,
+                model_input=ModelInput(
+                    user_prompt=f"Detailed side-by-side comparison between {medicine1} and {medicine2}. {context}",
+                    response_format=MedicinesComparisonResult,
+                )
             )
 
             logger.info(f"✓ Successfully compared medicines")
@@ -208,6 +187,11 @@ def get_drugs_comparison(
         patient_age=patient_age,
         patient_conditions=patient_conditions,
     )
+
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 
 
 def create_cli_parser() -> argparse.ArgumentParser:
@@ -310,35 +294,12 @@ Examples:
     return parser
 
 
-def parse_prompt_style(style_str: str) -> PromptStyle:
-    """
-    Parse prompt style string to PromptStyle enum.
-
-    Args:
-        style_str: String representation of prompt style
-
-    Returns:
-        PromptStyle: The corresponding enum value
-
-    Raises:
-        ValueError: If style string is not a valid prompt style
-    """
-    style_mapping = {
-        "detailed": PromptStyle.DETAILED,
-        "concise": PromptStyle.CONCISE,
-        "balanced": PromptStyle.BALANCED,
-    }
-
-    if style_str.lower() not in style_mapping:
-        raise ValueError(
-            f"Invalid prompt style: {style_str}. "
-            f"Choose from: {', '.join(style_mapping.keys())}"
-        )
-
-    return style_mapping[style_str.lower()]
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
 
 
-def print_results(result: MedicinesComparisonResult, verbose: bool = False) -> None:
+def print_result(result: MedicinesComparisonResult, verbose: bool = False) -> None:
     """
     Print comparison results in a formatted manner using rich.
 
@@ -534,6 +495,15 @@ def print_results(result: MedicinesComparisonResult, verbose: bool = False) -> N
         console.print(f"  • {lim}")
 
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
+
+
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
+
 def main() -> int:
     """
     Main entry point for the drugs comparison CLI.
@@ -551,14 +521,10 @@ def main() -> int:
         logging.getLogger().setLevel(logging.INFO)
 
     try:
-        # Parse prompt style
-        prompt_style = parse_prompt_style(args.prompt_style)
-
         # Create configuration
         config = DrugsComparisonConfig(
-            output_path=args.output,
-            verbosity=args.verbose,
-            prompt_style=prompt_style,
+            output_path=args.output if hasattr(args, 'output') else None,
+            verbosity=args.verbose if hasattr(args, 'verbose') else False,
         )
 
         logger.info(f"Configuration created successfully")
@@ -568,13 +534,13 @@ def main() -> int:
         result = analyzer.compare(
             medicine1=args.medicine1,
             medicine2=args.medicine2,
-            use_case=args.use_case,
-            patient_age=args.age,
-            patient_conditions=args.conditions,
+            use_case=args.use_case if hasattr(args, 'use_case') else None,
+            patient_age=args.age if hasattr(args, 'age') else None,
+            patient_conditions=args.conditions if hasattr(args, 'conditions') else None,
         )
 
         # Print results
-        print_results(result, verbose=args.verbose)
+        print_result(result, verbose=args.verbose)
 
         # Save results to file
         if args.output:
@@ -608,6 +574,10 @@ def main() -> int:
         logger.exception("Full exception details:")
         return 1
 
+
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -4,24 +4,49 @@ Musculoskeletal Telemedicine Exam Module
 Comprehensive system for musculoskeletal patient assessment combining:
 - Patient history collection (Top 10 doctor questions)
 - Physical examination documentation
-- AI-powered clinical assessment via MedKitClient
+- AI-powered clinical assessment via LiteClient
 - Patient education (Top 10 patient concerns answered)
 
-Integrates with MedKitClient for LLM-powered clinical assessments.
+Integrates with LiteClient for LLM-powered clinical assessments.
 """
 
-from typing import List, Optional, Literal, Tuple
-from pydantic import BaseModel, Field
-from datetime import datetime
-import sys
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
 import json
+import logging
+import sys
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
-# Fix import paths
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
+from pydantic import BaseModel, Field
+
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from core.medkit_client import MedKitClient
-from core.module_config import get_module_config
 from utils.pydantic_prompt_generator import PromptStyle
+
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -362,7 +387,7 @@ def generate_llm_assessment(
     Args:
         patient_answers: List of patient history responses
         physical_exam: Physical examination findings
-        use_medkit: If True, use MedKitClient for AI assessment
+        use_medkit: If True, use LiteClient for AI assessment
 
     Returns:
         LLMAssessment with recommendations
@@ -370,17 +395,10 @@ def generate_llm_assessment(
 
     if use_medkit:
         try:
-            print("\n  ⏳ Connecting to MedKitClient for AI assessment...")
+            print("\n  ⏳ Connecting to LiteClient for AI assessment...")
 
-            # Load model name from ModuleConfig
-            try:
-                module_config = get_module_config("exam_musculoskeletal")
-                model_name = module_config.model_name
-            except ValueError:
-                # Fallback to default if not registered yet
-                model_name = "gemini-1.5-flash"
-
-            client = MedKitClient(model_name=model_name)
+            # Initialize LiteClient with standardized model configuration
+            client = LiteClient(ModelConfig(model="ollama/gemma3", temperature=0.7))
 
             # Format clinical data for LLM
             clinical_context = f"""
@@ -418,7 +436,7 @@ Generate a clinical assessment that includes:
             return assessment
 
         except Exception as e:
-            print(f"  ⚠ MedKitClient unavailable ({type(e).__name__}), using fallback assessment")
+            print(f"  ⚠ LiteClient unavailable ({type(e).__name__}), using fallback assessment")
             return _get_fallback_assessment()
     else:
         return _get_fallback_assessment()
@@ -787,14 +805,22 @@ def run_musculoskeletal_exam(
 # ENTRY POINT
 # ============================================================================
 
-if __name__ == "__main__":
-    # Run exam with fallback assessment (no API key required)
-    # Set use_medkit=True to enable AI-powered assessment
-    exam_record, patient_questions = run_musculoskeletal_exam(
-        use_medkit=False,
-        include_education=True,
-        save_json=False
-    )
+def main() -> int:
+    """Main entry point for musculoskeletal examination."""
+    try:
+        # Run exam with fallback assessment (no API key required)
+        # Set use_medkit=True to enable AI-powered assessment
+        exam_record, patient_questions = run_musculoskeletal_exam(
+            use_medkit=False,
+            include_education=True,
+            save_json=False
+        )
+        return 0
+    except Exception as e:
+        print(f"✗ Error: {e}")
+        logger.error("Error during musculoskeletal examination", exc_info=True)
+        return 1
 
-    # Example: Save to JSON if needed
-    # save_exam_to_json(exam_record, "musculoskeletal_exam.json")
+
+if __name__ == "__main__":
+    sys.exit(main())

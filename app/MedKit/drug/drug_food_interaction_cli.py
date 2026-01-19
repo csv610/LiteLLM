@@ -1,47 +1,38 @@
-"""Drug-Food Interaction Checker - Comprehensive medication-food interaction analysis.
+"""Module docstring - Drug-Food Interaction Checker.
 
 Analyzes potential interactions between medicines and food/beverage categories with severity
 assessment, clinical mechanisms, management recommendations, and patient-friendly guidance
 for safe medication-diet coordination.
-
-QUICK START:
-    from drug_food_interaction import DrugFoodInteraction, DrugFoodInteractionConfig
-
-    config = DrugFoodInteractionConfig(medicine_name="Warfarin", age=65)
-    interaction = DrugFoodInteraction(config).analyze()
-
-    print(f"Severity: {interaction.interaction_details.overall_severity}")
-    print(f"Foods to avoid: {interaction.interaction_details.foods_to_avoid}")
-
-COMMON USES:
-    - Check medicines for harmful food/beverage interactions
-    - Generate patient education materials on safe food-drug combinations
-    - Provide clinical recommendations for timing medicine with meals
-    - Assess interaction severity (NONE, MINOR, MILD, MODERATE, SIGNIFICANT, CONTRAINDICATED)
-    - Create interaction reports for dietary counseling and pharmacy review
-
-KEY CONCEPTS:
-    - FoodCategory covers 10 categories (citrus, dairy, alcohol, caffeine, leafy greens, etc.)
-    - InteractionSeverity levels with mechanism explanation and timing recommendations
-    - FoodCategoryInteraction provides specific foods and absorption/metabolism effects
-    - PatientFriendlySummary with plain-language explanation and warning signs
 """
 
+# ==============================================================================
+# STANDARD LIBRARY IMPORTS
+# ==============================================================================
+import argparse
+import json
 import logging
 import sys
-import json
-import argparse
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field
 
+# ==============================================================================
+# THIRD-PARTY IMPORTS
+# ==============================================================================
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.utils.pydantic_prompt_generator import PromptStyle
-from medkit.utils.logging_config import setup_logger
+# ==============================================================================
+# LOCAL IMPORTS (LiteClient setup)
+# ==============================================================================
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+# ==============================================================================
+# LOCAL IMPORTS (Module models)
+# ==============================================================================
 from drug_food_interaction_models import (
     FoodCategory,
     InteractionSeverity,
@@ -54,49 +45,45 @@ from drug_food_interaction_models import (
     DrugFoodInteractionResult,
 )
 
-# Configure logging
-logger = setup_logger(__name__)
-logger.info("="*80)
-logger.info("Drug-Food Interaction Module Initialized")
-logger.info("="*80)
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
+
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+console = Console()
+
+
+# ==============================================================================
+# CONFIGURATION CLASS
+# ==============================================================================
 
 @dataclass
-class DrugFoodInteractionConfig(MedKitConfig):
-    """
-    Configuration for drug_food_interaction.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to drug_food_interaction.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
-    """
+class DrugFoodInteractionConfig:
     """Configuration for drug-food interaction analysis."""
     output_path: Optional[Path] = None
     verbosity: bool = False
-    prompt_style: PromptStyle = PromptStyle.DETAILED
     enable_cache: bool = True
 
-    def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
-        if self.db_path is None:
-            self.db_path = str(
-                Path(__file__).parent.parent / "storage" / "drug_food_interaction.lmdb"
-            )
-        # Call parent validation
-        super().__post_init__()
+# ==============================================================================
+# MAIN CLASS
+# ==============================================================================
 
 class DrugFoodInteraction:
     """Analyzes drug-food interactions based on provided configuration."""
 
     def __init__(self, config: DrugFoodInteractionConfig):
         self.config = config
-
-        # Load model name from ModuleConfig
-        model_name = "ollama/gemma3:12b"  # Default model for this module
-
-        self.client = MedKitClient(model_name=model_name)
+        self.client = LiteClient(
+            ModelConfig(model="ollama/gemma3", temperature=0.7)
+        )
 
     def analyze(
         self,
@@ -128,7 +115,6 @@ class DrugFoodInteraction:
         logger.info("-" * 80)
         logger.info(f"Starting drug-food interaction analysis")
         logger.info(f"Medicine: {medicine_name}")
-        logger.info(f"Prompt Style: {self.config.prompt_style.value if hasattr(self.config.prompt_style, 'value') else self.config.prompt_style}")
 
         output_path = self.config.output_path
         if output_path is None:
@@ -155,11 +141,13 @@ class DrugFoodInteraction:
         context = ". ".join(context_parts) + "."
         logger.debug(f"Context: {context}")
 
-        logger.info("Calling MedKitClient.generate_text()...")
+        logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.client.generate_text(
-                prompt=f"{medicine_name} food and beverage interactions analysis. {context}",
-                schema=DrugFoodInteractionResult,
+                model_input=ModelInput(
+                    user_prompt=f"{medicine_name} food and beverage interactions analysis. {context}",
+                    response_format=DrugFoodInteractionResult,
+                )
             )
 
             logger.info(f"✓ Successfully analyzed food interactions")
@@ -207,6 +195,11 @@ def get_drug_food_interaction(
         age=age,
         specific_food=specific_food,
     )
+
+
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
 
 
 def get_user_options():
@@ -361,35 +354,12 @@ Examples:
     return parser
 
 
-def parse_prompt_style(style_str: str) -> PromptStyle:
-    """
-    Parse prompt style string to PromptStyle enum.
-
-    Args:
-        style_str: String representation of prompt style
-
-    Returns:
-        PromptStyle: The corresponding enum value
-
-    Raises:
-        ValueError: If style string is not a valid prompt style
-    """
-    style_mapping = {
-        "detailed": PromptStyle.DETAILED,
-        "concise": PromptStyle.CONCISE,
-        "balanced": PromptStyle.BALANCED,
-    }
-
-    if style_str.lower() not in style_mapping:
-        raise ValueError(
-            f"Invalid prompt style: {style_str}. "
-            f"Choose from: {', '.join(style_mapping.keys())}"
-        )
-
-    return style_mapping[style_str.lower()]
+# ==============================================================================
+# DISPLAY/OUTPUT FUNCTIONS
+# ==============================================================================
 
 
-def print_results(result: DrugFoodInteractionResult, verbose: bool = False) -> None:
+def print_result(result: DrugFoodInteractionResult, verbose: bool = False) -> None:
     """
     Print interaction analysis results in a formatted manner using rich.
 
@@ -540,6 +510,15 @@ def print_results(result: DrugFoodInteractionResult, verbose: bool = False) -> N
     )
 
 
+# ==============================================================================
+# ARGUMENT PARSER
+# ==============================================================================
+
+
+# ==============================================================================
+# MAIN FUNCTION
+# ==============================================================================
+
 def main() -> int:
     """
     Main entry point for the drug-food interaction CLI.
@@ -557,28 +536,26 @@ def main() -> int:
         logging.getLogger().setLevel(logging.INFO)
 
     try:
-        # Parse prompt style
-        prompt_style = parse_prompt_style(args.prompt_style)
-
         # Create configuration
         config = DrugFoodInteractionConfig(
-            medicine_name=args.medicine_name,
-            diet_type=args.diet_type,
-            medical_conditions=args.conditions,
-            age=args.age,
-            output_path=args.output,
-            use_schema_prompt=not args.no_schema,
-            prompt_style=prompt_style,
+            output_path=args.output if hasattr(args, 'output') else None,
+            verbosity=args.verbose if hasattr(args, 'verbose') else False,
         )
 
         logger.info(f"Configuration created successfully")
 
         # Run analysis
         analyzer = DrugFoodInteraction(config)
-        result = analyzer.analyze()
+        result = analyzer.analyze(
+            medicine_name=args.medicine_name,
+            diet_type=args.diet_type if hasattr(args, 'diet_type') else None,
+            medical_conditions=args.conditions if hasattr(args, 'conditions') else None,
+            age=args.age if hasattr(args, 'age') else None,
+            specific_food=None,
+        )
 
         # Print results
-        print_results(result, verbose=args.verbose)
+        print_result(result, verbose=args.verbose)
 
         # Save results to file
         if args.output:
@@ -611,6 +588,10 @@ def main() -> int:
         logger.exception("Full exception details:")
         return 1
 
+
+# ==============================================================================
+# ENTRY POINT
+# ==============================================================================
 
 if __name__ == "__main__":
     sys.exit(main())
