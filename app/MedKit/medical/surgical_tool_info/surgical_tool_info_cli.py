@@ -3,7 +3,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
 
 from rich.console import Console
 from rich.panel import Panel
@@ -18,7 +17,32 @@ from surgical_tool_info_models import SurgicalToolInfo
 logger = logging.getLogger(__name__)
 
 
-@final
+def create_system_prompt() -> str:
+    """Create the system prompt for surgical tool information generation."""
+    return """You are an expert surgical instrument specialist with extensive knowledge of medical surgical tools and instruments.
+Provide comprehensive, accurate, and clinically relevant information about surgical tools. Focus on practical applications,
+safety considerations, and clinical usage."""
+
+
+def create_user_prompt(tool: str) -> str:
+    """Create the user prompt for surgical tool information generation.
+
+    Args:
+        tool: The name of the surgical tool to generate information for.
+
+    Returns:
+        A comprehensive prompt asking for detailed surgical tool information.
+    """
+    return f"""Generate comprehensive information for the surgical tool: {tool}.
+Include the following details:
+- Description and purpose
+- Key features and specifications
+- Clinical applications
+- Proper handling and sterilization
+- Safety considerations
+- Common variants or related instruments"""
+
+
 class SurgicalToolInfoGenerator:
     """Generates comprehensive surgical tool information based on provided configuration."""
 
@@ -34,10 +58,13 @@ class SurgicalToolInfoGenerator:
 
         logger.info(f"Starting surgical tool information generation for: {tool}")
 
-        user_prompt = f"Generate comprehensive information for the surgical tool: {tool}."
-        logger.debug(f"Prompt: {user_prompt}")
+        system_prompt = create_system_prompt()
+        user_prompt = create_user_prompt(tool)
+        logger.debug(f"System Prompt: {system_prompt}")
+        logger.debug(f"User Prompt: {user_prompt}")
 
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=SurgicalToolInfo,
         )
@@ -67,11 +94,6 @@ class SurgicalToolInfoGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving surgical tool information to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
 
 def print_result(result: SurgicalToolInfo) -> None:
     """Print result in a formatted manner using rich."""
