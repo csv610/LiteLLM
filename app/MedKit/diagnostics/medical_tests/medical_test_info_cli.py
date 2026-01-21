@@ -16,21 +16,40 @@ from lite.logging_config import configure_logging
 from medical_test_info_models import MedicalTestInfo
 
 
-# ==============================================================================
-# MAIN CLASS: MEDICAL TEST INFO GENERATOR
-# ==============================================================================
-
 class MedicalTestInfoGenerator:
     """Generate comprehensive information for medical tests."""
 
     def __init__(self, model_config: ModelConfig):
         """Initialize the generator.
-        
+
         Args:
             model_config: ModelConfig object containing model settings.
         """
         self.model_config = model_config
         self.client = LiteClient(model_config)
+
+    def create_system_prompt(self) -> str:
+        """
+        Create a system prompt that defines the AI's role and guidelines.
+
+        Returns:
+            A system prompt string defining the AI's role as a medical information specialist.
+        """
+        system_prompt = """You are a medical information specialist with expertise in clinical laboratory testing and diagnostic procedures. Your role is to provide comprehensive, accurate, and evidence-based information about medical tests.
+
+When generating medical test information, you must:
+
+1. Provide scientifically accurate information based on current medical knowledge and standards
+2. Use clear, professional medical terminology while remaining accessible
+3. Include specific details about test procedures, methodologies, and interpretations
+4. Cite appropriate reference ranges with units of measurement
+5. Describe clinical significance and practical applications
+6. Address patient preparation requirements and potential limitations
+7. Maintain objectivity and avoid making diagnostic conclusions
+8. Structure information logically and comprehensively
+
+Remember: This information is for educational and reference purposes. Always emphasize that test results should be interpreted by qualified healthcare professionals in the context of the patient's clinical presentation."""
+        return system_prompt
 
     def build_user_prompt(self, test_name: str) -> str:
         """
@@ -70,10 +89,12 @@ Provide accurate, evidence-based medical test information."""
             A MedicalTestInfo object with the generated data.
         """
         logger.info(f"Generating medical test information for: {test_name}")
-        
-        # Build prompt and create ModelInput
+
+        # Build prompts and create ModelInput
+        system_prompt = self.create_system_prompt()
         prompt = self.build_user_prompt(test_name)
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=prompt,
             response_format=MedicalTestInfo,
         )
@@ -121,10 +142,6 @@ Provide accurate, evidence-based medical test information."""
             raise
 
 
-# ==============================================================================
-# DISPLAY/OUTPUT FUNCTIONS
-# ==============================================================================
-
 def print_result(result: MedicalTestInfo, verbose: bool = False) -> None:
     """Print medical test information in a formatted manner using rich."""
     console = Console()
@@ -145,16 +162,6 @@ def print_result(result: MedicalTestInfo, verbose: bool = False) -> None:
                 title=section_name.replace('_', ' ').title(),
                 border_style="cyan",
             ))
-
-# ==============================================================================
-# HELPER FUNCTIONS
-# ==============================================================================
-
-# Helper removed - CLI-only operation
-
-# ==============================================================================
-# ARGUMENT PARSER
-# ==============================================================================
 
 def get_user_arguments() -> argparse.Namespace:
     """
