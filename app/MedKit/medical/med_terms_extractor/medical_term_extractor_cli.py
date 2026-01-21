@@ -4,13 +4,34 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
 from medical_term_extractor_models import MedicalTerms
+
+
+def create_system_prompt() -> str:
+    """Generate the system prompt for medical term extraction."""
+    return "You are an expert medical documentation specialist. Extract medical terms accurately from the provided text."
+
+
+def create_user_prompt(text: str) -> str:
+    """Generate the user prompt for term extraction."""
+    return f"""Extract all medical terms from the following text and structure them according to the provided schema.
+
+Text to extract from:
+{text}
+
+For each category:
+- Extract only relevant terms that appear in the text
+- Include the context (the sentence or phrase where it appears)
+- For side_effects, include the related_medicine if mentioned
+- For causation_relationships, identify connections between medical concepts (e.g., "disease X causes symptom Y")
+
+Be thorough and accurate. Extract ALL medical terms found in the text."""
+
 
 class MedicalTermExtractor:
     """Extracts and categorizes medical terms from text using LiteClient."""
@@ -25,9 +46,9 @@ class MedicalTermExtractor:
             raise ValueError("Input text cannot be empty")
 
         model_input = ModelInput(
-            user_prompt=self._create_prompt(text),
+            user_prompt=create_user_prompt(text),
             response_format=MedicalTerms,
-            system_prompt="You are an expert medical documentation specialist. Extract medical terms accurately from the provided text."
+            system_prompt=create_system_prompt()
         )
 
         result = self._ask_llm(model_input)
@@ -36,21 +57,6 @@ class MedicalTermExtractor:
     def _ask_llm(self, model_input: ModelInput) -> MedicalTerms:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
-
-    def _create_prompt(self, text: str) -> str:
-        """Generate the prompt for term extraction."""
-        return f"""Extract all medical terms from the following text and structure them according to the provided schema.
-
-Text to extract from:
-{text}
-
-For each category:
-- Extract only relevant terms that appear in the text
-- Include the context (the sentence or phrase where it appears)
-- For side_effects, include the related_medicine if mentioned
-- For causation_relationships, identify connections between medical concepts (e.g., "disease X causes symptom Y")
-
-Be thorough and accurate. Extract ALL medical terms found in the text."""
 
     def print_result(self, terms: MedicalTerms) -> None:
         """Print a summary of the extracted terms using rich."""
