@@ -12,31 +12,15 @@ from lite.config import ModelConfig, ModelInput
 
 from medical_speciality_models import MedicalSpecialistDatabase
 
-class MedicalSpecialityGenerator:
-    """Generate a comprehensive database of medical specialities using LiteClient."""
 
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the generator."""
-        self.client = LiteClient(model_config=model_config)
+def create_system_prompt() -> str:
+    """Generate the system prompt for the medical specialties generator."""
+    return "You are an expert in medical education and healthcare systems. Generate a complete and accurate database of medical specialties."
 
-    def generate_text(self) -> MedicalSpecialistDatabase:
-        """Generate a comprehensive medical specialists database."""
-        model_input = ModelInput(
-            user_prompt=self._create_prompt(),
-            response_format=MedicalSpecialistDatabase,
-            system_prompt="You are an expert in medical education and healthcare systems. Generate a complete and accurate database of medical specialties."
-        )
 
-        result = self._ask_llm(model_input)
-        return result
-
-    def _ask_llm(self, model_input: ModelInput) -> MedicalSpecialistDatabase:
-        """Internal helper to call the LLM client."""
-        return self.client.generate_text(model_input=model_input)
-
-    def _create_prompt(self) -> str:
-        """Generate the prompt for the specialty database."""
-        return """Generate a comprehensive list of medical specialists covering all major fields of medicine.
+def create_user_prompt() -> str:
+    """Generate the user prompt for the medical specialties generator."""
+    return """Generate a comprehensive list of medical specialists covering all major fields of medicine.
 Organize them by logical categories (body system, type of care, patient population).
 
 For each specialist, provide:
@@ -50,6 +34,29 @@ For each specialist, provide:
 8. Patient population focus
 
 Include both common (cardiology, dermatology) and specialized (physiatry, interventional radiology) fields."""
+
+
+class MedicalSpecialityGenerator:
+    """Generate a comprehensive database of medical specialities using LiteClient."""
+
+    def __init__(self, model_config: ModelConfig):
+        """Initialize the generator."""
+        self.client = LiteClient(model_config=model_config)
+
+    def generate_text(self) -> MedicalSpecialistDatabase:
+        """Generate a comprehensive medical specialists database."""
+        model_input = ModelInput(
+            user_prompt=create_user_prompt(),
+            response_format=MedicalSpecialistDatabase,
+            system_prompt=create_system_prompt()
+        )
+
+        result = self._ask_llm(model_input)
+        return result
+
+    def _ask_llm(self, model_input: ModelInput) -> MedicalSpecialistDatabase:
+        """Internal helper to call the LLM client."""
+        return self.client.generate_text(model_input=model_input)
 
     def print_result(self, database: MedicalSpecialistDatabase) -> None:
         """Print a summary of the generated database using rich."""

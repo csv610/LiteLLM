@@ -145,12 +145,6 @@ def print_result(result: MedicalDeviceInfo) -> None:
                 border_style="cyan",
             ))
 
-# ==============================================================================
-# HELPER FUNCTIONS
-# ==============================================================================
-
-# Helper functions removed - CLI-only operation
-
 def get_user_arguments() -> argparse.Namespace:
     """
     Parse command-line arguments for the medical test device generator CLI.
