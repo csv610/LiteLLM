@@ -24,6 +24,22 @@ from medical_faq_models import ComprehensiveFAQ
 
 logger = logging.getLogger(__name__)
 
+
+def create_system_prompt() -> str:
+    """Creates the system prompt for FAQ generation."""
+    return (
+        "You are a medical information specialist creating patient-friendly FAQs. "
+        "Your responses should be accurate, clear, and accessible to non-medical audiences. "
+        "Organize information in logical sections with concise, informative answers. "
+        "Always encourage users to consult healthcare professionals for medical advice."
+    )
+
+
+def create_user_prompt(topic: str) -> str:
+    """Creates the user prompt for FAQ generation."""
+    return f"Generate comprehensive patient-friendly FAQs for: {topic}."
+
+
 @final
 class MedicalFAQGenerator:
     """Generates comprehensive FAQ content based on provided configuration."""
@@ -40,7 +56,7 @@ class MedicalFAQGenerator:
 
         logger.info(f"Starting FAQ generation for: {topic}")
 
-        user_prompt = f"Generate comprehensive patient-friendly FAQs for: {topic}."
+        user_prompt = create_user_prompt(topic)
         logger.debug(f"Prompt: {user_prompt}")
 
         model_input = ModelInput(
@@ -61,7 +77,7 @@ class MedicalFAQGenerator:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, faq: ComprehensiveFAQ, output_path: Path) -> Path:
+    def save(self, faq: ComprehensiveFAQ, output_path: Path) -> None:
         """Saves the FAQ to a JSON file."""
         try:
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -69,15 +85,9 @@ class MedicalFAQGenerator:
             with open(output_path, "w") as f:
                 json.dump(faq.model_dump(), f, indent=2, default=str)
             logger.info(f"✓ Successfully saved FAQ to {output_path}")
-            return output_path
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving FAQ to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
 
 def print_result(result: ComprehensiveFAQ) -> None:
     """Print result in a formatted manner using rich."""
