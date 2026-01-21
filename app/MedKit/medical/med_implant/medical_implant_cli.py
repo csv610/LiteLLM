@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
+from typing import final
 
 from rich.console import Console
 from rich.panel import Panel
@@ -66,11 +66,6 @@ class MedicalImplantGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving implant information to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
 
 def print_result(result: ImplantInfo) -> None:
     """Print result in a formatted manner using rich."""
@@ -185,7 +180,7 @@ def app_cli() -> int:
         logger.info("="*80)
         logger.info("✓ Implant information generation completed successfully")
         logger.info("="*80)
-        return 0
+        return 
     except Exception as e:
         logger.error("="*80)
         logger.error(f"✗ Implant information generation failed: {e}")
@@ -199,4 +194,4 @@ def app_cli() -> int:
 # ==============================================================================
 
 if __name__ == "__main__":
-    sys.exit(app_cli())
+    app_cli()
