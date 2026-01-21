@@ -1,16 +1,9 @@
-"""Module docstring - Herbal Information Generator.
-
-Generate comprehensive, evidence-based herbal remedy information using structured
-data models and the LiteClient with schema-aware prompting for clinical reference
-and patient education purposes.
-"""
-
 import argparse
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
+from typing import final
 
 from rich.console import Console
 from rich.panel import Panel
@@ -23,6 +16,22 @@ from lite.logging_config import configure_logging
 from herbal_info_models import HerbalInfo
 
 logger = logging.getLogger(__name__)
+
+
+def build_system_prompt() -> str:
+    """Build the system prompt for herbal information generation."""
+    return """You are an expert herbalist and natural medicine specialist with extensive knowledge of medicinal plants.
+Your role is to provide comprehensive, accurate, and evidence-based information about herbs and their uses.
+Focus on safety, traditional uses, active compounds, and modern research where available."""
+
+
+def build_user_prompt(herb: str) -> str:
+    """Build the user prompt for herbal information generation.
+
+    Args:
+        herb: The name of the herb to generate information for.
+    """
+    return f"Generate comprehensive information for the herb: {herb}."
 
 
 @final
@@ -42,10 +51,13 @@ class HerbalInfoGenerator:
 
         logger.info(f"Starting herbal information generation for: {herb}")
 
-        user_prompt = f"Generate comprehensive information for the herb: {herb}."
-        logger.debug(f"Prompt: {user_prompt}")
+        system_prompt = build_system_prompt()
+        user_prompt = build_user_prompt(herb)
+        logger.debug(f"System Prompt: {system_prompt}")
+        logger.debug(f"User Prompt: {user_prompt}")
 
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=HerbalInfo,
         )
@@ -83,12 +95,6 @@ class HerbalInfoGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving herbal information to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
-
 
 def print_result(result: HerbalInfo) -> None:
     """Print result in a formatted manner using rich."""
