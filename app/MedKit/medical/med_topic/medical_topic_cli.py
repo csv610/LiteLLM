@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
+from typing import Optional
 
 from rich.console import Console
 from rich.panel import Panel
@@ -48,7 +48,6 @@ def create_user_prompt(topic: str) -> str:
     return f"Generate comprehensive information for the medical topic: {topic}."
 
 
-@final
 class MedicalTopicGenerator:
     """Generates comprehensive medical topic information based on provided configuration."""
 
@@ -100,10 +99,6 @@ class MedicalTopicGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving medical topic information to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
 
 
 def print_result(result: MedicalTopic) -> None:
