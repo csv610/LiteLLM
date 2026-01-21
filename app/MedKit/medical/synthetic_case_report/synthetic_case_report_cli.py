@@ -19,6 +19,36 @@ from synthetic_case_report_models import SyntheticCaseReport
 logger = logging.getLogger(__name__)
 
 
+def create_system_prompt() -> str:
+    """Create the system prompt for synthetic case report generation."""
+    return """You are an expert medical case report writer with extensive clinical experience across multiple specialties.
+Generate realistic, comprehensive, and clinically accurate synthetic medical case reports. Focus on presenting coherent patient narratives,
+relevant clinical findings, diagnostic processes, treatment approaches, and outcomes. Ensure all information is medically sound and follows
+standard case report structure."""
+
+
+def create_user_prompt(condition: str) -> str:
+    """Create the user prompt for synthetic case report generation.
+
+    Args:
+        condition: The name of the disease or medical condition for the case report.
+
+    Returns:
+        A comprehensive prompt asking for a detailed synthetic case report.
+    """
+    return f"""Generate a comprehensive synthetic medical case report for: {condition}.
+
+Include the following components:
+- Patient demographics and presenting complaint
+- Medical history and relevant background
+- Physical examination findings
+- Diagnostic investigations and results
+- Differential diagnosis considerations
+- Treatment plan and interventions
+- Clinical course and outcomes
+- Discussion and learning points"""
+
+
 @final
 class SyntheticCaseReportGenerator:
     """Generates synthetic medical case reports based on provided configuration."""
@@ -35,10 +65,13 @@ class SyntheticCaseReportGenerator:
 
         logger.info(f"Starting synthetic case report generation for: {condition}")
 
-        user_prompt = f"Generate a comprehensive synthetic medical case report for: {condition}."
-        logger.debug(f"Prompt: {user_prompt}")
+        system_prompt = create_system_prompt()
+        user_prompt = create_user_prompt(condition)
+        logger.debug(f"System Prompt: {system_prompt}")
+        logger.debug(f"User Prompt: {user_prompt}")
 
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=SyntheticCaseReport,
         )
