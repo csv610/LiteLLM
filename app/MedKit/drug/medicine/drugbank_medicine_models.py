@@ -1,19 +1,7 @@
-import sys
-import json
-import argparse
-import re
-from pathlib import Path
 from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
-
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-
 
 class DrugType(str, Enum):
     """Types of drugs"""
@@ -23,7 +11,6 @@ class DrugType(str, Enum):
     BIOLOGIC = "biologic"
     HERB = "herb"
 
-
 class DrugGroup(str, Enum):
     """Drug approval groups"""
     APPROVED = "approved"
@@ -32,7 +19,6 @@ class DrugGroup(str, Enum):
     WITHDRAWN = "withdrawn"
     ILLICIT = "illicit"
     NUTRACEUTICAL = "nutraceutical"
-
 
 class RouteOfAdministration(str, Enum):
     """Routes of drug administration"""
@@ -49,7 +35,6 @@ class RouteOfAdministration(str, Enum):
     SUBLINGUAL = "sublingual"
     OTHER = "other"
 
-
 class ChemicalProperties(BaseModel):
     """Chemical properties of the medicine"""
     molecular_formula: Optional[str] = Field(None, description="Molecular formula")
@@ -62,7 +47,6 @@ class ChemicalProperties(BaseModel):
     monoisotopic_weight: Optional[float] = Field(None, description="Monoisotopic weight")
     average_mass: Optional[float] = Field(None, description="Average mass")
 
-
 class Taxonomy(BaseModel):
     """Drug taxonomy classification"""
     kingdom: Optional[str] = Field(None, description="Kingdom classification")
@@ -72,13 +56,11 @@ class Taxonomy(BaseModel):
     direct_parent: Optional[str] = Field(None, description="Direct parent")
     alternative_parents: Optional[List[str]] = Field(default_factory=list, description="Alternative parents")
 
-
 class ExternalIdentifier(BaseModel):
     """External database identifiers"""
     database: str = Field(..., description="Database name (e.g., PubChem, ChEMBL, KEGG)")
     identifier: str = Field(..., description="ID in that database")
     url: Optional[HttpUrl] = Field(None, description="Direct link to resource")
-
 
 class Patent(BaseModel):
     """Patent information"""
@@ -88,12 +70,10 @@ class Patent(BaseModel):
     expires: Optional[datetime] = Field(None, description="Expiration date")
     pediatric_extension: Optional[bool] = Field(None, description="Has pediatric extension")
 
-
 class ATCCode(BaseModel):
     """Anatomical Therapeutic Chemical Classification"""
     code: str = Field(..., description="ATC code")
     level: str = Field(..., description="ATC level description")
-
 
 class Interaction(BaseModel):
     """Drug-drug interaction"""
@@ -102,12 +82,10 @@ class Interaction(BaseModel):
     description: str = Field(..., description="Interaction description")
     severity: Optional[str] = Field(None, description="Severity level (major, moderate, minor)")
 
-
 class FoodInteraction(BaseModel):
     """Drug-food interaction"""
     food: str = Field(..., description="Food or nutrient")
     description: str = Field(..., description="Interaction description")
-
 
 class Target(BaseModel):
     """Biological target (protein, enzyme, receptor)"""
@@ -119,7 +97,6 @@ class Target(BaseModel):
     uniprot_id: Optional[str] = Field(None, description="UniProt ID")
     pharmacological_action: Optional[bool] = Field(None, description="Is pharmacologically active")
 
-
 class Enzyme(BaseModel):
     """Enzyme involved in drug metabolism"""
     enzyme_id: str = Field(..., description="Enzyme ID")
@@ -129,7 +106,6 @@ class Enzyme(BaseModel):
     gene_name: Optional[str] = Field(None, description="Gene name")
     uniprot_id: Optional[str] = Field(None, description="UniProt ID")
 
-
 class Carrier(BaseModel):
     """Carrier protein"""
     carrier_id: str = Field(..., description="Carrier ID")
@@ -137,7 +113,6 @@ class Carrier(BaseModel):
     organism: str = Field(..., description="Organism")
     gene_name: Optional[str] = Field(None, description="Gene name")
     uniprot_id: Optional[str] = Field(None, description="UniProt ID")
-
 
 class Transporter(BaseModel):
     """Transporter protein"""
@@ -148,7 +123,6 @@ class Transporter(BaseModel):
     gene_name: Optional[str] = Field(None, description="Gene name")
     uniprot_id: Optional[str] = Field(None, description="UniProt ID")
 
-
 class Pharmacodynamics(BaseModel):
     """Pharmacodynamic properties"""
     mechanism_of_action: Optional[str] = Field(None, description="Detailed mechanism of action")
@@ -156,7 +130,6 @@ class Pharmacodynamics(BaseModel):
     onset_of_action: Optional[str] = Field(None, description="Time to onset")
     duration_of_action: Optional[str] = Field(None, description="Duration of effect")
     peak_effect: Optional[str] = Field(None, description="Time to peak effect")
-
 
 class Pharmacokinetics(BaseModel):
     """Pharmacokinetic properties"""
@@ -170,14 +143,12 @@ class Pharmacokinetics(BaseModel):
     clearance: Optional[str] = Field(None, description="Clearance rate")
     bioavailability: Optional[str] = Field(None, description="Bioavailability")
 
-
 class Dosage(BaseModel):
     """Dosage information"""
     form: str = Field(..., description="Dosage form (tablet, capsule, injection, etc.)")
     route: RouteOfAdministration = Field(..., description="Route of administration")
     strength: str = Field(..., description="Strength/concentration")
     dosage_instructions: Optional[str] = Field(None, description="Detailed dosing instructions")
-
 
 class ClinicalTrial(BaseModel):
     """Clinical trial information"""
@@ -187,26 +158,22 @@ class ClinicalTrial(BaseModel):
     status: Optional[str] = Field(None, description="Trial status")
     url: Optional[HttpUrl] = Field(None, description="Link to trial information")
 
-
 class Manufacturer(BaseModel):
     """Drug manufacturer information"""
     name: str = Field(..., description="Manufacturer name")
     country: Optional[str] = Field(None, description="Country")
     url: Optional[str] = Field(None, description="Company website")
 
-
 class PricingInfo(BaseModel):
     """Pricing information by country"""
     country: str = Field(..., description="Country code or name")
     price: str = Field(..., description="Price information")
-
 
 class Contraindication(BaseModel):
     """Contraindication information"""
     condition: str = Field(..., description="Contraindicated condition")
     severity: Optional[str] = Field(None, description="Severity (absolute, relative)")
     description: Optional[str] = Field(None, description="Detailed description")
-
 
 class AdverseReaction(BaseModel):
     """Adverse drug reaction"""
@@ -281,85 +248,3 @@ class MedicineInfo(BaseModel):
     safety: Optional[Safety] = Field(None, description="Safety information")
     regulation: Optional[Regulation] = Field(None, description="Regulatory information")
     references: Optional[References] = Field(None, description="External references and links")
-
-def sanitize_filename(filename: str) -> str:
-    """Sanitize filename to prevent path traversal and invalid characters."""
-    # Remove any path separators and invalid filename characters
-    sanitized = re.sub(r'[<>:"/\\|?*]', '', filename)
-    # Replace multiple spaces with single space
-    sanitized = re.sub(r'\s+', '_', sanitized)
-    # Remove leading/trailing dots and spaces
-    sanitized = sanitized.strip('. ')
-    # Ensure filename is not empty
-    return sanitized if sanitized else "medicine"
-
-
-def cli(medicine, model, temperature):
-    """Fetch comprehensive medicine information using LiteClient."""
-    model_config = ModelConfig(model=model, temperature=temperature)
-    client = LiteClient(model_config=model_config)
-
-    prompt = f"Provide detailed information about the medicine {medicine}."
-    model_input = ModelInput(user_prompt=prompt, response_format=MedicineInfo)
-
-    response = client.generate_text(model_input=model_input)
-
-    # Handle both Pydantic model and string responses
-    if isinstance(response, MedicineInfo):
-        data = response.model_dump()
-    elif isinstance(response, str):
-        try:
-            data = json.loads(response)
-        except json.JSONDecodeError as e:
-            print(f"Error: Failed to parse JSON response: {e}", file=sys.stderr)
-            sys.exit(1)
-    else:
-        print(f"Error: Unexpected response type: {type(response).__name__}", file=sys.stderr)
-        sys.exit(1)
-
-    sanitized_name = sanitize_filename(medicine).lower()
-    output_dir = Path("outputs")
-    output_dir.mkdir(exist_ok=True)
-    output_filename = output_dir / f"{sanitized_name}.json"
-
-    try:
-        with open(output_filename, "w") as f:
-            json.dump(data, f, indent=4)
-        print(f"Medicine information saved to {output_filename}")
-    except IOError as e:
-        print(f"Error: Failed to write to file {output_filename}: {e}", file=sys.stderr)
-        sys.exit(1)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Fetch comprehensive medicine information (pharmacology, safety, interactions, regulatory data).",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python drugbank_medicine.py aspirin
-  python drugbank_medicine.py ibuprofen -t 0.1
-  python drugbank_medicine.py metformin -m anthropic/claude-3-5-sonnet
-
-Output:
-  Results are saved to outputs/{medicine_name}.json
-        """
-    )
-    parser.add_argument(
-        "medicine",
-        help="Medicine name (e.g., 'aspirin', 'ibuprofen', 'metformin')"
-    )
-    parser.add_argument(
-        "-m", "--model",
-        default="ollama/gemma3",
-        help="LLM model to use (default: ollama/gemma3)"
-    )
-    parser.add_argument(
-        "-t", "--temperature",
-        type=float,
-        default=0.2,
-        help="Temperature for model response (0.0-1.0, lower=more deterministic, default: 0.2)"
-    )
-
-    args = parser.parse_args()
-    cli(args.medicine, args.model, args.temperature)
-

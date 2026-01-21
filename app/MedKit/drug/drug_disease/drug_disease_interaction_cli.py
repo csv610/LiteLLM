@@ -16,9 +16,6 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 
-# ==============================================================================
-# LOCAL IMPORTS (Module models)
-# ==============================================================================
 from drug_disease_interaction_models import (
     InteractionSeverity,
     ConfidenceLevel,
@@ -35,7 +32,7 @@ from drug_disease_interaction_models import (
 )
 
 logger = logging.getLogger(__name__)
-console = Console()
+
 
 
 class PromptStyle(str, Enum):
@@ -51,17 +48,42 @@ class DrugDiseaseInput:
     condition_severity: Optional[str] = None
     age: Optional[int] = None
     other_medications: Optional[str] = None
-    output_path: Optional[Path] = None
     prompt_style: PromptStyle = PromptStyle.DETAILED
-
-# ==============================================================================
-# MAIN CLASS
-# ==============================================================================
 
 class DrugDiseaseInteraction:
     """Analyzes drug-disease interactions based on provided configuration."""
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
+
+    def generate_text(self, config: DrugDiseaseInput) -> DrugDiseaseInteractionResult:
+        """
+        Analyzes how a medical condition affects drug efficacy, safety, and metabolism.
+
+        Args:
+            config: Configuration and input for analysis
+
+        Returns:
+            DrugDiseaseInteractionResult: Comprehensive interaction analysis with management recommendations
+        """
+        self._validate_input(config)
+
+        logger.info("-" * 80)
+        logger.info(f"Starting drug-disease interaction analysis")
+        logger.info(f"Medicine: {config.medicine_name}")
+        logger.info(f"Condition: {config.condition_name}")
+
+        context = self._prepare_context(config)
+        logger.debug(f"Context: {context}")
+
+        user_prompt = self._create_prompt(config, context)
+        model_input = self._create_model_input(user_prompt)
+        result = self._ask_llm(model_input)
+
+        logger.info(f"✓ Successfully analyzed disease interaction")
+        logger.info(f"Overall Severity: {result.interaction_details.overall_severity if result.interaction_details else 'N/A'}")
+        logger.info(f"Data Available: {result.data_availability.data_available}")
+        logger.info("-" * 80)
+        return result
 
     def _validate_input(self, config: DrugDiseaseInput) -> None:
         """Validate input parameters."""
@@ -71,15 +93,6 @@ class DrugDiseaseInteraction:
             raise ValueError("Condition name cannot be empty")
         if config.age is not None and (config.age < 0 or config.age > 150):
             raise ValueError("Age must be between 0 and 150 years")
-
-    def _get_output_path(self, config: DrugDiseaseInput) -> Path:
-        """Determine the file path for saving analysis results."""
-        if config.output_path:
-            return config.output_path
-        
-        medicine_clean = config.medicine_name.lower().replace(' ', '_')
-        condition_clean = config.condition_name.lower().replace(' ', '_')
-        return Path("outputs") / f"{medicine_clean}_{condition_clean}_interaction.json"
 
     def _prepare_context(self, config: DrugDiseaseInput) -> str:
         """Build the analysis context string from input parameters."""
@@ -97,56 +110,27 @@ class DrugDiseaseInteraction:
 
         return ". ".join(context_parts) + "."
 
-    def _execute_llm_analysis(self, config: DrugDiseaseInput, context: str) -> DrugDiseaseInteractionResult:
-        """Call LiteClient to perform the interaction analysis."""
+    def _create_prompt(self, config: DrugDiseaseInput, context: str) -> str:
+        """Create the user prompt for the LLM."""
+        return f"{config.medicine_name} use in patients with {config.condition_name}. {context}"
+
+    def _create_model_input(self, user_prompt: str) -> ModelInput:
+        """Create the ModelInput for the LiteClient."""
+        return ModelInput(
+            user_prompt=user_prompt,
+            response_format=DrugDiseaseInteractionResult,
+        )
+
+    def _ask_llm(self, model_input: ModelInput) -> DrugDiseaseInteractionResult:
+        """Helper to call LiteClient with error handling."""
         logger.info("Calling LiteClient...")
         try:
-            return self.client.generate_text(
-                model_input=ModelInput(
-                    user_prompt=f"{config.medicine_name} use in patients with {config.condition_name}. {context}",
-                    response_format=DrugDiseaseInteractionResult,
-                )
-            )
+            return self.client.generate_text(model_input=model_input)
         except Exception as e:
-            logger.error(f"✗ Error analyzing disease interaction: {e}")
+            logger.error(f"✗ Error during LLM analysis: {e}")
             logger.exception("Full exception details:")
             raise
 
-    def analyze(self, config: DrugDiseaseInput) -> DrugDiseaseInteractionResult:
-        """
-        Analyzes how a medical condition affects drug efficacy, safety, and metabolism.
-
-        Args:
-            config: Configuration and input for analysis
-
-        Returns:
-            DrugDiseaseInteractionResult: Comprehensive interaction analysis with management recommendations
-        """
-        self._validate_input(config)
-
-        logger.info("-" * 80)
-        logger.info(f"Starting drug-disease interaction analysis")
-        logger.info(f"Medicine: {config.medicine_name}")
-        logger.info(f"Condition: {config.condition_name}")
-
-        output_path = self._get_output_path(config)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Output path: {output_path}")
-
-        context = self._prepare_context(config)
-        logger.debug(f"Context: {context}")
-
-        result = self._execute_llm_analysis(config, context)
-
-        logger.info(f"✓ Successfully analyzed disease interaction")
-        logger.info(f"Overall Severity: {result.interaction_details.overall_severity if result.interaction_details else 'N/A'}")
-        logger.info(f"Data Available: {result.data_availability.data_available}")
-        logger.info("-" * 80)
-        return result
-
-# ==============================================================================
-# HELPER FUNCTIONS
-# ==============================================================================
 def parse_prompt_style(style_str: str) -> PromptStyle:
     """
     Parse prompt style string to PromptStyle enum.
@@ -182,9 +166,9 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
         result: The analysis result to print
         verbose: Whether to print detailed information
     """
+    console = Console()
     console.print()
 
-    # Check data availability
     if not result.data_availability.data_available:
         console.print(
             Panel(
@@ -203,11 +187,9 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
         )
     )
 
-    # Print interaction details
     if result.interaction_details:
         details = result.interaction_details
 
-        # Overview table
         overview_table = Table(title="[bold]Interaction Overview[/bold]", show_header=False, box=None)
         overview_table.add_row("[bold]Medicine:[/bold]", details.medicine_name)
         overview_table.add_row("[bold]Condition:[/bold]", details.condition_name)
@@ -220,7 +202,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
         console.print(overview_table)
         console.print()
 
-        # Mechanism of interaction
         console.print(
             Panel(
                 details.mechanism_of_interaction,
@@ -229,7 +210,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
             )
         )
 
-        # Efficacy impact
         efficacy_content = "No significant impact on drug efficacy"
         if details.efficacy_impact.has_impact:
             efficacy_lines = []
@@ -247,7 +227,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
             )
         )
 
-        # Safety impact
         safety_content = "No significant safety concerns"
         if details.safety_impact.has_impact:
             safety_lines = []
@@ -266,7 +245,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
             )
         )
 
-        # Dosage adjustments
         dosage_content = "No dose adjustment required"
         if details.dosage_adjustment.adjustment_needed:
             dosage_lines = []
@@ -284,7 +262,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
             )
         )
 
-        # Management recommendations
         recommendations = [rec.strip() for rec in details.management_strategy.clinical_recommendations.split(",")]
         recommendations_text = "\n".join([f"• {rec}" for rec in recommendations])
         console.print(
@@ -295,7 +272,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
             )
         )
 
-    # Patient-friendly summary
     if result.patient_friendly_summary:
         summary = result.patient_friendly_summary
         console.print()
@@ -340,7 +316,6 @@ def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) ->
             )
         )
 
-    # Technical summary
     console.print()
     console.print(
         Panel(
@@ -372,12 +347,11 @@ Examples:
   # With patient details and other medications
   python drug_disease_interaction.py "Lisinopril" "Hypertension" --age 72 --other-medications "Atorvastatin, Aspirin"
 
-  # With custom output
-  python drug_disease_interaction.py "NSAIDs" "Asthma" --output interaction.json --verbose
+  # With custom verbosity
+  python drug_disease_interaction.py "NSAIDs" "Asthma" --verbose
         """,
     )
 
-    # Required arguments
     parser.add_argument(
         "medicine_name",
         type=str,
@@ -390,7 +364,6 @@ Examples:
         help="Name of the medical condition",
     )
 
-    # Optional arguments
     parser.add_argument(
         "--condition-severity",
         "-s",
@@ -413,14 +386,6 @@ Examples:
         type=str,
         default=None,
         help="Other medications the patient is taking (comma-separated)",
-    )
-
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=Path,
-        default=None,
-        help="Output file path for results (default: outputs/{medicine}_{condition}_interaction.json)",
     )
 
     parser.add_argument(
@@ -465,57 +430,35 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, 1 for error)
     """
+    console = Console()
     args  = get_user_arguments()
 
     try:
-        # Parse prompt style
         prompt_style = parse_prompt_style(args.prompt_style)
 
-        # Configure logging
         configure_logging(
             log_file="drug_disease_interaction.log",
             verbosity=args.verbosity,
             enable_console=True
         )
 
-        # Create configuration
         config = DrugDiseaseInput(
             medicine_name=args.medicine_name,
             condition_name=args.condition_name,
             condition_severity=args.condition_severity,
             age=args.age,
             other_medications=args.other_medications,
-            output_path=args.output,
             prompt_style=prompt_style,
         )
 
-        logger.info(f"Configuration created successfully")
+        logger.info("Configuration created successfully")
 
-        # Run analysis
         model_config = ModelConfig(model=args.model, temperature=0.7)
         analyzer = DrugDiseaseInteraction(model_config)
-        result = analyzer.analyze(config)
+        result = analyzer.generate_text(config)
 
-        # Print results
         print_result(result, verbose=args.verbosity >= 3)
 
-        # Save results to file
-        if args.output:
-            output_path = args.output
-        else:
-            medicine_clean = args.medicine_name.lower().replace(' ', '_')
-            condition_clean = args.condition_name.lower().replace(' ', '_')
-            output_path = Path("outputs") / f"{medicine_clean}_{condition_clean}_interaction.json"
-
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(output_path, "w") as f:
-            f.write(result.model_dump_json(indent=2))
-
-        logger.info(f"✓ Results saved to {output_path}")
-        console.print(f"[green]✓[/green] Results saved to: [bold]{output_path}[/bold]")
-
-        # Output JSON to stdout if requested
         if args.json_output:
             console.print(f"\n{result.model_dump_json(indent=2)}")
 
@@ -531,9 +474,6 @@ def main() -> int:
         logger.exception("Full exception details:")
         return 1
 
-# ==============================================================================
-# ENTRY POINT
-# ==============================================================================
 
 
 if __name__ == "__main__":
