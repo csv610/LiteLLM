@@ -7,7 +7,8 @@ import sys
 def configure_logging(
     log_file: str = "litellm.log",
     level: int = logging.INFO,
-    enable_console: bool = False
+    enable_console: bool = False,
+    verbosity: int = None
 ):
     """
     Configure logging to output to file instead of console.
@@ -16,7 +17,19 @@ def configure_logging(
         log_file: Path to the log file
         level: Logging level (default: logging.INFO)
         enable_console: Whether to also output to console (default: False)
+        verbosity: Verbosity level 0-4 (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG)
+                  If provided, overrides the level parameter.
     """
+    # Map verbosity level to logging level if provided
+    if verbosity is not None:
+        verbosity_levels = {
+            0: logging.CRITICAL,
+            1: logging.ERROR,
+            2: logging.WARNING,
+            3: logging.INFO,
+            4: logging.DEBUG
+        }
+        level = verbosity_levels.get(verbosity, logging.WARNING)
     # Remove all existing handlers from the root logger
     root_logger = logging.getLogger()
     for handler in root_logger.handlers[:]:
