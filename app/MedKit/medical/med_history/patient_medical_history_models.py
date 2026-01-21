@@ -1,11 +1,19 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List
 from enum import Enum
+from dataclasses import dataclass
 
 class HistoryPurpose(str, Enum):
     SURGERY = "surgery"
     MEDICATION = "medication"
     PHYSICAL_EXAM = "physical_exam"
+
+@dataclass
+class MedicalHistoryInput:
+    exam: str
+    age: int
+    gender: str
+    purpose: str = "physical_exam"
 
 class QuestionRequirement(str, Enum):
     MANDATORY = "mandatory"

@@ -1,16 +1,15 @@
-"""patient_medical_history.py - Generate exam-specific medical history questions."""
+"""patient_medical_history_cli.py - Generate exam-specific medical history questions."""
 
 import json
 import sys
 import argparse
 from pathlib import Path
-from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-from patient_medical_history_models import PatientMedicalHistoryQuestions, HistoryPurpose
+from patient_medical_history_models import PatientMedicalHistoryQuestions, HistoryPurpose, MedicalHistoryInput
 
 class PatientMedicalHistoryGenerator:
     """Generates patient medical history questions using LiteClient."""
@@ -19,33 +18,33 @@ class PatientMedicalHistoryGenerator:
         """Initialize the generator."""
         self.client = LiteClient(model_config=model_config)
 
-    def generate_text(self, exam: str, age: int, gender: str, purpose: str = "physical_exam") -> PatientMedicalHistoryQuestions:
+    def generate_text(self, medical_history_input: MedicalHistoryInput) -> PatientMedicalHistoryQuestions:
         """Generate patient medical history questions."""
-        self._validate_inputs(exam, age, gender, purpose)
+        self._validate_inputs(medical_history_input)
 
         model_input = ModelInput(
-            user_prompt=self._create_prompt(exam, age, gender, purpose),
+            user_prompt=self._create_prompt(medical_history_input),
             response_format=PatientMedicalHistoryQuestions,
             system_prompt="You are an expert medical documentation specialist. Generate trauma-informed, clinically relevant medical history questions."
         )
 
         result = self._ask_llm(model_input)
-        
+
         # Ensure input params are mirrored in result
-        result.purpose = purpose
-        result.exam = exam
-        result.age = age
-        result.gender = gender
-        
+        result.purpose = medical_history_input.purpose
+        result.exam = medical_history_input.exam
+        result.age = medical_history_input.age
+        result.gender = medical_history_input.gender
+
         return result
 
     def _ask_llm(self, model_input: ModelInput) -> PatientMedicalHistoryQuestions:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
 
-    def _create_prompt(self, exam: str, age: int, gender: str, purpose: str) -> str:
+    def _create_prompt(self, medical_history_input: MedicalHistoryInput) -> str:
         """Generate the prompt for history questions."""
-        return f"""Generate comprehensive medical history questions for a {age}-year-old {gender} patient undergoing a {exam} exam for the purpose of {purpose}.
+        return f"""Generate comprehensive medical history questions for a {medical_history_input.age}-year-old {medical_history_input.gender} patient undergoing a {medical_history_input.exam} exam for the purpose of {medical_history_input.purpose}.
 
 The questions should be:
 1. Trauma-informed: Respectful, non-judgmental, and culturally sensitive.
@@ -53,18 +52,18 @@ The questions should be:
    - 'surgery': Focus on anesthesia risk, bleeding, and recovery.
    - 'medication': Focus on allergies, interactions, and adherence.
    - 'physical_exam': Focus on current status and systematic review.
-3. Clinically relevant: Explain why each question matters for the {exam} exam.
+3. Clinically relevant: Explain why each question matters for the {medical_history_input.exam} exam.
 4. Comprehensive: Include past history, family history, drug info, vaccinations, and lifestyle/social factors.
 
 Provide follow-up questions for positive responses to key clinical indicators."""
 
-    def _validate_inputs(self, exam: str, age: int, gender: str, purpose: str):
-        if not exam or not exam.strip():
+    def _validate_inputs(self, medical_history_input: MedicalHistoryInput) -> None:
+        if not medical_history_input.exam or not medical_history_input.exam.strip():
             raise ValueError("Exam name cannot be empty")
-        if not (1 <= age <= 150):
+        if not (1 <= medical_history_input.age <= 150):
             raise ValueError("Age must be between 1 and 150")
-        if purpose not in [p.value for p in HistoryPurpose]:
-            raise ValueError(f"Invalid purpose specify one of: {[p.value for p in HistoryPurpose]}")
+        if medical_history_input.purpose not in [p.value for p in HistoryPurpose]:
+            raise ValueError(f"Invalid purpose: specify one of: {[p.value for p in HistoryPurpose]}")
 
     def print_result(self, result: PatientMedicalHistoryQuestions) -> None:
         """Print a summary of the generated questions using rich."""
@@ -115,16 +114,29 @@ def main():
         model_config = ModelConfig(model=args.model, temperature=0.3)
         generator = PatientMedicalHistoryGenerator(model_config=model_config)
         print(f"Generating medical history questions for {args.exam} ({args.purpose})...")
-        result = generator.generate_text(exam=args.exam, age=args.age, gender=args.gender, purpose=args.purpose)
-        
-        generator.print_result(result)
-        
-        if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                json.dump(result.model_dump(), f, indent=2)
-            print(f"✓ Results saved to {args.output}")
+        medical_history_input = MedicalHistoryInput(
+            exam=args.exam,
+            age=args.age,
+            gender=args.gender,
+            purpose=args.purpose
+        )
+        result = generator.generate_text(medical_history_input)
 
+        generator.print_result(result)
+
+        if args.output:
+            try:
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                with open(args.output, 'w') as f:
+                    json.dump(result.model_dump(), f, indent=2)
+                print(f"✓ Results saved to {args.output}")
+            except IOError as e:
+                print(f"✗ Failed to write output file: {e}")
+                sys.exit(1)
+
+    except ValueError as e:
+        print(f"✗ Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
         print(f"✗ Error: {e}")
         sys.exit(1)

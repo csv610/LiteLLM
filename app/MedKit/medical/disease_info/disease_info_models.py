@@ -105,7 +105,7 @@ class DiseaseLivingWith(BaseModel):
     support_resources: List[str] = Field(description="Patient support groups and resources.")
 
 
-class DiseaseInfo(BaseModel):
+class DiseaseInfoModel(BaseModel):
     """
     Comprehensive, evidence-based information about a specific disease.
     """
