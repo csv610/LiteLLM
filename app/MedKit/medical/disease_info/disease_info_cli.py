@@ -1,10 +1,10 @@
 import argparse
+import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
+from typing import final
 
-from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
 
@@ -25,7 +25,7 @@ from disease_info_models import (
     DiseaseResearch,
     DiseaseSpecialPopulations,
     DiseaseLivingWith,
-    DiseaseInfo,
+    DiseaseInfoModel,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class DiseaseInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
 
-    def generate_text(self, disease: str) -> DiseaseInfo:
+    def generate_text(self, disease: str) -> DiseaseInfoModel:
         """Generates comprehensive disease information."""
         # Validate inputs
         if not disease or not str(disease).strip():
@@ -52,7 +52,7 @@ class DiseaseInfoGenerator:
 
         model_input = ModelInput(
             user_prompt=user_prompt,
-            response_format=DiseaseInfo,
+            response_format=DiseaseInfoModel,
         )
 
         logger.info("Calling LiteClient.generate_text()...")
@@ -65,11 +65,11 @@ class DiseaseInfoGenerator:
             logger.error(f"✗ Error generating disease information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> DiseaseInfo:
+    def ask_llm(self, model_input: ModelInput) -> DiseaseInfoModel:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, disease_info: DiseaseInfo, output_path: Path) -> Path:
+    def save(self, disease_info: DiseaseInfoModel, output_path: Path) -> Path:
         """Save the generated disease information to a JSON file."""
         try:
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -86,7 +86,7 @@ class DiseaseInfoGenerator:
         return logger
 
 
-def print_result(result: DiseaseInfo) -> None:
+def print_result(result: DiseaseInfoModel) -> None:
     """Print disease information in a formatted manner using rich."""
     console = Console()
 
