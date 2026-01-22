@@ -75,7 +75,6 @@ Guidelines:
         return f"Generate comprehensive information for the disease: {disease}."
 
 
-@final
 class DiseaseInfoGenerator:
     """Generates comprehensive disease information based on provided configuration."""
 
@@ -127,10 +126,6 @@ class DiseaseInfoGenerator:
         except (OSError, IOError) as e:
             logger.error(f"Error saving disease information to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
 
 
 def print_result(result: DiseaseInfoModel) -> None:

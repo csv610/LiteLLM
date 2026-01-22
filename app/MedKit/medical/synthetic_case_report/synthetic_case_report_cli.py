@@ -52,7 +52,6 @@ Include the following components:
 - Discussion and learning points"""
 
 
-@final
 class SyntheticCaseReportGenerator:
     """Generates synthetic medical case reports based on provided configuration."""
 
@@ -104,11 +103,6 @@ class SyntheticCaseReportGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving case report to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
 
 def print_result(result: SyntheticCaseReport) -> None:
     """Print result in a formatted manner using rich."""

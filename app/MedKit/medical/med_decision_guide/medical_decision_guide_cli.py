@@ -9,7 +9,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
 
 from rich.console import Console
 from rich.panel import Panel
@@ -69,7 +68,6 @@ Guidelines:
         return f"Generate a comprehensive medical decision tree for: {symptom}."
 
 
-@final
 class MedicalDecisionGuideGenerator:
     """Generates medical decision guides based on provided configuration."""
 
@@ -121,11 +119,6 @@ class MedicalDecisionGuideGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving decision guide to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
 
 def print_result(result: MedicalDecisionGuide) -> None:
     """Print result in a formatted manner using rich."""

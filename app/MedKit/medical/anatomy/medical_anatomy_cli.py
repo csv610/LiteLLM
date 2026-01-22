@@ -67,7 +67,6 @@ Guidelines:
         return f"Generate comprehensive anatomical information for: {structure}."
 
 
-@final
 class MedicalAnatomyGenerator:
     """Generates comprehensive anatomical information based on provided configuration."""
 
@@ -118,11 +117,6 @@ class MedicalAnatomyGenerator:
         except (OSError, IOError) as e:
             logger.error(f"✗ Error saving anatomical information to {output_path}: {e}")
             raise
-
-    @property
-    def logger(self):
-        return logger
-
 
 def print_result(result: MedicalAnatomy) -> None:
     """Print result in a formatted manner using rich."""

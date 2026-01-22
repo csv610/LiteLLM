@@ -10,7 +10,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
 
 from rich.console import Console
 from rich.panel import Panel
@@ -44,7 +43,6 @@ class PromptBuilder:
         return f"Generate comprehensive patient-friendly FAQs for: {topic}."
 
 
-@final
 class MedicalFAQGenerator:
     """Generates comprehensive FAQ content based on provided configuration."""
 

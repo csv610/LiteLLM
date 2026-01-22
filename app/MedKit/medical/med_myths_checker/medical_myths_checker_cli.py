@@ -12,6 +12,41 @@ from lite.config import ModelConfig, ModelInput
 
 from medical_myths_checker_models import MythAnalysisResponse
 
+
+class PromptBuilder:
+    """Builder for constructing prompts for medical myth analysis."""
+
+    @staticmethod
+    def system_prompt() -> str:
+        """Generate the system prompt for myth analysis."""
+        return """You are a medical fact-checker with expertise in evidence-based medicine. Your task is to analyze medical claims/myths and provide an assessment grounded EXCLUSIVELY in peer-reviewed scientific evidence.
+
+CRITICAL REQUIREMENTS:
+1. ALL claims must be verified against peer-reviewed medical literature, clinical trials, and established medical guidelines
+2. Only cite evidence from peer-reviewed journals, systematic reviews, meta-analyses, or official medical organizations (WHO, NIH, CDC, etc.)
+3. If a claim cannot be supported by peer-reviewed evidence, mark it as FALSE or UNCERTAIN and explain what peer-reviewed research contradicts or is lacking
+4. Include specific journal names, publication years, and authors when possible
+5. Do NOT use general knowledge or anecdotal evidence - only evidence-based medicine"""
+
+    @staticmethod
+    def user_prompt(myth: str) -> str:
+        """Generate the user prompt for myth analysis."""
+        return f"""Medical Myth/Claim to Analyze: {myth}
+
+Respond ONLY with valid JSON in this exact format:
+{{
+    "myths": [
+        {{
+            "statement": "exact claim from the input",
+            "status": "TRUE or FALSE or UNCERTAIN",
+            "explanation": "detailed medical explanation grounded in peer-reviewed evidence",
+            "peer_reviewed_sources": "Specific citations: Journal names, publication years, and research findings. Or: 'No peer-reviewed evidence found' with explanation of research gaps",
+            "risk_level": "LOW or MODERATE or HIGH"
+        }}
+    ]
+}}"""
+
+
 class MedicalMythsChecker:
     """Analyzes medical myths for factual accuracy based on peer-reviewed evidence."""
 
@@ -29,7 +64,7 @@ class MedicalMythsChecker:
 
         Returns:
             The generated MythAnalysisResponse object.
-        
+
         Raises:
             ValueError: If myth is empty.
         """
@@ -39,7 +74,8 @@ class MedicalMythsChecker:
         self.myth = myth
 
         model_input = ModelInput(
-            user_prompt=self._create_prompt(myth),
+            system_prompt=PromptBuilder.system_prompt(),
+            user_prompt=PromptBuilder.user_prompt(myth),
             response_format=MythAnalysisResponse,
         )
 
@@ -51,33 +87,6 @@ class MedicalMythsChecker:
         Internal helper to call the LLM client.
         """
         return self.client.generate_text(model_input=model_input)
-
-    def _create_prompt(self, myth: str) -> str:
-        """Generate the prompt for myth analysis."""
-        return f"""You are a medical fact-checker with expertise in evidence-based medicine. Your task is to analyze the following medical claim/myth and provide an assessment grounded EXCLUSIVELY in peer-reviewed scientific evidence.
-
-CRITICAL REQUIREMENTS:
-1. ALL claims must be verified against peer-reviewed medical literature, clinical trials, and established medical guidelines
-2. Only cite evidence from peer-reviewed journals, systematic reviews, meta-analyses, or official medical organizations (WHO, NIH, CDC, etc.)
-3. If a claim cannot be supported by peer-reviewed evidence, mark it as FALSE or UNCERTAIN and explain what peer-reviewed research contradicts or is lacking
-4. Include specific journal names, publication years, and authors when possible
-5. Do NOT use general knowledge or anecdotal evidence - only evidence-based medicine
-
-Medical Myth/Claim to Analyze: {myth}
-
-Respond ONLY with valid JSON in this exact format:
-{{
-    "myths": [
-        {{
-            "statement": "exact claim from the input",
-            "status": "TRUE or FALSE or UNCERTAIN",
-            "explanation": "detailed medical explanation grounded in peer-reviewed evidence",
-            "peer_reviewed_sources": "Specific citations: Journal names, publication years, and research findings. Or: 'No peer-reviewed evidence found' with explanation of research gaps",
-            "risk_level": "LOW or MODERATE or HIGH"
-        }}
-    ]
-}}
-"""
 
     def print_result(self, response: MythAnalysisResponse) -> None:
         """

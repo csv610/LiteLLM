@@ -3,7 +3,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import final
 
 from rich.console import Console
 from rich.panel import Panel
@@ -38,7 +37,6 @@ Focus on safety, traditional uses, active compounds, and modern research where a
         return f"Generate comprehensive information for the herb: {herb}."
 
 
-@final
 class HerbalInfoGenerator:
     """Generates comprehensive herbal remedy information based on provided configuration."""
 
