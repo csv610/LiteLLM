@@ -1,6 +1,5 @@
 """Unified LiteClient for text and vision model interactions."""
 
-import argparse
 import logging
 from typing import Any, Dict, List, Optional, Union
 
@@ -181,64 +180,3 @@ class LiteClient:
             is_image_request = model_input.image_path is not None or model_input.image_paths is not None
             return self.handle_generation_exception(e, is_image_request)
 
-def main():
-    """Main entry point for the LiteClient CLI."""
-    parser = argparse.ArgumentParser(
-        description="Unified LiteClient for text and vision model interactions"
-    )
-
-    parser.add_argument(
-        "-i",
-        "--image_path",
-        type=str,
-        default=None,
-        help="Path to the image file (if provided, vision analysis is used)",
-    )
-    parser.add_argument(
-        "-q",
-        "--question",
-        type=str,
-        help="The input prompt for the model or image analysis",
-    )
-    parser.add_argument(
-        "-m",
-        "--model",
-        type=str,
-        default="perplexity/sonar",
-        help="The model identifier (auto-selected if not provided)",
-    )
-    parser.add_argument(
-        "-t",
-        "--temperature",
-        type=float,
-        default=DEFAULT_TEMPERATURE,
-        help=f"Sampling temperature (default: {DEFAULT_TEMPERATURE})",
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging",
-    )
-
-    args = parser.parse_args()
-
-    # Initialize client with ModelConfig
-    model_config = ModelConfig(model=args.model, temperature=args.temperature)
-
-    client = LiteClient(model_config=model_config)
-
-    # Create ModelInput
-    model_input = ModelInput(
-        user_prompt=args.question,
-        image_path=args.image_path
-    )
-
-    # Single unified generate_text call
-    result = client.generate_text(model_input=model_input)
-
-    print(result)
-
-
-if __name__ == "__main__":
-    main()
