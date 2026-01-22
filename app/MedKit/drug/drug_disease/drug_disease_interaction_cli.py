@@ -34,14 +34,34 @@ from drug_disease_interaction_models import (
 logger = logging.getLogger(__name__)
 
 
-def create_system_prompt() -> str:
-    """
-    Create the system prompt for drug-disease interaction analysis.
+class PromptStyle(str, Enum):
+    DETAILED = "detailed"
+    CONCISE = "concise"
+    BALANCED = "balanced"
 
-    Returns:
-        str: System prompt defining the LLM's role and instructions
-    """
-    return """You are a clinical pharmacology expert specializing in drug-disease interactions. Your role is to analyze how medical conditions affect drug efficacy, safety, and metabolism.
+@dataclass
+class DrugDiseaseInput:
+    """Configuration and input for drug-disease interaction analysis."""
+    medicine_name: str
+    condition_name: str
+    condition_severity: Optional[str] = None
+    age: Optional[int] = None
+    other_medications: Optional[str] = None
+    prompt_style: PromptStyle = PromptStyle.DETAILED
+
+
+class PromptBuilder:
+    """Builder class for creating prompts for drug-disease interaction analysis."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for drug-disease interaction analysis.
+
+        Returns:
+            str: System prompt defining the LLM's role and instructions
+        """
+        return """You are a clinical pharmacology expert specializing in drug-disease interactions. Your role is to analyze how medical conditions affect drug efficacy, safety, and metabolism.
 
 When analyzing drug-disease interactions, you must:
 
@@ -75,44 +95,29 @@ Base your analysis on established medical literature, clinical guidelines, and p
 
 Always prioritize patient safety while providing practical, evidence-based guidance for clinicians."""
 
+    @staticmethod
+    def create_user_prompt(config: DrugDiseaseInput, context: str) -> str:
+        """
+        Create the user prompt for drug-disease interaction analysis.
 
-def create_user_prompt(config: DrugDiseaseInput, context: str) -> str:
-    """
-    Create the user prompt for drug-disease interaction analysis.
+        Args:
+            config: Configuration containing medicine, condition, and analysis parameters
+            context: Additional context including severity, age, and other medications
 
-    Args:
-        config: Configuration containing medicine, condition, and analysis parameters
-        context: Additional context including severity, age, and other medications
+        Returns:
+            str: User prompt formatted according to the specified style
+        """
+        base_query = f"Analyze the interaction between {config.medicine_name} and {config.condition_name}."
 
-    Returns:
-        str: User prompt formatted according to the specified style
-    """
-    base_query = f"Analyze the interaction between {config.medicine_name} and {config.condition_name}."
+        if config.prompt_style == PromptStyle.CONCISE:
+            return f"{base_query} {context} Provide a focused analysis of key safety concerns and essential management recommendations."
 
-    if config.prompt_style == PromptStyle.CONCISE:
-        return f"{base_query} {context} Provide a focused analysis of key safety concerns and essential management recommendations."
+        elif config.prompt_style == PromptStyle.BALANCED:
+            return f"{base_query} {context} Provide a balanced analysis covering mechanism, clinical significance, and practical management guidance."
 
-    elif config.prompt_style == PromptStyle.BALANCED:
-        return f"{base_query} {context} Provide a balanced analysis covering mechanism, clinical significance, and practical management guidance."
+        else:  # DETAILED
+            return f"{base_query} {context} Provide a comprehensive analysis including detailed mechanism of interaction, complete efficacy and safety assessment, specific dosage recommendations, clinical management strategies, and patient counseling guidance."
 
-    else:  # DETAILED
-        return f"{base_query} {context} Provide a comprehensive analysis including detailed mechanism of interaction, complete efficacy and safety assessment, specific dosage recommendations, clinical management strategies, and patient counseling guidance."
-
-
-class PromptStyle(str, Enum):
-    DETAILED = "detailed"
-    CONCISE = "concise"
-    BALANCED = "balanced"
-
-@dataclass
-class DrugDiseaseInput:
-    """Configuration and input for drug-disease interaction analysis."""
-    medicine_name: str
-    condition_name: str
-    condition_severity: Optional[str] = None
-    age: Optional[int] = None
-    other_medications: Optional[str] = None
-    prompt_style: PromptStyle = PromptStyle.DETAILED
 
 class DrugDiseaseInteraction:
     """Analyzes drug-disease interactions based on provided configuration."""
@@ -176,12 +181,12 @@ class DrugDiseaseInteraction:
 
     def _create_prompt(self, config: DrugDiseaseInput, context: str) -> str:
         """Create the user prompt for the LLM."""
-        return create_user_prompt(config, context)
+        return PromptBuilder.create_user_prompt(config, context)
 
     def _create_model_input(self, user_prompt: str) -> ModelInput:
         """Create the ModelInput for the LiteClient."""
         return ModelInput(
-            system_prompt=create_system_prompt(),
+            system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=user_prompt,
             response_format=DrugDiseaseInteractionResult,
         )

@@ -25,6 +25,49 @@ from drug_drug_interaction_models import (
 
 logger = logging.getLogger(__name__)
 
+
+class PromptBuilder:
+    """Builder class for creating prompts for drug-drug interaction analysis."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for drug-drug interaction analysis.
+
+        Returns:
+            str: System prompt defining the AI's role and instructions
+        """
+        return """You are a clinical pharmacology expert specializing in drug-drug interactions. Your role is to analyze how medications interact with each other, affecting their efficacy, safety, and metabolism.
+
+When analyzing drug-drug interactions, you must:
+
+1. Identify potential pharmacokinetic interactions (absorption, distribution, metabolism, excretion)
+2. Identify potential pharmacodynamic interactions (additive, synergistic, or antagonistic effects)
+3. Assess the severity and clinical significance of each interaction
+4. Explain the mechanism of interaction clearly
+5. Evaluate the risk level and potential adverse effects
+6. Provide specific management recommendations and monitoring parameters
+7. Consider patient-specific factors such as age, dosage, and medical conditions
+8. Base analysis on established medical literature, clinical guidelines, and drug interaction databases
+
+Always prioritize patient safety while providing practical, evidence-based guidance for medication management."""
+
+    @staticmethod
+    def create_user_prompt(medicine1: str, medicine2: str, context: str) -> str:
+        """
+        Create the user prompt for drug-drug interaction analysis.
+
+        Args:
+            medicine1: The name of the first medicine
+            medicine2: The name of the second medicine
+            context: Additional context for the analysis
+
+        Returns:
+            str: Formatted user prompt
+        """
+        return f"{medicine1} and {medicine2} interaction analysis. {context}"
+
+
 @dataclass
 class DrugDrugInput:
     """Configuration and input for drug-drug interaction analysis."""
@@ -90,11 +133,12 @@ class DrugDrugInteraction:
 
     def _create_prompt(self, config: DrugDrugInput, context: str) -> str:
         """Create the user prompt for the LLM."""
-        return f"{config.medicine1} and {config.medicine2} interaction analysis. {context}"
+        return PromptBuilder.create_user_prompt(config.medicine1, config.medicine2, context)
 
     def _create_model_input(self, user_prompt: str) -> ModelInput:
         """Create the ModelInput for the LiteClient."""
         return ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=user_prompt,
             response_format=DrugInteractionResult,
         )

@@ -17,6 +17,50 @@ from medical_implant_models import ImplantInfo
 
 logger = logging.getLogger(__name__)
 
+
+class PromptBuilder:
+    """Builder class for creating prompts for medical implant information."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for medical implant information generation.
+
+        Returns:
+            str: System prompt defining the AI's role and guidelines
+        """
+        return """You are a medical device and implant specialist with expertise in biomedical engineering and clinical applications of medical implants.
+
+Your responsibilities include:
+- Providing comprehensive, evidence-based information about medical implants and devices
+- Explaining device design, materials, and mechanisms of action
+- Describing indications, contraindications, and patient selection criteria
+- Detailing implantation procedures and technical considerations
+- Outlining potential complications, device lifespan, and follow-up requirements
+- Discussing regulatory status and clinical outcomes
+
+Guidelines:
+- Base all information on current medical device literature and regulatory standards
+- Include both technical specifications and clinical perspectives
+- Emphasize patient safety, biocompatibility, and long-term outcomes
+- Address maintenance, monitoring, and replacement considerations
+- Provide balanced information about risks and benefits
+- Reference current evidence and clinical guidelines where applicable"""
+
+    @staticmethod
+    def create_user_prompt(implant: str) -> str:
+        """
+        Create the user prompt for medical implant information.
+
+        Args:
+            implant: The name of the medical implant
+
+        Returns:
+            str: Formatted user prompt
+        """
+        return f"Generate comprehensive information for the medical implant: {implant}."
+
+
 @final
 class MedicalImplantGenerator:
     """Generates comprehensive medical implant information based on provided configuration."""
@@ -33,10 +77,13 @@ class MedicalImplantGenerator:
 
         logger.info(f"Starting medical implant information generation for: {implant}")
 
-        user_prompt = f"Generate comprehensive information for the medical implant: {implant}."
-        logger.debug(f"Prompt: {user_prompt}")
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(implant)
+        logger.debug(f"System Prompt: {system_prompt}")
+        logger.debug(f"User Prompt: {user_prompt}")
 
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=ImplantInfo,
         )

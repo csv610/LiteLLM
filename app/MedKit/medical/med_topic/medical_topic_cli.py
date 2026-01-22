@@ -18,9 +18,13 @@ from medical_topic_models import MedicalTopic
 logger = logging.getLogger(__name__)
 
 
-def create_system_prompt() -> str:
-    """Creates the system prompt for medical topic generation."""
-    return """You are a medical information expert specializing in providing comprehensive, accurate, and well-structured information about medical topics.
+class PromptBuilder:
+    """Builder class for creating prompts for medical topic information."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Creates the system prompt for medical topic generation."""
+        return """You are a medical information expert specializing in providing comprehensive, accurate, and well-structured information about medical topics.
 
 Your task is to generate detailed medical topic information including:
 - Clear definitions and descriptions
@@ -35,17 +39,17 @@ Provide information that is:
 - Comprehensive yet concise
 - Appropriate for healthcare professionals and students"""
 
+    @staticmethod
+    def create_user_prompt(topic: str) -> str:
+        """Creates the user prompt for medical topic generation.
 
-def create_user_prompt(topic: str) -> str:
-    """Creates the user prompt for medical topic generation.
+        Args:
+            topic: The name of the medical topic to generate information for
 
-    Args:
-        topic: The name of the medical topic to generate information for
-
-    Returns:
-        A formatted user prompt string
-    """
-    return f"Generate comprehensive information for the medical topic: {topic}."
+        Returns:
+            A formatted user prompt string
+        """
+        return f"Generate comprehensive information for the medical topic: {topic}."
 
 
 class MedicalTopicGenerator:
@@ -63,8 +67,8 @@ class MedicalTopicGenerator:
 
         logger.info(f"Starting medical topic information generation for: {topic}")
 
-        system_prompt = create_system_prompt()
-        user_prompt = create_user_prompt(topic)
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(topic)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 

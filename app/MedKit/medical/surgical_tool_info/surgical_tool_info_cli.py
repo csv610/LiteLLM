@@ -17,23 +17,27 @@ from surgical_tool_info_models import SurgicalToolInfo
 logger = logging.getLogger(__name__)
 
 
-def create_system_prompt() -> str:
-    """Create the system prompt for surgical tool information generation."""
-    return """You are an expert surgical instrument specialist with extensive knowledge of medical surgical tools and instruments.
+class PromptBuilder:
+    """Builder class for creating prompts for surgical tool information."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Create the system prompt for surgical tool information generation."""
+        return """You are an expert surgical instrument specialist with extensive knowledge of medical surgical tools and instruments.
 Provide comprehensive, accurate, and clinically relevant information about surgical tools. Focus on practical applications,
 safety considerations, and clinical usage."""
 
+    @staticmethod
+    def create_user_prompt(tool: str) -> str:
+        """Create the user prompt for surgical tool information generation.
 
-def create_user_prompt(tool: str) -> str:
-    """Create the user prompt for surgical tool information generation.
+        Args:
+            tool: The name of the surgical tool to generate information for.
 
-    Args:
-        tool: The name of the surgical tool to generate information for.
-
-    Returns:
-        A comprehensive prompt asking for detailed surgical tool information.
-    """
-    return f"""Generate comprehensive information for the surgical tool: {tool}.
+        Returns:
+            A comprehensive prompt asking for detailed surgical tool information.
+        """
+        return f"""Generate comprehensive information for the surgical tool: {tool}.
 Include the following details:
 - Description and purpose
 - Key features and specifications
@@ -58,8 +62,8 @@ class SurgicalToolInfoGenerator:
 
         logger.info(f"Starting surgical tool information generation for: {tool}")
 
-        system_prompt = create_system_prompt()
-        user_prompt = create_user_prompt(tool)
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(tool)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 

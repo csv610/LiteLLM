@@ -25,19 +25,23 @@ from medical_faq_models import ComprehensiveFAQ
 logger = logging.getLogger(__name__)
 
 
-def create_system_prompt() -> str:
-    """Creates the system prompt for FAQ generation."""
-    return (
-        "You are a medical information specialist creating patient-friendly FAQs. "
-        "Your responses should be accurate, clear, and accessible to non-medical audiences. "
-        "Organize information in logical sections with concise, informative answers. "
-        "Always encourage users to consult healthcare professionals for medical advice."
-    )
+class PromptBuilder:
+    """Builder class for creating prompts for medical FAQ generation."""
 
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Creates the system prompt for FAQ generation."""
+        return (
+            "You are a medical information specialist creating patient-friendly FAQs. "
+            "Your responses should be accurate, clear, and accessible to non-medical audiences. "
+            "Organize information in logical sections with concise, informative answers. "
+            "Always encourage users to consult healthcare professionals for medical advice."
+        )
 
-def create_user_prompt(topic: str) -> str:
-    """Creates the user prompt for FAQ generation."""
-    return f"Generate comprehensive patient-friendly FAQs for: {topic}."
+    @staticmethod
+    def create_user_prompt(topic: str) -> str:
+        """Creates the user prompt for FAQ generation."""
+        return f"Generate comprehensive patient-friendly FAQs for: {topic}."
 
 
 @final
@@ -56,7 +60,7 @@ class MedicalFAQGenerator:
 
         logger.info(f"Starting FAQ generation for: {topic}")
 
-        user_prompt = create_user_prompt(topic)
+        user_prompt = PromptBuilder.create_user_prompt(topic)
         logger.debug(f"Prompt: {user_prompt}")
 
         model_input = ModelInput(

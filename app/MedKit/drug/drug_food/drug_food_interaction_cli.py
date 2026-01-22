@@ -27,6 +27,47 @@ from drug_food_interaction_models import (
 
 logger = logging.getLogger(__name__)
 
+
+class PromptBuilder:
+    """Builder class for creating prompts for drug-food interaction analysis."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for drug-food interaction analysis.
+
+        Returns:
+            str: System prompt defining the AI's role and instructions
+        """
+        return """You are a clinical pharmacology expert specializing in drug-food interactions. Your role is to analyze how foods and beverages affect drug absorption, metabolism, efficacy, and safety.
+
+When analyzing drug-food interactions, you must:
+
+1. Identify significant food interactions that affect drug absorption, distribution, metabolism, or excretion
+2. Assess the severity and clinical significance of each interaction
+3. Provide specific guidance on which foods to avoid and which are safe to consume
+4. Explain the mechanism of interaction in clear terms
+5. Recommend optimal timing for medication administration relative to meals
+6. Highlight any special dietary considerations or restrictions
+7. Base analysis on established medical literature and clinical guidelines
+
+Always prioritize patient safety while providing practical, evidence-based guidance for optimal medication use."""
+
+    @staticmethod
+    def create_user_prompt(medicine_name: str, context: str) -> str:
+        """
+        Create the user prompt for drug-food interaction analysis.
+
+        Args:
+            medicine_name: The name of the medicine to analyze
+            context: Additional context for the analysis
+
+        Returns:
+            str: Formatted user prompt
+        """
+        return f"{medicine_name} food and beverage interactions analysis. {context}"
+
+
 @dataclass
 class DrugFoodInput:
     """Configuration and input for drug-food interaction analysis."""
@@ -86,11 +127,12 @@ class DrugFoodInteraction:
 
     def _create_prompt(self, config: DrugFoodInput, context: str) -> str:
         """Create the user prompt for the LLM."""
-        return f"{config.medicine_name} food and beverage interactions analysis. {context}"
+        return PromptBuilder.create_user_prompt(config.medicine_name, context)
 
     def _create_model_input(self, user_prompt: str) -> ModelInput:
         """Create the ModelInput for the LiteClient."""
         return ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=user_prompt,
             response_format=DrugFoodInteractionResult,
         )

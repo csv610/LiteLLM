@@ -12,14 +12,18 @@ from lite.config import ModelConfig, ModelInput
 from medical_term_extractor_models import MedicalTerms
 
 
-def create_system_prompt() -> str:
-    """Generate the system prompt for medical term extraction."""
-    return "You are an expert medical documentation specialist. Extract medical terms accurately from the provided text."
+class PromptBuilder:
+    """Builder class for creating prompts for medical term extraction."""
 
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Generate the system prompt for medical term extraction."""
+        return "You are an expert medical documentation specialist. Extract medical terms accurately from the provided text."
 
-def create_user_prompt(text: str) -> str:
-    """Generate the user prompt for term extraction."""
-    return f"""Extract all medical terms from the following text and structure them according to the provided schema.
+    @staticmethod
+    def create_user_prompt(text: str) -> str:
+        """Generate the user prompt for term extraction."""
+        return f"""Extract all medical terms from the following text and structure them according to the provided schema.
 
 Text to extract from:
 {text}
@@ -46,9 +50,9 @@ class MedicalTermExtractor:
             raise ValueError("Input text cannot be empty")
 
         model_input = ModelInput(
-            user_prompt=create_user_prompt(text),
+            user_prompt=PromptBuilder.create_user_prompt(text),
             response_format=MedicalTerms,
-            system_prompt=create_system_prompt()
+            system_prompt=PromptBuilder.create_system_prompt()
         )
 
         result = self._ask_llm(model_input)

@@ -24,6 +24,48 @@ from surgery_info_models import SurgeryInfo
 
 logger = logging.getLogger(__name__)
 
+
+class PromptBuilder:
+    """Builder class for creating prompts for surgical procedure information."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for surgical procedure information generation.
+
+        Returns:
+            str: System prompt defining the AI's role and guidelines
+        """
+        return """You are an expert surgical information specialist with comprehensive knowledge of surgical procedures and perioperative care.
+
+Your responsibilities include:
+- Providing accurate, evidence-based information about surgical procedures
+- Explaining indications, contraindications, and procedural steps
+- Describing risks, complications, and expected outcomes
+- Outlining preoperative preparation and postoperative care requirements
+- Emphasizing patient safety and current best practices
+
+Guidelines:
+- Base all information on current medical evidence and established surgical standards
+- Present information clearly for both healthcare professionals and patients
+- Include relevant anatomical considerations and technical details
+- Highlight critical safety considerations and risk factors
+- Maintain professional medical terminology while ensuring comprehension"""
+
+    @staticmethod
+    def create_user_prompt(surgery: str) -> str:
+        """
+        Create the user prompt for surgical procedure information.
+
+        Args:
+            surgery: The name of the surgical procedure
+
+        Returns:
+            str: Formatted user prompt
+        """
+        return f"Generate comprehensive information for the surgical procedure: {surgery}."
+
+
 @final
 class SurgeryInfoGenerator:
     """Generates comprehensive surgery information based on provided configuration."""
@@ -40,10 +82,13 @@ class SurgeryInfoGenerator:
 
         logger.info(f"Starting surgical procedure information generation for: {surgery}")
 
-        user_prompt = f"Generate comprehensive information for the surgical procedure: {surgery}."
-        logger.debug(f"Prompt: {user_prompt}")
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(surgery)
+        logger.debug(f"System Prompt: {system_prompt}")
+        logger.debug(f"User Prompt: {user_prompt}")
 
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=SurgeryInfo,
         )

@@ -18,20 +18,24 @@ from herbal_info_models import HerbalInfo
 logger = logging.getLogger(__name__)
 
 
-def build_system_prompt() -> str:
-    """Build the system prompt for herbal information generation."""
-    return """You are an expert herbalist and natural medicine specialist with extensive knowledge of medicinal plants.
+class PromptBuilder:
+    """Builder class for creating prompts for herbal information generation."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Create the system prompt for herbal information generation."""
+        return """You are an expert herbalist and natural medicine specialist with extensive knowledge of medicinal plants.
 Your role is to provide comprehensive, accurate, and evidence-based information about herbs and their uses.
 Focus on safety, traditional uses, active compounds, and modern research where available."""
 
+    @staticmethod
+    def create_user_prompt(herb: str) -> str:
+        """Create the user prompt for herbal information generation.
 
-def build_user_prompt(herb: str) -> str:
-    """Build the user prompt for herbal information generation.
-
-    Args:
-        herb: The name of the herb to generate information for.
-    """
-    return f"Generate comprehensive information for the herb: {herb}."
+        Args:
+            herb: The name of the herb to generate information for.
+        """
+        return f"Generate comprehensive information for the herb: {herb}."
 
 
 @final
@@ -51,8 +55,8 @@ class HerbalInfoGenerator:
 
         logger.info(f"Starting herbal information generation for: {herb}")
 
-        system_prompt = build_system_prompt()
-        user_prompt = build_user_prompt(herb)
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(herb)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 

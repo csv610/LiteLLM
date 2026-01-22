@@ -106,6 +106,97 @@ class EmergencyException(Exception):
         self.patient_name = patient_name
         super().__init__(f"Emergency detected: {', '.join(red_flags)}")
 
+
+# ==================== Prompt Builder ====================
+
+class PromptBuilder:
+    """Builder class for creating prompts for medical consultation."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for medical consultation.
+
+        Returns:
+            str: System prompt defining the AI's role and guidelines
+        """
+        return """You are a compassionate, skilled medical professional conducting a comprehensive medical consultation. Your role is to gather accurate patient information through thoughtful questioning while ensuring patient comfort and safety.
+
+Your responsibilities include:
+- Asking clear, focused medical history questions that are easy for patients to understand
+- Using simple language and avoiding overwhelming medical jargon
+- Being empathetic and patient-centered in your approach
+- Detecting and responding appropriately to medical red flags and emergency situations
+- Gathering comprehensive information about symptoms, medical history, and relevant factors
+- Building rapport and trust with patients through compassionate communication
+
+Guidelines:
+- Ask ONE clear question at a time
+- Use simple, everyday language that patients can easily understand
+- Be compassionate and non-judgmental in all interactions
+- Listen carefully to patient responses and ask relevant follow-up questions
+- Identify emergency red flags (chest pain, severe bleeding, loss of consciousness, etc.)
+- Base your questions on established medical interview practices
+- Maintain professionalism while being warm and approachable
+
+Always prioritize patient safety, accurate information gathering, and compassionate care."""
+
+    @staticmethod
+    def create_question_prompt(q_num: int, max_questions: int) -> str:
+        """
+        Create the prompt for generating the next medical history question.
+
+        Args:
+            q_num: Current question number (0-indexed)
+            max_questions: Total number of questions
+
+        Returns:
+            str: Formatted prompt for question generation
+        """
+        return f"""Ask the next relevant medical history question (Question {q_num + 1} of {max_questions}).
+Use simple language. Be compassionate. Ask ONE clear question at a time.
+Example: "You mentioned the headache started suddenly - what were you doing when it happened?"
+Avoid jargon and overwhelming the patient."""
+
+    @staticmethod
+    def create_summary_prompt(demographics: PatientDemographics, complaint: ChiefComplaint,
+                             conversation_log: list) -> str:
+        """
+        Create the prompt for generating a comprehensive medical summary.
+
+        Args:
+            demographics: Patient demographic information
+            complaint: Chief complaint information
+            conversation_log: List of Q&A exchanges
+
+        Returns:
+            str: Formatted prompt for summary generation
+        """
+        return f"""
+Based on this consultation, generate a comprehensive medical summary:
+
+Patient: {demographics.name}, {demographics.age}yo {demographics.gender}
+Chief Complaint: {complaint.primary_complaint}
+
+Consultation Q&A:
+{json.dumps(conversation_log, indent=2)}
+
+Generate ONLY valid JSON with these fields:
+- consultation_date (today's date)
+- patient_demographics (name, age, gender, occupation)
+- chief_complaint (primary_complaint, duration, severity, onset)
+- history_of_present_illness (narrative)
+- review_of_systems (constitutional, cardiovascular, respiratory, gastrointestinal, genitourinary, musculoskeletal, neurological, psychiatric, skin - each an array)
+- past_medical_history (past_medical_conditions, current_medications, allergies, surgical_history, family_history, social_history)
+- physical_examination (vital_signs dict, general_appearance, specific_findings array)
+- clinical_assessment (differential_diagnosis array, most_likely_diagnosis, diagnostic_confidence, red_flags array)
+- management_plan (investigations_ordered array, treatment_prescribed array, patient_education array, follow_up_plan, referrals array, precautions array)
+- clinical_notes (string)
+- emergency_alert (null or object with is_emergency, red_flags_detected, recommendation, action_required)
+
+Return ONLY the JSON object, no markdown or extra text."""
+
+
 # ==================== Main Consultation Class ====================
 
 class MedicalConsultation:
@@ -300,16 +391,16 @@ Focus on understanding the patient's symptoms and medical context.
 
         for q_num in range(max_questions):
             # Generate question
-            prompt = f"""Ask the next relevant medical history question (Question {q_num + 1} of {max_questions}).
-Use simple language. Be compassionate. Ask ONE clear question at a time.
-Example: "You mentioned the headache started suddenly - what were you doing when it happened?"
-Avoid jargon and overwhelming the patient."""
+            prompt = PromptBuilder.create_question_prompt(q_num, max_questions)
 
             conversation_content = [msg["content"] for msg in self.conversation_history]
             conversation_content.append(prompt)
             full_prompt = "\n".join(conversation_content)
 
-            model_input = ModelInput(user_prompt=full_prompt)
+            model_input = ModelInput(
+                system_prompt=PromptBuilder.create_system_prompt(),
+                user_prompt=full_prompt
+            )
             question = self.client.generate_content(model_input, stream=False).strip()
 
             print(f"Doctor: {question}")
@@ -340,31 +431,12 @@ Avoid jargon and overwhelming the patient."""
     def _generate_summary(self, demographics: PatientDemographics, complaint: ChiefComplaint,
                          conversation_log: list) -> dict:
         """Generate medical summary using AI."""
-        prompt = f"""
-Based on this consultation, generate a comprehensive medical summary:
+        prompt = PromptBuilder.create_summary_prompt(demographics, complaint, conversation_log)
 
-Patient: {demographics.name}, {demographics.age}yo {demographics.gender}
-Chief Complaint: {complaint.primary_complaint}
-
-Consultation Q&A:
-{json.dumps(conversation_log, indent=2)}
-
-Generate ONLY valid JSON with these fields:
-- consultation_date (today's date)
-- patient_demographics (name, age, gender, occupation)
-- chief_complaint (primary_complaint, duration, severity, onset)
-- history_of_present_illness (narrative)
-- review_of_systems (constitutional, cardiovascular, respiratory, gastrointestinal, genitourinary, musculoskeletal, neurological, psychiatric, skin - each an array)
-- past_medical_history (past_medical_conditions, current_medications, allergies, surgical_history, family_history, social_history)
-- physical_examination (vital_signs dict, general_appearance, specific_findings array)
-- clinical_assessment (differential_diagnosis array, most_likely_diagnosis, diagnostic_confidence, red_flags array)
-- management_plan (investigations_ordered array, treatment_prescribed array, patient_education array, follow_up_plan, referrals array, precautions array)
-- clinical_notes (string)
-- emergency_alert (null or object with is_emergency, red_flags_detected, recommendation, action_required)
-
-Return ONLY the JSON object, no markdown or extra text."""
-
-        model_input = ModelInput(user_prompt=prompt)
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=prompt
+        )
         response = self.client.generate_content(model_input, stream=False)
 
         return self._parse_json_from_response(response)

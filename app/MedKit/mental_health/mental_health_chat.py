@@ -56,24 +56,20 @@ except ImportError:
         )
         from models import ChatSession, ChatMessage
 
-# ==================== Configuration ====================
+# ==================== Prompt Builder ====================
 
-class ChatConfig:
-    """Chat engine configuration."""
+class PromptBuilder:
+    """Builder class for creating prompts for mental health chat."""
 
-    # Model settings
-    MODEL_NAME = "gemini-2.5-flash"
-    TEMPERATURE = 0.8  # More conversational, less rigid
-    MAX_OUTPUT_TOKENS = 1024
-    MAX_QUESTIONS = 20  # Default reasonable conversation length (user configurable)
-    QUESTION_TIMEOUT = 300  # 5 minutes per question
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for mental health assessment.
 
-    # Assessment questionnaires
-    ENABLE_PHQ9 = True
-    ENABLE_GAD7 = True
-
-    # System prompt for adaptive questioning
-    SYSTEM_PROMPT = """You are a compassionate, highly trained mental health professional conducting an
+        Returns:
+            str: System prompt defining the AI's role and guidelines
+        """
+        return """You are a compassionate, highly trained mental health professional conducting an
 evidence-based mental health assessment. Your role is to:
 
 1. ASK PERSONALIZED QUESTIONS: Based on what the patient tells you, ask targeted follow-up questions
@@ -105,6 +101,104 @@ IMPORTANT GUIDELINES:
 
 TONE: Warm, empathetic, professional, never condescending or alarming
 GOAL: Build a complete picture of their mental health to provide accurate assessment and recommendations"""
+
+    @staticmethod
+    def create_initial_question_prompt(chief_complaint: str) -> str:
+        """
+        Create the prompt for the initial question.
+
+        Args:
+            chief_complaint: The patient's chief complaint
+
+        Returns:
+            str: Formatted prompt for initial question
+        """
+        return f"""The patient has come seeking help for: {chief_complaint}
+
+Start the conversation warmly and ask them to tell you more about what they're experiencing.
+Ask ONE clear, open-ended question to understand their situation better."""
+
+    @staticmethod
+    def create_followup_question_prompt(conversation_summary: str) -> str:
+        """
+        Create the prompt for follow-up questions.
+
+        Args:
+            conversation_summary: Summary of the conversation so far
+
+        Returns:
+            str: Formatted prompt for follow-up question
+        """
+        return f"""CONVERSATION SO FAR:
+{conversation_summary}
+
+Based on what the patient has shared, ask the NEXT most important question to understand their mental health.
+- Skip anything they've already covered
+- Go deeper into areas that need clarification
+- Ask ONE clear question at a time
+- Be conversational and empathetic
+
+What's the next question you would ask?"""
+
+    @staticmethod
+    def create_assessment_prompt(conversation_text: str) -> str:
+        """
+        Create the prompt for generating mental health assessment.
+
+        Args:
+            conversation_text: Full conversation transcript
+
+        Returns:
+            str: Formatted prompt for assessment generation
+        """
+        return f"""Based on this mental health conversation, generate a comprehensive
+clinical mental health assessment in JSON format.
+
+CONVERSATION:
+{conversation_text}
+
+Generate a detailed MentalHealthAssessment that includes:
+1. Symptoms identified across all categories (mood, anxiety, cognitive, physical, trauma, etc.)
+2. PHQ-9 and GAD-7 scores based on responses
+3. Risk assessment (suicidality, self-harm, etc.)
+4. Mental health history extracted from conversation
+5. Social functioning assessment
+6. Primary diagnosis with confidence level
+7. Treatment recommendations
+8. Clinical notes and summary
+
+Return ONLY valid JSON matching the MentalHealthAssessment schema."""
+
+    @staticmethod
+    def create_assessment_system_prompt() -> str:
+        """
+        Create the system prompt for assessment generation.
+
+        Returns:
+            str: System prompt for assessment generation
+        """
+        return """You are an expert mental health clinician generating a structured assessment.
+Ensure all JSON is valid and complete."""
+
+
+# ==================== Configuration ====================
+
+class ChatConfig:
+    """Chat engine configuration."""
+
+    # Model settings
+    MODEL_NAME = "gemini-2.5-flash"
+    TEMPERATURE = 0.8  # More conversational, less rigid
+    MAX_OUTPUT_TOKENS = 1024
+    MAX_QUESTIONS = 20  # Default reasonable conversation length (user configurable)
+    QUESTION_TIMEOUT = 300  # 5 minutes per question
+
+    # Assessment questionnaires
+    ENABLE_PHQ9 = True
+    ENABLE_GAD7 = True
+
+    # System prompt for adaptive questioning
+    SYSTEM_PROMPT = PromptBuilder.create_system_prompt()
 
 # ==================== Mental Health Chat Engine ====================
 
@@ -340,21 +434,9 @@ Please reach out for help now. You matter and recovery is possible.
         if not conversation_summary:
             # First question - greet and ask about chief complaint
             chief_complaint = self.collected_data.get('chief_complaint', 'mental health concerns')
-            user_prompt = f"""The patient has come seeking help for: {chief_complaint}
-
-Start the conversation warmly and ask them to tell you more about what they're experiencing.
-Ask ONE clear, open-ended question to understand their situation better."""
+            user_prompt = PromptBuilder.create_initial_question_prompt(chief_complaint)
         else:
-            user_prompt = f"""CONVERSATION SO FAR:
-{conversation_summary}
-
-Based on what the patient has shared, ask the NEXT most important question to understand their mental health.
-- Skip anything they've already covered
-- Go deeper into areas that need clarification
-- Ask ONE clear question at a time
-- Be conversational and empathetic
-
-What's the next question you would ask?"""
+            user_prompt = PromptBuilder.create_followup_question_prompt(conversation_summary)
 
         # Generate question from AI
         model_input = ModelInput(
@@ -514,26 +596,8 @@ Would you like me to generate a detailed mental health assessment based on our c
         ])
 
         # Prompt for assessment generation
-        assessment_prompt = f"""Based on this mental health conversation, generate a comprehensive
-clinical mental health assessment in JSON format.
-
-CONVERSATION:
-{conversation_text}
-
-Generate a detailed MentalHealthAssessment that includes:
-1. Symptoms identified across all categories (mood, anxiety, cognitive, physical, trauma, etc.)
-2. PHQ-9 and GAD-7 scores based on responses
-3. Risk assessment (suicidality, self-harm, etc.)
-4. Mental health history extracted from conversation
-5. Social functioning assessment
-6. Primary diagnosis with confidence level
-7. Treatment recommendations
-8. Clinical notes and summary
-
-Return ONLY valid JSON matching the MentalHealthAssessment schema."""
-
-        sys_prompt = """You are an expert mental health clinician generating a structured assessment.
-Ensure all JSON is valid and complete."""
+        assessment_prompt = PromptBuilder.create_assessment_prompt(conversation_text)
+        sys_prompt = PromptBuilder.create_assessment_system_prompt()
 
         try:
             model_input = ModelInput(

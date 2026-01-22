@@ -16,19 +16,11 @@ from lite.logging_config import configure_logging
 from medical_test_info_models import MedicalTestInfo
 
 
-class MedicalTestInfoGenerator:
-    """Generate comprehensive information for medical tests."""
+class PromptBuilder:
+    """Builder class for creating prompts for medical test information generation."""
 
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the generator.
-
-        Args:
-            model_config: ModelConfig object containing model settings.
-        """
-        self.model_config = model_config
-        self.client = LiteClient(model_config)
-
-    def create_system_prompt(self) -> str:
+    @staticmethod
+    def create_system_prompt() -> str:
         """
         Create a system prompt that defines the AI's role and guidelines.
 
@@ -51,9 +43,10 @@ When generating medical test information, you must:
 Remember: This information is for educational and reference purposes. Always emphasize that test results should be interpreted by qualified healthcare professionals in the context of the patient's clinical presentation."""
         return system_prompt
 
-    def build_user_prompt(self, test_name: str) -> str:
+    @staticmethod
+    def create_user_prompt(test_name: str) -> str:
         """
-        Build a comprehensive prompt for generating medical test information.
+        Create a comprehensive prompt for generating medical test information.
 
         Args:
             test_name: The name of the medical test.
@@ -78,6 +71,19 @@ Include detailed information about:
 Provide accurate, evidence-based medical test information."""
         return prompt
 
+
+class MedicalTestInfoGenerator:
+    """Generate comprehensive information for medical tests."""
+
+    def __init__(self, model_config: ModelConfig):
+        """Initialize the generator.
+
+        Args:
+            model_config: ModelConfig object containing model settings.
+        """
+        self.model_config = model_config
+        self.client = LiteClient(model_config)
+
     def generate_text(self, test_name: str) -> MedicalTestInfo:
         """
         Generate the core medical test information.
@@ -91,8 +97,8 @@ Provide accurate, evidence-based medical test information."""
         logger.info(f"Generating medical test information for: {test_name}")
 
         # Build prompts and create ModelInput
-        system_prompt = self.create_system_prompt()
-        prompt = self.build_user_prompt(test_name)
+        system_prompt = PromptBuilder.create_system_prompt()
+        prompt = PromptBuilder.create_user_prompt(test_name)
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=prompt,

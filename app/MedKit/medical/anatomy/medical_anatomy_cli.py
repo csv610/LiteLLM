@@ -25,6 +25,48 @@ from medical_anatomy_models import MedicalAnatomy
 logger = logging.getLogger(__name__)
 
 
+class PromptBuilder:
+    """Builder class for creating prompts for anatomical information."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """
+        Create the system prompt for anatomical information generation.
+
+        Returns:
+            str: System prompt defining the AI's role and guidelines
+        """
+        return """You are an expert anatomist with comprehensive knowledge of human anatomy and related medical sciences.
+
+Your responsibilities include:
+- Providing accurate, detailed anatomical information about body structures
+- Describing location, structure, function, and clinical significance
+- Explaining anatomical relationships and variations
+- Detailing blood supply, innervation, and lymphatic drainage
+- Correlating anatomy with clinical applications and pathology
+
+Guidelines:
+- Use precise anatomical terminology while ensuring clarity
+- Base all information on established anatomical knowledge and evidence
+- Include relevant embryological development when applicable
+- Highlight clinically important anatomical features and variations
+- Organize information systematically for educational and clinical reference
+- Emphasize anatomical relationships critical for medical practice"""
+
+    @staticmethod
+    def create_user_prompt(structure: str) -> str:
+        """
+        Create the user prompt for anatomical information.
+
+        Args:
+            structure: The name of the anatomical structure
+
+        Returns:
+            str: Formatted user prompt
+        """
+        return f"Generate comprehensive anatomical information for: {structure}."
+
+
 @final
 class MedicalAnatomyGenerator:
     """Generates comprehensive anatomical information based on provided configuration."""
@@ -41,10 +83,13 @@ class MedicalAnatomyGenerator:
 
         logger.info(f"Starting anatomical information generation for: {structure}")
 
-        user_prompt = f"Generate comprehensive anatomical information for: {structure}."
-        logger.debug(f"Prompt: {user_prompt}")
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(structure)
+        logger.debug(f"System Prompt: {system_prompt}")
+        logger.debug(f"User Prompt: {user_prompt}")
 
         model_input = ModelInput(
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=MedicalAnatomy,
         )

@@ -1,4 +1,3 @@
-```python
 import argparse
 import json
 import logging
@@ -19,24 +18,28 @@ from synthetic_case_report_models import SyntheticCaseReport
 logger = logging.getLogger(__name__)
 
 
-def create_system_prompt() -> str:
-    """Create the system prompt for synthetic case report generation."""
-    return """You are an expert medical case report writer with extensive clinical experience across multiple specialties.
+class PromptBuilder:
+    """Builder class for creating prompts for synthetic case report generation."""
+
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Create the system prompt for synthetic case report generation."""
+        return """You are an expert medical case report writer with extensive clinical experience across multiple specialties.
 Generate realistic, comprehensive, and clinically accurate synthetic medical case reports. Focus on presenting coherent patient narratives,
 relevant clinical findings, diagnostic processes, treatment approaches, and outcomes. Ensure all information is medically sound and follows
 standard case report structure."""
 
+    @staticmethod
+    def create_user_prompt(condition: str) -> str:
+        """Create the user prompt for synthetic case report generation.
 
-def create_user_prompt(condition: str) -> str:
-    """Create the user prompt for synthetic case report generation.
+        Args:
+            condition: The name of the disease or medical condition for the case report.
 
-    Args:
-        condition: The name of the disease or medical condition for the case report.
-
-    Returns:
-        A comprehensive prompt asking for a detailed synthetic case report.
-    """
-    return f"""Generate a comprehensive synthetic medical case report for: {condition}.
+        Returns:
+            A comprehensive prompt asking for a detailed synthetic case report.
+        """
+        return f"""Generate a comprehensive synthetic medical case report for: {condition}.
 
 Include the following components:
 - Patient demographics and presenting complaint
@@ -65,8 +68,8 @@ class SyntheticCaseReportGenerator:
 
         logger.info(f"Starting synthetic case report generation for: {condition}")
 
-        system_prompt = create_system_prompt()
-        user_prompt = create_user_prompt(condition)
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(condition)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 
@@ -222,4 +225,3 @@ def app_cli() -> int:
 
 if __name__ == "__main__":
     sys.exit(app_cli())
-```

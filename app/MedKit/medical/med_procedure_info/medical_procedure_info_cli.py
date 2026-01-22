@@ -13,14 +13,18 @@ from lite.config import ModelConfig, ModelInput
 from medical_procedure_info_models import ProcedureInfo
 
 
-def create_system_prompt() -> str:
-    """Create the system prompt for medical procedure documentation."""
-    return "You are an expert medical documentation specialist. Generate comprehensive, evidence-based procedure information."
+class PromptBuilder:
+    """Builder class for creating prompts for medical procedure documentation."""
 
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Create the system prompt for medical procedure documentation."""
+        return "You are an expert medical documentation specialist. Generate comprehensive, evidence-based procedure information."
 
-def create_user_prompt(procedure: str) -> str:
-    """Create the user prompt for procedure information."""
-    return f"Generate complete, evidence-based information for the medical procedure: {procedure}"
+    @staticmethod
+    def create_user_prompt(procedure: str) -> str:
+        """Create the user prompt for procedure information."""
+        return f"Generate complete, evidence-based information for the medical procedure: {procedure}"
 
 
 class MedicalProcedureInfoGenerator:
@@ -39,9 +43,9 @@ class MedicalProcedureInfoGenerator:
         self.procedure_name = procedure
 
         model_input = ModelInput(
-            user_prompt=create_user_prompt(procedure),
+            user_prompt=PromptBuilder.create_user_prompt(procedure),
             response_format=ProcedureInfo,
-            system_prompt=create_system_prompt()
+            system_prompt=PromptBuilder.create_system_prompt()
         )
 
         result = self._ask_llm(model_input)
