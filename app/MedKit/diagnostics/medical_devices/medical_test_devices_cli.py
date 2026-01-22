@@ -19,20 +19,8 @@ from medical_test_devices_models import MedicalDeviceInfo
 logger = logging.getLogger(__name__)
 
 
-class MedicalTestDeviceGenerator:
-    """Generate comprehensive information for medical test devices."""
-
-    def __init__(
-        self,
-        model_config: ModelConfig
-    ):
-        """Initialize the generator.
-
-        Args:
-            model_config: ModelConfig object containing model settings.
-        """
-        self.model_config = model_config
-        self.client = LiteClient(model_config)
+class PromptBuilder:
+    """Builder class for constructing prompts for medical device information generation."""
 
     @staticmethod
     def create_system_prompt() -> str:
@@ -85,6 +73,22 @@ Include detailed information about:
 
 Provide accurate, evidence-based medical device information."""
 
+
+class MedicalTestDeviceGenerator:
+    """Generate comprehensive information for medical test devices."""
+
+    def __init__(
+        self,
+        model_config: ModelConfig
+    ):
+        """Initialize the generator.
+
+        Args:
+            model_config: ModelConfig object containing model settings.
+        """
+        self.model_config = model_config
+        self.client = LiteClient(model_config)
+
     def generate_text(self, device_name: str) -> MedicalDeviceInfo:
         """
         Generate comprehensive medical device information.
@@ -98,14 +102,14 @@ Provide accurate, evidence-based medical device information."""
         logger.info(f"Generating medical device information for: {device_name}...")
 
         # Build prompts and create ModelInput
-        system_prompt = self.create_system_prompt()
-        user_prompt = self.build_user_prompt(device_name)
+        system_prompt = PromptBuilder.create_system_prompt()
+        user_prompt = PromptBuilder.build_user_prompt(device_name)
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             response_format=MedicalDeviceInfo
         )
-        
+
         try:
             result = self.ask_llm(model_input)
             logger.info(f"Successfully generated medical device information for: {device_name}.")
