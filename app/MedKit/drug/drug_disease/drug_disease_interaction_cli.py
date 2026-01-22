@@ -7,14 +7,12 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Optional
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
 
 from drug_disease_interaction_models import (
     InteractionSeverity,
@@ -48,6 +46,15 @@ class DrugDiseaseInput:
     age: Optional[int] = None
     other_medications: Optional[str] = None
     prompt_style: PromptStyle = PromptStyle.DETAILED
+
+    def __post_init__(self):
+        """Validate input parameters."""
+        if not self.medicine_name or not self.medicine_name.strip():
+            raise ValueError("Medicine name cannot be empty")
+        if not self.condition_name or not self.condition_name.strip():
+            raise ValueError("Condition name cannot be empty")
+        if self.age is not None and (self.age < 0 or self.age > 150):
+            raise ValueError("Age must be between 0 and 150 years")
 
 
 class PromptBuilder:
@@ -96,17 +103,30 @@ Base your analysis on established medical literature, clinical guidelines, and p
 Always prioritize patient safety while providing practical, evidence-based guidance for clinicians."""
 
     @staticmethod
-    def create_user_prompt(config: DrugDiseaseInput, context: str) -> str:
+    def create_user_prompt(config: DrugDiseaseInput) -> str:
         """
         Create the user prompt for drug-disease interaction analysis.
 
         Args:
             config: Configuration containing medicine, condition, and analysis parameters
-            context: Additional context including severity, age, and other medications
 
         Returns:
-            str: User prompt formatted according to the specified style
+            str: User prompt with context and formatted according to the specified style
         """
+        # Build context parts
+        context_parts = [f"Analyzing interaction between {config.medicine_name} and {config.condition_name}"]
+        
+        if config.condition_severity:
+            context_parts.append(f"Condition severity: {config.condition_severity}")
+            logger.info(f"Condition severity: {config.condition_severity}")
+        if config.age is not None:
+            context_parts.append(f"Patient age: {config.age} years")
+            logger.info(f"Patient age: {config.age}")
+        if config.other_medications:
+            context_parts.append(f"Other medications: {config.other_medications}")
+            logger.info(f"Other medications: {config.other_medications}")
+
+        context = ". ".join(context_parts) + "."
         base_query = f"Analyze the interaction between {config.medicine_name} and {config.condition_name}."
 
         if config.prompt_style == PromptStyle.CONCISE:
@@ -124,7 +144,7 @@ class DrugDiseaseInteraction:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, config: DrugDiseaseInput) -> DrugDiseaseInteractionResult:
+    def generate_text(self, config: DrugDiseaseInput) -> tuple[DrugDiseaseInteractionResult, Path]:
         """
         Analyzes how a medical condition affects drug efficacy, safety, and metabolism.
 
@@ -132,64 +152,32 @@ class DrugDiseaseInteraction:
             config: Configuration and input for analysis
 
         Returns:
-            DrugDiseaseInteractionResult: Comprehensive interaction analysis with management recommendations
+            tuple: A tuple containing:
+                - DrugDiseaseInteractionResult: The analysis result
+                - Path: Path to the saved response file
         """
-        self._validate_input(config)
-
         logger.info("-" * 80)
         logger.info(f"Starting drug-disease interaction analysis")
         logger.info(f"Medicine: {config.medicine_name}")
         logger.info(f"Condition: {config.condition_name}")
 
-        context = self._prepare_context(config)
-        logger.debug(f"Context: {context}")
-
-        user_prompt = self._create_prompt(config, context)
-        model_input = self._create_model_input(user_prompt)
-        result = self._ask_llm(model_input)
-
-        logger.info(f"✓ Successfully analyzed disease interaction")
-        logger.info(f"Overall Severity: {result.interaction_details.overall_severity if result.interaction_details else 'N/A'}")
-        logger.info(f"Data Available: {result.data_availability.data_available}")
-        logger.info("-" * 80)
-        return result
-
-    def _validate_input(self, config: DrugDiseaseInput) -> None:
-        """Validate input parameters."""
-        if not config.medicine_name or not config.medicine_name.strip():
-            raise ValueError("Medicine name cannot be empty")
-        if not config.condition_name or not config.condition_name.strip():
-            raise ValueError("Condition name cannot be empty")
-        if config.age is not None and (config.age < 0 or config.age > 150):
-            raise ValueError("Age must be between 0 and 150 years")
-
-    def _prepare_context(self, config: DrugDiseaseInput) -> str:
-        """Build the analysis context string from input parameters."""
-        context_parts = [f"Analyzing interaction between {config.medicine_name} and {config.condition_name}"]
-        
-        if config.condition_severity:
-            context_parts.append(f"Condition severity: {config.condition_severity}")
-            logger.info(f"Condition severity: {config.condition_severity}")
-        if config.age is not None:
-            context_parts.append(f"Patient age: {config.age} years")
-            logger.info(f"Patient age: {config.age}")
-        if config.other_medications:
-            context_parts.append(f"Other medications: {config.other_medications}")
-            logger.info(f"Other medications: {config.other_medications}")
-
-        return ". ".join(context_parts) + "."
-
-    def _create_prompt(self, config: DrugDiseaseInput, context: str) -> str:
-        """Create the user prompt for the LLM."""
-        return PromptBuilder.create_user_prompt(config, context)
-
-    def _create_model_input(self, user_prompt: str) -> ModelInput:
-        """Create the ModelInput for the LiteClient."""
-        return ModelInput(
+        user_prompt = PromptBuilder.create_user_prompt(config)
+        model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=user_prompt,
             response_format=DrugDiseaseInteractionResult,
         )
+        result = self._ask_llm(model_input)
+        
+        # Save the response
+        saved_path = self._save_interaction_result(result, config.medicine_name, config.condition_name)
+        
+        logger.info(f"✓ Successfully analyzed disease interaction")
+        logger.info(f"Overall Severity: {result.interaction_details.overall_severity if result.interaction_details else 'N/A'}")
+        logger.info(f"Data Available: {result.data_availability.data_available}")
+        logger.info("-" * 80)
+        return result, saved_path
+
 
     def _ask_llm(self, model_input: ModelInput) -> DrugDiseaseInteractionResult:
         """Helper to call LiteClient with error handling."""
@@ -200,6 +188,29 @@ class DrugDiseaseInteraction:
             logger.error(f"✗ Error during LLM analysis: {e}")
             logger.exception("Full exception details:")
             raise
+            
+    def _save_interaction_result(
+        self, 
+        result: DrugDiseaseInteractionResult, 
+        medicine_name: str, 
+        condition_name: str
+    ) -> Path:
+        """
+        Save the interaction analysis result to a JSON file.
+        
+        Args:
+            result: The analysis result to save
+            medicine_name: Name of the medicine
+            condition_name: Name of the condition
+            
+        Returns:
+            Path: Path to the saved file
+        """
+        output_file = f"{medicine_name.lower()}_{condition_name.lower().replace(' ', '_')}_interaction.json"
+        saved_path = save_model_response(result, output_file)
+        logger.info(f"Response saved to: {saved_path}")
+        return saved_path
+
 
 def parse_prompt_style(style_str: str) -> PromptStyle:
     """
@@ -225,176 +236,7 @@ def parse_prompt_style(style_str: str) -> PromptStyle:
             f"Invalid prompt style: {style_str}. "
             f"Choose from: {', '.join(style_mapping.keys())}"
         )
-
     return style_mapping[style_str.lower()]
-
-def print_result(result: DrugDiseaseInteractionResult, verbose: bool = False) -> None:
-    """
-    Print interaction analysis results in a formatted manner using rich formatting.
-
-    Args:
-        result: The analysis result to print
-        verbose: Whether to print detailed information
-    """
-    console = Console()
-    console.print()
-
-    if not result.data_availability.data_available:
-        console.print(
-            Panel(
-                f"⚠️  [yellow]{result.data_availability.reason}[/yellow]",
-                title="[bold red]Data Unavailable[/bold red]",
-                border_style="red"
-            )
-        )
-        return
-
-    # Main title
-    console.print(
-        Panel.fit(
-            "[bold cyan]DRUG-DISEASE INTERACTION ANALYSIS[/bold cyan]",
-            border_style="cyan"
-        )
-    )
-
-    if result.interaction_details:
-        details = result.interaction_details
-
-        overview_table = Table(title="[bold]Interaction Overview[/bold]", show_header=False, box=None)
-        overview_table.add_row("[bold]Medicine:[/bold]", details.medicine_name)
-        overview_table.add_row("[bold]Condition:[/bold]", details.condition_name)
-
-        severity_color = "red" if "CONTRAINDICATED" in details.overall_severity.value else "yellow" if "SEVERE" in details.overall_severity.value else "green"
-        overview_table.add_row("[bold]Severity:[/bold]", f"[{severity_color}]{details.overall_severity.value}[/{severity_color}]")
-        overview_table.add_row("[bold]Confidence:[/bold]", details.confidence_level.value)
-        overview_table.add_row("[bold]Data Source:[/bold]", details.data_source_type.value)
-
-        console.print(overview_table)
-        console.print()
-
-        console.print(
-            Panel(
-                details.mechanism_of_interaction,
-                title="[bold]Mechanism of Interaction[/bold]",
-                border_style="blue"
-            )
-        )
-
-        efficacy_content = "No significant impact on drug efficacy"
-        if details.efficacy_impact.has_impact:
-            efficacy_lines = []
-            if details.efficacy_impact.impact_description:
-                efficacy_lines.append(f"[bold]Impact:[/bold] {details.efficacy_impact.impact_description}")
-            if details.efficacy_impact.clinical_significance:
-                efficacy_lines.append(f"[bold]Significance:[/bold] {details.efficacy_impact.clinical_significance}")
-            efficacy_content = "\n".join(efficacy_lines) if efficacy_lines else "Impact detected"
-
-        console.print(
-            Panel(
-                efficacy_content,
-                title="[bold yellow]Efficacy Impact[/bold yellow]",
-                border_style="yellow"
-            )
-        )
-
-        safety_content = "No significant safety concerns"
-        if details.safety_impact.has_impact:
-            safety_lines = []
-            if details.safety_impact.impact_description:
-                safety_lines.append(f"[bold]Risk:[/bold] {details.safety_impact.impact_description}")
-            if details.safety_impact.risk_level:
-                risk_color = "red" if "HIGH" in details.safety_impact.risk_level.value else "yellow"
-                safety_lines.append(f"[bold]Risk Level:[/bold] [{risk_color}]{details.safety_impact.risk_level.value}[/{risk_color}]")
-            safety_content = "\n".join(safety_lines) if safety_lines else "Safety concerns identified"
-
-        console.print(
-            Panel(
-                safety_content,
-                title="[bold red]Safety Impact[/bold red]",
-                border_style="red"
-            )
-        )
-
-        dosage_content = "No dose adjustment required"
-        if details.dosage_adjustment.adjustment_needed:
-            dosage_lines = []
-            if details.dosage_adjustment.adjustment_type:
-                dosage_lines.append(f"[bold]Type:[/bold] {details.dosage_adjustment.adjustment_type}")
-            if details.dosage_adjustment.specific_recommendations:
-                dosage_lines.append(f"[bold]Details:[/bold] {details.dosage_adjustment.specific_recommendations}")
-            dosage_content = "\n".join(dosage_lines) if dosage_lines else "Adjustment recommended"
-
-        console.print(
-            Panel(
-                dosage_content,
-                title="[bold magenta]Dosage Adjustments[/bold magenta]",
-                border_style="magenta"
-            )
-        )
-
-        recommendations = [rec.strip() for rec in details.management_strategy.clinical_recommendations.split(",")]
-        recommendations_text = "\n".join([f"• {rec}" for rec in recommendations])
-        console.print(
-            Panel(
-                recommendations_text,
-                title="[bold green]Management Recommendations[/bold green]",
-                border_style="green"
-            )
-        )
-
-    if result.patient_friendly_summary:
-        summary = result.patient_friendly_summary
-        console.print()
-        console.print(
-            Panel.fit(
-                "[bold cyan]PATIENT-FRIENDLY GUIDANCE[/bold cyan]",
-                border_style="cyan"
-            )
-        )
-
-        console.print(
-            Panel(
-                summary.simple_explanation,
-                title="[bold]Simple Explanation[/bold]",
-                border_style="blue"
-            )
-        )
-
-        console.print(
-            Panel(
-                summary.what_patient_should_do,
-                title="[bold]What You Should Do[/bold]",
-                border_style="green"
-            )
-        )
-
-        signs = [sign.strip() for sign in summary.signs_of_problems.split(",")]
-        signs_text = "\n".join([f"• {sign}" for sign in signs])
-        console.print(
-            Panel(
-                signs_text,
-                title="[bold red]Signs of Problems[/bold red]",
-                border_style="red"
-            )
-        )
-
-        console.print(
-            Panel(
-                summary.when_to_contact_doctor,
-                title="[bold]When to Contact Doctor[/bold]",
-                border_style="yellow"
-            )
-        )
-
-    console.print()
-    console.print(
-        Panel(
-            result.technical_summary,
-            title="[bold]Technical Summary[/bold]",
-            border_style="dim"
-        )
-    )
-    console.print()
 
 def get_user_arguments():
     """
@@ -525,13 +367,8 @@ def main() -> int:
 
         model_config = ModelConfig(model=args.model, temperature=0.7)
         analyzer = DrugDiseaseInteraction(model_config)
-        result = analyzer.generate_text(config)
-
-        print_result(result, verbose=args.verbosity >= 3)
-
-        if args.json_output:
-            console.print(f"\n{result.model_dump_json(indent=2)}")
-
+        result, saved_path = analyzer.generate_text(config)
+        logger.info(f"Analysis completed. Results saved to: {saved_path}")
         return 0
 
     except ValueError as e:
