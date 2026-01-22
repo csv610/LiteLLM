@@ -13,7 +13,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
 from medical_test_info_models import MedicalTestInfo
+
+logger = logging.getLogger(__name__)
 
 
 class PromptBuilder:
@@ -84,7 +87,7 @@ class MedicalTestInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
 
-    def generate_text(self, test_name: str) -> MedicalTestInfo:
+    def generate_text(self, test_name: str, use_pydantic=False):
         """
         Generate the core medical test information.
 
@@ -99,10 +102,16 @@ class MedicalTestInfoGenerator:
         # Build prompts and create ModelInput
         system_prompt = PromptBuilder.create_system_prompt()
         prompt = PromptBuilder.create_user_prompt(test_name)
+
+        response_format = None
+        if use_pydantic:
+           print( "USE Pydantic")
+           response_format = MedicalTestInfo
+
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=prompt,
-            response_format=MedicalTestInfo,
+            response_format=response_format
         )
         
         try:
@@ -113,7 +122,7 @@ class MedicalTestInfoGenerator:
             logger.error(f"Error generating medical test information for {test_name}: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> MedicalTestInfo:
+    def ask_llm(self, model_input: ModelInput):
         """
         Call the LLM client to generate information.
 
@@ -126,26 +135,9 @@ class MedicalTestInfoGenerator:
         return self.client.generate_text(model_input=model_input)
 
 
-    def save(self, test_info: MedicalTestInfo, output_path: Path) -> Path:
-        """
-        Save the generated test information to a JSON file.
-
-        Args:
-            test_info: The MedicalTestInfo object to save.
-            output_path: The path to save the file to.
-
-        Returns:
-            The path to the saved file.
-        """
-        try:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(test_info.model_dump(), f, indent=2)
-            logger.info(f"Saved test information to: {output_path}")
-            return output_path
-        except Exception as e:
-            logger.error(f"Error saving test information to {output_path}: {e}")
-            raise
+    def save(self, result, output_path: Path) -> Path:
+        """Save the generated test information to a JSON file."""
+        return save_model_response(result, output_path)
 
 
 def print_result(result: MedicalTestInfo, verbose: bool = False) -> None:
@@ -196,7 +188,7 @@ def get_user_arguments() -> argparse.Namespace:
         "-m",
         "--model",
         type=str,
-        default="gemini-1.5-flash",
+        default="ollama/gemma3", 
         help="Model to use for generation (default: gemini-1.5-flash)."
     )
     parser.add_argument(
@@ -230,6 +222,8 @@ def app_cli():
         
         # Generate the test information
         result = generator.generate_text(args.test)
+
+        print(result)
         
         # Save to file
         if args.output:
@@ -239,11 +233,6 @@ def app_cli():
             output_path = output_dir / f"{args.test.lower().replace(' ', '_')}_info.json"
         
         generator.save(result, output_path)
-
-        # Display results
-        if result:
-            print_result(result)
-            print(f"\n✓ Generation complete. Saved to {output_path}")
 
     except Exception as e:
         logger.error(f"CLI execution failed: {e}")
