@@ -1,0 +1,1223 @@
+1.5T MRI
+3-lead ECG
+3D ultrasound
+3T MRI
+4D ultrasound
+5-lead ECG
+7-day Holter monitor
+Abdominal ultrasound
+Accelerometer-based activity monitor
+Acetone breath analyzer
+Acetylcholine receptor antibody analyzer
+Acid-base analyzer
+Acoustic cardiography system
+Acoustic emission testing device
+Acoustic impedance audiometer
+Acoustic pharyngometer
+Acoustic reflex tester
+Acoustic rhinometer
+Acoustic voice analysis system
+Actigraphy monitor
+Activated clotting time analyzer
+Activated partial thromboplastin time analyzer
+Acute care chemistry analyzer
+Acute myocardial infarction marker analyzer
+Adaptive optics retinal imaging system
+Adaptive optics scanning laser ophthalmoscope
+Adenosine deaminase analyzer
+Adiponectin analyzer
+Adrenal hormone analyzer
+Adrenal vein sampling analyzer
+Advanced audiometry system
+Advanced coagulation analyzer
+Advanced hemodynamic monitoring system
+Advanced vital signs monitor
+Aerobic culture incubator
+Air plethysmograph
+Airflow resistance tester
+Airway resistance measurement device
+Albumin analyzer
+Alcohol breath analyzer
+Aldolase analyzer
+Aldosterone analyzer
+Aldosterone-renin ratio analyzer
+Allergen component analyzer
+Allergy skin prick tester
+Allergy testing device
+Alpha-1 antitrypsin analyzer
+Alpha-fetoprotein analyzer
+Alveolar gas analyzer
+Alveolar ventilation monitor
+Ambulatory blood pressure monitor
+Ambulatory capnography system
+Ambulatory cardiac telemetry device
+Ambulatory ECG monitor
+Ambulatory EEG monitor
+Ambulatory glucose monitor
+Ambulatory oxygen monitor
+Ambulatory respiratory monitor
+Ammonia analyzer
+Amniotic fluid analyzer
+Amniotic fluid lung maturity analyzer
+Amplitude-integrated EEG
+Amylase analyzer
+Amyloid beta analyzer
+Amyloid PET imaging system
+Analog X-ray
+Anemia differential analyzer
+Anemia screening device
+Aneroid sphygmomanometer
+Anesthesia depth monitor
+Angiogenic factor analyzer
+Angiography injector system
+Angiography system
+Anion gap analyzer
+Anisocoria detection system
+Ankle motion analyzer
+Ankle-brachial index device
+Anorectal manometry system
+Anterior segment OCT
+Anti-CCP antibody analyzer
+Anti-dsDNA analyzer
+Anti-Müllerian hormone analyzer
+Anti-nuclear antibody analyzer
+Anti-phospholipid antibody analyzer
+Anti-thyroglobulin antibody analyzer
+Anti-thyroid peroxidase antibody analyzer
+Antibody titer analyzer
+Antigen detection reader
+Aortic compliance analyzer
+Aortic flow velocity analyzer
+Aortic pressure monitor
+Apnea monitor
+Apolipoprotein analyzer
+Apoptosis detection system
+Applanation tonometer
+Aptamer-based biosensor
+Aptitude vision tester
+Arterial blood gas analyzer
+Arterial compliance analyzer
+Arterial line monitor
+Arterial oxygen content analyzer
+Arterial stiffness analyzer
+Arterial waveform analyzer
+Artificial pancreas testing system
+Aspartate aminotransferase analyzer
+Atrial fibrillation detection system
+Automated allergy analyzer
+Automated blood culture system
+Automated blood morphology analyzer
+Automated blood typing system
+Automated bone age analyzer
+Automated bone marrow smear analyzer
+Automated capillary blood analyzer
+Automated cell counter
+Automated coagulation workstation
+Automated crossmatching system
+Automated cytogenetics system
+Automated cytokine analyzer
+Automated differential counter
+Automated differential white cell counter
+Automated enzyme immunoassay system
+Automated ESR analyzer
+Automated fecal analyzer
+Automated fecal occult blood analyzer
+Automated hormone analyzer
+Automated hormone immunoassay system
+Automated hormone profiling system
+Automated immunoassay analyzer
+Automated immunofluorescence analyzer
+Automated insulin analyzer
+Automated karyotyping system
+Automated liquid handling diagnostic system
+Automated malaria parasite analyzer
+Automated microbial identification system
+Automated peripheral smear analyzer
+Automated platelet counter
+Automated semen analyzer
+Automated serology analyzer
+Automated smear stainer
+Automated synovial fluid analyzer
+Automated urine analyzer
+Automated Western blot system
+Autonomic function testing system
+Autonomic nervous system analyzer
+Autorefractor
+Bacterial identification system
+Baroreceptor reflex analyzer
+Baroreflex sensitivity analyzer
+Basal body temperature monitor
+Basal cortisol rhythm analyzer
+Basal metabolic rate analyzer
+Basophil activation test device
+Basophil count analyzer
+Bedside cardiac output monitor
+Bedside chemistry analyzer
+Bedside ultrasound system
+Beta-hydroxybutyrate analyzer
+Bicarbonate analyzer
+Bicycle ergometer
+Bile acid analyzer
+Bile pigment analyzer
+Bile salt export pump analyzer
+Bilirubin meter
+Bioelectrical impedance analyzer
+Biofeedback monitoring system
+Bioimpedance cardiac output monitor
+Bioimpedance spectroscopy system
+Biolayer interferometry analyzer
+Bioluminescence analyzer
+Biomagnetic field imaging system
+Biomagnetic imaging system
+Biomarker detection reader
+Biopotential amplifier
+Biopsy guidance system
+Biopsy needle guidance system
+Biopsy sample digitization system
+Biosensor-based diagnostic reader
+Biospecimen tracking system
+Bladder compliance analyzer
+Bladder scanner
+Bladder volume scanner
+Bleeding time analyzer
+Blood alcohol concentration analyzer
+Blood ammonia analyzer
+Blood ammonia meter
+Blood ammonia testing device
+Blood carbon monoxide analyzer
+Blood co-oximetry system
+Blood compatibility analyzer
+Blood cortisol analyzer
+Blood culture bottle reader
+Blood endotoxin analyzer
+Blood gas analyzer
+Blood gas co-oximeter
+Blood glucose meter
+Blood glucose variability analyzer
+Blood histamine analyzer
+Blood ketone meter
+Blood ketone variability analyzer
+Blood lactate clearance analyzer
+Blood lead level analyzer
+Blood lipoprotein fraction analyzer
+Blood oxygen affinity analyzer
+Blood parasite detection system
+Blood pressure monitor
+Blood protein electrophoresis system
+Blood rheology analyzer
+Blood sedimentation analyzer
+Blood smear morphology analyzer
+Blood smear scanner
+Blood urea nitrogen analyzer
+Blood viscosity analyzer
+Body composition analyzer
+Body plethysmograph
+Body surface potential mapping system
+Bone age assessment system
+Bone densitometer (DEXA)
+Bone metabolism analyzer
+Bone microarchitecture scanner
+Bone mineral density scanner
+Bone resorption marker analyzer
+Bone turnover marker analyzer
+Breast elastography system
+Breath acetaldehyde analyzer
+Breath acetone analyzer
+Breath acetone variability analyzer
+Breath ammonia analyzer
+Breath carbon monoxide analyzer
+Breath condensate analyzer
+Breath ethane analyzer
+Breath ethanol analyzer
+Breath hydrogen analyzer
+Breath hydrogen sulfide analyzer
+Breath isoprene analyzer
+Breath ketone analyzer
+Breath methane analyzer
+Breath nitric oxide analyzer
+Breath urea test system
+Breath volatile organic compound analyzer
+Bronchial airflow analyzer
+Bronchial challenge test system
+Bronchial hyperresponsiveness testing system
+Bronchial provocation test system
+Bronchoscopy imaging system
+BUN meter
+C-arm X-ray
+C-reactive protein analyzer
+Calcium absorption analyzer
+Calcium analyzer
+Calcium phosphate product analyzer
+Calcium score CT system
+Calorimeter
+Calprotectin analyzer
+Capillary blood gas analyzer
+Capillary electrophoresis system
+Capillary microscopy system
+Capillary refill imaging system
+Capillary refill time monitor
+Capnograph
+Cardiac chamber quantification system
+Cardiac contractility analyzer
+Cardiac deformation imaging system
+Cardiac enzyme analyzer
+Cardiac fiber orientation imaging system
+Cardiac mapping system
+Cardiac MRI workstation
+Cardiac output monitor
+Cardiac rhythm analyzer
+Cardiac strain imaging system
+Cardiac telemetry monitor
+Cardiac troponin I analyzer
+Cardiac troponin T analyzer
+Cardiac ultrasound
+Cardiac wall motion analyzer
+Cardio-respiratory synchrony analyzer
+Cardiopulmonary exercise testing system
+Cardiopulmonary hemodynamic monitor
+Cardiovascular risk analyzer
+Carotid Doppler system
+Carotid intima-media thickness scanner
+Carotid plaque imaging system
+Catecholamine analyzer
+Cell apoptosis imaging system
+Cell counter
+Cell cycle analyzer
+Cell deformability analyzer
+Cell migration analyzer
+Cell morphology analyzer
+Cell viability analyzer
+Cell-free DNA analyzer
+Cellular metabolism analyzer
+Central BP monitor
+Cerebral autoregulation monitor
+Cerebral blood flow monitor
+Cerebral oxygenation monitor
+Cerebrospinal fluid analyzer
+Cerebrovascular reactivity analyzer
+Cervical cancer screening device
+Cervical cytology scanner
+Cervical length ultrasound system
+Cervical mucus analyzer
+Chemiluminescence analyzer
+Chemiluminescent microparticle immunoassay system
+Chemosensitivity testing system
+Chemotherapy sensitivity testing system
+Chloride analyzer
+Cholangiography system
+Cholestasis analyzer
+Cholesterol efflux capacity analyzer
+Cholesterol meter
+Choroidal thickness analyzer
+Chromatin structure analyzer
+Chromatography analyzer
+Chromogranin A analyzer
+Chromosomal instability analyzer
+Chromosomal karyotyping system
+Chronic inflammation biomarker analyzer
+Chronic kidney disease analyzer
+Ciliary beat frequency analyzer
+Ciliary function analyzer
+Ciliary motion imaging system
+Ciliary ultrastructure imaging system
+Circulating DNA analyzer
+Circulating endothelial cell analyzer
+Circulating tumor cell analyzer
+Circulatory volume analyzer
+Claudication distance analyzer
+Closed MRI
+Clot detection system
+Clot firmness analyzer
+Clot waveform analyzer
+CO₂ monitor
+Coagulation factor analyzer
+Cognitive assessment device
+Cognitive reaction time analyzer
+Cognitive workload analyzer
+Cold agglutinin test system
+Cold provocation test system
+Colonic motility analyzer
+Colonic transit time analyzer
+Colonoscopy imaging system
+Color Doppler system
+Color Doppler ultrasound
+Color vision tester
+Colposcopy imaging system
+Complement activation analyzer
+Complement analyzer
+Complement cascade analyzer
+Comprehensive metabolic panel analyzer
+Cone beam CT
+Confocal microscope
+Continuing the **simple plain list** (no bullets, no dots, no symbols, no sections, just one item per line):
+Continuous cardiac monitor
+Continuous core body temperature monitor
+Continuous fetal monitoring system
+Continuous glucose ketone monitoring system
+Continuous glucose monitor
+Continuous intracranial pressure monitor
+Continuous lactate monitor
+Continuous oxygen saturation monitor
+Continuous respiratory rate monitor
+Continuous temperature monitor
+Continuous wave Doppler
+Contrast-enhanced ultrasound system
+Corneal endothelial cell counter
+Corneal hysteresis analyzer
+Corneal pachymeter
+Corneal topographer
+Coronary calcium scoring system
+Coronary flow reserve analyzer
+Cortical thickness analyzer
+Corticosteroid profiling system
+Cortisol analyzer
+Cortisol awakening response analyzer
+Cough acoustic analysis system
+Cough frequency monitor
+Cough reflex sensitivity tester
+Creatine kinase analyzer
+Creatine metabolism analyzer
+Creatinine clearance analyzer
+Creatinine kinase-MB analyzer
+Creatinine meter
+Cryo-electron microscopy system
+Cryofibrinogen analyzer
+Cryoglobulin analyzer
+Cryoprotein analyzer
+CT scanner
+Cystatin C analyzer
+Cystic fibrosis mutation panel analyzer
+Cystic fibrosis screening system
+Cytogenomic microarray system
+Cytokine profiling system
+Cytokine storm biomarker analyzer
+Cytometry imaging system
+Dark adaptation testing system
+Dark adaptometer
+Dark blood MRI system
+Dark field microscope
+Deep learning-assisted radiology workstation
+Deep vein thrombosis detection system
+Defibrillator analyzer
+Dehydration analyzer
+Dendritic cell analyzer
+Dental cone beam CT
+Dental intraoral scanner
+Dental pulp oxygenation monitor
+Dental pulp vitality tester
+Dental radiography unit
+Depth of anesthesia monitor
+Dermal collagen analyzer
+Dermal perfusion analyzer
+Dermatoglyphic analyzer
+Dermatoscope
+Desktop spirometer
+Diabetes risk analyzer
+Diabetic neuropathy screening system
+Diffusion capacity analyzer
+Diffusion MRI
+Digital audiometer
+Digital auscultation analysis system
+Digital auscultation device
+Digital bite force analyzer
+Digital BP monitor
+Digital colposcope
+Digital dermatoscope
+Digital fluoroscopy system
+Digital fundus camera
+Digital gait mat
+Digital hemoglobinometer
+Digital karyotyping system
+Digital lung sound analyzer
+Digital mammography
+Digital otoscope
+Digital pathology scanner
+Digital periapical X-ray system
+Digital radiography system
+Digital skin lesion analyzer
+Digital slit lamp
+Digital smell identification system
+Digital stethoscope
+Digital taste testing system
+Digital thermography system
+Digital thermometer
+Digital vestibular testing system
+Digital X-ray
+Direct ophthalmoscope
+Diuretic response analyzer
+Dopamine metabolite analyzer
+Dopamine receptor imaging system
+Dopamine transporter imaging system
+Doppler blood flow meter
+Doppler echocardiography
+Doppler ultrasound
+Drug adherence monitoring system
+Drug metabolism analyzer
+Dry chemistry analyzer
+Dual-energy CT
+Dual-energy X-ray system
+Dynamic balance analyzer
+Dynamic contrast MRI system
+Dynamic contrast-enhanced CT system
+Dynamic ECG recorder
+Dynamic gait analyzer
+Dynamic lung compliance analyzer
+Dynamic pupil response analyzer
+Dynamic retinal vessel analyzer
+Ear impedance analyzer
+Early sepsis detection system
+ECG machine
+Echocardiographic flow quantification system
+Echocardiographic strain analyzer
+Echocardiographic tissue Doppler system
+Echocardiography machine
+Echocardiography stress system
+EEG machine
+Electrical cardiometry system
+Electrical impedance tomography
+Electrical muscle stimulation analyzer
+Electrochemical biosensor
+Electrodermal activity monitor
+Electroencephalographic coherence analyzer
+Electroencephalographic seizure detection system
+Electroencephalographic sleep staging system
+Electrogastrography system
+Electroglottography system
+Electrogoniometer
+Electrohysterography system
+Electrolyte analyzer
+Electrolyte balance analyzer
+Electromechanical delay analyzer
+Electromyography signal analyzer
+Electrooculography system
+Electrophoretic mobility analyzer
+Electrophysiology recording system
+Electroretinography system
+Electrosensitivity testing system
+EMG machine
+End-expiratory lung volume monitor
+End-tidal CO₂ monitor
+Endocrine disruptor screening system
+Endometrial receptivity analyzer
+Endometrial thickness analyzer
+Endoscopy imaging system
+Endothelial function tester
+Endothelial glycocalyx analyzer
+Endothelial progenitor cell analyzer
+Endotoxin activity assay system
+Endotoxin detection system
+Energy expenditure monitor
+Energy substrate utilization analyzer
+Enzyme kinetics analyzer
+Enzyme-linked fluorescent assay system
+Eosinophil activation analyzer
+Eosinophil cationic protein analyzer
+Eosinophilic inflammation analyzer
+Epigenetic profiling system
+Epigenome-wide methylation analyzer
+Epileptiform discharge detector
+Epithelial barrier function tester
+Erythrocyte aggregation analyzer
+Erythrocyte deformability analyzer
+Erythropoietin analyzer
+Esophageal acid exposure analyzer
+Esophageal bolus transit analyzer
+Esophageal manometry system
+Estradiol analyzer
+Estriol analyzer
+Estrogen metabolite analyzer
+Event monitor
+Evoked otoacoustic emission tester
+Evoked potential system
+Exercise gas exchange analyzer
+Exercise tolerance testing system
+Exercise-induced bronchoconstriction analyzer
+Exhaled breath condensate analyzer
+Exhaled breath temperature analyzer
+Exhaled carbon monoxide analyzer
+Exhaled nitric oxide monitor
+Exocrine pancreatic function analyzer
+Exocrine pancreatic insufficiency analyzer
+Exocrine sweat gland analyzer
+Extended coagulation analyzer
+Eye blink rate analyzer
+Eye movement tracking system
+Eye tracking system
+Facial expression analysis system
+Facial nerve conduction analyzer
+Fasting insulin analyzer
+Fasting plasma glucose analyzer
+Fat mass analyzer
+Fatty acid oxidation analyzer
+Fecal bile acid analyzer
+Fecal calprotectin analyzer
+Fecal DNA analyzer
+Fecal elastase analyzer
+Fecal fat analyzer
+Fecal immunochemical test reader
+Fecal short-chain fatty acid analyzer
+Fetal biometry ultrasound
+Fetal brain oxygenation monitor
+Fetal circulation Doppler system
+Fetal doppler monitor
+Fetal heart rate monitor
+Fetal heart rhythm analyzer
+Fetal lung maturity ultrasound system
+Fetal movement monitor
+Fetal neurobehavioral assessment system
+Fetal oxygen saturation monitor
+Fetal pulse oximeter
+Fetal ultrasound
+Fibrin clot structure analyzer
+Fibrin degradation product analyzer
+Fibrinolysis analyzer
+FibroScan
+Fibrosis staging analyzer
+Finger photoplethysmography system
+Finger plethysmograph
+Fingertip pulse oximeter
+Flash glucose monitor
+Flow-mediated dilation analyzer
+Fluorescein angiography camera
+Fluorescence immunoassay reader
+Fluorescence lifetime imaging system
+Fluorescence microscope scanner
+Fluorescence polarization immunoassay system
+Fluoroscopy system
+Folate analyzer
+Folate receptor alpha analyzer
+Follicle-stimulating hormone analyzer
+Food allergen analyzer
+Food intolerance test analyzer
+Forced expiratory volume analyzer
+Forced oscillation technique device
+Forced vital capacity analyzer
+Fracture risk assessment system
+Free androgen index analyzer
+Free fatty acid analyzer
+Free light chain analyzer
+Fructosamine analyzer
+Functional lung imaging system
+Functional MRI
+Functional near-infrared spectroscopy system
+Fundus camera
+Gait analysis system
+Gait asymmetry analyzer
+Gait kinematics analyzer
+Gait pressure mapping system
+Galactosemia screening device
+Galectin-3 analyzer
+Gamma camera
+Gastric accommodation analyzer
+Gastric acid secretion analyzer
+Gastric emptying test system
+Gastric motility analyzer
+Gastric pH monitoring system
+Gastric slow wave mapping system
+Gastrin analyzer
+Gene expression profiling system
+Genetic microarray reader
+Genetic mutation scanner
+Genomic copy number variation analyzer
+Genomic instability analyzer
+Genotoxicity testing system
+Geriatric fall risk assessment system
+Geriatric frailty assessment system
+Glass clinical thermometer
+Glial cell activation analyzer
+Glial fibrillary acidic protein analyzer
+Glomerular filtration rate analyzer
+Glomerular hyperfiltration analyzer
+Glomerular permeability analyzer
+Glucagon analyzer
+Glucagon-like peptide analyzer
+Glucometer
+Gluconeogenesis analyzer
+Glucose clamp system
+Glycated albumin analyzer
+Glycemic variability analyzer
+Glycoprotein acetylation analyzer
+Goniometer
+Growth differentiation factor analyzer
+Growth hormone analyzer
+Growth velocity analyzer
+Hair cortisol analyzer
+Hair follicle density analyzer
+Hair mineral analysis system
+Hand grip strength dynamometer
+Hand tremor quantification system
+Handheld pulse oximeter
+Handheld ultrasound
+Haptoglobin analyzer
+Haptoglobin-hemoglobin complex analyzer
+HbA1c analyzer
+Hearing aid fitting analyzer
+Hearing screening audiometer
+Hearing threshold analyzer
+Heart murmur detection system
+Heart rate variability analyzer
+Heart sound analyzer
+Heart valve motion analyzer
+Helical CT
+Helicobacter pylori breath test system
+Hemodiafiltration monitor
+Hemodynamic response imaging system
+Hemoglobin electrophoresis system
+Hemoglobin meter
+Hemoglobin oxygen dissociation analyzer
+Hemoglobin variant analyzer
+Hemoglobin variant separation system
+Hemolysis analyzer
+Hemostasis analyzer
+Hemostatic potential analyzer
+Hepatic blood flow analyzer
+Hepatic steatosis analyzer
+Hepatic venous pressure gradient analyzer
+Hepatitis antigen analyzer
+Hepatitis viral load analyzer
+Hepatocellular carcinoma marker analyzer
+Hepcidin analyzer
+High-altitude physiology monitor
+High-density lipoprotein functionality analyzer
+High-frequency ultrasound system
+High-performance liquid chromatography system
+High-sensitivity troponin analyzer
+High-throughput drug screening system
+Histamine release analyzer
+Holter monitor
+Home apnea testing system
+Home blood coagulation monitor
+Home sleep test device
+Home spirometry system
+Homocysteine analyzer
+Homocysteine metabolism analyzer
+Hormonal circadian rhythm analyzer
+Hormone analyzer
+Hormone receptor analyzer
+Human chorionic gonadotropin analyzer
+Human leukocyte antigen typing system
+Human papillomavirus genotyping system
+Hydration status analyzer
+Hydrocephalus pressure monitor
+Hydrogen breath test system
+Hydrogen sulfide analyzer
+Hyperbaric oxygen response analyzer
+Hypercapnia detection monitor
+Hypercoagulability analyzer
+Hypersensitivity reaction analyzer
+Hypoglycemia detection system
+Hypoxia detection system
+Immune checkpoint analyzer
+Immune profiling system
+Immune repertoire sequencing system
+Immunoblot analyzer
+Immunofixation electrophoresis system
+Immunoglobulin subclass analyzer
+Immunophenotyping flow cytometer
+Impedance cardiography device
+Implantable glucose sensor
+Implantable hemodynamic monitor
+Implantable loop recorder
+Implantable pulmonary artery pressure monitor
+Incentive spirometer
+Indirect bilirubin analyzer
+Indirect calorimeter
+Indirect ophthalmoscope
+Indocyanine green clearance analyzer
+Induced sputum analyzer
+Inflammatory bowel disease analyzer
+Inflammatory cytokine analyzer
+Inflammatory lipid mediator analyzer
+Inflammatory marker analyzer
+Infrared thermometer
+Inspiratory muscle trainer analyzer
+Insulin pump tester
+Insulin resistance analyzer
+Insulin secretion analyzer
+Insulin sensitivity clamp system
+Intercellular adhesion molecule analyzer
+Interferon gamma release assay system
+Interleukin analyzer
+Intermittent hypoxia analyzer
+Intestinal motility capsule system
+Intestinal permeability analyzer
+Intra-abdominal pressure monitor
+Intracardiac pressure monitor
+Intracranial pressure monitor
+Intraocular perfusion analyzer
+Intraocular pressure monitor
+Intravascular photoacoustic imaging system
+Intravascular ultrasound system
+Ion-selective electrode analyzer
+Iron absorption test system
+Iron kinetics analyzer
+Ischemia detection monitor
+Ischemia-modified albumin analyzer
+Ischemic burden analyzer
+Islet cell antibody analyzer
+Jaw electromyography system
+Jaw kinematics analyzer
+Jaw motion analyzer
+Jaw tracking system
+Joint cartilage thickness analyzer
+Joint laxity analyzer
+Joint motion analyzer
+Joint proprioception analyzer
+Karyotype imaging system
+Keratinocyte migration analyzer
+Keratometer
+Ketone breath analyzer
+Ketone meter
+Kidney perfusion ultrasound
+Kidney stone analyzer
+Kidney stone composition analyzer
+Knee ligament laxity analyzer
+Kymograph
+Lacrimal drainage function tester
+Lactate clearance analyzer
+Lactate meter
+Lactate shuttle analyzer
+Lactate threshold analyzer
+Lactose intolerance test system
+Laryngeal airflow analyzer
+Laryngeal electromyography system
+Laryngeal stroboscope
+Laryngeal vibration imaging system
+Left ventricular ejection fraction analyzer
+Leptin analyzer
+Leptin-adiponectin ratio analyzer
+Leukocyte adhesion analyzer
+Leukocyte rolling velocity analyzer
+Light scatter platelet analyzer
+Lipid oxidation analyzer
+Lipid particle size analyzer
+Lipid profile analyzer
+Lipidomics profiling system
+Liver elastography system
+Liver fibrosis ultrasound
+Liver iron quantification MRI system
+Liver perfusion imaging system
+Loop recorder
+Loop-mediated isothermal amplification device
+Lung compliance monitor
+Lung crackle detection system
+Lung diffusion analyzer
+Lung perfusion scintigraphy system
+Lung ultrasound system
+Lymphatic flow analyzer
+Lymphocyte activation analyzer
+Lymphocyte subset analyzer
+Macrophage polarization analyzer
+Macular pigment analyzer
+Macular pigment optical density scanner
+Macular thickness analyzer
+Magnetic resonance angiography system
+Magnetic resonance elastography system
+Magnetocardiography system
+Magnetoencephalography system
+Magnetomyography system
+Malabsorption breath test system
+Malabsorption test system
+Malaria parasite quantification system
+Mammographic CAD system
+Mammography machine
+Mast cell activation analyzer
+Matrix metalloproteinase analyzer
+Mean platelet volume analyzer
+Mechanical ventilation analyzer
+Mechanomyography system
+Melanoma risk assessment system
+Melatonin analyzer
+Melatonin circadian rhythm analyzer
+Memory recall testing device
+Mercury sphygmomanometer
+Mercury thermometer
+Mesenteric blood flow analyzer
+Metabolic cart
+Metabolic flux analyzer
+Metabolomic profiling system
+Microalbumin analyzer
+Microbiome diversity analyzer
+Microcirculation analyzer
+Microcirculation Doppler
+Microcirculatory oxygen tension analyzer
+Microfluidic diagnostic chip
+Microglial activation imaging system
+Micronucleus assay system
+Micronutrient analyzer
+MicroRNA analyzer
+Microvascular reactivity analyzer
+Mitochondrial DNA analyzer
+Mitochondrial function analyzer
+Mitochondrial membrane potential analyzer
+Mitochondrial respiration analyzer
+Mobile X-ray
+Monofilament neuropathy tester
+Motion capture system
+Motion tremor analyzer
+Motor evoked potential system
+Motor unit number estimation system
+MRI scanner
+Mucociliary clearance analyzer
+Mucus rheology analyzer
+Muscle fatigue analyzer
+Muscle glycogen analyzer
+Muscle oxygen extraction analyzer
+Muscle oxygenation monitor
+Myelin integrity analyzer
+Myelin water fraction MRI system
+Myocardial perfusion imaging system
+Myocardial strain imaging system
+Myoglobin analyzer
+Myoglobin clearance analyzer
+Nailfold capillaroscopy system
+Nailfold capillary blood flow analyzer
+Nasal airflow analyzer
+Nasal nitric oxide analyzer
+Neonatal apnea monitor
+Neonatal bilirubinometer
+Neonatal jaundice screening system
+Neonatal thermometer
+Nephron function analyzer
+Nerve conduction study device
+Neural conduction velocity analyzer
+Neural plasticity analyzer
+Neurocognitive reaction time analyzer
+Neurocognitive testing system
+Neurodegeneration biomarker analyzer
+Neurofeedback system
+Neurohormone analyzer
+Neuroimaging workstation
+Neuroinflammation biomarker analyzer
+Neuroplasticity mapping system
+Neurotransmitter analyzer
+Neurotransmitter vesicle imaging system
+Neurovascular coupling analyzer
+Neurovascular Doppler
+Night vision adaptation analyzer
+Night vision tester
+Nighttime oximetry monitor
+Nitric oxide breath analyzer
+Nitric oxide diffusion capacity analyzer
+Nitric oxide synthase activity analyzer
+Nitrogen balance analyzer
+Nociception monitor
+Non-contact tonometer
+Non-invasive glucose monitor
+Nutrient absorption analyzer
+Nutrient oxidation analyzer
+Obstetric ultrasound
+OCT angiography device
+OCT scanner
+Ocular biometer
+Ocular blood flow analyzer
+Ocular perfusion pressure analyzer
+Ocular surface analyzer
+Ocular wavefront aberrometer
+Olfactometer
+Olfactory bulb imaging system
+Olfactory event-related potential system
+Olfactory threshold tester
+Open MRI
+Ophthalmoscope
+Optic nerve fiber layer thickness analyzer
+Optic nerve head analyzer
+Optical biometry system
+Optical coherence elastography system
+Optical metabolic imaging system
+Optokinetic nystagmus tester
+Oral glucose tolerance testing system
+Oral microbiome analyzer
+Orthopedic gait lab system
+Orthostatic hypotension test system
+Orthostatic stress test system
+Oscillometric blood pressure analyzer
+Osmolality analyzer
+Osmotic fragility analyzer
+Osmotic gap analyzer
+Osteoblast activity analyzer
+Osteocalcin analyzer
+Otoacoustic emission tester
+Otoscope
+Oxidative stress analyzer
+Oxygen dissociation curve analyzer
+Oxygen extraction monitor
+Oxygen uptake efficiency slope analyzer
+Pain threshold analyzer
+Pancreatic beta-cell function analyzer
+Pancreatic beta-cell mass imaging system
+Pancreatic elastase analyzer
+Pancreatic islet imaging system
+Parasitic load quantification system
+Parasympathetic tone analyzer
+Parathyroid hormone analyzer
+Patch ECG monitor
+Patch-based ECG recorder
+Patch-based temperature monitor
+Peak flow meter
+Pelvic floor manometry system
+Pelvic organ prolapse quantification system
+Perimeter
+Peripheral arterial tonometry system
+Peripheral chemoreceptor sensitivity analyzer
+Peripheral nerve stimulator analyzer
+Peripheral perfusion monitor
+PET scanner
+PET-CT scanner
+PET-MRI scanner
+pH impedance monitoring system
+Photoplethysmography device
+Photoreceptor integrity analyzer
+Photoreceptor outer segment analyzer
+Photostress recovery tester
+Pituitary hormone analyzer
+Plasma amino acid analyzer
+Plasma proteomics analyzer
+Plasma viscosity analyzer
+Platelet aggregation analyzer
+Platelet function analyzer
+Platelet granule secretion analyzer
+Pleural effusion analyzer
+Pleural elastance analyzer
+Pleural pressure monitor
+Polysomnography system
+Portable ECG
+Portable echo
+Portable slit lamp
+Portable spirometer
+Portable ultrasound
+Portable X-ray
+Post-exercise recovery analyzer
+Postprandial glucose excursion analyzer
+Postural sway analyzer
+Posturography system
+Power Doppler
+Pre-eclampsia risk analyzer
+Pregnancy hormone analyzer
+Pregnancy viability analyzer
+Procalcitonin analyzer
+Procollagen peptide analyzer
+Progesterone metabolite analyzer
+Prognostic cancer biomarker analyzer
+Prolactin analyzer
+Prostate volume ultrasound system
+Prostate-specific antigen analyzer
+Prothrombin fragment analyzer
+Pulmonary artery pressure monitor
+Pulmonary artery wedge pressure monitor
+Pulmonary compliance analyzer
+Pulmonary function test system
+Pulmonary shunt analyzer
+Pulse contour analysis system
+Pulse oximeter
+Pulse transit time analyzer
+Pulse wave Doppler
+Quantitative EEG system
+Quantitative phase imaging system
+Quantitative sensory testing device
+Quantitative ultrasound bone scanner
+Radiation dose monitoring system
+Radiomics feature extraction system
+Radiotracer uptake analyzer
+Reactive hyperemia analyzer
+Reactive nitrogen species analyzer
+Reactive oxygen species analyzer
+Rebound tonometer
+Renal blood flow Doppler
+Renal clearance analyzer
+Renal cortical perfusion imaging system
+Renal resistive index analyzer
+Respiratory effort belt system
+Respiratory inductance plethysmography system
+Respiratory muscle strength analyzer
+Respiratory quotient analyzer
+Retinal blood flow analyzer
+Retinal camera
+Retinal microvascular imaging system
+Retinal nerve fiber layer analyzer
+Retinal oximeter
+Retinoscope
+Saliva cortisol analyzer
+Salivary amylase analyzer
+Salivary cortisol analyzer
+Salivary glucose analyzer
+Salivary hormone profiling system
+Sarcoidosis biomarker analyzer
+Sarcomere length analyzer
+Sarcomere shortening analyzer
+Scalp EEG cap system
+Schirmer tear test device
+Schwann cell function analyzer
+Seizure prediction system
+Semen analyzer
+Semen morphology analyzer
+Sensory threshold analyzer
+Sepsis biomarker panel analyzer
+Serotonin analyzer
+Serum ferritin analyzer
+Shock index monitor
+Shockwave elastography system
+Skeletal maturity analyzer
+Skeletal muscle perfusion MRI system
+Skeletal muscle ultrasound
+Skin barrier function analyzer
+Skin conductance monitor
+Skin elasticity analyzer
+Skin hydration analyzer
+Skin microcirculation imaging system
+Sleep apnea monitor
+Sleep breathing pattern analyzer
+Sleep latency testing system
+Sleep spindle analyzer
+Sleep stage analyzer
+Small airway function analyzer
+Small fiber neuropathy analyzer
+Small intestine breath test system
+Smart glucose sensor
+Smart spirometer
+Smart thermometer
+Sodium analyzer
+Sodium balance analyzer
+Sodium-lithium countertransport analyzer
+SPECT scanner
+Spectroscopy MRI
+Sperm capacitation analyzer
+Sperm DNA fragmentation analyzer
+Sperm motility analyzer
+Spinal alignment analyzer
+Spinal cord evoked potential system
+Spinal cord perfusion monitor
+Spinal motion analyzer
+Spiral CT
+Spirometer
+Sputum analyzer
+Stem cell viability analyzer
+Steroid hormone analyzer
+Stool microbiome analyzer
+Stress cardiomyopathy analyzer
+Stress echocardiography system
+Stress hormone analyzer
+Stress perfusion MRI system
+Stress test ECG system
+Subcutaneous glucose sensor
+Subcutaneous tissue oxygenation monitor
+Sudden cardiac death risk analyzer
+Sudomotor function tester
+Sweat chloride analyzer
+Sweat electrolyte analyzer
+Sweat rate analyzer
+Synaptic activity analyzer
+Synaptic density PET system
+Synaptic vesicle analyzer
+Synovial fluid analyzer
+T-cell receptor sequencing system
+Tactile sensitivity analyzer
+Tear osmolarity analyzer
+Temporal artery thermometer
+Temporal bone CT system
+Temporal summation analyzer
+Thalamic connectivity analyzer
+Thermography camera
+Thermometer
+Thrombin generation analyzer
+Thromboelastography system
+Thrombus composition analyzer
+Thyroid antibody analyzer
+Thyroid uptake scanner
+Tilt table test system
+Tissue biomechanics analyzer
+Tissue Doppler velocity analyzer
+Tissue impedance analyzer
+Tissue oxygenation monitor
+Tissue perfusion analyzer
+Tongue motion ultrasound system
+Tongue pressure analyzer
+Tonometer
+Total antioxidant capacity analyzer
+Total hemoglobin mass analyzer
+Transcranial Doppler
+Transcranial magnetic stimulation mapping system
+Transcranial ultrasound system
+Transcutaneous bilirubin screening system
+Transcutaneous bilirubinometer
+Transcutaneous carbon dioxide monitor
+Transcutaneous lactate monitor
+Transcutaneous oxygen monitor
+Transesophageal echo
+Transnasal endoscopy system
+Transthoracic bioimpedance analyzer
+Transthoracic echo
+Treadmill stress test system
+Triglyceride meter
+Tuberculosis culture system
+Tumor hypoxia imaging system
+Tumor marker analyzer
+Tumor microenvironment analyzer
+Tympanic thermometer
+Ulcer depth imaging system
+Ultrafast ultrasound imaging system
+Ultrasonic bone densitometer
+Ultrasound elastography system
+Ultrasound machine
+Upper arm BP monitor
+Uric acid meter
+Urinary albumin analyzer
+Urinary flow meter
+Urinary ketone analyzer
+Urinary proteomics analyzer
+Urinary sodium analyzer
+Urodynamic testing system
+Uterine artery Doppler system
+Uterine contractility monitor
+Uveitis biomarker analyzer
+Vagal nerve activity analyzer
+Vagal tone analyzer
+Vascular compliance imaging system
+Vascular endothelial function analyzer
+Vascular reactivity analyzer
+Vascular stiffness analyzer
+Venous blood gas analyzer
+Venous capacitance analyzer
+Venous reflux analyzer
+Ventilatory efficiency analyzer
+Vestibular evoked myogenic potential system
+Vestibular function tester
+Vestibulo-ocular reflex tester
+Vibration perception threshold analyzer
+Video EEG system
+Video nystagmography system
+Viral load quantification system
+Viral quasispecies analyzer
+Visual acuity analyzer
+Visual contrast sensitivity analyzer
+Visual field analyzer
+Visual motion perception analyzer
+Vitamin D analyzer
+Voice analysis system
+Voice frequency analyzer
+Voice jitter analyzer
+Voice tremor analyzer
+Volume overload detection system
+Volume plethysmograph
+Volume status analyzer
+Volumetric capnography system
+White blood cell differential analyzer
+White matter integrity analyzer
+White matter tractography system
+Wound imaging system
+Wound oxygen tension monitor
+Wound perfusion analyzer
+Wrist actigraphy monitor
+Wrist BP monitor
+Wrist pulse oximeter
+X-ray fluorescence bone lead analyzer
+X-ray machine
+Xenon ventilation imaging system
+Yeast identification system
+Yield stress analyzer
+Zeta potential analyzer
+Zika virus test reader
+Zinc level analyzer
+Zinc transporter activity analyzer
+Zygosity testing system
+Zymogen activation analyzer
