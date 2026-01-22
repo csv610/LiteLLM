@@ -1,7 +1,8 @@
 """Configuration for available models and vision processing parameters."""
 
 from dataclasses import dataclass
-from typing import Optional, Union, List, Dict
+from typing import Optional, Union, List, Dict, Any
+from pydantic import BaseModel
 
 # Vision model defaults
 DEFAULT_TEMPERATURE = 0.7
@@ -38,22 +39,17 @@ class ModelInput:
     image_path: Optional[str] = None
     image_paths: Optional[list[str]] = None
     system_prompt: Optional[str] = None
-    response_format: Optional[str] = None
+    response_format: Optional[BaseModel] = None
 
     def __post_init__(self):
         """Validate input after initialization."""
         if not self.user_prompt or not self.user_prompt.strip():
             if not self.image_path and not self.image_paths:
                 raise ValueError("user_prompt cannot be empty unless an image_path(s) is provided")
-            self.user_prompt = DEFAULT_PROMPT
 
         # Normalize empty system_prompt to None
         if self.system_prompt is not None and not self.system_prompt.strip():
             self.system_prompt = None
-
-        # Normalize empty response_format to None
-        if self.response_format is not None and isinstance(self.response_format, str) and not self.response_format.strip():
-            self.response_format = None
 
 
 @dataclass
