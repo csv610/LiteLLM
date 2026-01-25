@@ -6,28 +6,16 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
-from drug_disease_interaction_models import (
-    InteractionSeverity,
-    ConfidenceLevel,
-    DataSourceType,
-    ImpactType,
-    EfficacyImpact,
-    SafetyImpact,
-    DosageAdjustment,
-    ManagementStrategy,
-    DrugDiseaseInteractionDetails,
-    PatientFriendlySummary,
-    DataAvailabilityInfo,
-    DrugDiseaseInteractionResult,
-)
+from drug_disease_interaction_models import DrugDiseaseInteractionResult
 
 logger = logging.getLogger(__name__)
 
@@ -118,13 +106,13 @@ Always prioritize patient safety while providing practical, evidence-based guida
         
         if config.condition_severity:
             context_parts.append(f"Condition severity: {config.condition_severity}")
-            logger.info(f"Condition severity: {config.condition_severity}")
+            logger.debug(f"Condition severity: {config.condition_severity}")
         if config.age is not None:
             context_parts.append(f"Patient age: {config.age} years")
-            logger.info(f"Patient age: {config.age}")
+            logger.debug(f"Patient age: {config.age}")
         if config.other_medications:
             context_parts.append(f"Other medications: {config.other_medications}")
-            logger.info(f"Other medications: {config.other_medications}")
+            logger.debug(f"Other medications: {config.other_medications}")
 
         context = ". ".join(context_parts) + "."
         base_query = f"Analyze the interaction between {config.medicine_name} and {config.condition_name}."
@@ -144,7 +132,7 @@ class DrugDiseaseInteraction:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, config: DrugDiseaseInput) -> tuple[DrugDiseaseInteractionResult, Path]:
+    def generate_text(self, config: DrugDiseaseInput, structured: bool = False) -> tuple[Union[DrugDiseaseInteractionResult, str], Path]:
         """
         Analyzes how a medical condition affects drug efficacy, safety, and metabolism.
 
@@ -156,32 +144,32 @@ class DrugDiseaseInteraction:
                 - DrugDiseaseInteractionResult: The analysis result
                 - Path: Path to the saved response file
         """
-        logger.info("-" * 80)
-        logger.info(f"Starting drug-disease interaction analysis")
-        logger.info(f"Medicine: {config.medicine_name}")
-        logger.info(f"Condition: {config.condition_name}")
+        logger.debug(f"Starting drug-disease interaction analysis")
+        logger.debug(f"Medicine: {config.medicine_name}")
+        logger.debug(f"Condition: {config.condition_name}")
 
         user_prompt = PromptBuilder.create_user_prompt(config)
+        response_format = None
+        if structured:
+            response_format = DrugDiseaseInteractionResult
+
         model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=user_prompt,
-            response_format=DrugDiseaseInteractionResult,
+            response_format=response_format,
         )
         result = self._ask_llm(model_input)
         
         # Save the response
         saved_path = self._save_interaction_result(result, config.medicine_name, config.condition_name)
         
-        logger.info(f"✓ Successfully analyzed disease interaction")
-        logger.info(f"Overall Severity: {result.interaction_details.overall_severity if result.interaction_details else 'N/A'}")
-        logger.info(f"Data Available: {result.data_availability.data_available}")
-        logger.info("-" * 80)
+        logger.debug(f"✓ Successfully analyzed disease interaction")
         return result, saved_path
 
 
-    def _ask_llm(self, model_input: ModelInput) -> DrugDiseaseInteractionResult:
+    def _ask_llm(self, model_input: ModelInput) -> Union[DrugDiseaseInteractionResult, str]:
         """Helper to call LiteClient with error handling."""
-        logger.info("Calling LiteClient...")
+        logger.debug("Calling LiteClient...")
         try:
             return self.client.generate_text(model_input=model_input)
         except Exception as e:
@@ -191,12 +179,12 @@ class DrugDiseaseInteraction:
             
     def _save_interaction_result(
         self, 
-        result: DrugDiseaseInteractionResult, 
+        result: Union[DrugDiseaseInteractionResult, str], 
         medicine_name: str, 
         condition_name: str
     ) -> Path:
         """
-        Save the interaction analysis result to a JSON file.
+        Save the interaction analysis result to a JSON or MD file.
         
         Args:
             result: The analysis result to save
@@ -206,9 +194,12 @@ class DrugDiseaseInteraction:
         Returns:
             Path: Path to the saved file
         """
-        output_file = f"{medicine_name.lower()}_{condition_name.lower().replace(' ', '_')}_interaction.json"
+        suffix = ".json"
+        if isinstance(result, str):
+            suffix = ".md"
+        output_file = f"{medicine_name.lower()}_{condition_name.lower().replace(' ', '_')}_interaction{suffix}"
         saved_path = save_model_response(result, output_file)
-        logger.info(f"Response saved to: {saved_path}")
+        logger.debug(f"Response saved to: {saved_path}")
         return saved_path
 
 
@@ -325,6 +316,12 @@ Examples:
         default=False,
         help="Output results as JSON to stdout (in addition to file)",
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     parser.add_argument(
         "--model",
@@ -367,8 +364,11 @@ def main() -> int:
 
         model_config = ModelConfig(model=args.model, temperature=0.7)
         analyzer = DrugDiseaseInteraction(model_config)
-        result, saved_path = analyzer.generate_text(config)
-        logger.info(f"Analysis completed. Results saved to: {saved_path}")
+        result, saved_path = analyzer.generate_text(config, structured=args.structured)
+        
+        print_result(result, title="Drug-Disease Interaction Analysis")
+
+        logger.debug(f"Analysis completed. Results saved to: {saved_path}")
         return 0
 
     except ValueError as e:
