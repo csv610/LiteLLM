@@ -6,9 +6,10 @@ anatomical information in a standardized format.
 """
 
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
-class AnatomyOverview(BaseModel):
+class AnatomyOverviewModel(BaseModel):
     """Basic information about the anatomical structure."""
     structure_name: str = Field(description="Official anatomical name of the structure")
     common_names: str = Field(description="Common or alternative names, comma-separated")
@@ -18,7 +19,7 @@ class AnatomyOverview(BaseModel):
     prevalence_variation: str = Field(description="How common this structure is (universal, variable, or rare)")
 
 
-class AnatomicalPosition(BaseModel):
+class AnatomicalPositionModel(BaseModel):
     """Location and orientation of the structure."""
     anatomical_location: str = Field(description="Specific location in the body")
     body_regions: str = Field(description="Body regions or quadrants, comma-separated")
@@ -28,7 +29,7 @@ class AnatomicalPosition(BaseModel):
     relationships_to_other_structures: str = Field(description="How this structure relates to nearby structures, comma-separated")
 
 
-class GrossMorphology(BaseModel):
+class GrossMorphologyModel(BaseModel):
     """Structural form and external appearance."""
     shape_description: str = Field(description="Overall shape and form of the structure")
     dimensions: str = Field(description="Typical size measurements (length, width, diameter, volume)")
@@ -38,7 +39,7 @@ class GrossMorphology(BaseModel):
     borders_and_margins: str = Field(description="Description of borders and anatomical margins")
 
 
-class MicroscopicStructure(BaseModel):
+class MicroscopicStructureModel(BaseModel):
     """Histological and cellular composition."""
     tissue_type: str = Field(description="Primary tissue types present, comma-separated")
     cellular_components: str = Field(description="Types of cells found in structure, comma-separated")
@@ -47,7 +48,7 @@ class MicroscopicStructure(BaseModel):
     staining_characteristics: str = Field(description="Appearance under different histological stains")
 
 
-class AnatomicalFunction(BaseModel):
+class AnatomicalFunctionModel(BaseModel):
     """Functions and roles of the structure."""
     primary_functions: str = Field(description="Main functions of this structure, comma-separated")
     secondary_functions: str = Field(description="Secondary or supporting functions, comma-separated")
@@ -56,7 +57,7 @@ class AnatomicalFunction(BaseModel):
     functional_significance: str = Field(description="Clinical importance of this structure's function")
 
 
-class VascularInnervation(BaseModel):
+class VascularInnervationModel(BaseModel):
     """Blood supply and nerve supply."""
     arterial_supply: str = Field(description="Major arteries supplying this structure")
     venous_drainage: str = Field(description="Major veins draining this structure")
@@ -66,7 +67,7 @@ class VascularInnervation(BaseModel):
     dermatome_or_myotome: str = Field(description="Associated dermatome or myotome if applicable")
 
 
-class VariationsAndAnomalies(BaseModel):
+class VariationsAndAnomaliesModel(BaseModel):
     """Normal variations and developmental anomalies."""
     anatomical_variations: str = Field(description="Normal anatomical variations, comma-separated")
     variation_frequency: str = Field(description="How common variations are in population")
@@ -76,7 +77,7 @@ class VariationsAndAnomalies(BaseModel):
     ethnic_or_genetic_variants: str = Field(description="Variations across populations if applicable")
 
 
-class ClinicalSignificance(BaseModel):
+class ClinicalSignificanceModel(BaseModel):
     """Medical and clinical relevance."""
     clinical_importance: str = Field(description="Why this structure is clinically important")
     common_pathologies: str = Field(description="Common diseases affecting this structure, comma-separated")
@@ -86,7 +87,7 @@ class ClinicalSignificance(BaseModel):
     surgical_considerations: str = Field(description="Important considerations during surgery or procedures")
 
 
-class ImagingCharacteristics(BaseModel):
+class ImagingCharacteristicsModel(BaseModel):
     """How structure appears on imaging studies."""
     radiographic_appearance: str = Field(description="Appearance on X-ray")
     ultrasound_appearance: str = Field(description="Appearance on ultrasound")
@@ -96,7 +97,7 @@ class ImagingCharacteristics(BaseModel):
     radiodensity_or_signal: str = Field(description="Radiodensity, signal intensity, or echogenicity")
 
 
-class DevelopmentalAnatomy(BaseModel):
+class DevelopmentalAnatomyModel(BaseModel):
     """Growth and development of the structure."""
     embryological_development: str = Field(description="How structure develops embryologically")
     fetal_development: str = Field(description="Development stages during fetal period")
@@ -105,7 +106,7 @@ class DevelopmentalAnatomy(BaseModel):
     growth_patterns: str = Field(description="Growth patterns or growth spurts if applicable")
 
 
-class AnatomicalLandmarksAndApproaches(BaseModel):
+class AnatomicalLandmarksAndApproachesModel(BaseModel):
     """Clinical landmarks and surgical approaches."""
     surface_landmarks: str = Field(description="Palpable landmarks for identification")
     surface_anatomy_techniques: str = Field(description="Techniques for identifying structure clinically")
@@ -114,14 +115,14 @@ class AnatomicalLandmarksAndApproaches(BaseModel):
     risk_structures: str = Field(description="Nearby structures at risk during surgical access, comma-separated")
 
 
-class SeeAlso(BaseModel):
+class SeeAlsoModel(BaseModel):
     """Cross-references to related anatomical structures."""
     related_structures: str = Field(description="Related anatomical structures, comma-separated")
     connection_types: str = Field(description="Types of connections (adjacent, continuous, functionally related, innervated by, supplied by, etc), comma-separated")
     reason: str = Field(description="Brief explanation of how these structures relate to main structure")
 
 
-class AnatomyMetadata(BaseModel):
+class AnatomyMetadataModel(BaseModel):
     """Metadata and information structure."""
     last_updated: str = Field(description="When this information was last reviewed")
     information_sources: str = Field(description="Primary sources of information (anatomical textbooks, databases), comma-separated")
@@ -129,35 +130,40 @@ class AnatomyMetadata(BaseModel):
     complexity_level: str = Field(description="Complexity of topic (basic, intermediate, advanced)")
 
 
-class MedicalAnatomy(BaseModel):
+class MedicalAnatomyModel(BaseModel):
     """
     Comprehensive anatomical structure information.
     """
     # Basic identification
-    overview: AnatomyOverview
+    overview: AnatomyOverviewModel
 
     # Location and positioning
-    anatomical_position: AnatomicalPosition
+    anatomical_position: AnatomicalPositionModel
 
     # Structure and form
-    gross_morphology: GrossMorphology
-    microscopic_structure: MicroscopicStructure
+    gross_morphology: GrossMorphologyModel
+    microscopic_structure: MicroscopicStructureModel
 
     # Function and relationships
-    anatomical_function: AnatomicalFunction
-    vascular_innervation: VascularInnervation
+    anatomical_function: AnatomicalFunctionModel
+    vascular_innervation: VascularInnervationModel
 
     # Variations and development
-    variations_and_anomalies: VariationsAndAnomalies
-    developmental_anatomy: DevelopmentalAnatomy
+    variations_and_anomalies: VariationsAndAnomaliesModel
+    developmental_anatomy: DevelopmentalAnatomyModel
 
     # Clinical aspects
-    clinical_significance: ClinicalSignificance
-    imaging_characteristics: ImagingCharacteristics
-    anatomical_landmarks_and_approaches: AnatomicalLandmarksAndApproaches
+    clinical_significance: ClinicalSignificanceModel
+    imaging_characteristics: ImagingCharacteristicsModel
+    anatomical_landmarks_and_approaches: AnatomicalLandmarksAndApproachesModel
 
     # Cross-references
-    see_also: SeeAlso
+    see_also: SeeAlsoModel
 
     # Metadata
-    metadata: AnatomyMetadata
+    metadata: AnatomyMetadataModel
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalAnatomyModel] = None
+    markdown: Optional[str] = None

@@ -17,9 +17,10 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from medical_anatomy_models import MedicalAnatomy
+#from utils.output_formatter import print_result
+
+from medical_anatomy_models import MedicalAnatomyModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ class MedicalAnatomyGenerator:
         self.client = LiteClient(model_config)
         logger.debug(f"Initialized MedicalAnatomyGenerator")
 
-    def generate_text(self, structure: str, structured: bool = False) -> Union[MedicalAnatomy, str]:
+    def generate_text(self, structure: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive anatomical information."""
         if not structure or not str(structure).strip():
             raise ValueError("Structure name cannot be empty")
@@ -88,7 +89,7 @@ class MedicalAnatomyGenerator:
 
         response_format = None
         if structured:
-            response_format = MedicalAnatomy
+            response_format = MedicalAnatomyModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -104,11 +105,11 @@ class MedicalAnatomyGenerator:
             logger.error(f"✗ Error generating anatomical information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[MedicalAnatomy, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: Union[MedicalAnatomy, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the anatomical information to a JSON or MD file."""
         if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
@@ -127,9 +128,9 @@ Examples:
         """
     )
     parser.add_argument(
-        "-i", "--structure",
+        "-i", "--body_part",
         required=True,
-        help="The name of the anatomical structure to generate information for."
+        help="The name of the anatomical part  to generate information for."
     )
     parser.add_argument(
         "-o", "--output",
@@ -185,35 +186,31 @@ def app_cli() -> int:
 
     # Generate anatomical information
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalAnatomyGenerator(model_config)
-        anatomy_info = generator.generate_text(structure=args.structure, structured=args.structured)
+        anatomy_info = generator.generate_text(structure=args.body_part, structured=args.structured)
 
         if anatomy_info is None:
             logger.error("✗ Failed to generate anatomical information.")
             sys.exit(1)
 
-        print_result(anatomy_info, title="Anatomical Information")
+#       print_result(anatomy_info, title="Anatomical Information")
 
         # Save if output path is specified
         if args.output:
             generator.save(anatomy_info, Path(args.output))
         else:
             # Save to default location
-            default_path = output_dir / f"{args.structure.lower().replace(' ', '_')}_anatomy.json"
+            default_path = output_dir / f"{args.body_part.lower().replace(' ', '_')}.json"
             generator.save(anatomy_info, default_path)
 
         logger.debug("✓ Anatomical information generation completed successfully")
-        return 0
+        return 
     except Exception as e:
         logger.error(f"✗ Anatomical information generation failed: {e}")
         logger.exception("Full exception details:")
         sys.exit(1)
 
 
-# ==============================================================================
-# ENTRY POINT
-# ==============================================================================
-
 if __name__ == "__main__":
-    sys.exit(app_cli())
+    app_cli()
