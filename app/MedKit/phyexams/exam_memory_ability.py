@@ -12,6 +12,9 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.utils import save_model_response
+
 # Fix import path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.pydantic_prompt_generator import PromptStyle
@@ -390,8 +393,7 @@ def create_memory_assessment_from_responses(patient_name: str, responses: dict, 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save assessment as JSON
-    with open(output_path, 'w') as f:
-        json.dump(assessment_data, f, indent=2)
+    save_model_response(assessment, output_path)
 
     print(f"\n✓ Assessment saved to: {output_path}")
 

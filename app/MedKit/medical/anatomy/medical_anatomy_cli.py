@@ -10,15 +10,14 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
-
-from rich.console import Console
-from rich.panel import Panel
+from typing import Optional, final, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from medical_anatomy_models import MedicalAnatomy
 
@@ -73,75 +72,47 @@ class MedicalAnatomyGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
-        logger.info(f"Initialized MedicalAnatomyGenerator")
+        logger.debug(f"Initialized MedicalAnatomyGenerator")
 
-    def generate_text(self, structure: str) -> MedicalAnatomy:
+    def generate_text(self, structure: str, structured: bool = False) -> Union[MedicalAnatomy, str]:
         """Generates comprehensive anatomical information."""
         if not structure or not str(structure).strip():
             raise ValueError("Structure name cannot be empty")
 
-        logger.info(f"Starting anatomical information generation for: {structure}")
+        logger.debug(f"Starting anatomical information generation for: {structure}")
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(structure)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 
+        response_format = None
+        if structured:
+            response_format = MedicalAnatomy
+
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=MedicalAnatomy,
+            response_format=response_format,
         )
 
         logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.ask_llm(model_input)
-            logger.info("✓ Successfully generated anatomical information")
             return result
         except Exception as e:
             logger.error(f"✗ Error generating anatomical information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> MedicalAnatomy:
+    def ask_llm(self, model_input: ModelInput) -> Union[MedicalAnatomy, str]:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, anatomy_info: MedicalAnatomy, output_path: Path) -> Path:
-        """Saves the anatomical information to a JSON file."""
-        try:
-            logger.info(f"Saving anatomical information to: {output_path}")
-            with open(output_path, "w") as f:
-                json.dump(anatomy_info.model_dump(), f, indent=2, default=str)
-            logger.info(f"✓ Successfully saved anatomical information to {output_path}")
-            return output_path
-        except (OSError, IOError) as e:
-            logger.error(f"✗ Error saving anatomical information to {output_path}: {e}")
-            raise
-
-def print_result(result: MedicalAnatomy) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-
-    # Extract main fields from the result model
-    result_dict = result.model_dump()
-
-    # Create a formatted panel showing the result
-    # Use semantic formatting: green for success/positive, yellow for warnings, blue for info
-    # Display the data in organized sections
-
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
-
+    def save(self, result: Union[MedicalAnatomy, str], output_path: Path) -> Path:
+        """Saves the anatomical information to a JSON or MD file."""
+        if isinstance(result, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
+        return save_model_response(result, output_path)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -181,6 +152,12 @@ Examples:
         choices=[0, 1, 2, 3, 4],
         help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     return parser.parse_args()
 
@@ -196,15 +173,11 @@ def app_cli() -> int:
         enable_console=True
     )
 
-    logger.info("="*80)
-    logger.info("MEDICAL ANATOMY CLI - Starting")
-    logger.info("="*80)
-
-    logger.info(f"CLI Arguments:")
-    logger.info(f"  Structure: {args.structure}")
-    logger.info(f"  Output Dir: {args.output_dir}")
-    logger.info(f"  Output File: {args.output if args.output else 'Default'}")
-    logger.info(f"  Verbosity: {args.verbosity}")
+    logger.debug(f"CLI Arguments:")
+    logger.debug(f"  Structure: {args.structure}")
+    logger.debug(f"  Output Dir: {args.output_dir}")
+    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
+    logger.debug(f"  Verbosity: {args.verbosity}")
 
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
@@ -214,14 +187,13 @@ def app_cli() -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = MedicalAnatomyGenerator(model_config)
-        anatomy_info = generator.generate_text(structure=args.structure)
+        anatomy_info = generator.generate_text(structure=args.structure, structured=args.structured)
 
         if anatomy_info is None:
             logger.error("✗ Failed to generate anatomical information.")
             sys.exit(1)
 
-        # Display formatted result
-        print_result(anatomy_info)
+        print_result(anatomy_info, title="Anatomical Information")
 
         # Save if output path is specified
         if args.output:
@@ -231,15 +203,11 @@ def app_cli() -> int:
             default_path = output_dir / f"{args.structure.lower().replace(' ', '_')}_anatomy.json"
             generator.save(anatomy_info, default_path)
 
-        logger.info("="*80)
-        logger.info("✓ Anatomical information generation completed successfully")
-        logger.info("="*80)
+        logger.debug("✓ Anatomical information generation completed successfully")
         return 0
     except Exception as e:
-        logger.error("="*80)
         logger.error(f"✗ Anatomical information generation failed: {e}")
         logger.exception("Full exception details:")
-        logger.error("="*80)
         sys.exit(1)
 
 

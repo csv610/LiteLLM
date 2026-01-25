@@ -9,6 +9,8 @@ from typing import List, Optional
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from medical_physical_exams_questions_models import ExamQuestions
 
@@ -93,34 +95,7 @@ Create detailed, clinically-relevant questions organized by technique:
 
 Ensure all questions are clinically appropriate, clear, and age/gender sensitive."""
 
-    def print_result(self, result: ExamQuestions) -> None:
-        """Print a summary of the generated questions using rich."""
-        from rich.console import Console
-        from rich.panel import Panel
-        from rich.table import Table
 
-        console = Console()
-        console.print(Panel(f"[bold]Exam Type:[/bold] {result.exam_type}\n[bold]Patient:[/bold] {result.age}y {result.gender}", title="Physical Exam Question Set", border_style="green"))
-
-        table = Table(title="Question Distribution")
-        table.add_column("Category", style="cyan")
-        table.add_column("Count", justify="right", style="magenta")
-
-        categories = {
-            "Inspection": result.inspection_questions,
-            "Palpation": result.palpation_questions,
-            "Percussion": result.percussion_questions,
-            "Auscultation": result.auscultation_questions,
-            "Verbal": result.verbal_assessment_questions,
-            "Med History": result.medical_history_questions,
-            "Lifestyle": result.lifestyle_questions,
-            "Family History": result.family_history_questions,
-        }
-
-        for cat, questions in categories.items():
-            table.add_row(cat, str(len(questions)))
-
-        console.print(table)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate comprehensive physical examination questions.")
@@ -138,13 +113,11 @@ def main():
         print(f"Generating physical exam questions...")
         result = generator.generate_text(exam_type=args.exam, age=args.age, gender=args.gender)
         
-        generator.print_result(result)
+        print_result(result, title="Medical Physical Exam Questions")
         
         if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                json.dump(result.model_dump(), f, indent=2)
-            print(f"✓ Results saved to {args.output}")
+            save_model_response(result, args.output)
+            print(f"✓ Questions saved to {args.output}")
 
     except Exception as e:
         print(f"✗ Error: {e}")

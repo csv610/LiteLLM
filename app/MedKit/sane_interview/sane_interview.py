@@ -3,6 +3,11 @@ from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.utils import save_model_response
+
 
 class YesNoUnsure(str, Enum):
     YES = "yes"
@@ -669,8 +674,7 @@ class SANEInterviewChatbot:
     
     def save_interview(self, filename: str = "interview_record.json"):
         """Save interview to JSON file"""
-        with open(filename, 'w') as f:
-            f.write(self.interview.model_dump_json(indent=2))
+        save_model_response(self.interview, filename)
         print(f"\n💾 Interview saved to {filename}")
 
 

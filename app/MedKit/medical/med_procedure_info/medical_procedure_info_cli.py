@@ -4,11 +4,13 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from medical_procedure_info_models import ProcedureInfo
 
@@ -35,59 +37,37 @@ class MedicalProcedureInfoGenerator:
         self.client = LiteClient(model_config=model_config)
         self.procedure_name: Optional[str] = None
 
-    def generate_text(self, procedure: str) -> ProcedureInfo:
+    def generate_text(self, procedure: str, structured: bool = False) -> Union[ProcedureInfo, str]:
         """Generate and retrieve comprehensive medical procedure information."""
         if not procedure or not procedure.strip():
             raise ValueError("Procedure name cannot be empty")
 
         self.procedure_name = procedure
 
+        response_format = None
+        if structured:
+            response_format = ProcedureInfo
+
         model_input = ModelInput(
             user_prompt=PromptBuilder.create_user_prompt(procedure),
-            response_format=ProcedureInfo,
+            response_format=response_format,
             system_prompt=PromptBuilder.create_system_prompt()
         )
 
         result = self._ask_llm(model_input)
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> ProcedureInfo:
+    def _ask_llm(self, model_input: ModelInput) -> Union[ProcedureInfo, str]:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
 
-    def print_result(self, info: ProcedureInfo) -> None:
-        """Print a summary of the generated procedure information using rich."""
-        from rich.console import Console
-        from rich.panel import Panel
-        from rich.table import Table
-        
-        console = Console()
-        console.print(Panel(
-            f"[bold]Procedure:[/bold] {info.metadata.procedure_name}\n"
-            f"[bold]Category:[/bold] {info.metadata.procedure_category}\n"
-            f"[bold]Specialty:[/bold] {info.metadata.medical_specialty}\n\n"
-            f"[bold]Purpose:[/bold] {info.purpose.primary_purpose}",
-            title="Medical Procedure Documentation",
-            border_style="blue"
-        ))
-
-        table = Table(title="Procedure Highlights")
-        table.add_column("Section", style="cyan")
-        table.add_column("Key Information", style="white")
-
-        table.add_row("Indications", info.indications.when_recommended[:100] + "...")
-        table.add_row("Preparation", info.preparation.fasting_required)
-        table.add_row("Anesthesia", info.details.anesthesia_type)
-        table.add_row("Recovery", info.recovery.recovery_timeline)
-        table.add_row("Success Rate", info.outcomes.success_rate)
-        
-        console.print(table)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate comprehensive information for a medical procedure.")
     parser.add_argument("-i", "--procedure", required=True, help="Name of the medical procedure")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
     parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     args = parser.parse_args()
 
@@ -95,15 +75,16 @@ def main():
         model_config = ModelConfig(model=args.model, temperature=0.3)
         generator = MedicalProcedureInfoGenerator(model_config=model_config)
         print(f"Generating procedure documentation for: {args.procedure}...")
-        result = generator.generate_text(procedure=args.procedure)
+        result = generator.generate_text(procedure=args.procedure, structured=args.structured)
         
-        generator.print_result(result)
+        print_result(result, title="Medical Procedure Documentation")
         
         if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                json.dump(result.model_dump(), f, indent=2)
-            print(f"✓ Results saved to {args.output}")
+            output_path = args.output
+            if isinstance(result, str) and output_path.suffix == ".json":
+                output_path = output_path.with_suffix(".md")
+            save_model_response(result, output_path)
+            print(f"✓ Results saved to {output_path}")
 
     except Exception as e:
         print(f"✗ Error: {e}")

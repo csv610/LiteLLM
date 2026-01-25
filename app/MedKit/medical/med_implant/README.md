@@ -142,7 +142,6 @@ Modify the `temperature` parameter in `app_cli()` to adjust response diversity:
 - `save(implant_info: ImplantInfo, output_path: Path) -> Path`: Persistent storage
 
 **Helper Functions**
-- `print_result(result: ImplantInfo)`: Formats and displays results
 - `get_user_arguments() -> argparse.Namespace`: CLI argument parsing
 - `app_cli() -> int`: Main CLI entry point
 

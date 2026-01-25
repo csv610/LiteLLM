@@ -132,7 +132,6 @@ Logs are written to `medical_faq.log` in the current working directory with the 
 
 - **CLI Functions**:
   - `get_user_arguments()`: Parses command-line arguments
-  - `print_result()`: Formats and displays FAQ content using Rich
   - `app_cli()`: Main entry point orchestrating the workflow
 
 ## Error Handling

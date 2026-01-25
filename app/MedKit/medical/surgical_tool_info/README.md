@@ -101,7 +101,6 @@ python surgical_tool_info_cli.py -i "tissue clamp" -d /path/to/outputs
 - `create_user_prompt(tool)`: Creates structured queries requesting specific information categories
 
 **Output Functions**
-- `print_result()`: Formats and displays results to console in organized panels
 - `save()`: Exports results to JSON files with proper directory creation
 
 **CLI Entry Point**

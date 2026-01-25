@@ -4,11 +4,13 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from medical_speciality_models import MedicalSpecialistDatabase
 
@@ -47,54 +49,31 @@ class MedicalSpecialityGenerator:
         """Initialize the generator."""
         self.client = LiteClient(model_config=model_config)
 
-    def generate_text(self) -> MedicalSpecialistDatabase:
+    def generate_text(self, structured: bool = False) -> Union[MedicalSpecialistDatabase, str]:
         """Generate a comprehensive medical specialists database."""
+        response_format = None
+        if structured:
+            response_format = MedicalSpecialistDatabase
+
         model_input = ModelInput(
             user_prompt=PromptBuilder.create_user_prompt(),
-            response_format=MedicalSpecialistDatabase,
+            response_format=response_format,
             system_prompt=PromptBuilder.create_system_prompt()
         )
 
         result = self._ask_llm(model_input)
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> MedicalSpecialistDatabase:
+    def _ask_llm(self, model_input: ModelInput) -> Union[MedicalSpecialistDatabase, str]:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
 
-    def print_result(self, database: MedicalSpecialistDatabase) -> None:
-        """Print a summary of the generated database using rich."""
-        from rich.console import Console
-        from rich.panel import Panel
-        from rich.table import Table
-        
-        console = Console()
-        console.print(Panel(
-            f"[bold]Total Specialists:[/bold] {len(database.specialists)}\n"
-            f"[bold]Categories:[/bold] {len(database.get_all_categories())}\n"
-            f"[bold]Surgical Fields:[/bold] {len(database.get_surgical_specialists())}",
-            title="Medical Speciality Database Summary",
-            border_style="green"
-        ))
-
-        table = Table(title="Specialty Categories")
-        table.add_column("Category", style="cyan")
-        table.add_column("Count", justify="right", style="magenta")
-
-        categories = {}
-        for s in database.specialists:
-            cat_name = s.category.name
-            categories[cat_name] = categories.get(cat_name, 0) + 1
-
-        for cat, count in categories.items():
-            table.add_row(cat, str(count))
-
-        console.print(table)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate comprehensive medical specialist database")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
     parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     args = parser.parse_args()
 
@@ -102,15 +81,16 @@ def main():
         model_config = ModelConfig(model=args.model, temperature=0.3)
         generator = MedicalSpecialityGenerator(model_config=model_config)
         print("Generating medical specialist database...")
-        result = generator.generate_text()
+        result = generator.generate_text(structured=args.structured)
         
-        generator.print_result(result)
+        print_result(result, title="Medical Speciality Database")
         
         if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                json.dump(result.model_dump(), f, indent=2)
-            print(f"✓ Database saved to {args.output}")
+            output_path = args.output
+            if isinstance(result, str) and output_path.suffix == ".json":
+                output_path = output_path.with_suffix(".md")
+            save_model_response(result, output_path)
+            print(f"✓ Database saved to {output_path}")
 
     except Exception as e:
         print(f"✗ Error: {e}")

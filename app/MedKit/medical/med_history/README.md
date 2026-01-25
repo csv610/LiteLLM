@@ -113,7 +113,6 @@ medical_history_input = MedicalHistoryInput(
 result = generator.generate_text(medical_history_input)
 
 # Print formatted output
-generator.print_result(result)
 
 # Access specific question categories
 past_medical = result.past_medical_history

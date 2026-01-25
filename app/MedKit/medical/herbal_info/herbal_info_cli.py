@@ -3,14 +3,14 @@ import json
 import logging
 import sys
 from pathlib import Path
-
-from rich.console import Console
-from rich.panel import Panel
+from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from herbal_info_models import HerbalInfo
 
@@ -43,85 +43,50 @@ class HerbalInfoGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
-        logger.info(f"Initialized HerbalInfoGenerator")
+        logger.debug(f"Initialized HerbalInfoGenerator")
 
-    def generate_text(self, herb: str) -> HerbalInfo:
+    def generate_text(self, herb: str, structured: bool = False) -> Union[HerbalInfo, str]:
         """Generates comprehensive herbal information."""
         # Validate inputs
         if not herb or not str(herb).strip():
             raise ValueError("Herb name cannot be empty")
 
-        logger.info(f"Starting herbal information generation for: {herb}")
+        logger.debug(f"Starting herbal information generation for: {herb}")
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(herb)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 
+        response_format = None
+        if structured:
+            response_format = HerbalInfo
+
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=HerbalInfo,
+            response_format=response_format,
         )
 
         logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.ask_llm(model_input)
-            logger.info("✓ Successfully generated herbal information")
-            if hasattr(result, 'metadata') and hasattr(result.metadata, 'common_name'):
-                logger.info(f"Herb: {result.metadata.common_name}")
+            if isinstance(result, HerbalInfo):
+                logger.debug(f"Herb: {result.metadata.common_name}")
             return result
         except Exception as e:
             logger.error(f"✗ Error generating herbal information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> HerbalInfo:
+    def ask_llm(self, model_input: ModelInput) -> Union[HerbalInfo, str]:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, herbal_info: HerbalInfo, output_path: Path) -> Path:
-        """
-        Saves the herbal information to a JSON file.
-
-        Args:
-            herbal_info: The HerbalInfo object to save
-            output_path: Path where the JSON file should be saved
-        """
-        try:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Saving herbal information to: {output_path}")
-            with open(output_path, "w") as f:
-                json.dump(herbal_info.model_dump(), f, indent=2, default=str)
-            logger.info(f"✓ Successfully saved herbal information to {output_path}")
-            return output_path
-        except (OSError, IOError) as e:
-            logger.error(f"✗ Error saving herbal information to {output_path}: {e}")
-            raise
-
-def print_result(result: HerbalInfo) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-
-    # Extract main fields from the result model
-    result_dict = result.model_dump()
-
-    # Create a formatted panel showing the result
-    # Use semantic formatting: green for success/positive, yellow for warnings, blue for info
-    # Display the data in organized sections
-
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
-
+    def save(self, herbal_info: Union[HerbalInfo, str], output_path: Path) -> Path:
+        """Saves the herbal information to a JSON or MD file."""
+        if isinstance(herbal_info, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
+        return save_model_response(herbal_info, output_path)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -161,6 +126,12 @@ Examples:
         choices=[0, 1, 2, 3, 4],
         help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     return parser.parse_args()
 
@@ -176,15 +147,11 @@ def app_cli() -> int:
         enable_console=True
     )
 
-    logger.info("="*80)
-    logger.info("HERBAL INFO CLI - Starting")
-    logger.info("="*80)
-
-    logger.info(f"CLI Arguments:")
-    logger.info(f"  Herb: {args.herb}")
-    logger.info(f"  Output Dir: {args.output_dir}")
-    logger.info(f"  Output File: {args.output if args.output else 'Default'}")
-    logger.info(f"  Verbosity: {args.verbosity}")
+    logger.debug(f"CLI Arguments:")
+    logger.debug(f"  Herb: {args.herb}")
+    logger.debug(f"  Output Dir: {args.output_dir}")
+    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
+    logger.debug(f"  Verbosity: {args.verbosity}")
 
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
@@ -194,14 +161,13 @@ def app_cli() -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = HerbalInfoGenerator(model_config)
-        herbal_info = generator.generate_text(herb=args.herb)
+        herbal_info = generator.generate_text(herb=args.herb, structured=args.structured)
 
         if herbal_info is None:
             logger.error("✗ Failed to generate herbal information.")
             sys.exit(1)
 
-        # Display formatted result
-        print_result(herbal_info)
+        print_result(herbal_info, title="Herbal Information")
 
         # Save if output path is specified
         if args.output:
@@ -211,15 +177,11 @@ def app_cli() -> int:
             default_path = output_dir / f"{args.herb.lower().replace(' ', '_')}_info.json"
             generator.save(herbal_info, default_path)
 
-        logger.info("="*80)
-        logger.info("✓ Herbal information generation completed successfully")
-        logger.info("="*80)
+        logger.debug("✓ Herbal information generation completed successfully")
         return 0
     except Exception as e:
-        logger.error("="*80)
         logger.error(f"✗ Herbal information generation failed: {e}")
         logger.exception("Full exception details:")
-        logger.error("="*80)
         sys.exit(1)
 
 

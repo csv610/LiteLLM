@@ -1,30 +1,6 @@
 from typing import List, Dict, Optional
 
-from .mental_health_assessment_models import (
-    PHQ9Assessment,
-    GAD7Assessment,
-    MoodSymptoms,
-    AnxietySymptoms,
-    CognitiveSymptoms,
-    PhysicalSymptoms,
-    TraumaSymptoms,
-    PsychoticSymptoms,
-    SubstanceUseIndicators,
-    RiskAssessment,
-    MentalHealthHistory,
-    SocialFunctioning,
-    MentalHealthCondition,
-    TreatmentRecommendation,
-    MentalHealthAssessment,
-)
 
-try:
-    from .models import ChatMessage, ChatSession, PrivacyConsent, AuditLog
-except ImportError:
-    try:
-        from medkit.mental_health.models import ChatMessage, ChatSession, PrivacyConsent, AuditLog
-    except ImportError:
-        from models import ChatMessage, ChatSession, PrivacyConsent, AuditLog
 
 # ==================== Red Flag Detection ====================
 

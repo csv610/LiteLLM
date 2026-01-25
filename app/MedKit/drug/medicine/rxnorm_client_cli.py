@@ -53,28 +53,7 @@ CLI USAGE:
 import requests
 import sys
 from typing import Optional, Dict, Any
-from rich.console import Console
-from rich.panel import Panel
 
-
-def print_result(result: Any, verbose: bool = False) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-
-    if result is None:
-        return
-
-    # Handle dictionary results
-    if isinstance(result, dict):
-        formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in result.items()])
-    else:
-        formatted_text = str(result)
-
-    console.print(Panel(
-        formatted_text,
-        title="Result",
-        border_style="cyan",
-    ))
 
 
 class RxNormError(Exception):
@@ -296,7 +275,7 @@ class RxNormClient:
 # ----------------------------------------------------------------------
 # CLI function
 # ----------------------------------------------------------------------
-def cli():
+def main():
     """
     Command-line interface for RxNorm client.
 
@@ -305,21 +284,27 @@ def cli():
 
     Arguments:
         drug_name: Name of the drug to look up in RxNorm
-
-    Examples:
-        python rxnorm_client.py aspirin
-        python rxnorm_client.py "metformin 500mg"
-
-    Outputs:
-        - Drug validity status
-        - RxCUI identifier if found
-        - Drug properties (name, synonyms, strength, etc.)
     """
-    drug_name = sys.argv[1]
+    import argparse
+    import json
+    parser = argparse.ArgumentParser(description="RxNorm Drug Database Client")
+    parser.add_argument("drug_name", help="Name of the drug to look up")
+    parser.add_argument("--json-output", "-j", action="store_true", help="Output results as JSON")
+    args = parser.parse_args()
+
+    drug_name = args.drug_name
 
     with RxNormClient() as client:
-        print(f"🔍 Checking '{drug_name}' in RxNorm...")
+        if args.json_output:
+            if client.check_valid_drug(drug_name):
+                identifier = client.get_identifier(drug_name)
+                props = client.get_properties(identifier)
+                print(json.dumps(props, indent=2))
+            else:
+                print(json.dumps({"error": f"Drug '{drug_name}' not found"}, indent=2))
+            return
 
+        print(f"🔍 Checking '{drug_name}' in RxNorm...")
         if client.check_valid_drug(drug_name):
             identifier = client.get_identifier(drug_name)
             print(f"✅ {drug_name} is valid. Identifier (RxCUI) = {identifier}")
@@ -331,5 +316,4 @@ def cli():
 
 
 if __name__ == "__main__":
-    sys.exit(cli() or 0)
 

@@ -93,7 +93,6 @@ python herbal_info_cli.py -i "St. John's Wort" -v 4
 - `build_user_prompt(herb)`: Creates the specific query for a given herb
 
 **Output**
-- `print_result()`: Formats and displays results to console
 - `save()`: Exports results to JSON files
 
 ## Output Format

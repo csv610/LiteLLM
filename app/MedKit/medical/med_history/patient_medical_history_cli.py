@@ -4,46 +4,39 @@ import json
 import sys
 import argparse
 from pathlib import Path
+from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from patient_medical_history_models import PatientMedicalHistoryQuestions, HistoryPurpose, MedicalHistoryInput
 
-class PatientMedicalHistoryGenerator:
-    """Generates patient medical history questions using LiteClient."""
 
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the generator."""
-        self.client = LiteClient(model_config=model_config)
+class PromptBuilder:
+    """Builder class for creating prompts for patient medical history questions."""
 
-    def generate_text(self, medical_history_input: MedicalHistoryInput) -> PatientMedicalHistoryQuestions:
-        """Generate patient medical history questions."""
-        self._validate_inputs(medical_history_input)
+    @staticmethod
+    def create_system_prompt() -> str:
+        """Create the system prompt for medical history question generation.
+        
+        Returns:
+            str: System prompt defining the AI's role and guidelines
+        """
+        return "You are an expert medical documentation specialist. Generate trauma-informed, clinically relevant medical history questions."
 
-        model_input = ModelInput(
-            user_prompt=self._create_prompt(medical_history_input),
-            response_format=PatientMedicalHistoryQuestions,
-            system_prompt="You are an expert medical documentation specialist. Generate trauma-informed, clinically relevant medical history questions."
-        )
-
-        result = self._ask_llm(model_input)
-
-        # Ensure input params are mirrored in result
-        result.purpose = medical_history_input.purpose
-        result.exam = medical_history_input.exam
-        result.age = medical_history_input.age
-        result.gender = medical_history_input.gender
-
-        return result
-
-    def _ask_llm(self, model_input: ModelInput) -> PatientMedicalHistoryQuestions:
-        """Internal helper to call the LLM client."""
-        return self.client.generate_text(model_input=model_input)
-
-    def _create_prompt(self, medical_history_input: MedicalHistoryInput) -> str:
-        """Generate the prompt for history questions."""
+    @staticmethod
+    def create_user_prompt(medical_history_input: MedicalHistoryInput) -> str:
+        """Create the user prompt for medical history question generation.
+        
+        Args:
+            medical_history_input: Input parameters for medical history generation
+            
+        Returns:
+            str: Formatted user prompt
+        """
         return f"""Generate comprehensive medical history questions for a {medical_history_input.age}-year-old {medical_history_input.gender} patient undergoing a {medical_history_input.exam} exam for the purpose of {medical_history_input.purpose}.
 
 The questions should be:
@@ -57,6 +50,44 @@ The questions should be:
 
 Provide follow-up questions for positive responses to key clinical indicators."""
 
+
+class PatientMedicalHistoryGenerator:
+    """Generates patient medical history questions using LiteClient."""
+
+    def __init__(self, model_config: ModelConfig):
+        """Initialize the generator."""
+        self.client = LiteClient(model_config=model_config)
+
+    def generate_text(self, medical_history_input: MedicalHistoryInput, structured: bool = False) -> Union[PatientMedicalHistoryQuestions, str]:
+        """Generate patient medical history questions."""
+        self._validate_inputs(medical_history_input)
+
+        response_format = None
+        if structured:
+            response_format = PatientMedicalHistoryQuestions
+
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=PromptBuilder.create_user_prompt(medical_history_input),
+            response_format=response_format,
+        )
+
+        result = self._ask_llm(model_input)
+
+        # Ensure input params are mirrored in result
+        result.purpose = medical_history_input.purpose
+        result.exam = medical_history_input.exam
+        result.age = medical_history_input.age
+        result.gender = medical_history_input.gender
+
+        return result
+
+    def _ask_llm(self, model_input: ModelInput) -> Union[PatientMedicalHistoryQuestions, str]:
+        """Internal helper to call the LLM client."""
+        return self.client.generate_text(model_input=model_input)
+
+
+
     def _validate_inputs(self, medical_history_input: MedicalHistoryInput) -> None:
         if not medical_history_input.exam or not medical_history_input.exam.strip():
             raise ValueError("Exam name cannot be empty")
@@ -64,40 +95,6 @@ Provide follow-up questions for positive responses to key clinical indicators.""
             raise ValueError("Age must be between 1 and 150")
         if medical_history_input.purpose not in [p.value for p in HistoryPurpose]:
             raise ValueError(f"Invalid purpose: specify one of: {[p.value for p in HistoryPurpose]}")
-
-    def print_result(self, result: PatientMedicalHistoryQuestions) -> None:
-        """Print a summary of the generated questions using rich."""
-        from rich.console import Console
-        from rich.panel import Panel
-        from rich.table import Table
-        
-        console = Console()
-        console.print(Panel(
-            f"[bold]Exam:[/bold] {result.exam.upper()}\n"
-            f"[bold]Purpose:[/bold] {result.purpose.upper()}\n"
-            f"[bold]Patient:[/bold] {result.age}y {result.gender}",
-            title="Patient Medical History Question Set",
-            border_style="magenta"
-        ))
-
-        table = Table(title="Question Categories")
-        table.add_column("Category", style="cyan")
-        table.add_column("Count", justify="right", style="green")
-
-        counts = {
-            "Past Conditions": len(result.past_medical_history.condition_questions),
-            "Hospitalizations": len(result.past_medical_history.hospitalization_questions),
-            "Surgeries": len(result.past_medical_history.surgery_questions),
-            "Family History": len(result.family_history.maternal_history_questions) + len(result.family_history.paternal_history_questions) + len(result.family_history.genetic_risk_questions),
-            "Medications/Allergies": len(result.drug_information.medication_questions) + len(result.drug_information.allergy_questions),
-            "Vaccinations": len(result.vaccination.vaccination_status_questions) + len(result.vaccination.vaccine_specific_questions),
-            "Lifestyle/Social": len(result.lifestyle_and_social.lifestyle_questions) + len(result.lifestyle_and_social.personal_social_questions)
-        }
-
-        for cat, count in counts.items():
-            table.add_row(cat, str(count))
-
-        console.print(table)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate comprehensive patient medical history questions.")
@@ -107,6 +104,7 @@ def main():
     parser.add_argument("-p", "--purpose", default="physical_exam", choices=[p.value for p in HistoryPurpose], help="Purpose of history collection")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
     parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     args = parser.parse_args()
 
@@ -120,19 +118,16 @@ def main():
             gender=args.gender,
             purpose=args.purpose
         )
-        result = generator.generate_text(medical_history_input)
-
-        generator.print_result(result)
+        result = generator.generate_text(medical_history_input, structured=args.structured)
+        
+        print_result(result, title="Patient Medical History Questions")
 
         if args.output:
-            try:
-                args.output.parent.mkdir(parents=True, exist_ok=True)
-                with open(args.output, 'w') as f:
-                    json.dump(result.model_dump(), f, indent=2)
-                print(f"✓ Results saved to {args.output}")
-            except IOError as e:
-                print(f"✗ Failed to write output file: {e}")
-                sys.exit(1)
+            output_path = args.output
+            if isinstance(result, str) and output_path.suffix == ".json":
+                output_path = output_path.with_suffix(".md")
+            save_model_response(result, output_path)
+            print(f"✓ Results saved to {output_path}")
 
     except ValueError as e:
         print(f"✗ Validation error: {e}")

@@ -46,6 +46,7 @@ import sys
 from typing import Optional, Dict, Any, List, Union
 from rich.console import Console
 from rich.panel import Panel
+from utils.output_formatter import print_result
 
 class RxClassClient:
     BASE_URL = "https://rxnav.nlm.nih.gov/REST/rxclass"
@@ -161,61 +162,51 @@ class RxClassClient:
         return self._get("/spellingsuggestions.json", params=params)
 
 
-def print_result(result: Any, verbose: bool = False) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-
-    if result is None:
-        return
-
-    # Handle dictionary results
-    if isinstance(result, dict):
-        formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in result.items()])
-    else:
-        formatted_text = str(result)
-
-    console.print(Panel(
-        formatted_text,
-        title="Result",
-        border_style="cyan",
-    ))
 
 
-def cli():
+def main():
     """CLI function for RxClassClient examples."""
+    import argparse
+    parser = argparse.ArgumentParser(description="RxClass API client for drug classification and relationships.")
+    parser.add_argument("--json-output", "-j", action="store_true", help="Output results as JSON")
+    args = parser.parse_args()
+
     client = RxClassClient()
 
+    results = {}
     try:
-        print("find_class_by_name('Beta blocking agents') ->")
-        print(client.find_class_by_name("Beta blocking agents"))
+        results["find_class_by_name"] = client.find_class_by_name("Beta blocking agents")
     except Exception as e:
-        print("Error:", e)
+        results["find_class_by_name_error"] = str(e)
 
     try:
-        print("get_class_by_drug_name('Lipitor') ->")
-        print(client.get_class_by_drug_name("Lipitor"))
+        results["get_class_by_drug_name"] = client.get_class_by_drug_name("Lipitor")
     except Exception as e:
-        print("Error:", e)
+        results["get_class_by_drug_name_error"] = str(e)
 
     try:
-        print("get_class_members(class_id='A12CA', rela_source='ATC') ->")
-        print(client.get_class_members(class_id="A12CA", rela_source="ATC"))
+        results["get_class_members"] = client.get_class_members(class_id="A12CA", rela_source="ATC")
     except Exception as e:
-        print("Error:", e)
+        results["get_class_members_error"] = str(e)
 
     try:
-        print("get_class_types() ->")
-        print(client.get_class_types())
+        results["get_class_types"] = client.get_class_types()
     except Exception as e:
-        print("Error:", e)
+        results["get_class_types_error"] = str(e)
 
     try:
-        print("get_spelling_suggestions(term='betablocking', type_='CLASS') ->")
-        print(client.get_spelling_suggestions("betablocking", type_="CLASS"))
+        results["get_spelling_suggestions"] = client.get_spelling_suggestions("betablocking", type_="CLASS")
     except Exception as e:
-        print("Error:", e)
+        results["get_spelling_suggestions_error"] = str(e)
+
+    if args.json_output:
+        print(json.dumps(results, indent=2))
+        return
+
+    for key, val in results.items():
+        print(f"{key} ->")
+        print_result(val, title=key.replace('_', ' ').title())
 
 
 if __name__ == "__main__":
-    sys.exit(cli() or 0)
-
+    sys.exit(main() or 0)

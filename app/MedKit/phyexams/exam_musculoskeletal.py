@@ -32,6 +32,7 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
 
 # ==============================================================================
 # LOCAL IMPORTS (Module models)
@@ -707,9 +708,7 @@ def save_exam_to_json(exam: MusculoskeletalExam, filepath: Optional[str] = None)
     if not filepath:
         filepath = f"exam_{exam.encounter_id}.json"
 
-    with open(filepath, 'w') as f:
-        json.dump(exam.model_dump(mode='json'), f, indent=2, default=str)
-
+    save_model_response(exam, filepath)
     print(f"✓ Exam saved to: {filepath}")
     return filepath
 

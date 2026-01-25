@@ -33,6 +33,10 @@ from typing import Optional, List, Dict
 from uuid import uuid4
 from pydantic import BaseModel, Field
 
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.utils import save_model_response
+
 from medkit.mental_health.models import PrivacyConsent, AuditLog, ChatSession
 from medkit.core.config import PrivacyConfig
 from medkit.mental_health.mental_health_assessment import MentalHealthAssessment
@@ -106,8 +110,7 @@ class PrivacyManager:
             session_file = self.data_dir / f"{session.session_id}.json"
 
             # Convert to dict and save
-            with open(session_file, 'w') as f:
-                json.dump(session.model_dump(), f, indent=2, default=str)
+            save_model_response(session, session_file)
 
             # Set secure permissions
             session_file.chmod(0o600)

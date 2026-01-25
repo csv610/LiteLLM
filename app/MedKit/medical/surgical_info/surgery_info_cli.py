@@ -10,7 +10,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final
+from typing import Optional, final, Union
 
 from rich.console import Console
 from rich.panel import Panel
@@ -19,6 +19,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from surgery_info_models import SurgeryInfo
 
@@ -73,80 +75,54 @@ class SurgeryInfoGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
-        logger.info(f"Initialized SurgeryInfoGenerator")
+        logger.debug(f"Initialized SurgeryInfoGenerator")
 
-    def generate_text(self, surgery: str) -> SurgeryInfo:
+    def generate_text(self, surgery: str, structured: bool = False) -> Union[SurgeryInfo, str]:
         """Generates comprehensive surgery information."""
         if not surgery or not str(surgery).strip():
             raise ValueError("Surgery name cannot be empty")
 
-        logger.info(f"Starting surgical procedure information generation for: {surgery}")
+        logger.debug(f"Starting surgical procedure information generation for: {surgery}")
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(surgery)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 
+        response_format = None
+        if structured:
+            response_format = SurgeryInfo
+
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=SurgeryInfo,
+            response_format=response_format,
         )
 
-        logger.info("Calling LiteClient.generate_text()...")
+        logger.debug("Calling LiteClient.generate_text()...")
         try:
             result = self.ask_llm(model_input)
-            logger.info("✓ Successfully generated surgery information")
+            logger.debug("✓ Successfully generated surgery information")
             return result
         except Exception as e:
             logger.error(f"✗ Error generating surgery information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> SurgeryInfo:
+    def ask_llm(self, model_input: ModelInput) -> Union[SurgeryInfo, str]:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, surgery_info: SurgeryInfo, output_path: Path) -> Path:
-        """Saves the surgery information to a JSON file."""
-        try:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Saving surgery information to: {output_path}")
-            with open(output_path, "w") as f:
-                json.dump(surgery_info.model_dump(), f, indent=2, default=str)
-            logger.info(f"✓ Successfully saved surgery information to {output_path}")
-            return output_path
-        except (OSError, IOError) as e:
-            logger.error(f"✗ Error saving surgery information to {output_path}: {e}")
-            raise
+    def save(self, surgery_info: Union[SurgeryInfo, str], output_path: Path) -> Path:
+        """Saves the surgery information to a JSON or MD file."""
+        if isinstance(surgery_info, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
+        return save_model_response(surgery_info, output_path)
 
     @property
     def logger(self):
         return logger
 
 
-def print_result(result: SurgeryInfo) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-
-    # Extract main fields from the result model
-    result_dict = result.model_dump()
-
-    # Create a formatted panel showing the result
-    # Use semantic formatting: green for success/positive, yellow for warnings, blue for info
-    # Display the data in organized sections
-
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -187,6 +163,12 @@ Examples:
         choices=[0, 1, 2, 3, 4],
         help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     return parser.parse_args()
 
@@ -206,12 +188,6 @@ def app_cli() -> int:
     logger.info("SURGERY INFO CLI - Starting")
     logger.info("="*80)
 
-    logger.info(f"CLI Arguments:")
-    logger.info(f"  Surgery: {args.surgery}")
-    logger.info(f"  Output Dir: {args.output_dir}")
-    logger.info(f"  Output File: {args.output if args.output else 'Default'}")
-    logger.info(f"  Verbosity: {args.verbosity}")
-
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -219,14 +195,14 @@ def app_cli() -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = SurgeryInfoGenerator(model_config)
-        surgery_info = generator.generate_text(surgery=args.surgery)
+        surgery_info = generator.generate_text(surgery=args.surgery, structured=args.structured)
 
         if surgery_info is None:
             logger.error("✗ Failed to generate surgery information.")
             sys.exit(1)
 
         # Display formatted result
-        print_result(surgery_info)
+        print_result(surgery_info, title="Surgery Information")
 
         if args.output:
             generator.save(surgery_info, Path(args.output))
@@ -234,15 +210,11 @@ def app_cli() -> int:
             default_path = output_dir / f"{args.surgery.lower().replace(' ', '_')}_info.json"
             generator.save(surgery_info, default_path)
 
-        logger.info("="*80)
-        logger.info("✓ Surgery information generation completed successfully")
-        logger.info("="*80)
+        logger.debug("✓ Surgery information generation completed successfully")
         return 0
     except Exception as e:
-        logger.error("="*80)
         logger.error(f"✗ Surgery information generation failed: {e}")
         logger.exception("Full exception details:")
-        logger.error("="*80)
         sys.exit(1)
 
 

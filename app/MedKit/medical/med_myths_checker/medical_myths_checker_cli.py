@@ -4,11 +4,13 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from medical_myths_checker_models import MythAnalysisResponse
 
@@ -55,7 +57,7 @@ class MedicalMythsChecker:
         self.client = LiteClient(model_config=model_config)
         self.myth: Optional[str] = None
 
-    def generate_text(self, myth: str) -> MythAnalysisResponse:
+    def generate_text(self, myth: str, structured: bool = False) -> Union[MythAnalysisResponse, str]:
         """
         Analyze a medical myth and determine its status.
 
@@ -73,41 +75,24 @@ class MedicalMythsChecker:
 
         self.myth = myth
 
+        response_format = None
+        if structured:
+            response_format = MythAnalysisResponse
+
         model_input = ModelInput(
             system_prompt=PromptBuilder.system_prompt(),
             user_prompt=PromptBuilder.user_prompt(myth),
-            response_format=MythAnalysisResponse,
+            response_format=response_format,
         )
 
         result = self._ask_llm(model_input)
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> MythAnalysisResponse:
+    def _ask_llm(self, model_input: ModelInput) -> Union[MythAnalysisResponse, str]:
         """
         Internal helper to call the LLM client.
         """
         return self.client.generate_text(model_input=model_input)
-
-    def print_result(self, response: MythAnalysisResponse) -> None:
-        """
-        Print a summary of the analysis using rich.
-        """
-        from rich.console import Console
-        from rich.panel import Panel
-        
-        console = Console()
-        
-        for myth in response.myths:
-            console.print(Panel(
-                f"[bold]Claim:[/bold] {myth.statement}\n"
-                f"[bold]Status:[/bold] {myth.status}\n"
-                f"[bold]Risk Level:[/bold] {myth.risk_level}\n\n"
-                f"[bold]Explanation:[/bold] {myth.explanation}\n\n"
-                f"[bold]Sources:[/bold] {myth.peer_reviewed_sources}",
-                title="Medical Myth Analysis",
-                border_style="magenta"
-            ))
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -122,6 +107,7 @@ Examples:
     parser.add_argument("-i", "--input", required=True, help="Medical myth/claim to analyze")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
     parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     args = parser.parse_args()
 
@@ -129,15 +115,16 @@ Examples:
         model_config = ModelConfig(model=args.model, temperature=0.3)
         checker = MedicalMythsChecker(model_config=model_config)
         print("Starting medical myth analysis...")
-        result = checker.generate_text(myth=args.input)
+        result = checker.generate_text(myth=args.input, structured=args.structured)
         
-        checker.print_result(result)
+        print_result(result, title="Medical Myth Analysis")
         
         if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                json.dump(result.model_dump(), f, indent=2)
-            print(f"✓ Results saved to {args.output}")
+            output_path = args.output
+            if isinstance(result, str) and output_path.suffix == ".json":
+                output_path = output_path.with_suffix(".md")
+            save_model_response(result, output_path)
+            print(f"✓ Results saved to {output_path}")
 
     except Exception as e:
         print(f"✗ Error: {e}")

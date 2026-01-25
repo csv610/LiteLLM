@@ -11,13 +11,15 @@ import logging
 import sys
 from pathlib import Path
 
-from rich.console import Console
-from rich.panel import Panel
+
+from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from medical_faq_models import ComprehensiveFAQ
 
@@ -49,71 +51,46 @@ class MedicalFAQGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
-        logger.info(f"Initialized MedicalFAQGenerator")
+        logger.debug(f"Initialized MedicalFAQGenerator")
 
-    def generate_text(self, topic: str) -> ComprehensiveFAQ:
+    def generate_text(self, topic: str, structured: bool = False) -> Union[ComprehensiveFAQ, str]:
         """Generates comprehensive FAQ content."""
         if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
 
-        logger.info(f"Starting FAQ generation for: {topic}")
+        logger.debug(f"Starting FAQ generation for: {topic}")
 
         user_prompt = PromptBuilder.create_user_prompt(topic)
         logger.debug(f"Prompt: {user_prompt}")
 
+        response_format = None
+        if structured:
+            response_format = ComprehensiveFAQ
+
         model_input = ModelInput(
             user_prompt=user_prompt,
-            response_format=ComprehensiveFAQ,
+            response_format=response_format,
         )
 
-        logger.info("Calling LiteClient.generate_text()...")
+        logger.debug("Calling LiteClient.generate_text()...")
         try:
             result = self.ask_llm(model_input)
-            logger.info("✓ Successfully generated FAQ")
+            logger.debug("✓ Successfully generated FAQ")
             return result
         except Exception as e:
             logger.error(f"✗ Error generating FAQ: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> ComprehensiveFAQ:
+    def ask_llm(self, model_input: ModelInput) -> Union[ComprehensiveFAQ, str]:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, faq: ComprehensiveFAQ, output_path: Path) -> None:
-        """Saves the FAQ to a JSON file."""
-        try:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Saving FAQ to: {output_path}")
-            with open(output_path, "w") as f:
-                json.dump(faq.model_dump(), f, indent=2, default=str)
-            logger.info(f"✓ Successfully saved FAQ to {output_path}")
-        except (OSError, IOError) as e:
-            logger.error(f"✗ Error saving FAQ to {output_path}: {e}")
-            raise
+    def save(self, faq: Union[ComprehensiveFAQ, str], output_path: Path) -> Path:
+        """Saves the FAQ to a JSON or MD file."""
+        if isinstance(faq, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
+        return save_model_response(faq, output_path)
 
-def print_result(result: ComprehensiveFAQ) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-
-    # Extract main fields from the result model
-    result_dict = result.model_dump()
-
-    # Create a formatted panel showing the result
-    # Use semantic formatting: green for success/positive, yellow for warnings, blue for info
-    # Display the data in organized sections
-
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -154,6 +131,12 @@ Examples:
         choices=[0, 1, 2, 3, 4],
         help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     return parser.parse_args()
 
@@ -169,15 +152,11 @@ def app_cli() -> int:
         enable_console=True
     )
 
-    logger.info("="*80)
-    logger.info("MEDICAL FAQ CLI - Starting")
-    logger.info("="*80)
-
-    logger.info(f"CLI Arguments:")
-    logger.info(f"  Topic: {args.topic}")
-    logger.info(f"  Output Dir: {args.output_dir}")
-    logger.info(f"  Output File: {args.output if args.output else 'Default'}")
-    logger.info(f"  Verbosity: {args.verbosity}")
+    logger.debug(f"CLI Arguments:")
+    logger.debug(f"  Topic: {args.topic}")
+    logger.debug(f"  Output Dir: {args.output_dir}")
+    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
+    logger.debug(f"  Verbosity: {args.verbosity}")
 
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
@@ -187,14 +166,14 @@ def app_cli() -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = MedicalFAQGenerator(model_config)
-        faq = generator.generate_text(topic=args.topic)
+        faq = generator.generate_text(topic=args.topic, structured=args.structured)
 
         if faq is None:
             logger.error("✗ Failed to generate FAQ.")
             sys.exit(1)
 
         # Display formatted result
-        print_result(faq)
+        print_result(faq, title="Medical FAQ")
 
         # Save if output path is specified
         if args.output:
@@ -204,15 +183,11 @@ def app_cli() -> int:
             default_path = output_dir / f"{args.topic.lower().replace(' ', '_')}_faq.json"
             generator.save(faq, default_path)
 
-        logger.info("="*80)
-        logger.info("✓ FAQ generation completed successfully")
-        logger.info("="*80)
+        logger.debug("✓ FAQ generation completed successfully")
         return 0
     except Exception as e:
-        logger.error("="*80)
         logger.error(f"✗ FAQ generation failed: {e}")
         logger.exception("Full exception details:")
-        logger.error("="*80)
         sys.exit(1)
 
 

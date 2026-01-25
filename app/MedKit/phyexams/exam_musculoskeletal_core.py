@@ -10,6 +10,11 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List, Dict, Tuple
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.utils import save_model_response
+
 
 # ============================================================================
 # DATA MODELS
@@ -410,9 +415,7 @@ class ExamExporter:
     @staticmethod
     def save_json(exam_record: ExamRecord, filepath: str) -> str:
         """Save to JSON file."""
-        import json
-        with open(filepath, "w") as f:
-            json.dump(exam_record.model_dump(mode="json"), f, indent=2, default=str)
+        save_model_response(exam_record, filepath)
         return filepath
 
 

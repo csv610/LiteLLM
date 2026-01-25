@@ -1,27 +1,18 @@
 import argparse
 import logging
 import sys
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Union
 
-from rich.console import Console
-from rich.panel import Panel
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from utils.output_formatter import print_result
 
-from drug_drug_interaction_models import (
-    DrugInteractionSeverity,
-    ConfidenceLevel,
-    DataSourceType,
-    DrugInteractionDetails,
-    PatientFriendlySummary,
-    DataAvailabilityInfo,
-    DrugInteractionResult,
-)
+from drug_drug_interaction_models import DrugInteractionResult
 
 logger = logging.getLogger(__name__)
 
@@ -68,16 +59,22 @@ Always prioritize patient safety while providing practical, evidence-based guida
         return f"{medicine1} and {medicine2} interaction analysis. {context}"
 
 
-@dataclass
-class DrugDrugInput:
+class DrugDrugInput(BaseModel):
     """Configuration and input for drug-drug interaction analysis."""
-    medicine1: str
-    medicine2: str
-    age: Optional[int] = None
+    medicine1: str = Field(..., min_length=1, description="Name of the first medicine")
+    medicine2: str = Field(..., min_length=1, description="Name of the second medicine")
+    age: Optional[int] = Field(None, ge=0, le=150, description="Patient age (0-150)")
     dosage1: Optional[str] = None
     dosage2: Optional[str] = None
     medical_conditions: Optional[str] = None
     prompt_style: str = "detailed"
+
+    @field_validator("medicine1", "medicine2")
+    @classmethod
+    def validate_medicine_name(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Medicine name cannot be empty or just whitespace")
+        return v.strip()
 
 class DrugDrugInteraction:
     """Analyzes drug-drug interactions based on provided configuration."""
@@ -85,36 +82,28 @@ class DrugDrugInteraction:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, config: DrugDrugInput) -> DrugInteractionResult:
+    def generate_text(self, config: DrugDrugInput, structured: bool = False) -> Union[DrugInteractionResult, str]:
         """Analyzes how two drugs interact."""
-        self._validate_input(config)
 
-        logger.info("-" * 80)
-        logger.info(f"Starting drug-drug interaction analysis")
-        logger.info(f"Drug 1: {config.medicine1}")
-        logger.info(f"Drug 2: {config.medicine2}")
+        logger.debug(f"Starting drug-drug interaction analysis")
+        logger.debug(f"Drug 1: {config.medicine1}")
+        logger.debug(f"Drug 2: {config.medicine2}")
 
         context = self._prepare_context(config)
         logger.debug(f"Context: {context}")
 
-        user_prompt = self._create_prompt(config, context)
-        model_input = self._create_model_input(user_prompt)
+        user_prompt = PromptBuilder.create_user_prompt(config.medicine1, config.medicine2, context)
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=user_prompt,
+            response_format=DrugInteractionResult if structured else None,
+        )
         result = self._ask_llm(model_input)
 
-        logger.info(f"✓ Successfully analyzed interaction")
-        logger.info(f"Severity: {result.interaction_details.severity_level if result.interaction_details else 'N/A'}")
-        logger.info(f"Data Available: {result.data_availability.data_available}")
-        logger.info("-" * 80)
+        logger.debug(f"✓ Successfully analyzed interaction")
         return result
 
-    def _validate_input(self, config: DrugDrugInput) -> None:
-        """Validate input parameters."""
-        if not config.medicine1 or not config.medicine1.strip():
-            raise ValueError("Medicine 1 name cannot be empty")
-        if not config.medicine2 or not config.medicine2.strip():
-            raise ValueError("Medicine 2 name cannot be empty")
-        if config.age is not None and (config.age < 0 or config.age > 150):
-            raise ValueError("Age must be between 0 and 150 years")
+
 
     def _prepare_context(self, config: DrugDrugInput) -> str:
         """Build the analysis context string from input parameters."""
@@ -131,27 +120,24 @@ class DrugDrugInteraction:
 
         return ". ".join(context_parts) + "."
 
-    def _create_prompt(self, config: DrugDrugInput, context: str) -> str:
-        """Create the user prompt for the LLM."""
-        return PromptBuilder.create_user_prompt(config.medicine1, config.medicine2, context)
 
-    def _create_model_input(self, user_prompt: str) -> ModelInput:
-        """Create the ModelInput for the LiteClient."""
-        return ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=user_prompt,
-            response_format=DrugInteractionResult,
-        )
 
-    def _ask_llm(self, model_input: ModelInput) -> DrugInteractionResult:
+    def _ask_llm(self, model_input: ModelInput) -> Union[DrugInteractionResult, str]:
         """Helper to call LiteClient with error handling."""
-        logger.info("Calling LiteClient.generate_text()...")
+        logger.debug("Calling LiteClient.generate_text()...")
         try:
             return self.client.generate_text(model_input=model_input)
         except Exception as e:
             logger.error(f"✗ Error during drug interaction analysis: {e}")
             logger.exception("Full exception details:")
             raise
+
+    def save(self, result: Union[DrugInteractionResult, str], output_path: Path) -> Path:
+        """Saves the interaction analysis to a JSON or MD file."""
+        from lite.utils import save_model_response
+        if isinstance(result, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
+        return save_model_response(result, output_path)
 
 def get_user_arguments():
     """Create and configure the argument parser for the CLI."""
@@ -173,86 +159,13 @@ Examples:
     parser.add_argument("--dosage2", "-d2", type=str, default=None, help="Dosage information for second medicine")
     parser.add_argument("--conditions", "-c", type=str, default=None, help="Patient's medical conditions (comma-separated)")
     parser.add_argument("--prompt-style", "-p", type=str, choices=["detailed", "concise", "balanced"], default="detailed", help="Prompt style for analysis (default: detailed)")
-    parser.add_argument("--no-schema", action="store_true", default=False, help="Disable schema-based prompt generation")
-    parser.add_argument("--verbosity", "-v", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)")
-    parser.add_argument("--model", "-m", type=str, default="ollama/gemma3", help="Model ID to use for analysis (default: ollama/gemma3)")
     parser.add_argument("--json-output", "-j", action="store_true", default=False, help="Output results as JSON to stdout")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     return parser.parse_args()
 
-def print_result(result: DrugInteractionResult, verbose: bool = False) -> None:
-    """Print interaction analysis results in a formatted manner using rich."""
-    console = Console()
-    console.print()
-
-    if not result.data_availability.data_available:
-        console.print(
-            Panel(
-                f"⚠️  [yellow]{result.data_availability.reason}[/yellow]",
-                title="Data Availability",
-                border_style="yellow",
-            )
-        )
-        return
-
-    if result.interaction_details:
-        details = result.interaction_details
-        severity_color = {
-            "NONE": "green",
-            "MINOR": "blue",
-            "SIGNIFICANT": "yellow",
-            "CONTRAINDICATED": "red",
-        }.get(details.severity_level.value, "white")
-
-        details_text = (
-            f"[bold]Drug 1:[/bold] {details.drug1_name}\n"
-            f"[bold]Drug 2:[/bold] {details.drug2_name}\n"
-            f"[bold]Severity:[/bold] [{severity_color}]{details.severity_level.value}[/{severity_color}]\n"
-            f"[bold]Confidence:[/bold] {details.confidence_level.value}\n"
-            f"[bold]Data Source:[/bold] {details.data_source_type.value}"
-        )
-
-        console.print(Panel(details_text, title="Drug Interaction Details", border_style="cyan"))
-
-        console.print(Panel(details.mechanism_of_interaction, title="Mechanism of Interaction", border_style="blue"))
-
-        effects = [effect.strip() for effect in details.clinical_effects.split(",")]
-        console.print("[bold cyan]Clinical Effects:[/bold cyan]")
-        for effect in effects:
-            console.print(f"  • {effect}")
-        console.print()
-
-        recommendations = [rec.strip() for rec in details.management_recommendations.split(",")]
-        console.print("[bold cyan]Management Recommendations:[/bold cyan]")
-        for rec in recommendations:
-            console.print(f"  • {rec}")
-        console.print()
-
-        alternatives = [alt.strip() for alt in details.alternative_medicines.split(",")]
-        console.print("[bold cyan]Alternative Medicines:[/bold cyan]")
-        for alt in alternatives:
-            console.print(f"  • {alt}")
-        console.print()
-
-    if result.patient_friendly_summary:
-        summary = result.patient_friendly_summary
-        console.print(Panel(summary.simple_explanation, title="Simple Explanation", border_style="green"))
-        console.print(Panel(summary.what_patient_should_do, title="What You Should Do", border_style="green"))
-
-        warning_signs = [sign.strip() for sign in summary.warning_signs.split(",")]
-        console.print("[bold yellow]Warning Signs:[/bold yellow]")
-        for sign in warning_signs:
-            console.print(f"  • {sign}")
-        console.print()
-
-        console.print(Panel(summary.when_to_seek_help, title="When to Seek Help", border_style="red"))
-
-    console.print(Panel(result.technical_summary, title="Technical Summary", border_style="magenta"))
-    console.print()
-
 def app_cli():
     """Main entry point for the drug-drug interaction CLI."""
-    console = Console()
     args = get_user_arguments()
 
     configure_logging(
@@ -276,21 +189,35 @@ def app_cli():
 
         model_config = ModelConfig(model=args.model, temperature=0.7)
         analyzer = DrugDrugInteraction(model_config)
-        result = analyzer.generate_text(config)
+        result = analyzer.generate_text(config, structured=args.structured)
+        
+        if result is None:
+            logger.error("✗ Failed to analyze interaction.")
+            sys.exit(1)
 
-        print_result(result, verbose=args.verbosity >= 3)
+        # Display formatted result
+        print_result(result, title="Drug Interaction Analysis")
 
         if args.json_output:
-            console.print(f"\n{result.model_dump_json(indent=2)}")
+            if isinstance(result, str):
+                print(f"\n{result}")
+            else:
+                print(f"\n{result.model_dump_json(indent=2)}")
+
+        # Save result
+        output_dir = Path("outputs")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        default_path = output_dir / f"{args.medicine1.lower()}_{args.medicine2.lower()}_interaction.json"
+        analyzer.save(result, default_path)
 
         return 0
 
     except ValueError as e:
-        console.print(f"\n❌ [red]Invalid input:[/red] {e}")
+        print(f"\n❌ Invalid input: {e}")
         logger.error(f"Invalid input: {e}")
         return 1
     except Exception as e:
-        console.print(f"\n❌ [red]Error:[/red] {e}")
+        print(f"\n❌ Error: {e}")
         logger.error(f"Unexpected error: {e}")
         logger.exception("Full exception details:")
         return 1

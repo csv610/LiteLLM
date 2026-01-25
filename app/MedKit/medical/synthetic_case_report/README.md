@@ -118,7 +118,6 @@ python synthetic_case_report_cli.py -i "acute kidney injury" -d outputs/renal
 - `create_user_prompt(condition)`: Creates structured queries requesting specific case report components
 
 **Output Functions**
-- `print_result()`: Formats and displays results to console in organized panels
 - `save()`: Exports results to JSON files with proper directory creation
 
 **CLI Entry Point**

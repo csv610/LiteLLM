@@ -84,7 +84,6 @@ python medical_term_extractor_cli.py discharge_summary.txt -o discharge_terms.js
 - **Relationship Detection**: Identifies causation relationships between medical concepts
 - **Structured Output**: Returns `MedicalTerms` objects with standardized schema
 - **JSON Export**: Save results for downstream processing or medical NLP pipelines
-- **Formatted Console Display**: Results organized in summary tables using Rich
 - **Flexible Input**: Accepts both direct text strings and file paths
 - **System Prompting**: Uses specialized prompts for medical documentation expertise
 
@@ -103,7 +102,6 @@ python medical_term_extractor_cli.py discharge_summary.txt -o discharge_terms.js
 - `create_user_prompt(text)`: Creates structured extraction queries with category-specific instructions
 
 **Output Functions**
-- `print_result()`: Formats and displays extraction summary in organized tables
 - File output handled via standard JSON serialization
 
 **CLI Entry Point**

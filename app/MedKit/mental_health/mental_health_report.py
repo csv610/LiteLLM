@@ -5,6 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, List
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.utils import save_model_response
+
 try:
     from medkit.core.gemini_client import GeminiClient, ModelConfig, ModelInput
     from medkit.core.config import PrivacyConfig
@@ -432,8 +435,7 @@ Session ID: {assessment.session_id}
         filename = f"assessment_{assessment.patient_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         filepath = ReportConfig.JSON_DIR / filename
 
-        with open(filepath, 'w') as f:
-            json.dump(assessment.model_dump(), f, indent=2)
+        save_model_response(assessment, filepath)
 
         os.chmod(filepath, 0o600)  # Restrict access
         print(f"✓ Assessment saved: {filepath}")

@@ -115,7 +115,6 @@ python medical_topic_cli.py -i "asthma" -o asthma.json
 - `create_user_prompt(topic)`: Creates structured generation queries for the specified medical topic
 
 **Output Functions**
-- `print_result()`: Formats and displays topic information in organized panels
 - `save()`: Persists results to JSON files with proper serialization
 
 **CLI Entry Point**

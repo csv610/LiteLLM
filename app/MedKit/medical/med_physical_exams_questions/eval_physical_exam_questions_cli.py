@@ -3,21 +3,20 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
-from rich.console import Console
-from rich.panel import Panel
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
+from lite.utils import save_model_response
 from lite.config import ModelConfig, ModelInput
+from utils.output_formatter import print_result
 from lite.logging_config import configure_logging
 
 from eval_physical_exam_questions_models import QualityEvaluation
 
 logger = logging.getLogger(__name__)
-
-console = Console()
 
 
 class PromptBuilder:
@@ -100,21 +99,21 @@ class PhysicalExamEvaluator:
 
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
-        logger.info(f"Initialized PhysicalExamEvaluator")
+        logger.debug(f"Initialized PhysicalExamEvaluator")
 
-    def generate_text(self, input_file: str) -> QualityEvaluation:
+    def generate_text(self, input_file: str, structured: bool = False) -> Union[QualityEvaluation, str]:
         """
         Evaluate the quality of generated exam questions using LLM assessment.
 
         Args:
             input_file: Path to JSON file with exam questions
+            structured: Whether to use structured output mode (default: False)
 
         Returns:
-            QualityEvaluation: Validated evaluation results
+            QualityEvaluation: Validated evaluation results (if structured=True, else raw response if applicable)
         """
-        logger.info("-" * 80)
-        logger.info(f"Starting exam question evaluation")
-        logger.info(f"Input file: {input_file}")
+        logger.debug(f"Starting exam question evaluation")
+        logger.debug(f"Input file: {input_file}")
 
         try:
             with open(input_file, 'r') as f:
@@ -123,41 +122,28 @@ class PhysicalExamEvaluator:
             user_prompt = PromptBuilder.create_user_prompt(exam_data)
             logger.debug(f"Prompt: {user_prompt}")
 
+            response_format = None
+            if structured:
+                response_format = QualityEvaluation
+
             model_input = ModelInput(
                 system_prompt=PromptBuilder.create_system_prompt(),
                 user_prompt=user_prompt,
-                response_format=QualityEvaluation,
+                response_format=response_format,
             )
 
             result = self.client.generate_text(model_input=model_input)
 
-            logger.info(f"✓ Successfully evaluated exam questions")
-            logger.info(f"Overall Quality Score: {result.overall_quality_score}/100")
-            logger.info("-" * 80)
+            logger.debug(f"✓ Successfully evaluated exam questions")
             return result
         except Exception as e:
             raise
-
-def print_result(result: QualityEvaluation) -> None:
-    """Print result in a formatted manner using rich."""
-    console = Console()
-    result_dict = result.model_dump()
-
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
+    def _ask_llm(self, model_input: ModelInput) -> Union[QualityEvaluation, str]:
+        """Internal helper to call the LLM client."""
+        return self.client.generate_text(model_input=model_input)
 
 
-def generate_evaluation_report(evaluation: QualityEvaluation, output_file: Optional[str] = None) -> str:
+def generate_evaluation_report(evaluation: Union[QualityEvaluation, str], output_file: Optional[str] = None) -> str:
     """
     Generate a detailed evaluation report.
 
@@ -168,7 +154,10 @@ def generate_evaluation_report(evaluation: QualityEvaluation, output_file: Optio
     Returns:
         str: Formatted report text
     """
-    report = f"""
+    if isinstance(evaluation, str):
+        report = evaluation
+    else:
+        report = f"""
 ╔══════════════════════════════════════════════════════════════════════╗
 ║          MEDICAL EXAM QUESTIONS - QUALITY EVALUATION REPORT           ║
 ╚══════════════════════════════════════════════════════════════════════╝
@@ -195,20 +184,20 @@ Status: {'✓ PASS' if evaluation.pass_fail == 'pass' else '⚠ CONDITIONAL PASS
 
 💪 STRENGTHS:
 """
-    for i, strength in enumerate(evaluation.strengths, 1):
-        report += f"\n  {i}. {strength}"
+        for i, strength in enumerate(evaluation.strengths, 1):
+            report += f"\n  {i}. {strength}"
 
-    report += f"\n\n⚠ AREAS FOR IMPROVEMENT:\n"
-    for i, improvement in enumerate(evaluation.areas_for_improvement, 1):
-        report += f"\n  {i}. {improvement}"
+        report += f"\n\n⚠ AREAS FOR IMPROVEMENT:\n"
+        for i, improvement in enumerate(evaluation.areas_for_improvement, 1):
+            report += f"\n  {i}. {improvement}"
 
-    report += f"\n\n💡 RECOMMENDATIONS:\n"
-    for i, rec in enumerate(evaluation.recommendations, 1):
-        report += f"\n  {i}. {rec}"
+        report += f"\n\n💡 RECOMMENDATIONS:\n"
+        for i, rec in enumerate(evaluation.recommendations, 1):
+            report += f"\n  {i}. {rec}"
 
-    report += f"\n\n╔══════════════════════════════════════════════════════════════════════╗\n"
-    report += f"║ FINAL VERDICT: {evaluation.pass_fail.upper()}\n"
-    report += f"╚══════════════════════════════════════════════════════════════════════╝\n"
+        report += f"\n\n╔══════════════════════════════════════════════════════════════════════╗\n"
+        report += f"║ FINAL VERDICT: {evaluation.pass_fail.upper()}\n"
+        report += f"╚══════════════════════════════════════════════════════════════════════╝\n"
 
     # Save report if output file specified
     if output_file:
@@ -258,6 +247,12 @@ Examples:
         choices=[0, 1, 2, 3, 4],
         help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     args = parser.parse_args()
 
@@ -271,11 +266,12 @@ Examples:
     logger.info("EVAL PHYSICAL EXAM QUESTIONS CLI - Starting")
     logger.info("="*80)
 
-    logger.info(f"CLI Arguments:")
-    logger.info(f"  Input file: {args.input}")
-    logger.info(f"  Report output: {args.output if args.output else 'None'}")
-    logger.info(f"  JSON output: {args.json_output if args.json_output else 'None'}")
-    logger.info(f"  Verbosity: {args.verbosity}")
+    logger.debug(f"CLI Arguments:")
+    logger.debug(f"  Input file: {args.input}")
+    logger.debug(f"  Report output: {args.output if args.output else 'None'}")
+    logger.debug(f"  JSON output: {args.json_output if args.json_output else 'None'}")
+    logger.debug(f"  Verbosity: {args.verbosity}")
+    logger.debug(f"  Structured output: {args.structured}")
 
     # Ensure output directory exists (default outputs dir)
     Path("outputs").mkdir(parents=True, exist_ok=True)
@@ -283,29 +279,32 @@ Examples:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         evaluator = PhysicalExamEvaluator(model_config)
-        evaluation = evaluator.generate_text(args.input)
+        evaluation = evaluator.generate_text(args.input, structured=args.structured)
 
-        print_result(evaluation)
+        print_result(evaluation, title="Physical Exam Questions Evaluation")
 
         report = generate_evaluation_report(evaluation, args.output)
-        console.print(report)
+        print(report)
 
         if args.json_output:
             Path(args.json_output).parent.mkdir(parents=True, exist_ok=True)
-            with open(args.json_output, 'w') as f:
-                json.dump(evaluation.model_dump(), f, indent=2)
-            logger.info(f"✓ JSON evaluation saved to {args.json_output}")
+            output_json_path = args.json_output
+            if isinstance(evaluation, str) and output_json_path.endswith(".json"):
+                 output_json_path = output_json_path.replace(".json", ".md")
+            
+            with open(output_json_path, 'w') as f:
+                if isinstance(evaluation, str):
+                    f.write(evaluation)
+                else:
+                    json.dump(evaluation.model_dump(), f, indent=2)
+            logger.info(f"✓ Results saved to {output_json_path}")
 
-        logger.info("="*80)
-        logger.info("✓ Evaluation completed successfully")
-        logger.info("="*80)
+        logger.debug("✓ Evaluation completed successfully")
         return 0
 
     except Exception as e:
-        logger.error("="*80)
         logger.error(f"✗ Evaluation failed: {e}")
         logger.exception("Full exception details:")
-        logger.error("="*80)
         sys.exit(1)
 
 

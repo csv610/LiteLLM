@@ -3,27 +3,16 @@ import logging
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
-from rich.console import Console
-from rich.panel import Panel
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from utils.output_formatter import print_result
 
-from drug_food_interaction_models import (
-    FoodCategory,
-    InteractionSeverity,
-    ConfidenceLevel,
-    DataSourceType,
-    FoodCategoryInteraction,
-    DrugFoodInteractionDetails,
-    PatientFriendlySummary,
-    DataAvailabilityInfo,
-    DrugFoodInteractionResult,
-)
+from drug_food_interaction_models import DrugFoodInteractionResult
 
 logger = logging.getLogger(__name__)
 
@@ -84,25 +73,25 @@ class DrugFoodInteraction:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, config: DrugFoodInput) -> DrugFoodInteractionResult:
+    def generate_text(self, config: DrugFoodInput, structured: bool = False) -> Union[DrugFoodInteractionResult, str]:
         """Analyzes how food and beverages interact with a medicine."""
         self._validate_input(config)
 
-        logger.info("-" * 80)
-        logger.info(f"Starting drug-food interaction analysis")
-        logger.info(f"Medicine: {config.medicine_name}")
+        logger.debug(f"Starting drug-food interaction analysis")
+        logger.debug(f"Medicine: {config.medicine_name}")
 
         context = self._prepare_context(config)
         logger.debug(f"Context: {context}")
 
-        user_prompt = self._create_prompt(config, context)
-        model_input = self._create_model_input(user_prompt)
+        user_prompt = PromptBuilder.create_user_prompt(config.medicine_name, context)
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=user_prompt,
+            response_format=DrugFoodInteractionResult if structured else None,
+        )
         result = self._ask_llm(model_input)
 
-        logger.info(f"✓ Successfully analyzed food interactions")
-        logger.info(f"Overall Severity: {result.interaction_details.overall_severity if result.interaction_details else 'N/A'}")
-        logger.info(f"Data Available: {result.data_availability.data_available}")
-        logger.info("-" * 80)
+        logger.debug(f"✓ Successfully analyzed food interactions")
         return result
 
     def _validate_input(self, config: DrugFoodInput) -> None:
@@ -125,21 +114,10 @@ class DrugFoodInteraction:
             context_parts.append(f"Patient conditions: {config.medical_conditions}")
         return ". ".join(context_parts) + "."
 
-    def _create_prompt(self, config: DrugFoodInput, context: str) -> str:
-        """Create the user prompt for the LLM."""
-        return PromptBuilder.create_user_prompt(config.medicine_name, context)
 
-    def _create_model_input(self, user_prompt: str) -> ModelInput:
-        """Create the ModelInput for the LiteClient."""
-        return ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=user_prompt,
-            response_format=DrugFoodInteractionResult,
-        )
-
-    def _ask_llm(self, model_input: ModelInput) -> DrugFoodInteractionResult:
+    def _ask_llm(self, model_input: ModelInput) -> Union[DrugFoodInteractionResult, str]:
         """Helper to call LiteClient with error handling."""
-        logger.info("Calling LiteClient.generate_text()...")
+        logger.debug("Calling LiteClient.generate_text()...")
         try:
             return self.client.generate_text(model_input=model_input)
         except Exception as e:
@@ -169,86 +147,16 @@ Examples:
     parser.add_argument("--verbosity", "-v", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level")
     parser.add_argument("--model", "-m", type=str, default="ollama/gemma3", help="Model ID")
     parser.add_argument("--json-output", action="store_true", help="Output results as JSON to stdout")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     return parser.parse_args()
 
-def print_result(result: DrugFoodInteractionResult, verbose: bool = False) -> None:
-    """Print interaction analysis results in a formatted manner using rich."""
-    console = Console()
-    console.print()
 
-    if not result.data_availability.data_available:
-        console.print(Panel(f"⚠️  [yellow]{result.data_availability.reason}[/yellow]", title="Data Availability", border_style="yellow"))
-        return
-
-    if result.interaction_details:
-        details = result.interaction_details
-        severity_color = {
-            "NONE": "green", "MINOR": "blue", "MILD": "blue", "MODERATE": "yellow", "SIGNIFICANT": "yellow", "CONTRAINDICATED": "red"
-        }.get(details.overall_severity.value, "white")
-
-        details_text = (
-            f"[bold]Medicine:[/bold] {details.medicine_name}\n"
-            f"[bold]Overall Severity:[/bold] [{severity_color}]{details.overall_severity.value}[/{severity_color}]\n"
-            f"[bold]Confidence:[/bold] {details.confidence_level.value}\n"
-            f"[bold]Data Source:[/bold] {details.data_source_type.value}"
-        )
-
-        console.print(Panel(details_text, title="Interaction Details", border_style="cyan"))
-        console.print(Panel(details.mechanism_of_interaction, title="Mechanism of Interaction", border_style="blue"))
-
-        effects = [effect.strip() for effect in details.clinical_effects.split(",")]
-        console.print("[bold cyan]Clinical Effects:[/bold cyan]")
-        for effect in effects:
-            console.print(f"  • {effect}")
-        console.print()
-
-        foods_avoid = [food.strip() for food in details.foods_to_avoid.split(",")]
-        console.print("[bold red]Foods to Avoid:[/bold red]")
-        for food in foods_avoid:
-            console.print(f"  • {food}")
-        console.print()
-
-        foods_safe = [food.strip() for food in details.foods_safe_to_consume.split(",")]
-        console.print("[bold green]Foods Safe to Consume:[/bold green]")
-        for food in foods_safe:
-            console.print(f"  • {food}")
-        console.print()
-
-        recommendations = [rec.strip() for rec in details.management_recommendations.split(",")]
-        console.print("[bold cyan]Management Recommendations:[/bold cyan]")
-        for rec in recommendations:
-            console.print(f"  • {rec}")
-        console.print()
-
-        if verbose:
-            console.print("[bold yellow]Detailed Category Interactions:[/bold yellow]")
-            for interaction in details.food_category_interactions:
-                if interaction.has_interaction:
-                    cat_text = f"[bold]{interaction.category.value}[/bold]\n  Severity: {interaction.severity.value}\n  Foods: {interaction.specific_foods}"
-                    if interaction.mechanism: cat_text += f"\n  Mechanism: {interaction.mechanism}"
-                    if interaction.timing_recommendation: cat_text += f"\n  Timing: {interaction.timing_recommendation}"
-                    console.print(cat_text)
-            console.print()
-
-    if result.patient_friendly_summary:
-        summary = result.patient_friendly_summary
-        console.print(Panel(summary.simple_explanation, title="Simple Explanation", border_style="green"))
-        console.print(Panel(summary.what_patient_should_do, title="What You Should Do", border_style="green"))
-        console.print(Panel(summary.meal_timing_guidance, title="Meal Timing Guidance", border_style="blue"))
-
-        warning_signs = [sign.strip() for sign in summary.warning_signs.split(",")]
-        console.print("[bold yellow]Warning Signs:[/bold yellow]")
-        for sign in warning_signs:
-            console.print(f"  • {sign}")
-        console.print()
-
-    console.print(Panel(result.technical_summary, title="Technical Summary", border_style="magenta"))
-    console.print()
+    # Save to file if output is needed (Wait, main doesn't have output arg, but let's check)
+    # Actually main in this file doesn't have --output. Let's add it if missing or just handle JSON output.
 
 def main() -> int:
     """Main entry point for the drug-food interaction CLI."""
-    console = Console()
     args = get_user_arguments()
 
     configure_logging(
@@ -271,32 +179,27 @@ def main() -> int:
 
         model_config = ModelConfig(model=args.model, temperature=0.7)
         analyzer = DrugFoodInteraction(model_config)
-        result = analyzer.generate_text(config)
+        result = analyzer.generate_text(config, structured=args.structured)
 
-        print_result(result, verbose=args.verbosity >= 3)
+        print_result(result, title="Drug-Food Interaction Analysis")
 
         if args.json_output:
-            console.print(f"\n{result.model_dump_json(indent=2)}")
+            if isinstance(result, str):
+                print(f"\n{result}")
+            else:
+                print(f"\n{result.model_dump_json(indent=2)}")
 
         return 0
 
     except ValueError as e:
-        console.print(f"\n❌ [red]Invalid input:[/red] {e}")
+        print(f"\n❌ Invalid input: {e}")
         logger.error(f"Invalid input: {e}")
         return 1
     except Exception as e:
-        console.print(f"\n❌ [red]Error:[/red] {e}")
+        print(f"\n❌ Error: {e}")
         logger.error(f"Unexpected error: {e}")
         logger.exception("Full exception details:")
         return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
-
-
-# ==============================================================================
-# ENTRY POINT
-# ==============================================================================
 
 if __name__ == "__main__":
     sys.exit(main())

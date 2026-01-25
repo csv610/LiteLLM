@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.utils import save_model_response
 
 # ==============================================================================
 # LOCAL IMPORTS (Module models)
@@ -588,8 +589,7 @@ Generate a clinical assessment that includes:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save assessment as JSON
-    with open(output_path, 'w') as f:
-        json.dump(assessment.model_dump(), f, indent=2)
+    save_model_response(assessment, output_path)
 
     print(f"✓ AI Assessment saved to: {output_path}")
 
@@ -856,8 +856,7 @@ def create_nutrition_assessment_from_responses(patient_name: str, responses: dic
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save assessment as JSON
-    with open(output_path, 'w') as f:
-        json.dump(assessment_data, f, indent=2)
+    save_model_response(assessment, output_path)
 
     print(f"\n✓ Assessment saved to: {output_path}")
 

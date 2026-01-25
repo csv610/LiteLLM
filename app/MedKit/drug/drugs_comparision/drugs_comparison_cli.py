@@ -11,18 +11,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from utils.output_formatter import print_result
 
-from drugs_comparison_models import (
-    MedicinesComparisonResult,
-)
+from drugs_comparison_models import MedicinesComparisonResult
 
 logger = logging.getLogger(__name__)
 
@@ -87,25 +83,26 @@ class DrugsComparison:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, config: DrugsComparisonInput) -> MedicinesComparisonResult:
+    def generate_text(self, config: DrugsComparisonInput, structured: bool = False) -> Union[MedicinesComparisonResult, str]:
         """Compares two medicines across clinical, regulatory, and practical metrics."""
         self._validate_input(config)
 
-        logger.info("-" * 80)
-        logger.info(f"Starting medicines comparison analysis")
-        logger.info(f"Medicine 1: {config.medicine1}")
-        logger.info(f"Medicine 2: {config.medicine2}")
+        logger.debug(f"Starting medicines comparison analysis")
+        logger.debug(f"Medicine 1: {config.medicine1}")
+        logger.debug(f"Medicine 2: {config.medicine2}")
 
         context = self._prepare_context(config)
         logger.debug(f"Context: {context}")
 
-        user_prompt = self._create_prompt(config, context)
-        model_input = self._create_model_input(user_prompt)
+        user_prompt = PromptBuilder.create_user_prompt(config.medicine1, config.medicine2, context)
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=user_prompt,
+            response_format=MedicinesComparisonResult if structured else None,
+        )
         result = self._ask_llm(model_input)
 
-        logger.info(f"✓ Successfully compared medicines")
-        logger.info(f"More Effective: {result.comparison_summary.more_effective[:100] if result.comparison_summary.more_effective else 'N/A'}...")
-        logger.info("-" * 80)
+        logger.debug(f"✓ Successfully compared medicines")
         return result
 
     def _validate_input(self, config: DrugsComparisonInput) -> None:
@@ -122,38 +119,25 @@ class DrugsComparison:
         context_parts = [f"Comparing {config.medicine1} and {config.medicine2}"]
         if config.use_case:
             context_parts.append(f"Use case: {config.use_case}")
-            logger.info(f"Use case: {config.use_case}")
+            logger.debug(f"Use case: {config.use_case}")
         if config.patient_age is not None:
             context_parts.append(f"Patient age: {config.patient_age} years")
-            logger.info(f"Patient age: {config.patient_age}")
+            logger.debug(f"Patient age: {config.patient_age}")
         if config.patient_conditions:
             context_parts.append(f"Patient conditions: {config.patient_conditions}")
-            logger.info(f"Patient conditions: {config.patient_conditions}")
+            logger.debug(f"Patient conditions: {config.patient_conditions}")
         return ". ".join(context_parts) + "."
 
-    def _create_prompt(self, config: DrugsComparisonInput, context: str) -> str:
-        """Create the user prompt for the LLM."""
-        return PromptBuilder.create_user_prompt(config.medicine1, config.medicine2, context)
 
-    def _create_model_input(self, user_prompt: str) -> ModelInput:
-        """Create the ModelInput for the LiteClient."""
-        return ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=user_prompt,
-            response_format=MedicinesComparisonResult,
-        )
-
-    def _ask_llm(self, model_input: ModelInput) -> MedicinesComparisonResult:
+    def _ask_llm(self, model_input: ModelInput) -> Union[MedicinesComparisonResult, str]:
         """Helper to call LiteClient with error handling."""
-        logger.info("Calling LiteClient.generate_text()...")
+        logger.debug("Calling LiteClient.generate_text()...")
         try:
             return self.client.generate_text(model_input=model_input)
         except Exception as e:
             logger.error(f"✗ Error during medicines comparison: {e}")
             logger.exception("Full exception details:")
             raise
-
-
 
 
 def get_user_arguments():
@@ -249,182 +233,14 @@ Examples:
         help="Output results as JSON to stdout",
     )
 
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
+
     return parser.parse_args()
-
-
-
-
-def print_result(result: MedicinesComparisonResult, verbose: bool = False) -> None:
-    """
-    Print comparison results in a formatted manner using rich.
-
-    Args:
-        result: The analysis result to print
-        verbose: Whether to print detailed information
-    """
-    console = Console()
-    console.print() # Add a newline for better spacing
-
-    # Print comparison summary
-    summary = result.comparison_summary
-    summary_text = (
-        f"[bold]More Effective:[/bold] {summary.more_effective}\n"
-        f"[bold]Safer Option:[/bold] {summary.safer_option}\n"
-        f"[bold]More Affordable:[/bold] {summary.more_affordable}\n"
-        f"[bold]Easier Access:[/bold] {summary.easier_access}\n\n"
-        f"[bold]Key Differences:[/bold]"
-    )
-
-    console.print(
-        Panel(
-            summary_text,
-            title="Comparison Summary",
-            border_style="cyan",
-        )
-    )
-
-    differences = [diff.strip() for diff in summary.key_differences.split(",")]
-    for diff in differences:
-        console.print(f"  • {diff}")
-    console.print()
-
-    # Clinical metrics table
-    clinical_table = Table(title="Clinical Metrics", border_style="blue")
-    clinical_table.add_column("Metric", style="cyan")
-    clinical_table.add_column(result.medicine1_clinical.medicine_name, style="magenta")
-    clinical_table.add_column(result.medicine2_clinical.medicine_name, style="magenta")
-
-    clinical_table.add_row(
-        "Effectiveness",
-        result.medicine1_clinical.effectiveness_rating.value,
-        result.medicine2_clinical.effectiveness_rating.value,
-    )
-    clinical_table.add_row(
-        "Efficacy Rate",
-        result.medicine1_clinical.efficacy_rate,
-        result.medicine2_clinical.efficacy_rate,
-    )
-    clinical_table.add_row(
-        "Onset of Action",
-        result.medicine1_clinical.onset_of_action,
-        result.medicine2_clinical.onset_of_action,
-    )
-    clinical_table.add_row(
-        "Safety Rating",
-        result.medicine1_clinical.safety_rating.value,
-        result.medicine2_clinical.safety_rating.value,
-    )
-
-    console.print(clinical_table)
-
-    # Black box warnings if present
-    if result.medicine1_clinical.black_box_warning or result.medicine2_clinical.black_box_warning:
-        console.print("[bold yellow]Black Box Warnings:[/bold yellow]")
-        if result.medicine1_clinical.black_box_warning:
-            console.print(f"  {result.medicine1_clinical.medicine_name}: {result.medicine1_clinical.black_box_warning}")
-        if result.medicine2_clinical.black_box_warning:
-            console.print(f"  {result.medicine2_clinical.medicine_name}: {result.medicine2_clinical.black_box_warning}")
-        console.print()
-
-    # Regulatory information table
-    reg_table = Table(title="Regulatory Information", border_style="blue")
-    reg_table.add_column("Aspect", style="cyan")
-    reg_table.add_column(result.medicine1_regulatory.medicine_name, style="magenta")
-    reg_table.add_column(result.medicine2_regulatory.medicine_name, style="magenta")
-
-    reg_table.add_row(
-        "FDA Status",
-        result.medicine1_regulatory.fda_approval_status,
-        result.medicine2_regulatory.fda_approval_status,
-    )
-    reg_table.add_row(
-        "Approval Date",
-        result.medicine1_regulatory.approval_date,
-        result.medicine2_regulatory.approval_date,
-    )
-    reg_table.add_row(
-        "Approval Type",
-        result.medicine1_regulatory.approval_type,
-        result.medicine2_regulatory.approval_type,
-    )
-    reg_table.add_row(
-        "Generic Available",
-        "Yes" if result.medicine1_regulatory.generic_available else "No",
-        "Yes" if result.medicine2_regulatory.generic_available else "No",
-    )
-
-    console.print(reg_table)
-
-    # Practical information table
-    practical_table = Table(title="Practical Information", border_style="blue")
-    practical_table.add_column("Aspect", style="cyan")
-    practical_table.add_column(result.medicine1_practical.medicine_name, style="magenta")
-    practical_table.add_column(result.medicine2_practical.medicine_name, style="magenta")
-
-    practical_table.add_row(
-        "Availability",
-        result.medicine1_practical.availability_status.value,
-        result.medicine2_practical.availability_status.value,
-    )
-    practical_table.add_row(
-        "Typical Cost",
-        result.medicine1_practical.typical_cost_range,
-        result.medicine2_practical.typical_cost_range,
-    )
-    practical_table.add_row(
-        "Insurance Coverage",
-        result.medicine1_practical.insurance_coverage,
-        result.medicine2_practical.insurance_coverage,
-    )
-
-    console.print(practical_table)
-
-    # Print recommendations
-    recs = result.recommendations
-    console.print("[bold cyan]Clinical Recommendations:[/bold cyan]")
-
-    if recs.for_acute_conditions:
-        console.print(Panel(recs.for_acute_conditions, title="For Acute Conditions", border_style="green"))
-    if recs.for_chronic_conditions:
-        console.print(Panel(recs.for_chronic_conditions, title="For Chronic Conditions", border_style="green"))
-    if recs.for_elderly_patients:
-        console.print(Panel(recs.for_elderly_patients, title="For Elderly Patients", border_style="green"))
-    if recs.for_cost_sensitive:
-        console.print(Panel(recs.for_cost_sensitive, title="For Cost-Sensitive Patients", border_style="green"))
-
-    console.print(
-        Panel(
-            recs.overall_recommendation,
-            title="Overall Recommendation",
-            border_style="cyan",
-        )
-    )
-
-    # Print narrative analysis
-    console.print(
-        Panel(
-            result.narrative_analysis,
-            title="Detailed Analysis",
-            border_style="magenta",
-        )
-    )
-
-    # Print evidence quality and limitations
-    console.print(
-        Panel(
-            result.evidence_quality,
-            title="Evidence Quality",
-            border_style="yellow",
-        )
-    )
-
-    console.print("[bold yellow]Limitations:[/bold yellow]")
-    limitations = [lim.strip() for lim in result.limitations.split(",")]
-    for lim in limitations:
-        console.print(f"  • {lim}")
-    console.print() # Add a newline for better spacing
-
-
 
 def main() -> int:
     """
@@ -433,7 +249,6 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, 1 for error)
     """
-    console = Console()
     args = get_user_arguments()
 
     # Apply verbosity level using centralized logging configuration
@@ -454,28 +269,31 @@ def main() -> int:
             prompt_style=args.prompt_style,
         )
 
-        logger.info(f"Configuration created successfully")
+        # Removed redundant log: logger.info(f"Configuration created successfully")
 
         # Run analysis
         model_config = ModelConfig(model=args.model, temperature=0.7)
         analyzer = DrugsComparison(model_config)
-        result = analyzer.generate_text(config)
+        result = analyzer.generate_text(config, structured=args.structured)
 
         # Print results
-        print_result(result, verbose=args.verbosity >= 3)
+        print_result(result, title="Medicines Comparison Result")
 
         # Output JSON to stdout if requested
         if args.json_output:
-            console.print(f"\n{result.model_dump_json(indent=2)}")
+            if isinstance(result, str):
+                print(f"\n{result}")
+            else:
+                print(f"\n{result.model_dump_json(indent=2)}")
 
         return 0
 
     except ValueError as e:
-        console.print(f"\n❌ [red]Invalid input:[/red] {e}")
+        print(f"\n❌ Invalid input: {e}")
         logger.error(f"Invalid input: {e}")
         return 1
     except Exception as e:
-        console.print(f"\n❌ [red]Error:[/red] {e}")
+        print(f"\n❌ Error: {e}")
         logger.error(f"Unexpected error: {e}")
         logger.exception("Full exception details:")
         return 1

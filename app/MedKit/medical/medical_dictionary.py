@@ -4,6 +4,9 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+from lite.utils import save_model_response
+
 from pydantic import BaseModel, Field
 
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
@@ -106,12 +109,7 @@ class MedicalDictionaryGenerator:
         """
         Save the generated medical term to a JSON file.
         """
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(medical_term.model_dump(), f, indent=2)
-        
-        logger.info(f"✓ Medical term saved to {output_path}")
-        return output_path
+        return save_model_response(medical_term, output_path)
 
     def print_summary(self, medical_term: MedicalTerm) -> None:
         """

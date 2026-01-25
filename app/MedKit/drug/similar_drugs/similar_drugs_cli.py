@@ -7,20 +7,12 @@ mechanisms of action. Provides detailed comparisons to help identify suitable su
 # ==============================================================================
 # STANDARD LIBRARY IMPORTS
 # ==============================================================================
-import argparse
-import json
 import logging
 import sys
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
+from utils.output_formatter import print_result
 
-# ==============================================================================
-# THIRD-PARTY IMPORTS
-# ==============================================================================
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
 
 # ==============================================================================
 # LOCAL IMPORTS (LiteClient setup)
@@ -33,14 +25,7 @@ from lite.logging_config import configure_logging
 # ==============================================================================
 # LOCAL IMPORTS (Module models)
 # ==============================================================================
-from similar_drugs_models import (
-    SimilarityCategory,
-    EfficacyComparison,
-    SimilarMedicineDetail,
-    SimilarMedicinesCategory,
-    SwitchingGuidance,
-    SimilarMedicinesResult,
-)
+from similar_drugs_models import SimilarMedicinesResult
 
 # ==============================================================================
 # LOGGING CONFIGURATION
@@ -89,7 +74,8 @@ class SimilarDrugs:
         include_generics: bool = True,
         patient_age: Optional[int] = None,
         patient_conditions: Optional[str] = None,
-    ) -> SimilarMedicinesResult:
+        structured: bool = False,
+    ) -> Union[SimilarMedicinesResult, str]:
         """
         Finds top 10-15 medicines similar to a given medicine.
 
@@ -125,10 +111,14 @@ class SimilarDrugs:
 
         context = ". ".join(context_parts) + "."
 
+        response_format = None
+        if structured:
+            response_format = SimilarMedicinesResult
+
         result = self.client.generate_text(
             model_input=ModelInput(
                 user_prompt=f"Find the top 10-15 most similar medicines to {medicine_name} - prioritize same active ingredients, then therapeutic class, then similar mechanism. {context}",
-                response_format=SimilarMedicinesResult,
+                response_format=response_format,
             )
         )
 
@@ -142,7 +132,8 @@ def get_similar_medicines(
     include_generics: bool = True,
     patient_age: Optional[int] = None,
     patient_conditions: Optional[str] = None,
-) -> SimilarMedicinesResult:
+    structured: bool = False,
+) -> Union[SimilarMedicinesResult, str]:
     """
     Get similar medicines.
 
@@ -166,6 +157,7 @@ def get_similar_medicines(
         include_generics=include_generics,
         patient_age=patient_age,
         patient_conditions=patient_conditions,
+        structured=structured,
     )
 
 
@@ -272,120 +264,16 @@ Examples:
         help="Output results as JSON to stdout (in addition to file)",
     )
 
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
+
     return parser
 
 
-# ==============================================================================
-# DISPLAY/OUTPUT FUNCTIONS
-# ==============================================================================
-
-
-def print_result(result: SimilarMedicinesResult, verbose: bool = False) -> None:
-    """
-    Print similar medicines results in a formatted manner using rich.
-
-    Args:
-        result: The analysis result to print
-        verbose: Whether to print detailed information
-    """
-    console = Console()
-
-    # Print original medicine info
-    original_info = (
-        f"[bold]Original Medicine:[/bold] {result.original_medicine}\n"
-        f"[bold]Active Ingredients:[/bold] {result.original_active_ingredients}\n"
-        f"[bold]Therapeutic Use:[/bold] {result.original_therapeutic_use}\n"
-        f"[bold]Similar Medicines Found:[/bold] {result.total_similar_medicines_found}"
-    )
-    console.print(
-        Panel(
-            original_info,
-            title="Original Medicine Information",
-            border_style="cyan",
-        )
-    )
-
-    # Print top recommended
-    console.print(
-        Panel(
-            result.top_recommended,
-            title="Top Recommended Alternatives",
-            border_style="green",
-        )
-    )
-
-    # Print categorized results
-    console.print("[bold cyan]Similar Medicines by Category:[/bold cyan]")
-    for category in result.categorized_results:
-        category_text = (
-            f"[bold]{category.category.value}[/bold]\n"
-            f"Count: {category.count}\n"
-            f"Summary: {category.category_summary}"
-        )
-        console.print(
-            Panel(
-                category_text,
-                border_style="blue",
-            )
-        )
-
-        if verbose:
-            console.print("[dim]Detailed Medicines:[/dim]")
-            for medicine in category.medicines:
-                med_details = (
-                    f"[bold]#{medicine.rank} - {medicine.medicine_name}[/bold]\n"
-                    f"  Similarity Score: {medicine.similarity_score}%\n"
-                    f"  Efficacy: {medicine.efficacy_comparison.value}\n"
-                )
-                if medicine.brand_names:
-                    med_details += f"  Brand Names: {medicine.brand_names}\n"
-                med_details += f"  Cost Range: {medicine.typical_cost_range}"
-                if medicine.generic_available:
-                    med_details += "\n  Generic Available: Yes"
-                console.print(med_details)
-
-    # Print switching guidance
-    guidance = result.switching_guidance
-
-    console.print(
-        Panel(
-            guidance.transition_recommendations,
-            title="Transition Recommendations",
-            border_style="yellow",
-        )
-    )
-
-    # Switching considerations
-    console.print("[bold yellow]Switching Considerations:[/bold yellow]")
-    considerations = [c.strip() for c in guidance.switching_considerations.split(",")]
-    for consideration in considerations:
-        console.print(f"  • {consideration}")
-    console.print()
-
-    # Monitoring during switch
-    console.print("[bold yellow]Monitoring During Switch:[/bold yellow]")
-    monitoring = [m.strip() for m in guidance.monitoring_during_switch.split(",")]
-    for item in monitoring:
-        console.print(f"  • {item}")
-    console.print()
-
-    # Print summary analysis
-    console.print(
-        Panel(
-            result.summary_analysis,
-            title="Analysis Summary",
-            border_style="magenta",
-        )
-    )
-
-    # Clinical notes
-    console.print(
-        Panel(
-            result.clinical_notes,
-            title="Clinical Notes",
-            border_style="magenta",
-        )
-    )
 
 
 # ==============================================================================
@@ -414,7 +302,7 @@ def main() -> int:
             verbosity=args.verbosity,
         )
 
-        logger.info(f"Configuration created successfully")
+        logger.debug(f"Configuration created successfully")
 
         # Run analysis
         model_config = ModelConfig(model="ollama/gemma2", temperature=0.7)
@@ -424,24 +312,34 @@ def main() -> int:
             include_generics=args.include_generics if hasattr(args, 'include_generics') else True,
             patient_age=args.age if hasattr(args, 'age') else None,
             patient_conditions=args.conditions if hasattr(args, 'conditions') else None,
+            structured=args.structured,
         )
 
         # Print results
-        print_result(result, verbose=args.verbosity >= 3)
+        print_result(result, title="Similar Medicines Analysis")
 
         # Save results to file
         if args.output:
             output_path = args.output
         else:
             medicine_clean = args.medicine_name.lower().replace(' ', '_')
-            output_path = Path("outputs") / f"{medicine_clean}_similar_medicines.json"
+            suffix = ".json"
+            if isinstance(result, str):
+                suffix = ".md"
+            output_path = Path("outputs") / f"{medicine_clean}_similar_medicines{suffix}"
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, "w") as f:
-            f.write(result.model_dump_json(indent=2))
+        if isinstance(result, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
 
-        logger.info(f"✓ Results saved to {output_path}")
+        with open(output_path, "w") as f:
+            if isinstance(result, str):
+                f.write(result)
+            else:
+                f.write(result.model_dump_json(indent=2))
+
+        logger.debug(f"✓ Results saved to {output_path}")
         print(f"\n✓ Results saved to: {output_path}")
 
         # Output JSON to stdout if requested
@@ -457,7 +355,6 @@ def main() -> int:
     except Exception as e:
         print(f"\n❌ Error: {e}", file=sys.stderr)
         logger.error(f"Unexpected error: {e}")
-        logger.exception("Full exception details:")
         return 1
 
 

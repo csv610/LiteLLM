@@ -3,12 +3,14 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
 
 from drugbank_medicine_models import MedicineInfo
 
@@ -20,36 +22,28 @@ class DrugBankMedicine:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, medicine_name: str) -> MedicineInfo:
+    def generate_text(self, medicine_name: str, structured: bool = False) -> Union[MedicineInfo, str]:
         """Fetch comprehensive medicine information (pharmacology, safety, etc.)."""
         if not medicine_name or not medicine_name.strip():
             raise ValueError("Medicine name cannot be empty")
 
-        logger.info("-" * 80)
-        logger.info(f"Starting medicine information fetch for: {medicine_name}")
+        logger.debug(f"Starting medicine information fetch for: {medicine_name}")
 
-        user_prompt = self._create_prompt(medicine_name)
-        model_input = self._create_model_input(user_prompt)
+        user_prompt = f"Provide detailed information about the medicine {medicine_name}."
+        model_input = ModelInput(
+            user_prompt=user_prompt,
+            response_format=MedicineInfo if structured else None,
+        )
         result = self._ask_llm(model_input)
 
-        logger.info(f"✓ Successfully fetched info for {medicine_name}")
-        logger.info("-" * 80)
+        logger.debug(f"✓ Successfully fetched info for {medicine_name}")
         return result
 
-    def _create_prompt(self, medicine_name: str) -> str:
-        """Create the user prompt for the LLM."""
-        return f"Provide detailed information about the medicine {medicine_name}."
 
-    def _create_model_input(self, user_prompt: str) -> ModelInput:
-        """Create the ModelInput for the LiteClient."""
-        return ModelInput(
-            user_prompt=user_prompt,
-            response_format=MedicineInfo,
-        )
 
-    def _ask_llm(self, model_input: ModelInput) -> MedicineInfo:
+    def _ask_llm(self, model_input: ModelInput) -> Union[MedicineInfo, str]:
         """Helper to call LiteClient with error handling."""
-        logger.info("Calling LiteClient.generate_text()...")
+        logger.debug("Calling LiteClient.generate_text()...")
         try:
             return self.client.generate_text(model_input=model_input)
         except Exception as e:
@@ -80,6 +74,7 @@ Examples:
     parser.add_argument("-t", "--temperature", type=float, default=0.2, help="Temperature (0-1, default: 0.2)")
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level")
     parser.add_argument("--json-output", action="store_true", help="Output results as JSON to stdout")
+    parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
     return parser.parse_args()
 
 def main() -> int:
@@ -95,22 +90,28 @@ def main() -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=args.temperature)
         analyzer = DrugBankMedicine(model_config)
-        result = analyzer.generate_text(args.medicine)
+        result = analyzer.generate_text(args.medicine, structured=args.structured)
 
         # Handle saving to file
         sanitized_name = sanitize_filename(args.medicine).lower()
         output_dir = Path("outputs")
         output_dir.mkdir(exist_ok=True)
-        output_filename = output_dir / f"{sanitized_name}.json"
+        suffix = ".json"
+        if isinstance(result, str):
+            suffix = ".md"
+        output_filename = output_dir / f"{sanitized_name}{suffix}"
 
-        with open(output_filename, "w") as f:
-            import json
-            json.dump(result.model_dump(), f, indent=4)
+        save_model_response(result, output_filename)
         
+        print_result(result, title=f"Medicine Information: {args.medicine}")
+
         print(f"\n✓ Medicine information saved to: {output_filename}")
 
         if args.json_output:
-            print(f"\n{result.model_dump_json(indent=2)}")
+            if isinstance(result, str):
+                print(f"\n{result}")
+            else:
+                print(f"\n{result.model_dump_json(indent=2)}")
 
         return 0
 
