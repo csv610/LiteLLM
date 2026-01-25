@@ -4,7 +4,7 @@ import logging
 import sys
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, Field
 from rich.console import Console
@@ -14,6 +14,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
+from lite.utils import save_model_response
+from utils.output_formatter import print_result
+
 from medical_test_devices_models import MedicalDeviceInfo
 
 logger = logging.getLogger(__name__)
@@ -89,36 +92,42 @@ class MedicalTestDeviceGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
 
-    def generate_text(self, device_name: str) -> MedicalDeviceInfo:
+    def generate_text(self, device_name: str, structured: bool = False) -> Union[MedicalDeviceInfo, str]:
         """
         Generate comprehensive medical device information.
 
         Args:
             device_name: Name of the medical device.
+            structured: Whether to use structured output mode (default: False)
 
         Returns:
-            The generated MedicalDeviceInfo object.
+            Union[MedicalDeviceInfo, str]: The generated MedicalDeviceInfo object or raw string.
         """
-        logger.info(f"Generating medical device information for: {device_name}...")
+        logger.debug(f"Generating medical device information for: {device_name}...")
 
         # Build prompts and create ModelInput
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.build_user_prompt(device_name)
+
+        response_format=None
+        if structured:
+           response_format = MedicalDeviceInfo
+
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=MedicalDeviceInfo
+            response_format=response_format
         )
 
         try:
             result = self.ask_llm(model_input)
-            logger.info(f"Successfully generated medical device information for: {device_name}.")
+            logger.debug(f"Successfully generated medical device information for: {device_name}.")
             return result
         except (ValueError, RuntimeError) as e:
             logger.error(f"Error generating device information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> MedicalDeviceInfo:
+    def ask_llm(self, model_input: ModelInput) -> Union[MedicalDeviceInfo, str]:
         """
         Call the LLM client to generate information.
 
@@ -126,54 +135,16 @@ class MedicalTestDeviceGenerator:
             model_input: ModelInput object.
 
         Returns:
-            The generated MedicalDeviceInfo object.
+            The generated results (MedicalDeviceInfo or str).
         """
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, device_info: MedicalDeviceInfo, output_path: Path) -> Path:
-        """
-        Save the generated device information to a JSON file.
+    def save(self, device_info: Union[MedicalDeviceInfo, str], output_path: Path) -> Path:
+        """Save the generated device information to a JSON or MD file."""
+        if isinstance(device_info, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
+        return save_model_response(device_info, output_path)
 
-        Args:
-            device_info: The MedicalDeviceInfo object to save.
-            output_path: Path where the JSON file should be saved.
-
-        Returns:
-            The output path where the file was saved.
-
-        Raises:
-            OSError: If directory creation or file writing fails.
-        """
-        try:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(device_info.model_dump(), f, indent=2)
-            logger.info(f"Saved device information to: {output_path}")
-            return output_path
-        except (OSError, IOError) as e:
-            logger.error(f"Error saving device information to {output_path}: {e}")
-            raise
-
-def print_result(result: MedicalDeviceInfo) -> None:
-    """Print medical device information in a formatted manner using rich."""
-    console = Console()
-
-    # Extract main fields from the result model
-    result_dict = result.model_dump()
-
-    # Create a formatted panel showing the result
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
 
 def get_user_arguments() -> argparse.Namespace:
     """
@@ -187,6 +158,12 @@ def get_user_arguments() -> argparse.Namespace:
     parser.add_argument("-o", "--output", type=str, help="Optional: The path to save the output JSON file.")
     parser.add_argument("-m", "--model", type=str, default="ollama/gemma3", help="Model to use for generation (default: ollama/gemma3).")
     parser.add_argument("-v", "--verbosity", type=int, default=2, help="Logging verbosity level (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG). Default: 2.")
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
     return parser.parse_args()
 
@@ -212,8 +189,8 @@ def app_cli():
         generator = MedicalTestDeviceGenerator(model_config)
 
         # Generate the device information
-        result = generator.generate_text(args.input)
-
+        result = generator.generate_text(args.input, structured=args.structured)
+        
         # Save to file
         if args.output:
             output_path = Path(args.output)
@@ -224,7 +201,7 @@ def app_cli():
         generator.save(result, output_path)
 
         # Display results
-        print_result(result)
+        print_result(result, title="Medical Device Information")
 
     except Exception as e:
         logger.error(f"CLI execution failed: {e}")
