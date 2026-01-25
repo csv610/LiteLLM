@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel
 from rich.console import Console
@@ -14,6 +14,7 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
+from utils.output_formatter import print_result
 from medical_test_info_models import MedicalTestInfo
 
 logger = logging.getLogger(__name__)
@@ -87,25 +88,25 @@ class MedicalTestInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
 
-    def generate_text(self, test_name: str, use_pydantic=False):
+    def generate_text(self, test_name: str, structured: bool = False) -> Union[MedicalTestInfo, str]:
         """
         Generate the core medical test information.
 
         Args:
             test_name: The name of the medical test.
+            structured: Whether to use structured output mode (default: False)
 
         Returns:
-            A MedicalTestInfo object with the generated data.
+            Union[MedicalTestInfo, str]: Validated evaluation results or raw string
         """
-        logger.info(f"Generating medical test information for: {test_name}")
+        logger.debug(f"Generating medical test information for: {test_name}")
 
         # Build prompts and create ModelInput
         system_prompt = PromptBuilder.create_system_prompt()
         prompt = PromptBuilder.create_user_prompt(test_name)
 
         response_format = None
-        if use_pydantic:
-           print( "USE Pydantic")
+        if structured:
            response_format = MedicalTestInfo
 
         model_input = ModelInput(
@@ -116,13 +117,13 @@ class MedicalTestInfoGenerator:
         
         try:
             result = self.ask_llm(model_input)
-            logger.info(f"Successfully generated medical test information for: {test_name}")
+            logger.debug(f"Successfully generated medical test information for: {test_name}")
             return result
         except Exception as e:
             logger.error(f"Error generating medical test information for {test_name}: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput):
+    def ask_llm(self, model_input: ModelInput) -> Union[MedicalTestInfo, str]:
         """
         Call the LLM client to generate information.
 
@@ -130,36 +131,17 @@ class MedicalTestInfoGenerator:
             model_input: ModelInput object.
 
         Returns:
-            The generated MedicalTestInfo object.
+            The generated results (MedicalTestInfo or str).
         """
         return self.client.generate_text(model_input=model_input)
 
 
-    def save(self, result, output_path: Path) -> Path:
-        """Save the generated test information to a JSON file."""
+    def save(self, result: Union[MedicalTestInfo, str], output_path: Path) -> Path:
+        """Save the generated test information to a JSON or MD file."""
+        if isinstance(result, str) and output_path.suffix == ".json":
+            output_path = output_path.with_suffix(".md")
         return save_model_response(result, output_path)
 
-
-def print_result(result: MedicalTestInfo, verbose: bool = False) -> None:
-    """Print medical test information in a formatted manner using rich."""
-    console = Console()
-
-    # Extract main fields from the result model
-    result_dict = result.model_dump()
-
-    # Create a formatted panel showing the result
-    for section_name, section_value in result_dict.items():
-        if section_value is not None:
-            if isinstance(section_value, dict):
-                formatted_text = "\n".join([f"  [bold]{k}:[/bold] {v}" for k, v in section_value.items()])
-            else:
-                formatted_text = str(section_value)
-
-            console.print(Panel(
-                formatted_text,
-                title=section_name.replace('_', ' ').title(),
-                border_style="cyan",
-            ))
 
 def get_user_arguments() -> argparse.Namespace:
     """
@@ -198,6 +180,12 @@ def get_user_arguments() -> argparse.Namespace:
         default=2,
         help="Logging verbosity level (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG). Default: 2."
     )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
     return parser.parse_args()
 
 def app_cli():
@@ -221,9 +209,11 @@ def app_cli():
         generator = MedicalTestInfoGenerator(model_config=model_config)
         
         # Generate the test information
-        result = generator.generate_text(args.test)
+        result = generator.generate_text(args.test, structured=args.structured)
 
-        print(result)
+        # No raw print here, print_result will handle it if we want formatted output
+        # result is always an object, so we use print_result
+        print_result(result, title="Medical Test Information")
         
         # Save to file
         if args.output:
