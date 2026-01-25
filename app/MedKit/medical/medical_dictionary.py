@@ -1,7 +1,9 @@
 import argparse
+import hashlib
 import json
-from pathlib import Path
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -12,8 +14,6 @@ from pydantic import BaseModel, Field
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
 
 from medkit.utils.logging_config import setup_logger
-
-import hashlib
 from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
 
 # Configure logging
@@ -127,22 +127,6 @@ class MedicalDictionaryGenerator:
         print(f"\n✓ Generation complete. Saved to {self.output_path}")
 
 
-    def close(self):
-        """Close LMDB storage and release resources."""
-        if self.storage:
-            try:
-                self.storage.close()
-                logger.info("LMDB storage closed successfully.")
-            except Exception as e:
-                logger.error(f"Error closing LMDB storage: {e}")
-
-    def __enter__(self):
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.close()
 
 class MedicalDictionary:
     """
@@ -168,13 +152,14 @@ class MedicalDictionary:
 def main():
     parser = argparse.ArgumentParser(description="Generate a medical dictionary entry.")
     parser.add_argument("-i", "--input", type=str, required=True, help="The medical term to define.")
-    parser.add_argument("-o", "--output", ype=str, default=None, help="Optional: The path to save the output JSON file.")
+    parser.add_argument("-o", "--output", type=str, default=None, help="Optional: The path to save the output JSON file.")
     parser.add_argument("-v", "--quiet", action="store_true", help="Verbosity level (default: 2=WARNING)")
 
     args = parser.parse_args()
 
     generator = MedicalDictionaryGenerator()
-    generator.generate(term_query=args.input, output_path=output_file_path)
+    output_path = Path(args.output) if args.output else None
+    generator.generate(term_query=args.input, output_path=output_path)
 
 if __name__ == "__main__":
    main()
