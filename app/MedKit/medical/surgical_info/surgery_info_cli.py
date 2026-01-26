@@ -12,17 +12,13 @@ import sys
 from pathlib import Path
 from typing import Optional, final, Union
 
-from rich.console import Console
-from rich.panel import Panel
-
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from surgery_info_models import SurgeryInfo
+from surgery_info_models import SurgeryInfoModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +73,7 @@ class SurgeryInfoGenerator:
         self.client = LiteClient(model_config)
         logger.debug(f"Initialized SurgeryInfoGenerator")
 
-    def generate_text(self, surgery: str, structured: bool = False) -> Union[SurgeryInfo, str]:
+    def generate_text(self, surgery: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive surgery information."""
         if not surgery or not str(surgery).strip():
             raise ValueError("Surgery name cannot be empty")
@@ -91,7 +87,7 @@ class SurgeryInfoGenerator:
 
         response_format = None
         if structured:
-            response_format = SurgeryInfo
+            response_format = SurgeryInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -108,21 +104,15 @@ class SurgeryInfoGenerator:
             logger.error(f"✗ Error generating surgery information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[SurgeryInfo, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, surgery_info: Union[SurgeryInfo, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the surgery information to a JSON or MD file."""
-        if isinstance(surgery_info, str) and output_path.suffix == ".json":
+        if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
-        return save_model_response(surgery_info, output_path)
-
-    @property
-    def logger(self):
-        return logger
-
-
+        return save_model_response(result, output_path)
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -201,13 +191,10 @@ def app_cli() -> int:
             logger.error("✗ Failed to generate surgery information.")
             sys.exit(1)
 
-        # Display formatted result
-        print_result(surgery_info, title="Surgery Information")
-
         if args.output:
             generator.save(surgery_info, Path(args.output))
         else:
-            default_path = output_dir / f"{args.surgery.lower().replace(' ', '_')}_info.json"
+            default_path = output_dir / f"{args.surgery.lower().replace(' ', '_')}.json"
             generator.save(surgery_info, default_path)
 
         logger.debug("✓ Surgery information generation completed successfully")
