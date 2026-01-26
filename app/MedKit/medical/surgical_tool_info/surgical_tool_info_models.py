@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 
-class ToolBasics(BaseModel):
+class ToolBasicsModel(BaseModel):
     tool_name: str = Field(description="Official name of the surgical tool")
     alternative_names: str = Field(description="Other names or abbreviations for this tool, comma-separated")
     tool_category: str = Field(description="Category (cutting, grasping, retracting, cautery, etc)")
@@ -17,7 +17,7 @@ class ToolBasics(BaseModel):
     instrument_family: str = Field(description="Family or group this tool belongs to (e.g., scissor family, clamp family)")
 
 
-class ToolPurpose(BaseModel):
+class ToolPurposeModel(BaseModel):
     primary_purpose: str = Field(description="Main function of this surgical tool")
     surgical_applications: str = Field(description="Specific surgical procedures where this tool is used, comma-separated")
     anatomical_targets: str = Field(description="Anatomical structures this tool is typically used on, comma-separated")
@@ -25,7 +25,7 @@ class ToolPurpose(BaseModel):
     unique_advantages: str = Field(description="What makes this tool superior to alternatives for its intended use, comma-separated")
 
 
-class PhysicalSpecifications(BaseModel):
+class PhysicalSpecificationsModel(BaseModel):
     dimensions: str = Field(description="Overall length and dimensions with specific measurements in cm or inches")
     weight: str = Field(description="Tool weight if relevant with specific values in grams or ounces")
     material_composition: str = Field(description="Materials used (stainless steel grades, titanium, tungsten carbide), comma-separated")
@@ -35,7 +35,7 @@ class PhysicalSpecifications(BaseModel):
     sterility_type: str = Field(description="Single-use or reusable, and sterilization method (autoclavable, ETO gas, etc)")
 
 
-class OperationalCharacteristics(BaseModel):
+class OperationalCharacteristicsModel(BaseModel):
     cutting_or_grasping_force: str = Field(description="Force specifications with numerical values if applicable")
     actuation_mechanism: str = Field(description="How the tool is activated (manual, mechanical, powered, articulated)")
     degrees_of_freedom: str = Field(description="Range of motion or articulation (fixed, single axis, multi-axis with specific angles)")
@@ -44,7 +44,7 @@ class OperationalCharacteristics(BaseModel):
     working_distance: str = Field(description="Distance from tool tip to handle/body, optimal working distance from patient")
 
 
-class SafetyFeatures(BaseModel):
+class SafetyFeaturesModel(BaseModel):
     safety_mechanisms: str = Field(description="Built-in safety features (locks, guards, quick-release), comma-separated")
     slip_resistance: str = Field(description="Grip and handling safety features to prevent slipping")
     wear_considerations: str = Field(description="Signs of tool wear that indicate replacement need")
@@ -53,7 +53,7 @@ class SafetyFeatures(BaseModel):
     tissue_damage_prevention: str = Field(description="Design features to minimize inadvertent tissue damage, comma-separated")
 
 
-class PreOperativePreperation(BaseModel):
+class PreOperativePreperationModel(BaseModel):
     inspection_requirements: str = Field(description="Pre-use inspection checklist (sharp test, functional test, damage check), comma-separated")
     cleaning_protocols: str = Field(description="How to properly clean before surgery with specific cleaning agents and duration")
     sterilization_requirements: str = Field(description="Sterilization method (autoclave temperature/time, chemical), specific parameters")
@@ -62,7 +62,7 @@ class PreOperativePreperation(BaseModel):
     preparation_time: str = Field(description="Time required for complete preparation and sterilization")
 
 
-class IntraOperativeUse(BaseModel):
+class IntraOperativeUseModel(BaseModel):
     positioning_in_field: str = Field(description="How tool is positioned relative to surgical field and anatomy")
     handling_technique: str = Field(description="Proper handling and technique for effective use")
     hand_position_requirements: str = Field(description="Specific hand grip and positioning for optimal control and visibility")
@@ -72,7 +72,7 @@ class IntraOperativeUse(BaseModel):
     ergonomic_considerations: str = Field(description="Ergonomic aspects of prolonged use (fatigue risk, repetitive strain prevention)")
 
 
-class DiscomfortRisksAndComplications(BaseModel):
+class DiscomfortRisksAndComplicationsModel(BaseModel):
     surgeon_fatigue_factors: str = Field(description="Design aspects that might cause surgeon fatigue or strain with prolonged use")
     common_handling_errors: str = Field(description="Frequent mistakes surgeons make with this tool, comma-separated")
     tissue_damage_risks: str = Field(description="Potential unintended tissue damage (perforation, crushing, charring), comma-separated")
@@ -82,7 +82,7 @@ class DiscomfortRisksAndComplications(BaseModel):
     electrical_safety: str = Field(description="For powered tools: electrical hazards, grounding, safety interlocks")
 
 
-class MaintenanceAndCare(BaseModel):
+class MaintenanceAndCareModel(BaseModel):
     post_operative_cleaning: str = Field(description="Cleaning protocol after surgery with specific solutions and duration")
     lubrication_schedule: str = Field(description="When and with what lubricant to maintain tool function")
     inspection_frequency: str = Field(description="How often tool should be inspected with specific timeframes")
@@ -92,7 +92,7 @@ class MaintenanceAndCare(BaseModel):
     expected_lifespan: str = Field(description="Typical lifespan in number of uses or years with specific parameters")
 
 
-class SterilizationAndDisinfection(BaseModel):
+class SterilizationAndDisinfectionModel(BaseModel):
     approved_sterilization_methods: str = Field(description="Approved methods with temperature/pressure/time specifications, comma-separated")
     incompatible_sterilization: str = Field(description="Methods that should NOT be used and why, comma-separated")
     disinfection_alternatives: str = Field(description="If high-level disinfection acceptable, methods and conditions")
@@ -101,7 +101,7 @@ class SterilizationAndDisinfection(BaseModel):
     reprocessing_manufacturer_protocols: str = Field(description="Manufacturer-specific reprocessing guidelines to follow")
 
 
-class AlternativesAndComparisons(BaseModel):
+class AlternativesAndComparisonsModel(BaseModel):
     similar_alternative_tools: str = Field(description="Other tools that serve similar function, comma-separated")
     advantages_over_alternatives: str = Field(description="Specific advantages of this tool compared to alternatives, comma-separated")
     disadvantages_vs_alternatives: str = Field(description="When alternatives might be preferred, comma-separated reasons")
@@ -110,7 +110,7 @@ class AlternativesAndComparisons(BaseModel):
     complementary_tools: str = Field(description="Tools often used alongside this one, comma-separated")
 
 
-class HistoricalContext(BaseModel):
+class HistoricalContextModel(BaseModel):
     invention_history: str = Field(description="History of tool development and key innovators")
     evolution_timeline: str = Field(description="Major design improvements over time with dates if applicable")
     clinical_evidence: str = Field(description="Key studies demonstrating effectiveness or safety")
@@ -118,7 +118,7 @@ class HistoricalContext(BaseModel):
     current_status: str = Field(description="Current role in modern surgery (standard, transitioning out, emerging)")
 
 
-class SpecialtySpecificConsiderations(BaseModel):
+class SpecialtySpecificConsiderationsModel(BaseModel):
     general_surgery_specific: str = Field(description="Specific uses and considerations in general surgery")
     orthopedic_specific: str = Field(description="Specific uses and considerations in orthopedic surgery")
     cardiac_specific: str = Field(description="Specific uses and considerations in cardiac surgery")
@@ -128,7 +128,7 @@ class SpecialtySpecificConsiderations(BaseModel):
     robotic_integration: str = Field(description="If applicable: use with robotic surgical systems")
 
 
-class TrainingAndCertification(BaseModel):
+class TrainingAndCertificationModel(BaseModel):
     training_requirements: str = Field(description="Training needed to safely use this tool")
     proficiency_indicators: str = Field(description="Signs of mastery and competency with tool use, comma-separated")
     common_learning_mistakes: str = Field(description="Typical errors made during training period, comma-separated")
@@ -137,7 +137,7 @@ class TrainingAndCertification(BaseModel):
     mentoring_best_practices: str = Field(description="Best practices for teaching others to use this tool")
 
 
-class RegulatoryAndStandards(BaseModel):
+class RegulatoryAndStandardsModel(BaseModel):
     fda_classification: str = Field(description="FDA classification (Class I, II, III) if applicable")
     fda_status: str = Field(description="FDA approval/clearance status with approval date if applicable")
     iso_standards: str = Field(description="Relevant ISO standards the tool must meet, comma-separated")
@@ -146,7 +146,7 @@ class RegulatoryAndStandards(BaseModel):
     traceability_requirements: str = Field(description="Labeling and tracking requirements for patient safety and recalls")
 
 
-class CostAndProcurement(BaseModel):
+class CostAndProcurementModel(BaseModel):
     single_use_cost: Optional[str] = Field(description="Cost per use for single-use instruments")
     reusable_initial_cost: Optional[str] = Field(description="Initial purchase cost for reusable instruments")
     lifecycle_cost: str = Field(description="Total cost of ownership including maintenance, sterilization, replacement")
@@ -156,7 +156,7 @@ class CostAndProcurement(BaseModel):
     insurance_coverage: str = Field(description="Typical insurance/hospital coverage for this tool")
 
 
-class EducationalContent(BaseModel):
+class EducationalContentModel(BaseModel):
     plain_language_explanation: str = Field(description="Simple explanation of what this tool does and why")
     key_takeaways: str = Field(description="3-5 most important points about this tool, comma-separated")
     common_misconceptions: str = Field(description="Common myths or misunderstandings about this tool, comma-separated")
@@ -164,21 +164,27 @@ class EducationalContent(BaseModel):
     video_demonstration_topics: str = Field(description="Key aspects that should be covered in training videos, comma-separated")
 
 
-class SurgicalToolInfo(BaseModel):
-    tool_basics: ToolBasics
-    tool_purpose: ToolPurpose
-    physical_specifications: PhysicalSpecifications
-    operational_characteristics: OperationalCharacteristics
-    safety_features: SafetyFeatures
-    preparation: PreOperativePreperation
-    intraoperative_use: IntraOperativeUse
-    discomfort_risks_and_complications: DiscomfortRisksAndComplications
-    maintenance_and_care: MaintenanceAndCare
-    sterilization_and_disinfection: SterilizationAndDisinfection
-    alternatives_and_comparisons: AlternativesAndComparisons
-    historical_context: HistoricalContext
-    specialty_specific_considerations: SpecialtySpecificConsiderations
-    training_and_certification: TrainingAndCertification
-    regulatory_and_standards: RegulatoryAndStandards
-    cost_and_procurement: CostAndProcurement
-    educational_content: EducationalContent
+class SurgicalToolInfoModel(BaseModel):
+    tool_basics: ToolBasicsModel
+    tool_purpose: ToolPurposeModel
+    physical_specifications: PhysicalSpecificationsModel
+    operational_characteristics: OperationalCharacteristicsModel
+    safety_features: SafetyFeaturesModel
+    preparation: PreOperativePreperationModel
+    intraoperative_use: IntraOperativeUseModel
+    discomfort_risks_and_complications: DiscomfortRisksAndComplicationsModel
+    maintenance_and_care: MaintenanceAndCareModel
+    sterilization_and_disinfection: SterilizationAndDisinfectionModel
+    alternatives_and_comparisons: AlternativesAndComparisonsModel
+    historical_context: HistoricalContextModel
+    specialty_specific_considerations: SpecialtySpecificConsiderationsModel
+    training_and_certification: TrainingAndCertificationModel
+    regulatory_and_standards: RegulatoryAndStandardsModel
+    cost_and_procurement: CostAndProcurementModel
+    educational_content: EducationalContentModel
+
+
+
+class ModelOutput(BaseModel):
+    data: Optional[SurgicalToolInfoModel] = None
+    markdown: Optional[str] = None

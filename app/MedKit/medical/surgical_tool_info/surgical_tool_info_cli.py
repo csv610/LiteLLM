@@ -5,17 +5,13 @@ import sys
 from pathlib import Path
 from typing import Union
 
-from rich.console import Console
-from rich.panel import Panel
-
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from utils.output_formatter import print_result
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 
-from surgical_tool_info_models import SurgicalToolInfo
+from surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +54,7 @@ class SurgicalToolInfoGenerator:
         self.client = LiteClient(model_config)
         logger.debug(f"Initialized SurgicalToolInfoGenerator")
 
-    def generate_text(self, tool: str, structured: bool = False) -> Union[SurgicalToolInfo, str]:
+    def generate_text(self, tool: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive surgical tool information."""
         if not tool or not str(tool).strip():
             raise ValueError("Tool name cannot be empty")
@@ -72,7 +68,7 @@ class SurgicalToolInfoGenerator:
 
         response_format = None
         if structured:
-            response_format = SurgicalToolInfo
+            response_format = SurgicalToolInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -89,15 +85,15 @@ class SurgicalToolInfoGenerator:
             logger.error(f"✗ Error generating surgical tool information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[SurgicalToolInfo, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, tool_info: Union[SurgicalToolInfo, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the surgical tool information to a JSON or MD file."""
-        if isinstance(tool_info, str) and output_path.suffix == ".json":
+        if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
-        return save_model_response(tool_info, output_path)
+        return save_model_response(result, output_path)
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -170,7 +166,7 @@ def app_cli() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = SurgicalToolInfoGenerator(model_config)
         tool_info = generator.generate_text(tool=args.tool, structured=args.structured)
 
@@ -178,13 +174,10 @@ def app_cli() -> int:
             logger.error("✗ Failed to generate surgical tool information.")
             sys.exit(1)
 
-        # Display formatted result
-        print_result(tool_info, title="Surgical Tool Information")
-
         if args.output:
             generator.save(tool_info, Path(args.output))
         else:
-            default_path = output_dir / f"{args.tool.lower().replace(' ', '_')}_info.json"
+            default_path = output_dir / f"{args.tool.lower().replace(' ', '_')}.json"
             generator.save(tool_info, default_path)
 
         logger.debug("✓ Surgical tool information generation completed successfully")
