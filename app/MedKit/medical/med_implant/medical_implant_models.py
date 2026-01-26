@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 
-class ImplantMetadata(BaseModel):
+class ImplantMetadataModel(BaseModel):
     """Basic information about the implant."""
     implant_name: str = Field(description="Official name of the implant")
     alternative_names: str = Field(description="Other names or aliases for this implant, comma-separated")
@@ -13,14 +13,14 @@ class ImplantMetadata(BaseModel):
     common_manufacturers: str = Field(description="Major manufacturers of this implant type, comma-separated")
 
 
-class ImplantPurpose(BaseModel):
+class ImplantPurposeModel(BaseModel):
     primary_purpose: str = Field(description="Main reason this implant is used.")
     therapeutic_uses: str = Field(description="Specific conditions this implant treats, comma-separated.")
     functional_benefits: str = Field(description="Functional improvements provided by this implant, comma-separated.")
     quality_of_life_improvements: str = Field(description="How this implant improves daily functioning and quality of life.")
 
 
-class ImplantIndications(BaseModel):
+class ImplantIndicationsModel(BaseModel):
     when_recommended: str = Field(description="Clinical situations when this implant is typically recommended, comma-separated.")
     conditions_treated: str = Field(description="Medical conditions this implant addresses, comma-separated.")
     symptom_relief: str = Field(description="Symptoms that lead doctors to recommend this implant, comma-separated.")
@@ -28,7 +28,7 @@ class ImplantIndications(BaseModel):
     age_considerations: str = Field(description="Age-related factors affecting implant suitability.")
 
 
-class ImplantMaterials(BaseModel):
+class ImplantMaterialsModel(BaseModel):
     primary_materials: str = Field(description="Main materials used in construction, comma-separated.")
     material_properties: str = Field(description="Key properties of materials (strength, flexibility, durability), comma-separated.")
     biocompatibility: str = Field(description="Information about biocompatibility and tissue integration.")
@@ -36,7 +36,7 @@ class ImplantMaterials(BaseModel):
     corrosion_resistance: str = Field(description="Information about corrosion and long-term material integrity.")
 
 
-class InstallationProcedure(BaseModel):
+class InstallationProcedureModel(BaseModel):
     surgical_approach: str = Field(description="Type of surgery needed (open, minimally invasive, endoscopic, etc).")
     surgical_steps: str = Field(description="Detailed steps of the installation procedure, numbered or comma-separated.")
     anesthesia_type: str = Field(description="Type of anesthesia used (general, local, regional, etc).")
@@ -46,7 +46,7 @@ class InstallationProcedure(BaseModel):
     hospitalization_duration: str = Field(description="Length of hospital stay if required.")
 
 
-class FunctionalityAndPerformance(BaseModel):
+class FunctionalityAndPerformanceModel(BaseModel):
     how_it_works: str = Field(description="Explanation of how the implant functions in the body.")
     expected_performance: str = Field(description="Expected functional performance and capabilities.")
     adjustment_requirements: str = Field(description="Whether adjustments or calibration are needed after installation.")
@@ -54,7 +54,7 @@ class FunctionalityAndPerformance(BaseModel):
     failure_modes: str = Field(description="Ways the implant might fail or wear out, comma-separated.")
 
 
-class RecoveryAndHealing(BaseModel):
+class RecoveryAndHealingModel(BaseModel):
     immediate_recovery: str = Field(description="What to expect in the immediate post-operative period.")
     healing_timeline: str = Field(description="Typical healing milestones and duration until full integration.")
     pain_management: str = Field(description="How pain is managed during recovery, comma-separated.")
@@ -64,7 +64,7 @@ class RecoveryAndHealing(BaseModel):
     warning_signs: str = Field(description="Symptoms requiring immediate medical attention, comma-separated.")
 
 
-class ComplicationsAndRisks(BaseModel):
+class ComplicationsAndRisksModel(BaseModel):
     infection_risk: str = Field(description="Risk of surgical site or implant infection.")
     rejection_risk: str = Field(description="Risk of implant rejection or adverse reactions.")
     mechanical_failure: str = Field(description="Risk of implant malfunction or mechanical failure.")
@@ -74,7 +74,7 @@ class ComplicationsAndRisks(BaseModel):
     mortality_risk: Optional[str] = Field(description="Risk of death from implant or installation if applicable.")
 
 
-class ImagingAndMonitoring(BaseModel):
+class ImagingAndMonitoringModel(BaseModel):
     mri_compatibility: str = Field(description="Whether MRI imaging is safe or requires precautions.")
     ct_imaging: str = Field(description="CT scan compatibility and any necessary modifications.")
     x_ray_considerations: str = Field(description="X-ray imaging considerations and artifact effects.")
@@ -83,7 +83,7 @@ class ImagingAndMonitoring(BaseModel):
     remote_monitoring: Optional[str] = Field(description="If applicable, remote monitoring capabilities and requirements.")
 
 
-class ActivityRestrictions(BaseModel):
+class ActivityRestrictionsModel(BaseModel):
     permanent_restrictions: str = Field(description="Activities permanently limited or prohibited, comma-separated.")
     temporary_restrictions: str = Field(description="Activities restricted during healing period, comma-separated.")
     sports_and_exercise: str = Field(description="Guidelines for sports, exercise, and physical activity.")
@@ -92,7 +92,7 @@ class ActivityRestrictions(BaseModel):
     travel_considerations: str = Field(description="Special considerations for air travel or international travel.")
 
 
-class MaintenanceAndCare(BaseModel):
+class MaintenanceAndCareModel(BaseModel):
     daily_care: str = Field(description="Daily care and hygiene requirements, comma-separated.")
     periodic_inspections: str = Field(description="Required inspections and their frequency.")
     battery_replacement: Optional[str] = Field(description="If applicable, battery replacement schedule and procedure.")
@@ -101,7 +101,7 @@ class MaintenanceAndCare(BaseModel):
     long_term_management: str = Field(description="Long-term management strategy and follow-up care.")
 
 
-class OutcomesAndEffectiveness(BaseModel):
+class OutcomesAndEffectivenessModel(BaseModel):
     success_rate: str = Field(description="Percentage of successful implant placements and functionality.")
     functional_outcomes: str = Field(description="Typical functional improvements achieved, comma-separated.")
     pain_relief: str = Field(description="Expected pain relief or improvement timeline.")
@@ -111,7 +111,7 @@ class OutcomesAndEffectiveness(BaseModel):
     factors_affecting_outcomes: str = Field(description="Factors influencing success (age, health, compliance), comma-separated.")
 
 
-class FollowUpCare(BaseModel):
+class FollowUpCareModel(BaseModel):
     follow_up_schedule: str = Field(description="Recommended follow-up appointments and their frequency.")
     post_operative_visits: str = Field(description="Specific post-operative visit milestones and expectations.")
     long_term_monitoring: str = Field(description="Long-term monitoring requirements and intervals.")
@@ -120,7 +120,7 @@ class FollowUpCare(BaseModel):
     complications_monitoring: str = Field(description="How complications are monitored and managed.")
 
 
-class CostAndInsurance(BaseModel):
+class CostAndInsuranceModel(BaseModel):
     implant_cost: str = Field(description="Typical cost of the implant itself.")
     surgical_costs: str = Field(description="Typical costs for the surgical procedure.")
     total_cost_range: str = Field(description="General total cost range without insurance.")
@@ -132,21 +132,21 @@ class CostAndInsurance(BaseModel):
     cpt_codes: Optional[str] = Field(description="Current Procedural Terminology codes for billing.")
 
 
-class Alternatives(BaseModel):
+class AlternativesModel(BaseModel):
     alternative_implants: str = Field(description="Other implant options for similar purposes, comma-separated.")
     non_implant_alternatives: str = Field(description="Non-surgical or non-implant treatment options, comma-separated.")
     advantages_over_alternatives: str = Field(description="Why this implant may be preferred, comma-separated.")
     when_alternatives_preferred: str = Field(description="Situations where other treatments might be better.")
 
 
-class ImplantLimitations(BaseModel):
+class ImplantLimitationsModel(BaseModel):
     not_suitable_for: str = Field(description="Patient populations for whom implant is not appropriate, comma-separated.")
     anatomical_limitations: str = Field(description="Anatomical factors that may limit implant success, comma-separated.")
     health_condition_limitations: str = Field(description="Medical conditions that preclude implantation, comma-separated.")
     age_limitations: str = Field(description="Age-related considerations or restrictions.")
 
 
-class ImplantEducation(BaseModel):
+class ImplantEducationModel(BaseModel):
     """Patient education and communication content."""
     plain_language_explanation: str = Field(description="Simple explanation of the implant and its purpose for patients")
     daily_living_tips: str = Field(description="Tips for daily living with the implant, comma-separated")
@@ -154,56 +154,61 @@ class ImplantEducation(BaseModel):
     key_takeaways: str = Field(description="3-5 most important points for patients, comma-separated")
 
 
-class ImplantEvidence(BaseModel):
+class ImplantEvidenceModel(BaseModel):
     """Evidence-based information and clinical guidelines."""
     evidence_summary: str = Field(description="Summary of major clinical guidelines and evidence quality")
     clinical_trials: str = Field(description="Information about relevant clinical trials and outcomes")
-    implant_limitations: ImplantLimitations
+    implant_limitations: ImplantLimitationsModel
 
 
-class ImplantInfo(BaseModel):
+class MedicalImplantInfoModel(BaseModel):
     """
     Comprehensive medical implant information.
     """
     # Core identification
-    metadata: ImplantMetadata
+    metadata: ImplantMetadataModel
 
     # Clinical purpose and application
-    purpose: ImplantPurpose
-    indications: ImplantIndications
+    purpose: ImplantPurposeModel
+    indications: ImplantIndicationsModel
 
     # Physical characteristics
-    materials: ImplantMaterials
+    materials: ImplantMaterialsModel
 
     # Installation and integration
-    installation: InstallationProcedure
+    installation: InstallationProcedureModel
 
     # Functionality
-    functionality: FunctionalityAndPerformance
+    functionality: FunctionalityAndPerformanceModel
 
     # Recovery phase
-    recovery: RecoveryAndHealing
-    outcomes: OutcomesAndEffectiveness
+    recovery: RecoveryAndHealingModel
+    outcomes: OutcomesAndEffectivenessModel
 
     # Clinical considerations
-    complications: ComplicationsAndRisks
-    imaging: ImagingAndMonitoring
+    complications: ComplicationsAndRisksModel
+    imaging: ImagingAndMonitoringModel
 
     # Lifestyle considerations
-    activity_restrictions: ActivityRestrictions
-    maintenance: MaintenanceAndCare
+    activity_restrictions: ActivityRestrictionsModel
+    maintenance: MaintenanceAndCareModel
 
     # Post-operative phase
-    follow_up: FollowUpCare
+    follow_up: FollowUpCareModel
 
     # Alternative treatment options
-    alternatives: Alternatives
+    alternatives: AlternativesModel
 
     # Advanced clinical information
-    evidence: ImplantEvidence
+    evidence: ImplantEvidenceModel
 
     # Financial and insurance
-    cost_and_insurance: CostAndInsurance
+    cost_and_insurance: CostAndInsuranceModel
 
     # Patient communication
-    education: ImplantEducation
+    education: ImplantEducationModel
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalImplantInfoModel] = None
+    markdown: Optional[str] = None

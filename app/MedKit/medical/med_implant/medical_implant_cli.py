@@ -10,9 +10,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from medical_implant_models import ImplantInfo
+from medical_implant_models import MedicalImplantInfoModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +67,7 @@ class MedicalImplantGenerator:
         self.client = LiteClient(model_config)
         logger.debug(f"Initialized MedicalImplantGenerator")
 
-    def generate_text(self, implant: str, structured: bool = False) -> Union[ImplantInfo, str]:
+    def generate_text(self, implant: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive medical implant information."""
         if not implant or not str(implant).strip():
             raise ValueError("Implant name cannot be empty")
@@ -82,7 +81,7 @@ class MedicalImplantGenerator:
 
         response_format = None
         if structured:
-           response_format = ImplantInfo
+           response_format = MedicalImplantInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -99,15 +98,15 @@ class MedicalImplantGenerator:
             logger.error(f"✗ Error generating implant information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[ImplantInfo, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, implant_info: Union[ImplantInfo, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the implant information to a JSON or MD file."""
-        if isinstance(implant_info, str) and output_path.suffix == ".json":
+        if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
-        return save_model_response(implant_info, output_path)
+        return save_model_response(result, output_path)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -185,9 +184,7 @@ def app_cli() -> int:
             logger.error("✗ Failed to generate implant information.")
             sys.exit(1)
 
-        print_result(implant_info, title="Implant Information")
-
-        default_path = output_dir / f"{args.implant.lower().replace(' ', '_')}_info.json"
+        default_path = output_dir / f"{args.implant.lower().replace(' ', '_')}.json"
         generator.save(implant_info, default_path)
 
         logger.debug("Implant information generation completed successfully")

@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
 from medical_speciality_models import MedicalSpecialistDatabase
 
@@ -82,8 +81,6 @@ def main():
         generator = MedicalSpecialityGenerator(model_config=model_config)
         print("Generating medical specialist database...")
         result = generator.generate_text(structured=args.structured)
-        
-        print_result(result, title="Medical Speciality Database")
         
         if args.output:
             output_path = args.output
