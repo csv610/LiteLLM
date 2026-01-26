@@ -24,12 +24,12 @@ from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig, ModelInput
+
 from utils.cli_base import BaseCLI, BaseGenerator, BasePromptBuilder
 
-from medical_faq_models import ComprehensiveFAQ
+from medical_faq_models import MedicalFAQModel, ModelOutput
 
 logger = logging.getLogger(__name__)
-
 
 class MedicalFAQPromptBuilder(BasePromptBuilder):
     """Builder class for creating prompts for medical FAQ generation.
@@ -95,7 +95,7 @@ class MedicalFAQGenerator(BaseGenerator):
         model_input = ModelInput(
             system_prompt=MedicalFAQPromptBuilder.create_system_prompt(),
             user_prompt=MedicalFAQPromptBuilder.create_user_prompt(topic),
-            response_format=ComprehensiveFAQ if structured else None,
+            response_format=MedicalFAQModel if structured else None,
         )
 
         result = self._ask_llm(model_input)

@@ -10,9 +10,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from herbal_info_models import HerbalInfo
+from herbal_info_models import HerbalInfoModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,7 @@ class HerbalInfoGenerator:
         self.client = LiteClient(model_config)
         logger.debug(f"Initialized HerbalInfoGenerator")
 
-    def generate_text(self, herb: str, structured: bool = False) -> Union[HerbalInfo, str]:
+    def generate_text(self, herb: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive herbal information."""
         # Validate inputs
         if not herb or not str(herb).strip():
@@ -71,22 +70,22 @@ class HerbalInfoGenerator:
         logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.ask_llm(model_input)
-            if isinstance(result, HerbalInfo):
+            if isinstance(result, HerbalInfoModel):
                 logger.debug(f"Herb: {result.metadata.common_name}")
             return result
         except Exception as e:
             logger.error(f"✗ Error generating herbal information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[HerbalInfo, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, herbal_info: Union[HerbalInfo, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the herbal information to a JSON or MD file."""
-        if isinstance(herbal_info, str) and output_path.suffix == ".json":
+        if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
-        return save_model_response(herbal_info, output_path)
+        return save_model_response(result, output_path)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -167,14 +166,12 @@ def app_cli() -> int:
             logger.error("✗ Failed to generate herbal information.")
             sys.exit(1)
 
-        print_result(herbal_info, title="Herbal Information")
-
         # Save if output path is specified
         if args.output:
             generator.save(herbal_info, Path(args.output))
         else:
             # Save to default location
-            default_path = output_dir / f"{args.herb.lower().replace(' ', '_')}_info.json"
+            default_path = output_dir / f"{args.herb.lower().replace(' ', '_')}.json"
             generator.save(herbal_info, default_path)
 
         logger.debug("✓ Herbal information generation completed successfully")
