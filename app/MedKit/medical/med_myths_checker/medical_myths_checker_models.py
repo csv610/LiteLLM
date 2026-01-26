@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
-class MythAnalysis(BaseModel):
+class MythAnalysisModel(BaseModel):
     statement: str = Field(..., description="The medical myth or claim being analyzed.")
     status: str = Field(..., description="Whether the statement is 'TRUE', 'FALSE', or 'UNCERTAIN'. Must be one of these values.")
     explanation: str = Field(..., description="Detailed, medically accurate explanation of why the statement is true, false, or uncertain, backed by evidence-based medicine.")
@@ -8,5 +9,11 @@ class MythAnalysis(BaseModel):
     risk_level: str = Field(default="LOW", description="Health risk level if the myth is believed: 'LOW', 'MODERATE', or 'HIGH'.")
 
 
-class MythAnalysisResponse(BaseModel):
-    myths: list[MythAnalysis]
+class MedicalMythAnalysisModel(BaseModel):
+    myths: list[MythAnalysisModel]
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalMythAnalysisModel] = None
+    markdown: Optional[str] = None
+

@@ -10,9 +10,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from medical_myths_checker_models import MythAnalysisResponse
+from medical_myths_checker_models import MedicalMythAnalysisModel, ModelOutput
 
 
 class PromptBuilder:
@@ -57,7 +56,7 @@ class MedicalMythsChecker:
         self.client = LiteClient(model_config=model_config)
         self.myth: Optional[str] = None
 
-    def generate_text(self, myth: str, structured: bool = False) -> Union[MythAnalysisResponse, str]:
+    def generate_text(self, myth: str, structured: bool = False) -> ModelOutput:
         """
         Analyze a medical myth and determine its status.
 
@@ -77,7 +76,7 @@ class MedicalMythsChecker:
 
         response_format = None
         if structured:
-            response_format = MythAnalysisResponse
+            response_format = MedicalMythAnalysisModel
 
         model_input = ModelInput(
             system_prompt=PromptBuilder.system_prompt(),
@@ -88,7 +87,7 @@ class MedicalMythsChecker:
         result = self._ask_llm(model_input)
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> Union[MythAnalysisResponse, str]:
+    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """
         Internal helper to call the LLM client.
         """
@@ -116,8 +115,6 @@ Examples:
         checker = MedicalMythsChecker(model_config=model_config)
         print("Starting medical myth analysis...")
         result = checker.generate_text(myth=args.input, structured=args.structured)
-        
-        print_result(result, title="Medical Myth Analysis")
         
         if args.output:
             output_path = args.output
