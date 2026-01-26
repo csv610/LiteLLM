@@ -45,7 +45,7 @@ class DataSourceType(str, Enum):
     AI_GENERATED = "AI-Generated"
 
 
-class FoodCategoryInteraction(BaseModel):
+class FoodCategoryInteractionModel(BaseModel):
     """Detailed interaction information for a specific food category."""
     category: FoodCategory = Field(description="Food category being analyzed")
     has_interaction: bool = Field(description="Whether an interaction exists with this food category")
@@ -65,7 +65,7 @@ class FoodCategoryInteraction(BaseModel):
     )
 
 
-class DrugFoodInteractionDetails(BaseModel):
+class DrugFoodInteractionDetailsModel(BaseModel):
     """Comprehensive drug-food interaction analysis."""
     medicine_name: str = Field(description="Name of the medicine")
     overall_severity: InteractionSeverity = Field(
@@ -101,7 +101,7 @@ class DrugFoodInteractionDetails(BaseModel):
     )
 
 
-class PatientFriendlySummary(BaseModel):
+class PatientFriendlySummaryModel(BaseModel):
     """Patient-friendly explanation of drug-food interactions."""
     simple_explanation: str = Field(
         description="Simple, non-technical explanation of how food affects this medicine"
@@ -120,7 +120,7 @@ class PatientFriendlySummary(BaseModel):
     )
 
 
-class DataAvailabilityInfo(BaseModel):
+class DataAvailabilityInfoModel(BaseModel):
     """Information about data availability."""
     data_available: bool = Field(
         description="Whether food interaction data is available"
@@ -131,7 +131,7 @@ class DataAvailabilityInfo(BaseModel):
     )
 
 
-class DrugFoodInteractionResult(BaseModel):
+class DrugFoodInteractionModel(BaseModel):
     """
     Comprehensive drug-food interaction analysis result.
 
@@ -152,3 +152,9 @@ class DrugFoodInteractionResult(BaseModel):
     data_availability: DataAvailabilityInfo = Field(
         description="Status of data availability for this interaction check"
     )
+
+
+class ModelOutput(BaseModel):
+    data: Optional[DrugFoodInteractionModel] = None
+    markdown: Optional[str] = None
+

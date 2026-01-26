@@ -108,7 +108,7 @@ class ImpactType(str, Enum):
     REQUIRES_DOSE_ADJUSTMENT = "Requires Dose Adjustment"
 
 
-class EfficacyImpact(BaseModel):
+class EfficacyImpactModel(BaseModel):
     """Information about how the condition affects drug effectiveness."""
     has_impact: bool = Field(description="Whether the condition affects drug efficacy")
     impact_description: Optional[str] = Field(
@@ -125,7 +125,7 @@ class EfficacyImpact(BaseModel):
     )
 
 
-class SafetyImpact(BaseModel):
+class SafetyImpactModel(BaseModel):
     """Information about how the condition affects drug safety."""
     has_impact: bool = Field(description="Whether the condition increases safety risks")
     impact_description: Optional[str] = Field(
@@ -146,7 +146,7 @@ class SafetyImpact(BaseModel):
     )
 
 
-class DosageAdjustment(BaseModel):
+class DosageAdjustmentModel(BaseModel):
     """Dosage adjustment recommendations based on the condition."""
     adjustment_needed: bool = Field(description="Whether dose adjustment is necessary")
     adjustment_type: Optional[str] = Field(
@@ -163,7 +163,7 @@ class DosageAdjustment(BaseModel):
     )
 
 
-class ManagementStrategy(BaseModel):
+class ManagementStrategyModel(BaseModel):
     """Overall management strategy for the drug-disease interaction."""
     impact_types: list[ImpactType] = Field(
         description="Types of impacts (efficacy, safety, metabolism, etc.)"
@@ -181,7 +181,7 @@ class ManagementStrategy(BaseModel):
     )
 
 
-class DrugDiseaseInteractionDetails(BaseModel):
+class DrugDiseaseInteractionDetailsModel(BaseModel):
     """Comprehensive drug-disease interaction analysis."""
     medicine_name: str = Field(description="Name of the medicine")
     condition_name: str = Field(description="Name of the medical condition")
@@ -191,16 +191,16 @@ class DrugDiseaseInteractionDetails(BaseModel):
     mechanism_of_interaction: str = Field(
         description="How the condition affects the drug's action, metabolism, or efficacy at the molecular/physiological level"
     )
-    efficacy_impact: EfficacyImpact = Field(
+    efficacy_impact: EfficacyImpactModel = Field(
         description="How the condition affects drug effectiveness"
     )
-    safety_impact: SafetyImpact = Field(
+    safety_impact: SafetyImpactModel = Field(
         description="How the condition affects drug safety"
     )
-    dosage_adjustment: DosageAdjustment = Field(
+    dosage_adjustment: DosageAdjustmentModel = Field(
         description="Dosage adjustment recommendations if needed"
     )
-    management_strategy: ManagementStrategy = Field(
+    management_strategy: ManagementStrategyModel = Field(
         description="Overall management strategy and clinical approach"
     )
     confidence_level: ConfidenceLevel = Field(
@@ -215,7 +215,7 @@ class DrugDiseaseInteractionDetails(BaseModel):
     )
 
 
-class PatientFriendlySummary(BaseModel):
+class PatientFriendlySummaryModel(BaseModel):
     """Patient-friendly explanation of drug-disease interactions."""
     simple_explanation: str = Field(
         description="Simple explanation of how the condition affects this medicine"
@@ -234,7 +234,7 @@ class PatientFriendlySummary(BaseModel):
     )
 
 
-class DataAvailabilityInfo(BaseModel):
+class DataAvailabilityModel(BaseModel):
     """Information about data availability."""
     data_available: bool = Field(
         description="Whether interaction data is available"
@@ -245,24 +245,31 @@ class DataAvailabilityInfo(BaseModel):
     )
 
 
-class DrugDiseaseInteractionResult(BaseModel):
+class DrugDiseaseInteractionModel(BaseModel):
     """
     Comprehensive drug-disease interaction analysis result.
 
     Combines clinical data, patient education, and management strategies
     in a structured format for healthcare professionals and patients.
     """
-    interaction_details: Optional[DrugDiseaseInteractionDetails] = Field(
+
+    interaction_details: Optional[DrugDiseaseInteractionDetailsModel] = Field(
         default=None,
         description="Detailed interaction information (None if data not available)"
     )
     technical_summary: str = Field(
         description="Technical summary suitable for healthcare professionals"
     )
-    patient_friendly_summary: Optional[PatientFriendlySummary] = Field(
+    patient_friendly_summary: Optional[PatientFriendlySummaryModel] = Field(
         default=None,
         description="Patient-friendly explanation"
     )
-    data_availability: DataAvailabilityInfo = Field(
+    data_availability: DataAvailabilityModel = Field(
         description="Status of data availability"
     )
+
+
+class ModelOutput(BaseModel):
+    data: Optional[DrugDiseaseInteractionModel] = None
+    markdown: Optional[str] = None
+

@@ -1,5 +1,3 @@
-s the list formatted **without numbers and without parentheses**, as simple pairs:
-
 NSAIDs, Peptic ulcer disease
 NSAIDs, Chronic kidney disease
 NSAIDs, Heart failure

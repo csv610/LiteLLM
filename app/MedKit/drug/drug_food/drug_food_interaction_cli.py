@@ -10,9 +10,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
-from utils.output_formatter import print_result
+from lite.utils import save_model_response
 
-from drug_food_interaction_models import DrugFoodInteractionResult
+from drug_food_interaction_models import DrugFoodInteractionModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -42,67 +42,30 @@ When analyzing drug-food interactions, you must:
 
 Always prioritize patient safety while providing practical, evidence-based guidance for optimal medication use."""
 
-    @staticmethod
-    def create_user_prompt(medicine_name: str, context: str) -> str:
+    @classmethod
+    def create_user_prompt(cls, config: DrugFoodInput) -> str:
         """
         Create the user prompt for drug-food interaction analysis.
 
         Args:
-            medicine_name: The name of the medicine to analyze
-            context: Additional context for the analysis
+            config: Configuration containing the medicine and patient information
 
         Returns:
-            str: Formatted user prompt
+            str: Formatted user prompt with context
         """
-        return f"{medicine_name} food and beverage interactions analysis. {context}"
-
-
-@dataclass
-class DrugFoodInput:
-    """Configuration and input for drug-food interaction analysis."""
-    medicine_name: str
-    diet_type: Optional[str] = None
-    medical_conditions: Optional[str] = None
-    age: Optional[int] = None
-    specific_food: Optional[str] = None
-    prompt_style: str = "detailed"
-
-class DrugFoodInteraction:
-    """Analyzes drug-food interactions based on provided configuration."""
-
-    def __init__(self, model_config: ModelConfig):
-        self.client = LiteClient(model_config)
-
-    def generate_text(self, config: DrugFoodInput, structured: bool = False) -> Union[DrugFoodInteractionResult, str]:
-        """Analyzes how food and beverages interact with a medicine."""
-        self._validate_input(config)
-
-        logger.debug(f"Starting drug-food interaction analysis")
-        logger.debug(f"Medicine: {config.medicine_name}")
-
-        context = self._prepare_context(config)
-        logger.debug(f"Context: {context}")
-
-        user_prompt = PromptBuilder.create_user_prompt(config.medicine_name, context)
-        model_input = ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=user_prompt,
-            response_format=DrugFoodInteractionResult if structured else None,
-        )
-        result = self._ask_llm(model_input)
-
-        logger.debug(f"✓ Successfully analyzed food interactions")
-        return result
-
-    def _validate_input(self, config: DrugFoodInput) -> None:
-        """Validate input parameters."""
-        if not config.medicine_name or not config.medicine_name.strip():
-            raise ValueError("Medicine name cannot be empty")
-        if config.age is not None and (config.age < 0 or config.age > 150):
-            raise ValueError("Age must be between 0 and 150 years")
-
-    def _prepare_context(self, config: DrugFoodInput) -> str:
-        """Build the analysis context string from input parameters."""
+        context = cls._build_context(config)
+        return f"{config.medicine_name} food and beverage interactions analysis. {context}"
+    
+    @staticmethod
+    def _build_context(config: DrugFoodInput) -> str:
+        """Build the analysis context string from input parameters.
+        
+        Args:
+            config: Configuration containing the medicine and patient information
+            
+        Returns:
+            str: Formatted context string
+        """
         context_parts = [f"Analyzing food interactions for {config.medicine_name}"]
         if config.specific_food:
             context_parts.append(f"Specific foods to check: {config.specific_food}")
@@ -115,7 +78,55 @@ class DrugFoodInteraction:
         return ". ".join(context_parts) + "."
 
 
-    def _ask_llm(self, model_input: ModelInput) -> Union[DrugFoodInteractionResult, str]:
+@dataclass
+class DrugFoodInput:
+    """Configuration and input for drug-food interaction analysis."""
+    medicine_name: str
+    diet_type: Optional[str] = None
+    medical_conditions: Optional[str] = None
+    age: Optional[int] = None
+    specific_food: Optional[str] = None
+    prompt_style: str = "detailed"
+    
+    def validate(self) -> None:
+        """Validate the input parameters.
+        
+        Raises:
+            ValueError: If any parameter is invalid
+        """
+        if not self.medicine_name or not self.medicine_name.strip():
+            raise ValueError("Medicine name cannot be empty or just whitespace")
+        
+        if self.age is not None and (self.age < 0 or self.age > 150):
+            raise ValueError("Age must be between 0 and 150 years")
+
+class DrugFoodInteraction:
+    """Analyzes drug-food interactions based on provided configuration."""
+
+    def __init__(self, model_config: ModelConfig):
+        self.client = LiteClient(model_config)
+
+    def generate_text(self, config: DrugFoodInput, structured: bool = False) -> ModelOutput:
+        """Analyzes how food and beverages interact with a medicine."""
+        logger.debug(f"Starting drug-food interaction analysis")
+        logger.debug(f"Medicine: {config.medicine_name}")
+
+        # Create user prompt with context
+        user_prompt = PromptBuilder.create_user_prompt(config)
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=user_prompt,
+            response_format=DrugFoodInteractionModel if structured else None,
+        )
+        result = self._ask_llm(model_input)
+
+        logger.debug(f"✓ Successfully analyzed food interactions")
+        return result
+
+
+
+
+    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Helper to call LiteClient with error handling."""
         logger.debug("Calling LiteClient.generate_text()...")
         try:
@@ -130,12 +141,12 @@ def get_user_arguments():
     parser = argparse.ArgumentParser(
         description="Drug-Food Interaction Checker - Analyze interactions between medicines and foods",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=\"\"\"
+        epilog="""\
 Examples:
   python drug_food_interaction.py "Warfarin"
   python drug_food_interaction.py "Metformin" --age 65 --conditions "kidney disease"
   python drug_food_interaction.py "Simvastatin" --verbose
-        \"\"\",
+"""
     )
 
     parser.add_argument("medicine_name", type=str, help="Name of the medicine to analyze")
@@ -148,12 +159,10 @@ Examples:
     parser.add_argument("--model", "-m", type=str, default="ollama/gemma3", help="Model ID")
     parser.add_argument("--json-output", action="store_true", help="Output results as JSON to stdout")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
+    parser.add_argument("-o", "--output", type=str, help="Output file path (default: auto-generated)")
 
     return parser.parse_args()
 
-
-    # Save to file if output is needed (Wait, main doesn't have output arg, but let's check)
-    # Actually main in this file doesn't have --output. Let's add it if missing or just handle JSON output.
 
 def main() -> int:
     """Main entry point for the drug-food interaction CLI."""
@@ -174,14 +183,25 @@ def main() -> int:
             specific_food=None,
             prompt_style=args.prompt_style,
         )
+        
+        # Validate the input
+        config.validate()
 
         logger.info(f"Configuration created successfully")
 
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugFoodInteraction(model_config)
         result = analyzer.generate_text(config, structured=args.structured)
 
-        print_result(result, title="Drug-Food Interaction Analysis")
+        # Save result to file if output path is specified
+        if args.output:
+            output_path = Path(args.output)
+            save_model_response(result, output_path)
+            logger.info(f"Result saved to: {output_path}")
+        elif not args.json_output:
+            # If no output file and not json output, print a summary
+            print(f"\n✓ Drug-food interaction analysis completed for {config.medicine_name}")
+            print(f"Use --output to save results to a file or --json-output to see the full result")
 
         if args.json_output:
             if isinstance(result, str):
@@ -202,4 +222,4 @@ def main() -> int:
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

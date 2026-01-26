@@ -1,11 +1,27 @@
+"""Mental Health Report Generator Module.
+
+This module generates professional mental health assessment reports in
+multiple formats (clinical, patient-friendly, JSON) for integration with
+EHR systems and clinical use.
+"""
+
 import json
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+# Ensure repository root is in path for imports
+# Use .resolve() to get absolute paths to avoid issues with relative CWDs
+# For mental_health/module.py: need to go up 3 levels to reach LiteLLM root
+_repo_root = Path(__file__).resolve().parent.parent.parent.parent
+_medkit_root = _repo_root / "app" / "MedKit"
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+if str(_medkit_root) not in sys.path:
+    sys.path.insert(0, str(_medkit_root))
+
 from lite.utils import save_model_response
 
 try:
@@ -42,7 +58,8 @@ except ImportError:
         )
         from models import ChatMessage
 
-# ==================== Report Configuration ====================
+# Report Configuration and Generator
+
 
 class ReportConfig:
     """Report generation configuration."""
@@ -59,28 +76,30 @@ class ReportConfig:
         for dir_path in [cls.JSON_DIR, cls.TEXT_DIR, cls.PATIENT_DIR]:
             dir_path.mkdir(parents=True, exist_ok=True)
 
-# ==================== Report Generator ====================
-
 class MentalHealthReportGenerator:
-    """
-    Generates professional mental health assessment reports.
+    """Generates professional mental health assessment reports.
+
+    Supports multiple output formats including clinical reports, patient
+    summaries, and JSON for EHR integration.
     """
 
     def __init__(self):
         """Initialize report generator."""
         ReportConfig.setup_directories()
 
-    def generate_clinical_report(self, assessment: MentalHealthAssessment,
-                                session: Optional[ChatSession] = None) -> str:
-        """
-        Generate comprehensive clinical mental health report.
+    def generate_clinical_report(
+        self,
+        assessment: MentalHealthAssessment,
+        session: Optional[ChatSession] = None,
+    ) -> str:
+        """Generate comprehensive clinical mental health report.
 
         Args:
-            assessment: MentalHealthAssessment object
-            session: ChatSession object (optional)
+            assessment: MentalHealthAssessment object.
+            session: ChatSession object (optional).
 
         Returns:
-            Formatted clinical report text
+            Formatted clinical report text.
         """
         report = f"""
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -88,7 +107,7 @@ class MentalHealthReportGenerator:
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 PATIENT INFORMATION
-{'='*80}
+{'=' * 80}
 Name:              {assessment.patient_name}
 Age:               {assessment.age} years
 Gender:            {assessment.gender}
@@ -96,13 +115,13 @@ Assessment Date:   {assessment.assessment_date}
 Session ID:        {assessment.session_id}
 
 PRESENTING COMPLAINT
-{'='*80}
+{'=' * 80}
 Chief Complaint:   {assessment.chief_complaint}
 Duration:          {assessment.complaint_duration}
 Onset:             {assessment.complaint_onset}
 
 STANDARDIZED SCREENING SCORES
-{'='*80}
+{'=' * 80}
 PHQ-9 (Depression) Assessment:
   Total Score: {assessment.phq9_assessment.total_score}/27
   Severity Level: {assessment.phq9_assessment.severity.title()}
@@ -132,7 +151,7 @@ GAD-7 (Anxiety) Assessment:
     • Fear/catastrophizing: {assessment.gad7_assessment.fear_catastrophe}/3
 
 SYMPTOMS ASSESSMENT
-{'='*80}
+{'=' * 80}
 
 Mood Symptoms:
 {self._format_symptom_list(assessment.mood_symptoms.model_dump())}
@@ -154,7 +173,7 @@ Substance Use:
   Substances: {', '.join(assessment.substance_use.substances_used) if assessment.substance_use.substances_used else 'None reported'}
 
 PSYCHIATRIC HISTORY
-{'='*80}
+{'=' * 80}
 Previous Diagnoses:     {', '.join(assessment.mental_health_history.previous_diagnoses) if assessment.mental_health_history.previous_diagnoses else 'None reported'}
 Age of Onset:           {assessment.mental_health_history.age_of_onset or 'Unknown'}
 Previous Treatment:     {', '.join(assessment.mental_health_history.previous_treatment) if assessment.mental_health_history.previous_treatment else 'None'}
@@ -164,7 +183,7 @@ Trauma History:         {', '.join(assessment.mental_health_history.trauma_histo
 Current Medications:    {', '.join(assessment.mental_health_history.current_medications) if assessment.mental_health_history.current_medications else 'None'}
 
 SOCIAL FUNCTIONING
-{'='*80}
+{'=' * 80}
 Relationship Quality:        {assessment.social_functioning.relationship_quality}
 Social Support:              {assessment.social_functioning.social_support_system}
 Employment Status:           {assessment.social_functioning.employment_status}
@@ -173,7 +192,7 @@ Family Relationships:        {assessment.social_functioning.family_relationships
 Living Situation:            {assessment.social_functioning.living_situation}
 
 RISK ASSESSMENT (CRITICAL)
-{'='*80}
+{'=' * 80}
 Suicidal Ideation:           {'YES' if assessment.risk_assessment.suicidal_ideation else 'No'}
 {f'  Frequency: {assessment.risk_assessment.suicidal_ideation_frequency}' if assessment.risk_assessment.suicidal_ideation else ''}
 {f'  Proposed Method: {assessment.risk_assessment.suicide_plan_method}' if assessment.risk_assessment.suicide_plan_method else ''}
@@ -190,7 +209,7 @@ Homelessness Risk:           {'YES' if assessment.risk_assessment.homelessness_r
 Crisis Resources Aware:      {'YES' if assessment.risk_assessment.crisis_resources_aware else 'NO - NEEDS EDUCATION'}
 
 CLINICAL ASSESSMENT & DIAGNOSIS
-{'='*80}
+{'=' * 80}
 
 PRIMARY DIAGNOSIS:
   Condition: {assessment.primary_diagnosis.condition_name}
@@ -207,15 +226,15 @@ SECONDARY DIAGNOSES:
 {self._format_secondary_diagnoses(assessment.secondary_diagnoses)}
 
 CLINICAL SUMMARY
-{'='*80}
+{'=' * 80}
 {assessment.clinical_summary}
 
 CLINICAL NOTES
-{'='*80}
+{'=' * 80}
 {assessment.clinical_notes}
 
 TREATMENT RECOMMENDATIONS
-{'='*80}
+{'=' * 80}
 Recommended Psychotherapy:
 {self._format_list(assessment.treatment_recommendations.psychotherapy_types)}
 
@@ -231,7 +250,7 @@ Specialty Referral:
   Emergency Intervention Needed: {'YES' if assessment.treatment_recommendations.emergency_contact_needed else 'No'}
 
 CRISIS RESOURCES (IF NEEDED)
-{'='*80}
+{'=' * 80}
 National Suicide Prevention Lifeline: 988 (24/7)
 Crisis Text Line: Text HOME to 741741
 SAMHSA National Helpline: 1-800-662-4357
@@ -240,7 +259,7 @@ Emergency Services: 911
 International Crisis Resources: https://www.iasp.info/resources/Crisis_Centres/
 
 IMPORTANT DISCLAIMERS & LIMITATIONS
-{'='*80}
+{'=' * 80}
 • This assessment is generated by an AI system and is NOT a substitute for
   professional mental health evaluation and diagnosis by a qualified clinician.
 
@@ -257,7 +276,7 @@ IMPORTANT DISCLAIMERS & LIMITATIONS
   definitive diagnosis or treatment planning.
 
 RECOMMENDATIONS FOR NEXT STEPS
-{'='*80}
+{'=' * 80}
 1. Schedule appointment with mental health professional (psychiatrist, psychologist,
    or licensed counselor) for comprehensive evaluation
 
@@ -277,7 +296,7 @@ RECOMMENDATIONS FOR NEXT STEPS
 8. Implement lifestyle changes (sleep, exercise, stress management, etc.)
 
 PRIVACY & CONFIDENTIALITY
-{'='*80}
+{'=' * 80}
 This report contains Protected Health Information (PHI) and must be handled
 according to HIPAA regulations. It should be:
 • Stored securely
@@ -289,33 +308,70 @@ Report Generated: {datetime.now().isoformat()}
 System: MedKit Mental Health Assessment AI
 Version: 1.0
 
-{'='*80}
+{'=' * 80}
 END OF REPORT
-{'='*80}
+{'=' * 80}
 """
         return report
 
     def _format_symptom_list(self, symptoms_dict: Dict[str, bool]) -> str:
-        """Format symptom list for report."""
-        present = [k.replace('_', ' ').title() for k, v in symptoms_dict.items() if v]
+        """Format symptom list for report.
+
+        Args:
+            symptoms_dict: Dictionary of symptoms and their presence.
+
+        Returns:
+            Formatted string for report display.
+        """
+        present = [
+            k.replace("_", " ").title()
+            for k, v in symptoms_dict.items()
+            if v
+        ]
         if not present:
             return "  • No symptoms reported\n"
         return "\n".join([f"  • {symptom}" for symptom in present]) + "\n"
 
     def _format_list(self, items: List[str]) -> str:
-        """Format list items for report."""
+        """Format list items for report.
+
+        Args:
+            items: List of items to format.
+
+        Returns:
+            Formatted string for report display.
+        """
         if not items:
             return "  • None specified\n"
         return "\n".join([f"  • {item}" for item in items]) + "\n"
 
     def _format_criteria_list(self, criteria: List[str]) -> str:
-        """Format diagnostic criteria for report."""
+        """Format diagnostic criteria for report.
+
+        Args:
+            criteria: List of diagnostic criteria.
+
+        Returns:
+            Formatted string for report display.
+        """
         if not criteria:
             return "    • Standard criteria met\n"
-        return "\n".join([f"    • {criterion}" for criterion in criteria[:5]]) + "\n"
+        return (
+            "\n".join([f"    • {criterion}" for criterion in criteria[:5]])
+            + "\n"
+        )
 
-    def _format_secondary_diagnoses(self, diagnoses: List[MentalHealthCondition]) -> str:
-        """Format secondary diagnoses for report."""
+    def _format_secondary_diagnoses(
+        self, diagnoses: List[MentalHealthCondition]
+    ) -> str:
+        """Format secondary diagnoses for report.
+
+        Args:
+            diagnoses: List of secondary diagnoses.
+
+        Returns:
+            Formatted string for report display.
+        """
         if not diagnoses:
             return "  • No secondary diagnoses identified\n"
 
@@ -328,15 +384,19 @@ END OF REPORT
 
         return text
 
-    def generate_patient_summary(self, assessment: MentalHealthAssessment) -> str:
-        """
-        Generate patient-friendly summary (simpler language).
+    def generate_patient_summary(
+        self, assessment: MentalHealthAssessment
+    ) -> str:
+        """Generate patient-friendly summary.
+
+        Creates a simpler language version of the clinical assessment
+        suitable for patient communication.
 
         Args:
-            assessment: MentalHealthAssessment object
+            assessment: MentalHealthAssessment object.
 
         Returns:
-            Patient-friendly summary text
+            Patient-friendly summary text.
         """
         summary = f"""
 MENTAL HEALTH ASSESSMENT SUMMARY
@@ -356,7 +416,7 @@ Based on our conversation, here's what we learned about your mental health:
 
 Primary Concern: {assessment.primary_diagnosis.condition_name}
   - How severe it is: {assessment.primary_diagnosis.severity}
-  - How confident we are in this: {assessment.primary_diagnosis.confidence_level}
+  - How confident we are: {assessment.primary_diagnosis.confidence_level}
 
 Depression Screening Score: {assessment.phq9_assessment.total_score}/27
   ({assessment.phq9_assessment.severity.title()} level)
@@ -365,14 +425,14 @@ Anxiety Screening Score: {assessment.gad7_assessment.total_score}/21
   ({assessment.gad7_assessment.severity.title()} level)
 
 SYMPTOMS YOU'RE EXPERIENCING:
-Mood Changes: {'Yes' if any(assessment.mood_symptoms.model_dump().values()) else 'No'}
-Anxiety or Worry: {'Yes' if any(assessment.anxiety_symptoms.model_dump().values()) else 'No'}
-Sleep or Energy Problems: {'Yes' if assessment.physical_symptoms.sleep_disturbance or assessment.physical_symptoms.fatigue else 'No'}
-Difficulty Concentrating: {'Yes' if assessment.cognitive_symptoms.poor_concentration else 'No'}
+Mood Changes: {"Yes" if any(assessment.mood_symptoms.model_dump().values()) else "No"}
+Anxiety or Worry: {"Yes" if any(assessment.anxiety_symptoms.model_dump().values()) else "No"}
+Sleep or Energy Problems: {"Yes" if assessment.physical_symptoms.sleep_disturbance or assessment.physical_symptoms.fatigue else "No"}
+Difficulty Concentrating: {"Yes" if assessment.cognitive_symptoms.poor_concentration else "No"}
 
 SAFETY ASSESSMENT:
-Are you having thoughts of hurting yourself? {'YES - See Resources Below' if assessment.risk_assessment.suicidal_ideation else 'No'}
-Are you hurting yourself? {'YES - Seek Help' if assessment.risk_assessment.self_harm_behavior else 'No'}
+Thoughts of hurting yourself? {"YES - See Resources Below" if assessment.risk_assessment.suicidal_ideation else "No"}
+Self-harm behavior? {"YES - Seek Help" if assessment.risk_assessment.self_harm_behavior else "No"}
 
 ⚠️ IMPORTANT: If you're thinking about harming yourself or are in crisis:
    • Call 988 (Suicide & Crisis Lifeline)
@@ -422,17 +482,21 @@ Session ID: {assessment.session_id}
 """
         return summary
 
-    def save_assessment_json(self, assessment: MentalHealthAssessment) -> Path:
-        """
-        Save assessment as JSON for integration with EHR systems.
+    def save_assessment_json(
+        self, assessment: MentalHealthAssessment
+    ) -> Path:
+        """Save assessment as JSON for EHR system integration.
 
         Args:
-            assessment: MentalHealthAssessment object
+            assessment: MentalHealthAssessment object.
 
         Returns:
-            Path to saved JSON file
+            Path to saved JSON file.
         """
-        filename = f"assessment_{assessment.patient_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = (
+            f"assessment_{assessment.patient_name}_{timestamp}.json"
+        )
         filepath = ReportConfig.JSON_DIR / filename
 
         save_model_response(assessment, filepath)
@@ -441,71 +505,84 @@ Session ID: {assessment.session_id}
         print(f"✓ Assessment saved: {filepath}")
         return filepath
 
-    def save_clinical_report(self, report_text: str, patient_name: str) -> Path:
-        """
-        Save clinical report as text file.
+    def save_clinical_report(
+        self, report_text: str, patient_name: str
+    ) -> Path:
+        """Save clinical report as text file.
 
         Args:
-            report_text: Formatted clinical report
-            patient_name: Patient name for filename
+            report_text: Formatted clinical report.
+            patient_name: Patient name for filename.
 
         Returns:
-            Path to saved file
+            Path to saved file.
         """
-        filename = f"clinical_report_{patient_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"clinical_report_{patient_name}_{timestamp}.txt"
         filepath = ReportConfig.TEXT_DIR / filename
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(report_text)
 
         os.chmod(filepath, 0o600)  # Restrict access
         print(f"✓ Clinical report saved: {filepath}")
         return filepath
 
-    def save_patient_summary(self, summary_text: str, patient_name: str) -> Path:
-        """
-        Save patient-friendly summary.
+    def save_patient_summary(
+        self, summary_text: str, patient_name: str
+    ) -> Path:
+        """Save patient-friendly summary.
 
         Args:
-            summary_text: Formatted patient summary
-            patient_name: Patient name for filename
+            summary_text: Formatted patient summary.
+            patient_name: Patient name for filename.
 
         Returns:
-            Path to saved file
+            Path to saved file.
         """
-        filename = f"patient_summary_{patient_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"patient_summary_{patient_name}_{timestamp}.txt"
         filepath = ReportConfig.PATIENT_DIR / filename
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(summary_text)
 
         os.chmod(filepath, 0o600)  # Restrict access
         print(f"✓ Patient summary saved: {filepath}")
         return filepath
 
-    def generate_and_save_all_reports(self, assessment: MentalHealthAssessment,
-                                     session: Optional[ChatSession] = None) -> Dict[str, Path]:
-        """
-        Generate and save all report formats.
+    def generate_and_save_all_reports(
+        self,
+        assessment: MentalHealthAssessment,
+        session: Optional[ChatSession] = None,
+    ) -> Dict[str, Path]:
+        """Generate and save all report formats.
+
+        Creates clinical report, patient-friendly summary, and JSON
+        assessment files in one operation.
 
         Args:
-            assessment: MentalHealthAssessment object
-            session: ChatSession object (optional)
+            assessment: MentalHealthAssessment object.
+            session: ChatSession object (optional).
 
         Returns:
-            Dictionary with paths to all generated reports
+            Dictionary with paths to all generated reports.
         """
         reports = {}
 
         # Generate clinical report
         clinical_report = self.generate_clinical_report(assessment, session)
-        reports['clinical'] = self.save_clinical_report(clinical_report, assessment.patient_name)
+        reports["clinical"] = self.save_clinical_report(
+            clinical_report, assessment.patient_name
+        )
 
         # Generate patient summary
         patient_summary = self.generate_patient_summary(assessment)
-        reports['patient_summary'] = self.save_patient_summary(patient_summary, assessment.patient_name)
+        reports["patient_summary"] = self.save_patient_summary(
+            patient_summary, assessment.patient_name
+        )
 
         # Save assessment JSON
-        reports['assessment_json'] = self.save_assessment_json(assessment)
+        reports["assessment_json"] = self.save_assessment_json(assessment)
 
         return reports

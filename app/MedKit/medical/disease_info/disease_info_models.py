@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 
-class RiskFactors(BaseModel):
+class RiskFactorsModel(BaseModel):
     """
     Risk factors associated with developing a disease.
     """
@@ -17,7 +17,7 @@ class RiskFactors(BaseModel):
     environmental: List[str] = Field(description="Environmental or occupational risk factors.")
 
 
-class DiagnosticCriteria(BaseModel):
+class DiagnosticCriteriaModel(BaseModel):
     """
     Diagnostic criteria for a disease.
     """
@@ -27,7 +27,7 @@ class DiagnosticCriteria(BaseModel):
     imaging_studies: List[str] = Field(description="Recommended imaging studies (e.g., X-ray, CT scan, MRI).")
 
 
-class DiseaseIdentity(BaseModel):
+class DiseaseIdentityModel(BaseModel):
     """
     Basic identifying information about a disease.
     """
@@ -36,7 +36,7 @@ class DiseaseIdentity(BaseModel):
     synonyms: List[str] = Field(description="Alternative names or synonyms for the disease.")
 
 
-class DiseaseBackground(BaseModel):
+class DiseaseBackgroundModel(BaseModel):
     """
     Background information on the disease, including definition and pathophysiology.
     """
@@ -54,7 +54,7 @@ class DiseaseEpidemiology(BaseModel):
     risk_factors: RiskFactors = Field(description="Factors that increase the risk of developing the disease.")
 
 
-class DiseaseClinicalPresentation(BaseModel):
+class DiseaseClinicalPresentationModel(BaseModel):
     """
     How the disease presents in a clinical setting.
     """
@@ -63,7 +63,7 @@ class DiseaseClinicalPresentation(BaseModel):
     natural_history: str = Field(description="The progression of the disease without treatment.")
 
 
-class DiseaseDiagnosis(BaseModel):
+class DiseaseDiagnosisModel(BaseModel):
     """
     How the disease is diagnosed.
     """
@@ -71,7 +71,7 @@ class DiseaseDiagnosis(BaseModel):
     differential_diagnosis: List[str] = Field(description="Other diseases with similar presentations.")
 
 
-class DiseaseManagement(BaseModel):
+class DiseaseManagementModel(BaseModel):
     """
     How the disease is managed and treated.
     """
@@ -80,7 +80,7 @@ class DiseaseManagement(BaseModel):
     prognosis: str = Field(description="The likely course and outcome of the disease.")
 
 
-class DiseaseResearch(BaseModel):
+class DiseaseResearchModel(BaseModel):
     """
     Current research and advancements related to the disease.
     """
@@ -88,7 +88,7 @@ class DiseaseResearch(BaseModel):
     recent_advancements: str = Field(description="Recent breakthroughs in diagnosis or treatment.")
 
 
-class DiseaseSpecialPopulations(BaseModel):
+class DiseaseSpecialPopulationsModel(BaseModel):
     """
     Considerations for special patient populations.
     """
@@ -97,7 +97,7 @@ class DiseaseSpecialPopulations(BaseModel):
     pregnancy: str = Field(description="Considerations during pregnancy and lactation.")
 
 
-class DiseaseLivingWith(BaseModel):
+class DiseaseLivingWithModel(BaseModel):
     """
     Information for patients living with the disease.
     """
@@ -109,12 +109,19 @@ class DiseaseInfoModel(BaseModel):
     """
     Comprehensive, evidence-based information about a specific disease.
     """
-    identity: DiseaseIdentity = Field(description="Basic identifying information.")
-    background: DiseaseBackground = Field(description="Background and pathophysiology.")
-    epidemiology: DiseaseEpidemiology = Field(description="Epidemiological data.")
-    clinical_presentation: DiseaseClinicalPresentation = Field(description="Clinical presentation.")
-    diagnosis: DiseaseDiagnosis = Field(description="Diagnostic criteria and methods.")
-    management: DiseaseManagement = Field(description="Treatment and management strategies.")
-    research: DiseaseResearch = Field(description="Current research and advancements.")
-    special_populations: DiseaseSpecialPopulations = Field(description="Considerations for special populations.")
-    living_with: DiseaseLivingWith = Field(description="Information for patients.")
+    identity: DiseaseIdentityModel = Field(description="Basic identifying information.")
+    background: DiseaseBackgroundModel = Field(description="Background and pathophysiology.")
+    epidemiology: DiseaseEpidemiologyModel = Field(description="Epidemiological data.")
+    clinical_presentation: DiseaseClinicalPresentationModel = Field(description="Clinical presentation.")
+    diagnosis: DiseaseDiagnosisModel = Field(description="Diagnostic criteria and methods.")
+    management: DiseaseManagementModel = Field(description="Treatment and management strategies.")
+    research: DiseaseResearchModel = Field(description="Current research and advancements.")
+    special_populations: DiseaseSpecialPopulationsModel = Field(description="Considerations for special populations.")
+    living_with: DiseaseLivingWithModel = Field(description="Information for patients.")
+
+
+
+class ModelOutput(BaseModel):
+    data: Optional[DiseaseInfoModel] = None
+    markdown: Optional[str] = None
+

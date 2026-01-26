@@ -15,7 +15,8 @@ from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 from utils.output_formatter import print_result
-from medical_test_info_models import MedicalTestInfo
+
+from medical_test_info_models import MedicalTestInfoModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ class MedicalTestInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
 
-    def generate_text(self, test_name: str, structured: bool = False) -> Union[MedicalTestInfo, str]:
+    def generate_text(self, test_name: str, structured: bool = False) -> ModelOutput:
         """
         Generate the core medical test information.
 
@@ -97,7 +98,7 @@ class MedicalTestInfoGenerator:
             structured: Whether to use structured output mode (default: False)
 
         Returns:
-            Union[MedicalTestInfo, str]: Validated evaluation results or raw string
+            Union[MedicalTestInfoModel, str]: Validated evaluation results or raw string
         """
         logger.debug(f"Generating medical test information for: {test_name}")
 
@@ -107,7 +108,7 @@ class MedicalTestInfoGenerator:
 
         response_format = None
         if structured:
-           response_format = MedicalTestInfo
+           response_format = MedicalTestInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -123,7 +124,7 @@ class MedicalTestInfoGenerator:
             logger.error(f"Error generating medical test information for {test_name}: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[MedicalTestInfo, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """
         Call the LLM client to generate information.
 
@@ -131,12 +132,12 @@ class MedicalTestInfoGenerator:
             model_input: ModelInput object.
 
         Returns:
-            The generated results (MedicalTestInfo or str).
+            The generated results (MedicalTestInfoModel or str).
         """
         return self.client.generate_text(model_input=model_input)
 
 
-    def save(self, result: Union[MedicalTestInfo, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Save the generated test information to a JSON or MD file."""
         if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
@@ -152,7 +153,7 @@ def get_user_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description="Generate comprehensive information for a medical test."
-    )
+    Model)
     parser.add_argument(
         "-i",
         "--test",
@@ -205,7 +206,7 @@ def app_cli():
     )
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalTestInfoGenerator(model_config=model_config)
         
         # Generate the test information

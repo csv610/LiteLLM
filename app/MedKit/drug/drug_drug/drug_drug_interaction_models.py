@@ -77,7 +77,7 @@ class DataSourceType(str, Enum):
     REGULATORY_DATA = "Regulatory Data"
 
 
-class DrugInteractionDetails(BaseModel):
+class DrugInteractionDetailsModel(BaseModel):
     """
     Detailed information about a drug-drug interaction.
 
@@ -131,7 +131,7 @@ class DrugInteractionDetails(BaseModel):
     )
 
 
-class PatientFriendlySummary(BaseModel):
+class PatientFriendlySummaryModel(BaseModel):
     """Patient-friendly explanation of the interaction."""
     simple_explanation: str = Field(
         description="Simple, non-technical explanation of what happens when these medicines interact"
@@ -147,7 +147,7 @@ class PatientFriendlySummary(BaseModel):
     )
 
 
-class DataAvailabilityInfo(BaseModel):
+class DataAvailabilityInfoModel(BaseModel):
     """Information about data availability."""
     data_available: bool = Field(
         description="Whether interaction data is available"
@@ -158,24 +158,29 @@ class DataAvailabilityInfo(BaseModel):
     )
 
 
-class DrugInteractionResult(BaseModel):
+class DrugInteractionModel(BaseModel):
     """
     Comprehensive drug-drug interaction analysis result.
 
     Combines clinical data, patient education, and availability information
     in a structured format for healthcare professionals and patients.
     """
-    interaction_details: Optional[DrugInteractionDetails] = Field(
+    interaction_details: Optional[DrugInteractionDetailsModel] = Field(
         default=None,
         description="Detailed interaction information (None if no interaction or data not available)"
     )
     technical_summary: str = Field(
         description="Technical summary of the interaction suitable for healthcare professionals"
     )
-    patient_friendly_summary: Optional[PatientFriendlySummary] = Field(
+    patient_friendly_summary: Optional[PatientFriendlySummaryModel] = Field(
         default=None,
         description="Patient-friendly explanation (None if no interaction)"
     )
-    data_availability: DataAvailabilityInfo = Field(
+    data_availability: DataAvailabilityModel = Field(
         description="Status of data availability for this interaction check"
     )
+
+
+class ModelOutput(BaseModel):
+    data: Optional[DrugInteractionModel] = None
+    markdown: Optional[str] = None

@@ -13,9 +13,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from drug_disease_interaction_models import DrugDiseaseInteractionResult
+from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +131,7 @@ class DrugDiseaseInteraction:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def generate_text(self, config: DrugDiseaseInput, structured: bool = False) -> tuple[Union[DrugDiseaseInteractionResult, str], Path]:
+    def generate_text(self, config: DrugDiseaseInput, structured: bool = False) -> ModelOutput:
         """
         Analyzes how a medical condition affects drug efficacy, safety, and metabolism.
 
@@ -160,14 +159,11 @@ class DrugDiseaseInteraction:
         )
         result = self._ask_llm(model_input)
         
-        # Save the response
-        saved_path = self._save_interaction_result(result, config.medicine_name, config.condition_name)
-        
         logger.debug(f"✓ Successfully analyzed disease interaction")
-        return result, saved_path
+        return result
 
 
-    def _ask_llm(self, model_input: ModelInput) -> Union[DrugDiseaseInteractionResult, str]:
+    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Helper to call LiteClient with error handling."""
         logger.debug("Calling LiteClient...")
         try:
@@ -177,12 +173,7 @@ class DrugDiseaseInteraction:
             logger.exception("Full exception details:")
             raise
             
-    def _save_interaction_result(
-        self, 
-        result: Union[DrugDiseaseInteractionResult, str], 
-        medicine_name: str, 
-        condition_name: str
-    ) -> Path:
+    def _save_interaction_result(self, result: ModelOutput,  medicine_name: str, condition_name: str) -> Path:
         """
         Save the interaction analysis result to a JSON or MD file.
         
@@ -268,9 +259,10 @@ Examples:
     )
 
     parser.add_argument(
-        "--condition-severity",
-        "-s",
+        "--severity",
+        "-S",
         type=str,
+        choices=["mild", "moderate", "severe"],
         default=None,
         help="Severity of the condition (mild, moderate, severe)",
     )
@@ -284,7 +276,7 @@ Examples:
     )
 
     parser.add_argument(
-        "--other-medications",
+        "--medications",
         "-m",
         type=str,
         default=None,
@@ -292,8 +284,8 @@ Examples:
     )
 
     parser.add_argument(
-        "--prompt-style",
-        "-p",
+        "--style",
+        "-s",
         type=str,
         choices=["detailed", "concise", "balanced"],
         default="detailed",
@@ -310,17 +302,18 @@ Examples:
     )
 
     parser.add_argument(
-        "--json-output",
+        "--json",
         "-j",
         action="store_true",
         default=False,
         help="Output results as JSON to stdout (in addition to file)",
     )
     parser.add_argument(
-        "-s", "--structured",
+        "--structured",
+        "-t",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response."
+        help="Use structured output (Pydantic model) for the response"
     )
 
     parser.add_argument(
@@ -339,7 +332,6 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, 1 for error)
     """
-    console = Console()
     args  = get_user_arguments()
 
     try:
@@ -366,8 +358,6 @@ def main() -> int:
         analyzer = DrugDiseaseInteraction(model_config)
         result, saved_path = analyzer.generate_text(config, structured=args.structured)
         
-        print_result(result, title="Drug-Disease Interaction Analysis")
-
         logger.debug(f"Analysis completed. Results saved to: {saved_path}")
         return 0
 

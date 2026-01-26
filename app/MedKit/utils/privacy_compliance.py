@@ -27,19 +27,63 @@ KEY CONCEPTS:
 
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 from uuid import uuid4
+
 from pydantic import BaseModel, Field
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+# Ensure repository root is in path for imports
+# Use .resolve() to get absolute paths to avoid issues with relative CWDs
+# For utils/module.py: need to go up 3 levels to reach LiteLLM root
+_repo_root = Path(__file__).resolve().parent.parent.parent.parent
+_medkit_root = _repo_root / "app" / "MedKit"
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+if str(_medkit_root) not in sys.path:
+    sys.path.insert(0, str(_medkit_root))
+
 from lite.utils import save_model_response
 
-from medkit.mental_health.models import PrivacyConsent, AuditLog, ChatSession
-from medkit.core.config import PrivacyConfig
-from medkit.mental_health.mental_health_assessment import MentalHealthAssessment
+# Use relative imports
+try:
+    from ..mental_health.models import PrivacyConsent, AuditLog, ChatSession
+    from ..mental_health.mental_health_assessment import MentalHealthAssessment
+    # Define PrivacyConfig locally since it doesn't exist in core
+    class PrivacyConfig:
+        """Local privacy configuration."""
+        retention_days_session = 365
+        retention_days_audit = 2555
+except (ImportError, ModuleNotFoundError):
+    # Fallback definitions for testing
+    from pydantic import BaseModel, Field as PydanticField
+
+    class PrivacyConsent(BaseModel):
+        """Fallback privacy consent model."""
+        user_id: str
+        accepted: bool = False
+
+    class AuditLog(BaseModel):
+        """Fallback audit log model."""
+        session_id: str
+        action: str
+        timestamp: str = ""
+
+    class ChatSession(BaseModel):
+        """Fallback chat session model."""
+        session_id: str
+        user_id: str
+
+    class MentalHealthAssessment:
+        """Fallback mental health assessment."""
+        pass
+
+    class PrivacyConfig:
+        """Local privacy configuration."""
+        retention_days_session = 365
+        retention_days_audit = 2555
 
 ChatSession.model_rebuild()
 
@@ -49,13 +93,14 @@ class PrivacyManager:
     """Manages HIPAA-compliant mental health data handling and session management."""
 
     def __init__(self, data_dir: Optional[str] = None):
-        """
-        Initialize privacy manager.
+        """Initialize privacy manager.
 
         Args:
-            data_dir: Directory for storing session data (optional)
+            data_dir: Directory for storing session data (optional).
         """
-        self.data_dir = Path(data_dir) if data_dir else Path.home() / ".medkit" / "sessions"
+        self.data_dir = (
+            Path(data_dir) if data_dir else Path.home() / ".medkit" / "sessions"
+        )
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
         # Set restrictive permissions
@@ -65,17 +110,18 @@ class PrivacyManager:
         """Generate a unique session ID."""
         return str(uuid4())
 
-    def create_session(self, patient_name: str, age: int, gender: str) -> ChatSession:
-        """
-        Create a new chat session.
+    def create_session(
+        self, patient_name: str, age: int, gender: str
+    ) -> ChatSession:
+        """Create a new chat session.
 
         Args:
-            patient_name: Patient name
-            age: Patient age
-            gender: Patient gender
+            patient_name: Patient name.
+            age: Patient age.
+            gender: Patient gender.
 
         Returns:
-            ChatSession object
+            ChatSession object with initialized session data.
         """
         session_id = str(uuid4())
         patient_id = str(uuid4())
@@ -97,14 +143,13 @@ class PrivacyManager:
         return session
 
     def save_session(self, session: ChatSession) -> Optional[Path]:
-        """
-        Save session to file.
+        """Save session to file.
 
         Args:
-            session: ChatSession to save
+            session: ChatSession to save.
 
         Returns:
-            Path to saved file or None
+            Path to saved file or None if error occurred.
         """
         try:
             session_file = self.data_dir / f"{session.session_id}.json"
@@ -121,14 +166,13 @@ class PrivacyManager:
             return None
 
     def load_session(self, session_id: str) -> Optional[ChatSession]:
-        """
-        Load session from file.
+        """Load session from file.
 
         Args:
-            session_id: Session ID to load
+            session_id: Session ID to load.
 
         Returns:
-            ChatSession or None if not found
+            ChatSession or None if not found or error occurred.
         """
         try:
             session_file = self.data_dir / f"{session_id}.json"
@@ -136,7 +180,7 @@ class PrivacyManager:
             if not session_file.exists():
                 return None
 
-            with open(session_file, 'r') as f:
+            with open(session_file, "r") as f:
                 data = json.load(f)
 
             return ChatSession(**data)
@@ -145,15 +189,14 @@ class PrivacyManager:
             return None
 
     def display_consent_form(self) -> bool:
-        """
-        Display HIPAA consent form.
+        """Display HIPAA consent form.
 
         Returns:
-            True if user consents, False otherwise
+            True if user consents, False otherwise.
         """
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("HIPAA PRIVACY NOTICE & CONSENT".center(80))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
         print("""
 Your mental health information is PRIVATE AND PROTECTED.
@@ -182,26 +225,32 @@ DO NOT USE THIS SYSTEM IF YOU ARE IN IMMEDIATE CRISIS
 Call 911 or 988 (Suicide & Crisis Lifeline) immediately
         """)
 
-        response = input("\nDo you consent to these terms? (yes/no): ").strip().lower()
-        return response in ['yes', 'y']
+        response = input(
+            "\nDo you consent to these terms? (yes/no): "
+        ).strip().lower()
+        return response in ["yes", "y"]
 
-    def log_audit_event(self, session_id: str, action: str, user_role: str = "patient",
-                       details: Optional[str] = None) -> None:
-        """
-        Log an audit event for compliance.
+    def log_audit_event(
+        self,
+        session_id: str,
+        action: str,
+        user_role: str = "patient",
+        details: Optional[str] = None,
+    ) -> None:
+        """Log an audit event for compliance.
 
         Args:
-            session_id: Session ID
-            action: Action performed
-            user_role: Role of user performing action
-            details: Additional details
+            session_id: Session ID.
+            action: Action performed.
+            user_role: Role of user performing action.
+            details: Additional details (optional).
         """
         try:
             audit_log = AuditLog(
                 session_id=session_id,
                 action=action,
                 user_role=user_role,
-                details=details
+                details=details,
             )
 
             audit_file = self.data_dir / "audit_log.json"
@@ -209,14 +258,14 @@ Call 911 or 988 (Suicide & Crisis Lifeline) immediately
             # Load existing logs
             logs = []
             if audit_file.exists():
-                with open(audit_file, 'r') as f:
+                with open(audit_file, "r") as f:
                     logs = json.load(f)
 
             # Append new log
             logs.append(audit_log.model_dump())
 
             # Save updated logs
-            with open(audit_file, 'w') as f:
+            with open(audit_file, "w") as f:
                 json.dump(logs, f, indent=2, default=str)
 
             audit_file.chmod(0o600)
@@ -224,19 +273,20 @@ Call 911 or 988 (Suicide & Crisis Lifeline) immediately
             print(f"Error logging audit event: {e}")
 
     def generate_compliance_report(self) -> Dict:
-        """
-        Generate HIPAA compliance report.
+        """Generate HIPAA compliance report.
 
         Returns:
-            Dictionary with compliance metrics
+            Dictionary with compliance metrics.
         """
         return {
             "report_date": datetime.now().isoformat(),
-            "sessions_count": len(list(self.data_dir.glob("*.json"))) - 1,  # Exclude audit log
-            "data_retention_policy": "365 days for sessions, 2555 days for audit logs",
+            "sessions_count": len(list(self.data_dir.glob("*.json"))) - 1,
+            "data_retention_policy": (
+                "365 days for sessions, 2555 days for audit logs"
+            ),
             "encryption_status": "enabled",
             "access_controls": "role-based",
-            "audit_logging": "enabled"
+            "audit_logging": "enabled",
         }
 
     def cleanup_expired_data(self) -> Dict:
@@ -247,10 +297,20 @@ Call 911 or 988 (Suicide & Crisis Lifeline) immediately
         return {"sessions": {"deleted": 0, "retained": 0}}
 
     def mask_pii(self, text: str) -> str:
-        """Mask PII in text for logging."""
+        """Mask PII in text for logging.
+
+        Args:
+            text: Text containing potential PII.
+
+        Returns:
+            Text with PII masked.
+        """
         import re
+
         # Mask email
-        text = re.sub(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", "[EMAIL]", text)
+        text = re.sub(
+            r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", "[EMAIL]", text
+        )
         # Mask phone
         text = re.sub(r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}", "[PHONE]", text)
         return text

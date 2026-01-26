@@ -17,7 +17,7 @@ from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 from utils.output_formatter import print_result
 
-from medical_test_devices_models import MedicalDeviceInfo
+from medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class MedicalTestDeviceGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
 
-    def generate_text(self, device_name: str, structured: bool = False) -> Union[MedicalDeviceInfo, str]:
+    def generate_text(self, device_name: str, structured: bool = False) -> ModelOutput:
         """
         Generate comprehensive medical device information.
 
@@ -111,7 +111,7 @@ class MedicalTestDeviceGenerator:
 
         response_format=None
         if structured:
-           response_format = MedicalDeviceInfo
+           response_format = MedicalDeviceInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -127,7 +127,7 @@ class MedicalTestDeviceGenerator:
             logger.error(f"Error generating device information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[MedicalDeviceInfo, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """
         Call the LLM client to generate information.
 
@@ -139,7 +139,7 @@ class MedicalTestDeviceGenerator:
         """
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, device_info: Union[MedicalDeviceInfo, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Save the generated device information to a JSON or MD file."""
         if isinstance(device_info, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
