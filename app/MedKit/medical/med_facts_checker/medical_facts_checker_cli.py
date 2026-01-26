@@ -11,9 +11,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from medical_facts_checker_models import FactFictionAnalysis
+from medical_facts_checker_models import MedicalFactFictionAnalysisModel, ModelOutput
 
 class MedicalFactsChecker:
     """Analyzes medical statements for factual accuracy."""
@@ -24,7 +23,7 @@ class MedicalFactsChecker:
         self.statement: Optional[str] = None
         self.output_path: Optional[Path] = None
 
-    def generate_text(self, statement: str, structured: bool = False) -> Union[FactFictionAnalysis, str]:
+    def generate_text(self, statement: str, structured: bool = False) -> ModelOutput:
         """
         Analyze a statement and determine if it is a fact or fiction.
 
@@ -44,7 +43,7 @@ class MedicalFactsChecker:
 
         response_format = None
         if structured:
-            response_format = FactFictionAnalysis
+            response_format = MedicalFactFictionAnalysisModel
 
         model_input = ModelInput(
             user_prompt=f"Analyze the following statement and determine if it is a fact or fiction: {statement}",
@@ -54,7 +53,7 @@ class MedicalFactsChecker:
         result = self._ask_llm(model_input)
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> Union[FactFictionAnalysis, str]:
+    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """
         Internal helper to call the LLM client.
         """
@@ -77,7 +76,7 @@ Examples:
     )
     parser.add_argument("-i", "--statement", required=True, help="Statement to analyze")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
-    parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use (default: gemini-1.5-pro)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbosity level")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
@@ -88,11 +87,13 @@ Examples:
         checker = MedicalFactsChecker(model_config=model_config)
         print("Starting evaluation...")
         result = checker.generate_text(statement=args.statement, structured=args.structured)
+        print (result)
         
-        print_result(result, title="Fact vs Fiction Analysis")
-
         if args.output:
-            output_path = args.output
+            output_dir = Path("output")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = output_dir / args.output.name
+
             if isinstance(result, str) and output_path.suffix == ".json":
                 output_path = output_path.with_suffix(".md")
             save_model_response(result, output_path)

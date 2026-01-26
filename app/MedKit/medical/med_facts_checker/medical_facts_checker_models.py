@@ -51,9 +51,15 @@ class AnalyzerMetadata(BaseModel):
     limitations: str = Field(description="Limitations of this analysis")
 
 
-class FactFictionAnalysis(BaseModel):
+class MedicalFactFictionAnalysisModel(BaseModel):
     """
     Comprehensive fact/fiction analysis for statements.
     """
     detailed_analysis: DetailedAnalysis
     metadata: AnalyzerMetadata
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalFactFictionAnalysisModel] = None
+    markdown: Optional[str] = None
+
