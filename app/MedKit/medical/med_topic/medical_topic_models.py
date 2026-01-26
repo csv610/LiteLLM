@@ -8,10 +8,10 @@ diagnosis, treatment, and prognosis information.
 from pydantic import BaseModel, Field
 from typing import Optional
 
-from medkit.medical.medical_faq import PatientFAQ
+#from medkit.medical.medical_faq import PatientFAQ
 
 
-class TopicOverview(BaseModel):
+class TopicOverviewModel(BaseModel):
     """Basic information about the medical topic."""
     topic_name: str = Field(description="Official name of the medical topic")
     alternative_names: str = Field(description="Other names or abbreviations for this topic, comma-separated")
@@ -20,7 +20,7 @@ class TopicOverview(BaseModel):
     prevalence: str = Field(description="How common this condition is in the population")
 
 
-class Definition(BaseModel):
+class DefinitionModel(BaseModel):
     """Definition and basic understanding of the topic."""
     plain_language_explanation: str = Field(description="Simple explanation for general audience")
     medical_definition: str = Field(description="Formal medical definition")
@@ -28,7 +28,7 @@ class Definition(BaseModel):
     disease_classification: str = Field(description="How this condition is classified medically")
 
 
-class Epidemiology(BaseModel):
+class EpidemiologyModel(BaseModel):
     """Statistical and demographic information."""
     incidence_rate: str = Field(description="How many new cases occur per year")
     prevalence_rate: str = Field(description="What percentage of population has this condition")
@@ -38,7 +38,7 @@ class Epidemiology(BaseModel):
     risk_groups: str = Field(description="Populations at highest risk, comma-separated")
 
 
-class Etiology(BaseModel):
+class EtiologyModel(BaseModel):
     """Causes and risk factors."""
     primary_causes: str = Field(description="Main causes of this condition, comma-separated")
     genetic_factors: str = Field(description="Genetic predisposition or inheritance patterns")
@@ -48,7 +48,7 @@ class Etiology(BaseModel):
     contributing_factors: str = Field(description="Other factors that contribute to development, comma-separated")
 
 
-class Pathophysiology(BaseModel):
+class PathophysiologyModel(BaseModel):
     """How the condition develops and progresses."""
     mechanism_of_disease: str = Field(description="Biological mechanism of how disease develops")
     affected_systems: str = Field(description="Body systems or organs affected, comma-separated")
@@ -58,7 +58,7 @@ class Pathophysiology(BaseModel):
     immune_involvement: str = Field(description="Role of immune system if applicable")
 
 
-class ClinicalPresentation(BaseModel):
+class ClinicalPresentationModel(BaseModel):
     """Symptoms and clinical signs."""
     primary_symptoms: str = Field(description="Main symptoms patients experience, comma-separated")
     secondary_symptoms: str = Field(description="Associated or secondary symptoms, comma-separated")
@@ -69,7 +69,7 @@ class ClinicalPresentation(BaseModel):
     asymptomatic_presentation: str = Field(description="Whether condition can exist without symptoms")
 
 
-class Diagnosis(BaseModel):
+class DiagnosisModel(BaseModel):
     """Diagnostic methods and criteria."""
     diagnostic_tests: str = Field(description="Tests used to diagnose this condition, comma-separated")
     imaging_studies: str = Field(description="Imaging procedures if applicable, comma-separated")
@@ -80,7 +80,7 @@ class Diagnosis(BaseModel):
     time_to_diagnosis: str = Field(description="Average time from symptom onset to diagnosis")
 
 
-class Complications(BaseModel):
+class ComplicationsModel(BaseModel):
     """Potential complications and sequelae."""
     acute_complications: str = Field(description="Short-term complications, comma-separated")
     chronic_complications: str = Field(description="Long-term complications from untreated disease, comma-separated")
@@ -90,7 +90,7 @@ class Complications(BaseModel):
     disability_outcomes: str = Field(description="Potential long-term disability or functional impairment")
 
 
-class Treatment(BaseModel):
+class TreatmentModel(BaseModel):
     """Treatment options and management."""
     first_line_treatment: str = Field(description="Standard initial treatment")
     medications: str = Field(description="Common medications used, comma-separated")
@@ -102,7 +102,7 @@ class Treatment(BaseModel):
     treatment_duration: str = Field(description="How long treatment typically lasts")
 
 
-class Prognosis(BaseModel):
+class PrognosisModel(BaseModel):
     """Expected outcomes and long-term outlook."""
     overall_prognosis: str = Field(description="General expected outcome")
     remission_possibility: str = Field(description="Whether condition can go into remission or resolve")
@@ -113,7 +113,7 @@ class Prognosis(BaseModel):
     quality_of_life_impact: str = Field(description="Expected impact on daily functioning and quality of life")
 
 
-class Prevention(BaseModel):
+class PreventionModel(BaseModel):
     """Prevention and risk reduction strategies."""
     primary_prevention: str = Field(description="Strategies to prevent disease onset, comma-separated")
     secondary_prevention: str = Field(description="Early detection and intervention strategies, comma-separated")
@@ -123,7 +123,7 @@ class Prevention(BaseModel):
     vaccinations: str = Field(description="Vaccines if applicable")
 
 
-class ResearchAndEvidence(BaseModel):
+class ResearchAndEvidenceModel(BaseModel):
     """Current evidence and research."""
     evidence_quality: str = Field(description="Quality of current evidence")
     current_research_areas: str = Field(description="Active areas of research, comma-separated")
@@ -132,7 +132,7 @@ class ResearchAndEvidence(BaseModel):
     guideline_sources: str = Field(description="Major clinical guidelines and organizations, comma-separated")
 
 
-class PsychosocialImpact(BaseModel):
+class PsychosocialImpactModel(BaseModel):
     """Mental health and quality of life aspects."""
     mental_health_effects: str = Field(description="Psychological effects like depression or anxiety")
     emotional_burden: str = Field(description="Emotional challenges patients face")
@@ -142,7 +142,7 @@ class PsychosocialImpact(BaseModel):
     support_resources: str = Field(description="Mental health and support resources, comma-separated")
 
 
-class TopicEducation(BaseModel):
+class TopicEducationModel(BaseModel):
     """Patient education and communication."""
     key_takeaways: str = Field(description="3-5 most important points, comma-separated")
     common_misconceptions: str = Field(description="Common myths about this condition, comma-separated")
@@ -150,7 +150,7 @@ class TopicEducation(BaseModel):
     when_to_see_doctor: str = Field(description="Symptoms or situations requiring medical attention")
 
 
-class SpecialPopulations(BaseModel):
+class SpecialPopulationsModel(BaseModel):
     """Considerations for specific groups."""
     pediatric_considerations: str = Field(description="Special aspects in children if applicable")
     geriatric_considerations: str = Field(description="Special aspects in elderly if applicable")
@@ -159,7 +159,7 @@ class SpecialPopulations(BaseModel):
     ethnic_variations: str = Field(description="Variations across ethnic or genetic groups")
 
 
-class CostAndImpact(BaseModel):
+class CostAndImpactModel(BaseModel):
     """Economic and healthcare impact."""
     healthcare_costs: str = Field(description="Typical treatment and management costs")
     productivity_loss: str = Field(description="Economic impact from lost productivity")
@@ -167,14 +167,14 @@ class CostAndImpact(BaseModel):
     insurance_considerations: str = Field(description="Insurance coverage and costs")
 
 
-class SeeAlso(BaseModel):
+class SeeAlsoModel(BaseModel):
     """Cross-references to related medical topics."""
     related_topics: str = Field(description="Related medical topics worth exploring, comma-separated")
     connection_types: str = Field(description="Types of connections (similar condition, related treatment, complication, risk factor, prevention, differential diagnosis, etc.), comma-separated")
     reason: str = Field(description="Brief explanation of how these topics relate to the main topic")
 
 
-class TopicMetadata(BaseModel):
+class TopicMetadataModel(BaseModel):
     """Metadata and information structure."""
     last_updated: str = Field(description="When this information was last reviewed")
     information_sources: str = Field(description="Primary sources of information, comma-separated")
@@ -182,45 +182,50 @@ class TopicMetadata(BaseModel):
     complexity_level: str = Field(description="Complexity of topic (basic, intermediate, advanced)")
 
 
-class MedicalTopic(BaseModel):
+class MedicalTopicModel(BaseModel):
     """
     Comprehensive medical topic information.
     """
     # Basic identification
-    overview: TopicOverview
+    overview: TopicOverviewModel
 
     # Understanding the topic
-    definition: Definition
-    epidemiology: Epidemiology
+    definition: DefinitionModel
+    epidemiology: EpidemiologyModel
 
     # Causes and mechanisms
-    etiology: Etiology
-    pathophysiology: Pathophysiology
+    etiology: EtiologyModel
+    pathophysiology: PathophysiologyModel
 
     # Clinical aspects
-    clinical_presentation: ClinicalPresentation
-    diagnosis: Diagnosis
-    complications: Complications
+    clinical_presentation: ClinicalPresentationModel
+    diagnosis: DiagnosisModel
+    complications: ComplicationsModel
 
     # Management and outcomes
-    treatment: Treatment
-    prognosis: Prognosis
-    prevention: Prevention
+    treatment: TreatmentModel
+    prognosis: PrognosisModel
+    prevention: PreventionModel
 
     # Evidence and research
-    research_and_evidence: ResearchAndEvidence
+    research_and_evidence: ResearchAndEvidenceModel
 
     # Human impact
-    psychosocial_impact: PsychosocialImpact
-    special_populations: SpecialPopulations
-    cost_and_impact: CostAndImpact
+    psychosocial_impact: PsychosocialImpactModel
+    special_populations: SpecialPopulationsModel
+    cost_and_impact: CostAndImpactModel
 
     # Patient communication
-    education: TopicEducation
-    faq: Optional[PatientFAQ] = Field(default=None, description="Patient-friendly FAQ for this topic")
+    education: TopicEducationModel
+#    faq: Optional[PatientFAQ] = Field(default=None, description="Patient-friendly FAQ for this topic")
 
     # Cross-references
-    see_also: SeeAlso
+    see_also: SeeAlsoModel
 
     # Metadata
-    metadata: TopicMetadata
+    metadata: TopicMetadataModel
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalTopicModel] = None
+    markdown: Optional[str] = None

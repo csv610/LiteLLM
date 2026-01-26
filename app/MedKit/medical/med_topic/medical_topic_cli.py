@@ -9,9 +9,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from medical_topic_models import MedicalTopic
+from medical_topic_models import MedicalTopicModel, ModelOutput
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ class MedicalTopicGenerator:
         self.client = LiteClient(model_config)
         logger.debug(f"Initialized MedicalTopicGenerator")
 
-    def generate_text(self, topic: str, structured: bool = False) -> Union[MedicalTopic, str]:
+    def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive medical topic information."""
         if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
@@ -72,7 +71,7 @@ class MedicalTopicGenerator:
 
         response_format = None
         if structured:
-            response_format = MedicalTopic
+            response_format = MedicalTopicModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -89,15 +88,15 @@ class MedicalTopicGenerator:
             logger.error(f"✗ Error generating medical topic information: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[MedicalTopic, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, topic_info: Union[MedicalTopic, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the medical topic information to a JSON or MD file."""
-        if isinstance(topic_info, str) and output_path.suffix == ".json":
+        if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
-        return save_model_response(topic_info, output_path)
+        return save_model_response(result, output_path)
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -181,9 +180,6 @@ def app_cli() -> int:
         if topic_info is None:
             logger.error("✗ Failed to generate medical topic information.")
             sys.exit(1)
-
-        # Display formatted result
-        print_result(topic_info, title="Medical Topic Information")
 
         if args.output:
             generator.save(topic_info, Path(args.output))
