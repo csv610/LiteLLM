@@ -6,14 +6,21 @@ import argparse
 from pathlib import Path
 from typing import Union
 
+from dataclasses import dataclass, field
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from patient_medical_history_models import PatientMedicalHistoryQuestions, HistoryPurpose, MedicalHistoryInput
+from patient_medical_history_models import PatientMedicalHistoryModel, ModelOutput
 
+@dataclass
+class MedicalHistoryInput:
+    exam: str
+    age: int
+    gender: str
+    purpose: str = "physical_exam"
 
 class PromptBuilder:
     """Builder class for creating prompts for patient medical history questions."""
@@ -58,13 +65,12 @@ class PatientMedicalHistoryGenerator:
         """Initialize the generator."""
         self.client = LiteClient(model_config=model_config)
 
-    def generate_text(self, medical_history_input: MedicalHistoryInput, structured: bool = False) -> Union[PatientMedicalHistoryQuestions, str]:
+    def generate_text(self, user_input: MedicalHistoryInput, structured: bool = False) -> ModelOutput:
         """Generate patient medical history questions."""
-        self._validate_inputs(medical_history_input)
 
         response_format = None
         if structured:
-            response_format = PatientMedicalHistoryQuestions
+            response_format = PatientMedicalHistoryModel
 
         model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
@@ -75,33 +81,23 @@ class PatientMedicalHistoryGenerator:
         result = self._ask_llm(model_input)
 
         # Ensure input params are mirrored in result
-        result.purpose = medical_history_input.purpose
-        result.exam = medical_history_input.exam
-        result.age = medical_history_input.age
-        result.gender = medical_history_input.gender
+#        result.purpose = medical_history_input.purpose
+#        result.exam = medical_history_input.exam
+#        result.age = medical_history_input.age
+#        result.gender = medical_history_input.gender
 
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> Union[PatientMedicalHistoryQuestions, str]:
+    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
 
-
-
-    def _validate_inputs(self, medical_history_input: MedicalHistoryInput) -> None:
-        if not medical_history_input.exam or not medical_history_input.exam.strip():
-            raise ValueError("Exam name cannot be empty")
-        if not (1 <= medical_history_input.age <= 150):
-            raise ValueError("Age must be between 1 and 150")
-        if medical_history_input.purpose not in [p.value for p in HistoryPurpose]:
-            raise ValueError(f"Invalid purpose: specify one of: {[p.value for p in HistoryPurpose]}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate comprehensive patient medical history questions.")
     parser.add_argument("-e", "--exam", required=True, help="Type of medical exam (e.g., cardiac, respiratory)")
     parser.add_argument("-a", "--age", type=int, required=True, help="Patient age in years")
     parser.add_argument("-g", "--gender", required=True, help="Patient gender")
-    parser.add_argument("-p", "--purpose", default="physical_exam", choices=[p.value for p in HistoryPurpose], help="Purpose of history collection")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
     parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
@@ -120,8 +116,6 @@ def main():
         )
         result = generator.generate_text(medical_history_input, structured=args.structured)
         
-        print_result(result, title="Patient Medical History Questions")
-
         if args.output:
             output_path = args.output
             if isinstance(result, str) and output_path.suffix == ".json":

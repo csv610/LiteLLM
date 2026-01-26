@@ -1,105 +1,104 @@
 from pydantic import BaseModel, Field
-from typing import List
 from enum import Enum
 from dataclasses import dataclass
+
+from typing import List, Optional
 
 class HistoryPurpose(str, Enum):
     SURGERY = "surgery"
     MEDICATION = "medication"
     PHYSICAL_EXAM = "physical_exam"
 
-@dataclass
-class MedicalHistoryInput:
-    exam: str
-    age: int
-    gender: str
-    purpose: str = "physical_exam"
-
 class QuestionRequirement(str, Enum):
     MANDATORY = "mandatory"
     OPTIONAL = "optional"
 
-class FollowUpQuestion(BaseModel):
+class FollowUpQuestionModel(BaseModel):
     question: str = Field(description="The follow-up question text")
     clinical_reason: str = Field(description="Why this follow-up is clinically important")
     investigation_focus: str = Field(description="What specific diagnostic or clinical aspect is being investigated")
 
-class HistoryQuestion(BaseModel):
+class HistoryQuestionModel(BaseModel):
     question: str = Field(description="The question to ask the patient")
     clinical_relevance: str = Field(description="Why this question is clinically relevant")
     requirement: QuestionRequirement = Field(description="Whether mandatory or optional")
     expected_answer_type: str = Field(description="Type of answer expected (yes/no, descriptive, date, etc.)")
 
-class PastConditionQuestion(HistoryQuestion):
+class PastConditionQuestionModel(HistoryQuestionModel):
     condition_category: str = Field(description="Category of condition (cardiac, respiratory, endocrine, etc.)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class HospitalizationQuestion(HistoryQuestion):
+class HospitalizationQuestionModel(HistoryQuestionModel):
     scope: str = Field(description="Scope of hospitalization question (frequency, reason, duration, etc.)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class SurgeryQuestion(HistoryQuestion):
+class SurgeryQuestionModel(HistoryQuestionModel):
     detail_level: str = Field(description="Level of detail requested (list, specific procedures, complications)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class FamilyHistoryQuestion(HistoryQuestion):
+class FamilyHistoryQuestionModel(HistoryQuestionModel):
     family_member_type: str = Field(description="Type of family member (parent, sibling, grandparent, etc.)")
     condition_focus: str = Field(description="Medical conditions to focus on")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class MedicationQuestion(HistoryQuestion):
+class MedicationQuestionModel(HistoryQuestionModel):
     aspect: str = Field(description="Aspect of medication use (current medications, dosage, adherence, side effects)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class AllergyQuestion(HistoryQuestion):
+class AllergyQuestionModel(HistoryQuestionModel):
     allergy_type: str = Field(description="Type of allergy (medication, food, environmental, latex, contrast dye)")
     detail_aspect: str = Field(description="Aspect of allergy to assess (type, reaction, severity, management)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class VaccinationQuestion(HistoryQuestion):
+class VaccinationQuestionModel(HistoryQuestionModel):
     vaccine_focus: str = Field(description="Specific vaccine or vaccine category")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class LifestyleQuestion(HistoryQuestion):
+class LifestyleQuestionModel(HistoryQuestionModel):
     category: str = Field(description="Lifestyle category (tobacco, alcohol, diet, exercise, sleep, stress)")
     detail_requested: str = Field(description="Type of detail requested (frequency, quantity, impact, duration)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class PersonalSocialQuestion(HistoryQuestion):
+class PersonalSocialQuestionModel(HistoryQuestionModel):
     social_aspect: str = Field(description="Social aspect (occupation, housing, relationships, education, support systems)")
-    follow_up_questions: List[FollowUpQuestion] = Field(default_factory=list)
+    follow_up_questions: List[FollowUpQuestionModel] = Field(default_factory=list)
 
-class PastMedicalHistoryQuestions(BaseModel):
-    condition_questions: List[PastConditionQuestion]
-    hospitalization_questions: List[HospitalizationQuestion]
-    surgery_questions: List[SurgeryQuestion]
+class PastMedicalHistoryQuestionsModel(BaseModel):
+    condition_questions: List[PastConditionQuestionModel]
+    hospitalization_questions: List[HospitalizationQuestionModel]
+    surgery_questions: List[SurgeryQuestionModel]
 
-class FamilyHistoryQuestions(BaseModel):
-    maternal_history_questions: List[FamilyHistoryQuestion]
-    paternal_history_questions: List[FamilyHistoryQuestion]
-    genetic_risk_questions: List[FamilyHistoryQuestion]
+class FamilyHistoryQuestionsModel(BaseModel):
+    maternal_history_questions: List[FamilyHistoryQuestionModel]
+    paternal_history_questions: List[FamilyHistoryQuestionModel]
+    genetic_risk_questions: List[FamilyHistoryQuestionModel]
 
-class DrugInformationQuestions(BaseModel):
-    medication_questions: List[MedicationQuestion]
-    allergy_questions: List[AllergyQuestion]
-    adverse_reaction_questions: List[AllergyQuestion]
+class DrugInformationQuestionsModel(BaseModel):
+    medication_questions: List[MedicationQuestionModel]
+    allergy_questions: List[AllergyQuestionModel]
+    adverse_reaction_questions: List[AllergyQuestionModel]
 
-class VaccinationQuestions(BaseModel):
-    vaccination_status_questions: List[VaccinationQuestion]
-    vaccine_specific_questions: List[VaccinationQuestion]
-    booster_questions: List[VaccinationQuestion]
+class VaccinationQuestionsModel(BaseModel):
+    vaccination_status_questions: List[VaccinationQuestionModel]
+    vaccine_specific_questions: List[VaccinationQuestionModel]
+    booster_questions: List[VaccinationQuestionModel]
 
-class LifestyleAndSocialQuestions(BaseModel):
-    lifestyle_questions: List[LifestyleQuestion]
-    personal_social_questions: List[PersonalSocialQuestion]
+class LifestyleAndSocialQuestionsModel(BaseModel):
+    lifestyle_questions: List[LifestyleQuestionModel]
+    personal_social_questions: List[PersonalSocialQuestionModel]
 
-class PatientMedicalHistoryQuestions(BaseModel):
+class PatientMedicalHistoryModel(BaseModel):
     purpose: str
     exam: str
     age: int
     gender: str
-    past_medical_history: PastMedicalHistoryQuestions
-    family_history: FamilyHistoryQuestions
-    drug_information: DrugInformationQuestions
-    vaccination: VaccinationQuestions
-    lifestyle_and_social: LifestyleAndSocialQuestions
+    past_medical_history: PastMedicalHistoryQuestionsModel
+    family_history: FamilyHistoryQuestionsModel
+    drug_information: DrugInformationQuestionsModel
+    vaccination: VaccinationQuestionsModel
+    lifestyle_and_social: LifestyleAndSocialQuestionsModel
+
+
+class ModelOutput(BaseModel):
+    data: Optional[PatientMedicalHistoryModel] = None
+    markdown: Optional[str] = None
