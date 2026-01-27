@@ -30,6 +30,19 @@ def configure_logging(
             4: logging.DEBUG
         }
         level = verbosity_levels.get(verbosity, logging.WARNING)
+
+    # Ensure log file is in a 'logs' directory if no directory is specified
+    import os
+    from pathlib import Path
+    
+    log_path = Path(log_file)
+    if len(log_path.parts) == 1:
+        log_path = Path("logs") / log_path
+        log_file = str(log_path)
+    
+    # Create logs directory if it doesn't exist
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Remove all existing handlers from the root logger
     root_logger = logging.getLogger()
     for handler in root_logger.handlers[:]:

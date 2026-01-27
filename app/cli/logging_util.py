@@ -40,6 +40,10 @@ def setup_logging(
 
     # Create logs directory if it doesn't exist
     log_path = Path(log_file)
+    if len(log_path.parts) == 1:
+        log_path = Path("logs") / log_path
+        log_file = str(log_path)
+
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Common formatter for all handlers

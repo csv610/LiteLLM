@@ -96,10 +96,12 @@ clean:
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name .coverage -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name htmlcov -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name "logs" -not -path "./.git*" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name ".DS_Store" -delete
 	find . -type f -name "temp_*" -delete
-	@echo "Cleaned up cache and build files"
+	find . -type f -name "*.log" -not -path "./.git*" -delete
+	@echo "Cleaned up cache, build files, and logs"
 
 clean-venv:
 	rm -rf $(VENV_DIR)

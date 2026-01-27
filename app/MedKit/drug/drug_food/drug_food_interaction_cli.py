@@ -169,7 +169,7 @@ def main() -> int:
     args = get_user_arguments()
 
     configure_logging(
-        log_file="drug_food_interaction.log",
+        log_file=str(Path(__file__).parent / "logs" / "drug_food_interaction.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

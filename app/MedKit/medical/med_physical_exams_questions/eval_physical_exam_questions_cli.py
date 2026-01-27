@@ -257,7 +257,7 @@ Examples:
     args = parser.parse_args()
 
     configure_logging(
-        log_file="eval_physical_exam_questions.log",
+        log_file=str(Path(__file__).parent / "logs" / "eval_physical_exam_questions.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

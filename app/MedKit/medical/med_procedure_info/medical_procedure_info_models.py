@@ -107,7 +107,7 @@ class ProcedureEvidence(BaseModel):
     evidence_summary: str = Field(description="Summary of major guidelines and evidence quality")
     procedure_limitations: ProcedureLimitations
 
-class ProcedureInfo(BaseModel):
+class MedicalProcedureInfoModel(BaseModel):
     """
     Comprehensive medical procedure information.
     """
@@ -125,3 +125,9 @@ class ProcedureInfo(BaseModel):
     evidence: ProcedureEvidence
     cost_and_insurance: CostAndInsurance
     education: ProcedureEducation
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalProcedureInfoModel] = None
+    markdown: Optional[str] = None
+

@@ -10,9 +10,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from medical_procedure_info_models import ProcedureInfo
+from medical_procedure_info_models import MedicalProcedureInfoModel, ModelOutput
 
 
 class PromptBuilder:
@@ -37,7 +36,7 @@ class MedicalProcedureInfoGenerator:
         self.client = LiteClient(model_config=model_config)
         self.procedure_name: Optional[str] = None
 
-    def generate_text(self, procedure: str, structured: bool = False) -> Union[ProcedureInfo, str]:
+    def generate_text(self, procedure: str, structured: bool = False) -> ModelOutput:
         """Generate and retrieve comprehensive medical procedure information."""
         if not procedure or not procedure.strip():
             raise ValueError("Procedure name cannot be empty")
@@ -46,7 +45,7 @@ class MedicalProcedureInfoGenerator:
 
         response_format = None
         if structured:
-            response_format = ProcedureInfo
+            response_format = MedicalProcedureInfoModel
 
         model_input = ModelInput(
             user_prompt=PromptBuilder.create_user_prompt(procedure),
@@ -57,7 +56,7 @@ class MedicalProcedureInfoGenerator:
         result = self._ask_llm(model_input)
         return result
 
-    def _ask_llm(self, model_input: ModelInput) -> Union[ProcedureInfo, str]:
+    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
 
@@ -66,7 +65,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate comprehensive information for a medical procedure.")
     parser.add_argument("-i", "--procedure", required=True, help="Name of the medical procedure")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
-    parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use (default: gemini-1.5-pro)")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
     args = parser.parse_args()
@@ -76,8 +75,6 @@ def main():
         generator = MedicalProcedureInfoGenerator(model_config=model_config)
         print(f"Generating procedure documentation for: {args.procedure}...")
         result = generator.generate_text(procedure=args.procedure, structured=args.structured)
-        
-        print_result(result, title="Medical Procedure Documentation")
         
         if args.output:
             output_path = args.output

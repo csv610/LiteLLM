@@ -223,9 +223,3 @@ class MedicalDeviceInfoModel(BaseModel):
 class ModelOutput(BaseModel):
     data: Optional[MedicalDeviceInfoModel] = None
     markdown: Optional[str] = None
-
-    @model_validator(mode="after")
-    def check_exactly_one(cls, v):
-        if (v.data is None) == (v.markdown is None):
-        ¦   raise ValueError("Exactly one of 'data' or 'markdown' must be set")
-        return v

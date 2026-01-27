@@ -337,12 +337,11 @@ def main() -> int:
     try:
         prompt_style = parse_prompt_style(args.prompt_style)
 
-        configure_logging(
-            log_file="drug_disease_interaction.log",
-            verbosity=args.verbosity,
-            enable_console=True
-        )
-
+            configure_logging(
+                log_file=str(Path(__file__).parent / "logs" / "drug_disease_interaction.log"),
+                verbosity=args.verbosity,
+                enable_console=True
+            )
         config = DrugDiseaseInput(
             medicine_name=args.medicine_name,
             condition_name=args.condition_name,

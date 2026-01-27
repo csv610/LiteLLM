@@ -253,7 +253,7 @@ def main() -> int:
 
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file="drugs_comparison.log",
+        log_file=str(Path(__file__).parent / "logs" / "drugs_comparison.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

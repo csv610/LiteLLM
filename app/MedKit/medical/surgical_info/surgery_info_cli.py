@@ -169,7 +169,7 @@ def app_cli() -> int:
 
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file="surgery_info.log",
+        log_file=str(Path(__file__).parent / "logs" / "surgery_info.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

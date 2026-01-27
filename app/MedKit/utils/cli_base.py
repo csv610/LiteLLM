@@ -432,8 +432,21 @@ class BaseCLI(ABC):
 
     def _setup_logging(self) -> None:
         """Set up logging based on verbosity argument."""
+        # Determine the directory of the subclass's module
+        import sys
+        from pathlib import Path
+        
+        module = sys.modules[self.__module__]
+        if hasattr(module, '__file__') and module.__file__:
+            module_dir = Path(module.__file__).parent
+            log_dir = module_dir / "logs"
+            log_file = log_dir / f"{self.__class__.__name__.lower()}.log"
+        else:
+            # Fallback to default behavior if __file__ is not available
+            log_file = f"{self.__class__.__name__.lower()}.log"
+
         configure_logging(
-            log_file=f"{self.__class__.__name__.lower()}.log",
+            log_file=str(log_file),
             verbosity=self.args.verbosity,
             enable_console=True
         )

@@ -159,7 +159,7 @@ def app_cli() -> int:
 
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file="synthetic_case_report.log",
+        log_file=str(Path(__file__).parent / "logs" / "synthetic_case_report.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

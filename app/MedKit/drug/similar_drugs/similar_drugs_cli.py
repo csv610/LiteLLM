@@ -63,7 +63,7 @@ class SimilarDrugs:
 
         # Apply verbosity level using centralized logging configuration
         configure_logging(
-            log_file="similar_drugs.log",
+            log_file=str(Path(__file__).parent / "logs" / "similar_drugs.log"),
             verbosity=self.config.verbosity,
             enable_console=True
         )

@@ -82,7 +82,7 @@ def main() -> int:
     args = get_user_arguments()
 
     configure_logging(
-        log_file="drugbank_medicine.log",
+        log_file=str(Path(__file__).parent / "logs" / "drugbank_medicine.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

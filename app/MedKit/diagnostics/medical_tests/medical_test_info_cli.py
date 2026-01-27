@@ -200,7 +200,7 @@ def app_cli():
 
     # Apply logging configuration at the entry point
     configure_logging(
-        log_file="medical_test_info.log",
+        log_file=str(Path(__file__).parent / "logs" / "medical_test_info.log"),
         verbosity=args.verbosity,
         enable_console=True
     )

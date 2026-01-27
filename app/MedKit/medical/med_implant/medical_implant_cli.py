@@ -161,7 +161,7 @@ def app_cli() -> int:
 
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file="medical_implant.log",
+        log_file=str(Path(__file__).parent / "logs" / "medical_implant.log"),
         verbosity=args.verbosity,
         enable_console=True
     )
