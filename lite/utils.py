@@ -15,8 +15,8 @@ def save_model_response(model: Union[BaseModel, str], output_path: Union[str, Pa
 
     Args:
         model: The Pydantic model instance or markdown string to save.
-        output_path: Path where the file will be saved (string or Path object). Should have .json extension for Pydantic models
-                   and .md for markdown strings.
+        output_path: Path where the file will be saved (string or Path object). Extension will be added
+                   automatically if not provided (.json for Pydantic models, .md for strings).
 
     Returns:
         Path: The absolute path to the saved file.
@@ -27,6 +27,14 @@ def save_model_response(model: Union[BaseModel, str], output_path: Union[str, Pa
         ValueError: If the model type is not supported.
     """
     path = Path(output_path).resolve()
+    
+    # Add appropriate extension if not present
+    if not path.suffix:
+        if isinstance(model, BaseModel):
+            path = path.with_suffix('.json')
+        elif isinstance(model, str):
+            path = path.with_suffix('.md')
+    
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         logger.info(f"Saving data to: {path}")

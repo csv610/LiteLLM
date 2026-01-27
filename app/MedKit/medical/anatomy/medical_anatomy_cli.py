@@ -73,17 +73,20 @@ class MedicalAnatomyGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
+        self.body_part = None  # Store the body part being analyzed
         logger.debug(f"Initialized MedicalAnatomyGenerator")
 
-    def generate_text(self, structure: str, structured: bool = False) -> ModelOutput:
+    def generate_text(self, body_part: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive anatomical information."""
-        if not structure or not str(structure).strip():
-            raise ValueError("Structure name cannot be empty")
+        if not body_part or not str(body_part).strip():
+            raise ValueError("Body part name cannot be empty")
 
-        logger.debug(f"Starting anatomical information generation for: {structure}")
+        # Store the body part for later use in save
+        self.body_part = body_part
+        logger.debug(f"Starting anatomical information generation for: {body_part}")
 
         system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(structure)
+        user_prompt = PromptBuilder.create_user_prompt(body_part)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 
@@ -109,11 +112,15 @@ class MedicalAnatomyGenerator:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutput, output_path: Path) -> Path:
-        """Saves the anatomical information to a JSON or MD file."""
-        if isinstance(result, str) and output_path.suffix == ".json":
-            output_path = output_path.with_suffix(".md")
-        return save_model_response(result, output_path)
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
+        """Saves the anatomical information to a file."""
+        if self.body_part is None:
+            raise ValueError("No body part information available. Call generate_text first.")
+        
+        # Generate base filename - save_model_response will add appropriate extension
+        base_filename = f"{self.body_part.lower().replace(' ', '_')}"
+        
+        return save_model_response(result, output_dir / base_filename)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -131,10 +138,6 @@ Examples:
         "-i", "--body_part",
         required=True,
         help="The name of the anatomical part  to generate information for."
-    )
-    parser.add_argument(
-        "-o", "--output",
-        help="Path to save the output JSON file."
     )
     parser.add_argument(
         "-d", "--output-dir",
@@ -174,12 +177,6 @@ def app_cli() -> int:
         enable_console=True
     )
 
-    logger.debug(f"CLI Arguments:")
-    logger.debug(f"  Structure: {args.structure}")
-    logger.debug(f"  Output Dir: {args.output_dir}")
-    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
-    logger.debug(f"  Verbosity: {args.verbosity}")
-
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -188,21 +185,14 @@ def app_cli() -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalAnatomyGenerator(model_config)
-        anatomy_info = generator.generate_text(structure=args.body_part, structured=args.structured)
+        result = generator.generate_text(body_part=args.body_part, structured=args.structured)
 
-        if anatomy_info is None:
+        if result is None:
             logger.error("✗ Failed to generate anatomical information.")
             sys.exit(1)
 
-#       print_result(anatomy_info, title="Anatomical Information")
-
-        # Save if output path is specified
-        if args.output:
-            generator.save(anatomy_info, Path(args.output))
-        else:
-            # Save to default location
-            default_path = output_dir / f"{args.body_part.lower().replace(' ', '_')}.json"
-            generator.save(anatomy_info, default_path)
+        # Save result to output directory
+        generator.save(result, output_dir)
 
         logger.debug("✓ Anatomical information generation completed successfully")
         return 

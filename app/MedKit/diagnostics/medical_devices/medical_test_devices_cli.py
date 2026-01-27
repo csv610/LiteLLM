@@ -15,7 +15,6 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
 from medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
 
@@ -201,16 +200,13 @@ def app_cli():
             output_dir = output_path.parent
         else:
             output_dir = Path(args.output_dir)
-            output_path = output_dir / f"{args.input.lower().replace(' ', '_')}_device_info.json"
+            output_path = output_dir / f"{args.input.lower().replace(' ', '_')}.json"
         
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # Save results
         saved_path = generator.save(result, output_path)
         
-        # Display results
-        print_result(result, title=f"Medical Device Information: {args.input}")
-
     except Exception as e:
         logger.error(f"Critical error during CLI execution: {e}", exc_info=True)
 

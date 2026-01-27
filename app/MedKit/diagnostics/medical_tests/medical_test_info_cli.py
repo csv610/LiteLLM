@@ -216,7 +216,7 @@ def app_cli():
             output_path = Path(args.output)
         else:
             output_dir = Path("outputs")
-            output_path = output_dir / f"{args.test.lower().replace(' ', '_')}_info.json"
+            output_path = output_dir / f"{args.test.lower().replace(' ', '_')}.json"
         
         generator.save(result, output_path)
 
