@@ -89,18 +89,15 @@ Always respond in the requested JSON format."""
                 model_input.image_paths = question.image_paths
 
             # Get response
-            response_content = client.generate_text(model_input=model_input)
+            response = client.generate_text(model_input=model_input)
 
-            if not isinstance(response_content, str):
-                return None
-
-            # Parse response
-            parsed = self._parse_response(response_content)
-            if parsed and "answer" in parsed:
-                answer = MultipleChoiceAnswer(**parsed["answer"])
-                return answer
-            else:
-                return None
+            # Check if response is the expected Pydantic model
+            if isinstance(response, MultipleChoiceSolverResponse):
+                return response.answer
+            
+            # If we somehow got a string (shouldn't happen with response_format set, but safe to check)
+            # or an unexpected type, we treat it as failure to parse
+            return None
 
         except Exception as e:
             raise RuntimeError(f"Error solving question: {e}") from e
@@ -138,24 +135,6 @@ Provide your answer in the specified JSON format."""
             prompt += f"\n\nNote: {num_images} image(s) are provided. Please analyze them along with the question."
 
         return prompt
-
-    def _parse_response(self, response_content: str) -> Optional[Dict]:
-        """Parse JSON response from model."""
-        try:
-            # Try to parse as JSON directly
-            parsed = json.loads(response_content)
-            return parsed
-        except json.JSONDecodeError:
-            # Try to extract JSON from the response
-            try:
-                start = response_content.find("{")
-                end = response_content.rfind("}") + 1
-                if start >= 0 and end > start:
-                    json_str = response_content[start:end]
-                    parsed = json.loads(json_str)
-                    return parsed
-            except json.JSONDecodeError:
-                return None
 
 
 def _dict_to_mcq_input(data: dict) -> MCQInput:

@@ -18,35 +18,6 @@ DEFAULT_MAX_HISTORY = 10
 class LiteChat:
     """Unified client for interacting with both text and vision models."""
 
-    @staticmethod
-    def handle_generation_exception(
-        error: Exception,
-        is_image_request: bool
-    ) -> Union[str, Dict[str, Any]]:
-        """
-        Handle exceptions from generate_text with appropriate logging and response format.
-
-        Args:
-            error: The exception that was raised
-            is_image_request: Whether the request involved image analysis
-
-        Returns:
-            Error message formatted as string or dict depending on request type
-        """
-        if isinstance(error, FileNotFoundError):
-            error_msg = f"File error: {str(error)}"
-        elif isinstance(error, ValueError):
-            error_msg = f"Validation Error: {str(error)}"
-        elif isinstance(error, APIError):
-            error_msg = f"API Error: {str(error)}"
-        else:
-            error_msg = f"Unexpected error: {str(error)}"
-
-        logger.error(error_msg)
-
-        # Return dict for image requests, string for text-only requests
-        return {"error": error_msg} if is_image_request else error_msg
-
     def __init__(self, model_config: Optional[ModelConfig] = None, chat_config: Optional[ChatConfig] = None):
         """
         Initialize LiteChat with optional ModelConfig and ChatConfig.
@@ -196,13 +167,10 @@ class LiteChat:
 
             return assistant_response
 
-        except (FileNotFoundError, ValueError, APIError) as e:
-            is_image_request = model_input.image_path is not None
-            return self.handle_generation_exception(e, is_image_request)
         except Exception as e:
-            logger.error(f"Unexpected error during generation: {str(e)}")
-            is_image_request = model_input.image_path is not None
-            return self.handle_generation_exception(e, is_image_request)
+            error_msg = f"Error: {str(e)}"
+            logger.error(error_msg)
+            return error_msg
 
     def reset_conversation(self) -> None:
         """Clear conversation history and current image."""
