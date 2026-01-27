@@ -65,6 +65,7 @@ class MedicalImplantGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
+        self.implant = None  # Store the implant being analyzed
         logger.debug(f"Initialized MedicalImplantGenerator")
 
     def generate_text(self, implant: str, structured: bool = False) -> ModelOutput:
@@ -72,6 +73,8 @@ class MedicalImplantGenerator:
         if not implant or not str(implant).strip():
             raise ValueError("Implant name cannot be empty")
 
+        # Store the implant for later use in save
+        self.implant = implant
         logger.debug(f"Starting medical implant information generation for: {implant}")
 
         system_prompt = PromptBuilder.create_system_prompt()
@@ -102,11 +105,15 @@ class MedicalImplantGenerator:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutput, output_path: Path) -> Path:
-        """Saves the implant information to a JSON or MD file."""
-        if isinstance(result, str) and output_path.suffix == ".json":
-            output_path = output_path.with_suffix(".md")
-        return save_model_response(result, output_path)
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
+        """Saves the implant information to a file."""
+        if self.implant is None:
+            raise ValueError("No implant information available. Call generate_text first.")
+        
+        # Generate base filename - save_model_response will add appropriate extension
+        base_filename = f"{self.implant.lower().replace(' ', '_')}"
+        
+        return save_model_response(result, output_dir / base_filename)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -172,7 +179,7 @@ def app_cli() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalImplantGenerator(model_config)
         
         # Determine if structured output should be used
@@ -182,22 +189,18 @@ def app_cli() -> int:
 
         if implant_info is None:
             logger.error("✗ Failed to generate implant information.")
-            sys.exit(1)
+            return 1
 
-        default_path = output_dir / f"{args.implant.lower().replace(' ', '_')}.json"
-        generator.save(implant_info, default_path)
+        # Save result to output directory
+        generator.save(implant_info, output_dir)
 
         logger.debug("Implant information generation completed successfully")
-        return 
+        return 0
     except Exception as e:
         logger.error(f"✗ Implant information generation failed: {e}")
         logger.exception("Full exception details:")
-        sys.exit(1)
+        return 1
 
-
-# ==============================================================================
-# ENTRY POINT
-# ==============================================================================
 
 if __name__ == "__main__":
     app_cli()
