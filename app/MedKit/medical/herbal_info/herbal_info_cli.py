@@ -42,6 +42,7 @@ class HerbalInfoGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
+        self.herb = None  # Store the herb being analyzed
         logger.debug(f"Initialized HerbalInfoGenerator")
 
     def generate_text(self, herb: str, structured: bool = False) -> ModelOutput:
@@ -50,6 +51,8 @@ class HerbalInfoGenerator:
         if not herb or not str(herb).strip():
             raise ValueError("Herb name cannot be empty")
 
+        # Store the herb for later use in save
+        self.herb = herb
         logger.debug(f"Starting herbal information generation for: {herb}")
 
         system_prompt = PromptBuilder.create_system_prompt()
@@ -59,7 +62,7 @@ class HerbalInfoGenerator:
 
         response_format = None
         if structured:
-            response_format = HerbalInfo
+            response_format = HerbalInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -70,8 +73,6 @@ class HerbalInfoGenerator:
         logger.info("Calling LiteClient.generate_text()...")
         try:
             result = self.ask_llm(model_input)
-            if isinstance(result, HerbalInfoModel):
-                logger.debug(f"Herb: {result.metadata.common_name}")
             return result
         except Exception as e:
             logger.error(f"✗ Error generating herbal information: {e}")
@@ -81,11 +82,15 @@ class HerbalInfoGenerator:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutput, output_path: Path) -> Path:
-        """Saves the herbal information to a JSON or MD file."""
-        if isinstance(result, str) and output_path.suffix == ".json":
-            output_path = output_path.with_suffix(".md")
-        return save_model_response(result, output_path)
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
+        """Saves the herbal information to a file."""
+        if self.herb is None:
+            raise ValueError("No herb information available. Call generate_text first.")
+        
+        # Generate base filename - save_model_response will add appropriate extension
+        base_filename = f"{self.herb.lower().replace(' ', '_')}"
+        
+        return save_model_response(result, output_dir / base_filename)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -103,10 +108,6 @@ Examples:
         "-i", "--herb",
         required=True,
         help="The name of the herb to generate information for."
-    )
-    parser.add_argument(
-        "-o", "--output",
-        help="Path to save the output JSON file."
     )
     parser.add_argument(
         "-d", "--output-dir",
@@ -135,7 +136,7 @@ Examples:
     return parser.parse_args()
 
 
-def app_cli() -> int:
+def app_cli():
     """CLI entry point."""
     args = get_user_arguments()
 
@@ -149,7 +150,6 @@ def app_cli() -> int:
     logger.debug(f"CLI Arguments:")
     logger.debug(f"  Herb: {args.herb}")
     logger.debug(f"  Output Dir: {args.output_dir}")
-    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
     logger.debug(f"  Verbosity: {args.verbosity}")
 
     # Ensure output directory exists
@@ -158,30 +158,24 @@ def app_cli() -> int:
 
     # Generate herbal information
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = HerbalInfoGenerator(model_config)
         herbal_info = generator.generate_text(herb=args.herb, structured=args.structured)
 
         if herbal_info is None:
             logger.error("✗ Failed to generate herbal information.")
-            sys.exit(1)
+            return 1
 
-        # Save if output path is specified
-        if args.output:
-            generator.save(herbal_info, Path(args.output))
-        else:
-            # Save to default location
-            default_path = output_dir / f"{args.herb.lower().replace(' ', '_')}.json"
-            generator.save(herbal_info, default_path)
+        # Save result to output directory
+        generator.save(herbal_info, output_dir)
 
         logger.debug("✓ Herbal information generation completed successfully")
         return 0
     except Exception as e:
         logger.error(f"✗ Herbal information generation failed: {e}")
         logger.exception("Full exception details:")
-        sys.exit(1)
-
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(app_cli())
+    app_cli()

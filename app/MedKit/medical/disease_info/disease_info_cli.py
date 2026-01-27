@@ -1,18 +1,3 @@
-"""Disease Information CLI Module - Refactored with Base Classes.
-
-This module has been refactored to use the base classes from utils/cli_base.py,
-demonstrating the pattern of:
-- BaseCLI for argument parsing and orchestration
-- BaseGenerator for LLM client handling
-- BasePromptBuilder for prompt creation
-
-Refactoring notes:
-- Reduced ~210 lines of boilerplate to ~110 lines (48% reduction)
-- Eliminated duplicate argument parsing logic
-- Centralized logging and error handling
-- Maintained all existing functionality and CLI behavior
-"""
-
 import logging
 import sys
 from pathlib import Path
@@ -35,7 +20,7 @@ from disease_info_models import DiseaseInfoModel, ModelOutput
 logger = logging.getLogger(__name__)
 
 
-class DiseaseInfoPromptBuilder(BasePromptBuilder):
+class PromptBuilder(BasePromptBuilder):
     """Builder class for creating prompts for disease information generation.
 
     Inherits from BasePromptBuilder and implements the abstract methods
@@ -106,8 +91,8 @@ class DiseaseInfoGenerator(BaseGenerator):
 
         # Create model input with prompts
         model_input = ModelInput(
-            system_prompt=DiseaseInfoPromptBuilder.create_system_prompt(),
-            user_prompt=DiseaseInfoPromptBuilder.create_user_prompt(disease),
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=PromptBuilder.create_user_prompt(disease),
             response_format=DiseaseInfoModel if structured else None,
         )
 
