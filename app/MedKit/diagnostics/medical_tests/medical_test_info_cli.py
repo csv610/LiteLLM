@@ -6,15 +6,12 @@ from pathlib import Path
 from typing import Optional, Union
 
 from pydantic import BaseModel
-from rich.console import Console
-from rich.panel import Panel
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
 from medical_test_info_models import MedicalTestInfoModel, ModelOutput
 
@@ -153,7 +150,7 @@ def get_user_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description="Generate comprehensive information for a medical test."
-    Model)
+    )
     parser.add_argument(
         "-i",
         "--test",
@@ -172,7 +169,7 @@ def get_user_arguments() -> argparse.Namespace:
         "--model",
         type=str,
         default="ollama/gemma3", 
-        help="Model to use for generation (default: gemini-1.5-flash)."
+        help="Model to use for generation (default: ollama/gemma3)."
     )
     parser.add_argument(
         "-v",
@@ -199,8 +196,10 @@ def app_cli():
     args = get_user_arguments()
 
     # Apply logging configuration at the entry point
+    log_dir = Path(__file__).parent / "logs"
+    log_dir.mkdir(exist_ok=True)
     configure_logging(
-        log_file=str(Path(__file__).parent / "logs" / "medical_test_info.log"),
+        log_file=str(log_dir / "medical_test_info.log"),
         verbosity=args.verbosity,
         enable_console=True
     )
@@ -212,10 +211,6 @@ def app_cli():
         # Generate the test information
         result = generator.generate_text(args.test, structured=args.structured)
 
-        # No raw print here, print_result will handle it if we want formatted output
-        # result is always an object, so we use print_result
-        print_result(result, title="Medical Test Information")
-        
         # Save to file
         if args.output:
             output_path = Path(args.output)

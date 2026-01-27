@@ -5,7 +5,7 @@ Defines the data structures used for comprehensive, evidence-based medical test
 documentation.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 
 
@@ -200,9 +200,9 @@ class ModelOutput(BaseModel):
     markdown: Optional[str] = None
 
     @model_validator(mode="after")
-    def check_exactly_one(cls, v):
-        if (v.data is None) == (v.markdown is None):
+    def check_exactly_one(self) -> "ModelOutput":
+        if (self.data is None) == (self.markdown is None):
             raise ValueError("Exactly one of 'data' or 'markdown' must be set")
-        return v
+        return self
 
 
