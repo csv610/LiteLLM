@@ -1,57 +1,19 @@
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, final, Union
-
-from rich.console import Console
-from rich.panel import Panel
+from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
 
-from synthetic_case_report_models import SyntheticCaseReport
+from synthetic_case_report_models import SyntheticCaseReportModel, ModelOutput
+from synthetic_case_report_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
-
-
-class PromptBuilder:
-    """Builder class for creating prompts for synthetic case report generation."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """Create the system prompt for synthetic case report generation."""
-        return """You are an expert medical case report writer with extensive clinical experience across multiple specialties.
-Generate realistic, comprehensive, and clinically accurate synthetic medical case reports. Focus on presenting coherent patient narratives,
-relevant clinical findings, diagnostic processes, treatment approaches, and outcomes. Ensure all information is medically sound and follows
-standard case report structure."""
-
-    @staticmethod
-    def create_user_prompt(condition: str) -> str:
-        """Create the user prompt for synthetic case report generation.
-
-        Args:
-            condition: The name of the disease or medical condition for the case report.
-
-        Returns:
-            A comprehensive prompt asking for a detailed synthetic case report.
-        """
-        return f"""Generate a comprehensive synthetic medical case report for: {condition}.
-
-Include the following components:
-- Patient demographics and presenting complaint
-- Medical history and relevant background
-- Physical examination findings
-- Diagnostic investigations and results
-- Differential diagnosis considerations
-- Treatment plan and interventions
-- Clinical course and outcomes
-- Discussion and learning points"""
 
 
 class SyntheticCaseReportGenerator:
@@ -60,13 +22,16 @@ class SyntheticCaseReportGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
+        self.condition = None  # Store the condition being analyzed
         logger.debug(f"Initialized SyntheticCaseReportGenerator")
 
-    def generate_text(self, condition: str, structured: bool = False) -> Union[SyntheticCaseReport, str]:
+    def generate_text(self, condition: str, structured: bool = False) -> ModelOutput:
         """Generates a synthetic medical case report."""
         if not condition or not str(condition).strip():
             raise ValueError("Condition name cannot be empty")
 
+        # Store the condition for later use in save
+        self.condition = condition
         logger.debug(f"Starting synthetic case report generation for: {condition}")
 
         system_prompt = PromptBuilder.create_system_prompt()
@@ -76,7 +41,7 @@ class SyntheticCaseReportGenerator:
 
         response_format = None
         if structured:
-            response_format = SyntheticCaseReport
+            response_format = SyntheticCaseReportModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -93,15 +58,19 @@ class SyntheticCaseReportGenerator:
             logger.error(f"✗ Error generating synthetic case report: {e}")
             raise
 
-    def ask_llm(self, model_input: ModelInput) -> Union[SyntheticCaseReport, str]:
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, case_report: Union[SyntheticCaseReport, str], output_path: Path) -> Path:
-        """Saves the case report to a JSON or MD file."""
-        if isinstance(case_report, str) and output_path.suffix == ".json":
-            output_path = output_path.with_suffix(".md")
-        return save_model_response(case_report, output_path)
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
+        """Saves the case report to a file."""
+        if self.condition is None:
+            raise ValueError("No condition information available. Call generate_text first.")
+        
+        # Generate base filename - save_model_response will add appropriate extension
+        base_filename = f"{self.condition.lower().replace(' ', '_')}_casereport"
+        
+        return save_model_response(result, output_dir / base_filename)
 
 
 
@@ -113,7 +82,7 @@ def get_user_arguments() -> argparse.Namespace:
         epilog="""
 Examples:
   python synthetic_case_report_cli.py -i "myocardial infarction"
-  python synthetic_case_report_cli.py -i "pneumonia" -o output.json -v 3
+  python synthetic_case_report_cli.py -i "pneumonia" -v 3
   python synthetic_case_report_cli.py -i "diabetes" -d outputs/cases
         """
     )
@@ -121,10 +90,6 @@ Examples:
         "-i", "--condition",
         required=True,
         help="The name of the disease or medical condition for the case report."
-    )
-    parser.add_argument(
-        "-o", "--output",
-        help="Path to save the output JSON file."
     )
     parser.add_argument(
         "-d", "--output-dir",
@@ -173,26 +138,24 @@ def app_cli() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = SyntheticCaseReportGenerator(model_config)
-        case_report = generator.generate_text(condition=args.condition, structured=args.structured)
+        result = generator.generate_text(condition=args.condition, structured=args.structured)
 
-        # Display formatted result
-        print_result(case_report, title="Synthetic Case Report")
+        if result is None:
+            logger.error("✗ Failed to generate synthetic case report.")
+            return 1
 
-        if args.output:
-            generator.save(case_report, Path(args.output))
-        else:
-            default_path = output_dir / f"{args.condition.lower().replace(' ', '_')}_casereport.json"
-            generator.save(case_report, default_path)
+        # Save result to output directory
+        generator.save(result, output_dir)
 
         logger.debug("✓ Synthetic case report generation completed successfully")
         return 0
     except Exception as e:
         logger.error(f"✗ Synthetic case report generation failed: {e}")
         logger.exception("Full exception details:")
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(app_cli())
+    app_cli()

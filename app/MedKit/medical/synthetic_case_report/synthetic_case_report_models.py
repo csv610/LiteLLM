@@ -5,9 +5,10 @@ synthetic medical case reports with schema-aware prompting.
 """
 
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
-class PatientInformation(BaseModel):
+class PatientInformationModel(BaseModel):
     age: int = Field(description="Patient age in years")
     gender: str = Field(description="Patient gender (Male/Female/Other)")
     ethnicity: str = Field(description="Patient ethnicity or ancestry")
@@ -20,7 +21,7 @@ class PatientInformation(BaseModel):
     social_history: str = Field(description="Smoking, alcohol, substance use, living situation")
 
 
-class ClinicalFindings(BaseModel):
+class ClinicalFindingsModel(BaseModel):
     chief_complaint: str = Field(description="Primary reason for presentation")
     history_of_present_illness: str = Field(description="Detailed chronological description of current illness")
     symptom_onset: str = Field(description="When symptoms started and initial presentation")
@@ -33,7 +34,7 @@ class ClinicalFindings(BaseModel):
     abnormal_findings: str = Field(description="Specific abnormal clinical findings, comma-separated")
 
 
-class Timeline(BaseModel):
+class TimelineModel(BaseModel):
     initial_presentation_date: str = Field(description="Date of first symptom or presentation (format: Month/Year or descriptive)")
     key_clinical_events: str = Field(description="Major events in chronological order with dates")
     diagnostic_workup_timeline: str = Field(description="Sequence of diagnostic tests and dates performed")
@@ -42,7 +43,7 @@ class Timeline(BaseModel):
     duration_of_illness: str = Field(description="Total time from onset to current status")
 
 
-class DiagnosticAssessment(BaseModel):
+class DiagnosticAssessmentModel(BaseModel):
     laboratory_tests_performed: str = Field(description="Blood tests, CSF analysis, biopsies, etc. with results")
     laboratory_values: str = Field(description="Specific abnormal lab values with reference ranges")
     imaging_studies: str = Field(description="CT, MRI, X-ray, ultrasound, or other imaging with findings")
@@ -54,7 +55,7 @@ class DiagnosticAssessment(BaseModel):
     noteworthy_findings_pattern: str = Field(description="Overall pattern of findings without disclosing diagnosis")
 
 
-class TherapeuticInterventions(BaseModel):
+class TherapeuticInterventionsModel(BaseModel):
     initial_management: str = Field(description="First-line treatment approach and rationale")
     medications_prescribed: str = Field(description="Medications given with dosage, frequency, and dates")
     dosage_adjustments: str = Field(description="Changes in medication doses over time")
@@ -67,7 +68,7 @@ class TherapeuticInterventions(BaseModel):
     treatment_response: str = Field(description="How patient responded to treatment over time")
 
 
-class FollowUpAndOutcomes(BaseModel):
+class FollowUpAndOutcomesModel(BaseModel):
     clinical_response_to_treatment: str = Field(description="How symptoms improved or changed with treatment")
     symptom_resolution: str = Field(description="Whether symptoms resolved, improved, or persisted")
     functional_status: str = Field(description="Ability to perform daily activities and return to work/life")
@@ -80,7 +81,7 @@ class FollowUpAndOutcomes(BaseModel):
     current_status: str = Field(description="Most recent assessment and current clinical condition")
 
 
-class Discussion(BaseModel):
+class DiscussionModel(BaseModel):
     case_significance: str = Field(description="Why this case is clinically important or unusual without naming diagnosis")
     findings_interpretation: str = Field(description="Analysis of clinical findings and their significance")
     diagnostic_approach_discussion: str = Field(description="Analysis of diagnostic strategy and reasoning process")
@@ -93,7 +94,7 @@ class Discussion(BaseModel):
     recommendations: str = Field(description="Recommendations for managing similar presentations")
 
 
-class PatientPerspective(BaseModel):
+class PatientPerspectiveModel(BaseModel):
     patient_experience: str = Field(description="How patient experienced the symptoms and treatment")
     understanding_of_diagnosis: str = Field(description="Patient's comprehension of their diagnosis")
     treatment_satisfaction: str = Field(description="Patient's satisfaction with care received")
@@ -102,14 +103,14 @@ class PatientPerspective(BaseModel):
     psychosocial_factors: str = Field(description="Emotional, social, or psychological aspects affecting recovery")
 
 
-class InformedConsent(BaseModel):
+class InformedConsentModel(BaseModel):
     consent_statement: str = Field(description="Statement indicating informed consent was obtained from patient")
     patient_anonymity: str = Field(description="Confirmation that patient identifiers have been removed or anonymized")
     institutional_approval: str = Field(description="IRB approval or institutional review status if applicable")
     ethical_considerations: str = Field(description="Any ethical issues or considerations in the case")
 
 
-class CaseReportMetadata(BaseModel):
+class CaseReportMetadataModel(BaseModel):
     case_report_title: str = Field(description="Descriptive title describing patient presentation or clinical presentation, without naming the diagnosis")
     keywords: str = Field(description="5-10 clinical keywords describing findings/presentations without diagnosis, comma-separated")
     medical_specialty: str = Field(description="Primary medical specialty relevant to this case")
@@ -122,14 +123,19 @@ class CaseReportMetadata(BaseModel):
     bias_mitigation_note: str = Field(description="Note confirming diagnosis/condition name has been withheld to prevent diagnostic bias")
 
 
-class SyntheticCaseReport(BaseModel):
-    metadata: CaseReportMetadata
-    patient_information: PatientInformation
-    clinical_findings: ClinicalFindings
-    timeline: Timeline
-    diagnostic_assessment: DiagnosticAssessment
-    therapeutic_interventions: TherapeuticInterventions
-    follow_up_and_outcomes: FollowUpAndOutcomes
-    discussion: Discussion
-    patient_perspective: PatientPerspective
-    informed_consent: InformedConsent
+class SyntheticCaseReportModel(BaseModel):
+    metadata: CaseReportMetadataModel
+    patient_information: PatientInformationModel
+    clinical_findings: ClinicalFindingsModel
+    timeline: TimelineModel
+    diagnostic_assessment: DiagnosticAssessmentModel
+    therapeutic_interventions: TherapeuticInterventionsModel
+    follow_up_and_outcomes: FollowUpAndOutcomesModel
+    discussion: DiscussionModel
+    patient_perspective: PatientPerspectiveModel
+    informed_consent: InformedConsentModel
+
+class ModelOutput(BaseModel):
+    data: Optional[SyntheticCaseReportModel] = None
+    markdown: Optional[str] = None
+
