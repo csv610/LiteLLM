@@ -25,44 +25,12 @@ from typing import Union
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig, ModelInput
 
-from utils.cli_base import BaseCLI, BaseGenerator, BasePromptBuilder
+from utils.cli_base import BaseCLI, BaseGenerator
 
 from medical_faq_models import MedicalFAQModel, ModelOutput
+from medical_faq_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
-
-class MedicalFAQPromptBuilder(BasePromptBuilder):
-    """Builder class for creating prompts for medical FAQ generation.
-
-    Inherits from BasePromptBuilder and implements the abstract methods
-    for domain-specific prompt creation.
-    """
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """Create the system prompt for FAQ generation.
-
-        Returns:
-            str: System prompt defining the AI's role and guidelines
-        """
-        return (
-            "You are a medical information specialist creating patient-friendly FAQs. "
-            "Your responses should be accurate, clear, and accessible to non-medical audiences. "
-            "Organize information in logical sections with concise, informative answers. "
-            "Always encourage users to consult healthcare professionals for medical advice."
-        )
-
-    @staticmethod
-    def create_user_prompt(topic: str) -> str:
-        """Create the user prompt for FAQ generation.
-
-        Args:
-            topic: The medical topic to generate FAQs for
-
-        Returns:
-            str: Formatted user prompt
-        """
-        return f"Generate comprehensive patient-friendly FAQs for: {topic}."
 
 
 class MedicalFAQGenerator(BaseGenerator):
@@ -93,8 +61,8 @@ class MedicalFAQGenerator(BaseGenerator):
 
         # Create model input with prompts
         model_input = ModelInput(
-            system_prompt=MedicalFAQPromptBuilder.create_system_prompt(),
-            user_prompt=MedicalFAQPromptBuilder.create_user_prompt(topic),
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=PromptBuilder.create_user_prompt(topic),
             response_format=MedicalFAQModel if structured else None,
         )
 
