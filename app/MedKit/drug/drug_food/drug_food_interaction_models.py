@@ -77,7 +77,7 @@ class DrugFoodInteractionDetailsModel(BaseModel):
     clinical_effects: str = Field(
         description="Observable clinical effects of food-drug interactions, comma-separated"
     )
-    food_category_interactions: list[FoodCategoryInteraction] = Field(
+    food_category_interactions: list[FoodCategoryInteractionModel] = Field(
         description="Detailed interactions for each food category"
     )
     management_recommendations: str = Field(
@@ -138,18 +138,18 @@ class DrugFoodInteractionModel(BaseModel):
     Combines clinical data, patient education, and detailed category information
     in a structured format for healthcare professionals and patients.
     """
-    interaction_details: Optional[DrugFoodInteractionDetails] = Field(
+    interaction_details: Optional[DrugFoodInteractionDetailsModel] = Field(
         default=None,
         description="Detailed interaction information (None if data not available)"
     )
     technical_summary: str = Field(
         description="Technical summary of the interactions suitable for healthcare professionals"
     )
-    patient_friendly_summary: Optional[PatientFriendlySummary] = Field(
+    patient_friendly_summary: Optional[PatientFriendlySummaryModel] = Field(
         default=None,
         description="Patient-friendly explanation (None if no interactions)"
     )
-    data_availability: DataAvailabilityInfo = Field(
+    data_availability: DataAvailabilityInfoModel = Field(
         description="Status of data availability for this interaction check"
     )
 

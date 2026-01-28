@@ -176,7 +176,7 @@ class DrugInteractionModel(BaseModel):
         default=None,
         description="Patient-friendly explanation (None if no interaction)"
     )
-    data_availability: DataAvailabilityModel = Field(
+    data_availability: DataAvailabilityInfoModel = Field(
         description="Status of data availability for this interaction check"
     )
 
