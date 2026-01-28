@@ -88,16 +88,16 @@ python herbal_info_cli.py -i "St. John's Wort" -v 4
 - Validates inputs and generates herbal information
 - Handles file output
 
-**Prompt Functions**
-- `build_system_prompt()`: Defines the LLM's role and instructions
-- `build_user_prompt(herb)`: Creates the specific query for a given herb
+**`PromptBuilder`** (in `herbal_info_prompts.py`)
+- `create_system_prompt()`: Defines the LLM's role and instructions
+- `create_user_prompt(herb)`: Creates the specific query for a given herb
 
 **Output**
-- `save()`: Exports results to JSON files
+- `save()`: Exports results to JSON/Markdown files
 
 ## Output Format
 
-The tool generates a `HerbalInfo` object with the following structure (see `herbal_info_models.py` for complete schema):
+The tool generates a `HerbalInfoModel` object with the following structure (see `herbal_info_models.py` for complete schema):
 
 ```json
 {
@@ -145,6 +145,7 @@ Verbosity levels:
 ## Related Files
 
 - `herbal_info_models.py` - Pydantic models for structured data
+- `herbal_info_prompts.py` - Prompt builder logic
 - `herbal_info.log` - Log file (auto-generated)
 
 ## License
