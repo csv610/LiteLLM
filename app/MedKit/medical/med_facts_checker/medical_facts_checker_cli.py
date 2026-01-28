@@ -13,6 +13,7 @@ from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
 from medical_facts_checker_models import MedicalFactFictionAnalysisModel, ModelOutput
+from medical_facts_checker_prompts import PromptBuilder
 
 class MedicalFactsChecker:
     """Analyzes medical statements for factual accuracy."""
@@ -46,7 +47,8 @@ class MedicalFactsChecker:
             response_format = MedicalFactFictionAnalysisModel
 
         model_input = ModelInput(
-            user_prompt=f"Analyze the following statement and determine if it is a fact or fiction: {statement}",
+            system_prompt=PromptBuilder.create_system_prompt(),
+            user_prompt=PromptBuilder.create_user_prompt(statement),
             response_format=response_format,
         )
 
