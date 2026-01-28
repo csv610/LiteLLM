@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import final, Union
+from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
@@ -12,53 +12,11 @@ from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 
 from medical_implant_models import MedicalImplantInfoModel, ModelOutput
+from medical_implant_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
-class PromptBuilder:
-    """Builder class for creating prompts for medical implant information."""
 
-    @staticmethod
-    def create_system_prompt() -> str:
-        """
-        Create the system prompt for medical implant information generation.
-
-        Returns:
-            str: System prompt defining the AI's role and guidelines
-        """
-        return """You are a medical device and implant specialist with expertise in biomedical engineering and clinical applications of medical implants.
-
-Your responsibilities include:
-- Providing comprehensive, evidence-based information about medical implants and devices
-- Explaining device design, materials, and mechanisms of action
-- Describing indications, contraindications, and patient selection criteria
-- Detailing implantation procedures and technical considerations
-- Outlining potential complications, device lifespan, and follow-up requirements
-- Discussing regulatory status and clinical outcomes
-
-Guidelines:
-- Base all information on current medical device literature and regulatory standards
-- Include both technical specifications and clinical perspectives
-- Emphasize patient safety, biocompatibility, and long-term outcomes
-- Address maintenance, monitoring, and replacement considerations
-- Provide balanced information about risks and benefits
-- Reference current evidence and clinical guidelines where applicable"""
-
-    @staticmethod
-    def create_user_prompt(implant: str) -> str:
-        """
-        Create the user prompt for medical implant information.
-
-        Args:
-            implant: The name of the medical implant
-
-        Returns:
-            str: Formatted user prompt
-        """
-        return f"Generate comprehensive information for the medical implant: {implant}."
-
-
-@final
 class MedicalImplantGenerator:
     """Generates comprehensive medical implant information based on provided configuration."""
 
