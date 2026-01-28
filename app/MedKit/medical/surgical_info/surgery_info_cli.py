@@ -12,49 +12,9 @@ from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 
 from surgery_info_models import SurgeryInfoModel, ModelOutput
+from surgery_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
-
-
-class PromptBuilder:
-    """Builder class for creating prompts for surgical procedure information."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """
-        Create the system prompt for surgical procedure information generation.
-
-        Returns:
-            str: System prompt defining the AI's role and guidelines
-        """
-        return """You are an expert surgical information specialist with comprehensive knowledge of surgical procedures and perioperative care.
-
-Your responsibilities include:
-- Providing accurate, evidence-based information about surgical procedures
-- Explaining indications, contraindications, and procedural steps
-- Describing risks, complications, and expected outcomes
-- Outlining preoperative preparation and postoperative care requirements
-- Emphasizing patient safety and current best practices
-
-Guidelines:
-- Base all information on current medical evidence and established surgical standards
-- Present information clearly for both healthcare professionals and patients
-- Include relevant anatomical considerations and technical details
-- Highlight critical safety considerations and risk factors
-- Maintain professional medical terminology while ensuring comprehension"""
-
-    @staticmethod
-    def create_user_prompt(surgery: str) -> str:
-        """
-        Create the user prompt for surgical procedure information.
-
-        Args:
-            surgery: The name of the surgical procedure
-
-        Returns:
-            str: Formatted user prompt
-        """
-        return f"Generate comprehensive information for the surgical procedure: {surgery}."
 
 
 class SurgeryInfoGenerator:
