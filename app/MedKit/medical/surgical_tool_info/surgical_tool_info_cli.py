@@ -12,38 +12,9 @@ from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 
 from surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
+from surgical_tool_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
-
-
-class PromptBuilder:
-    """Builder class for creating prompts for surgical tool information."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """Create the system prompt for surgical tool information generation."""
-        return """You are an expert surgical instrument specialist with extensive knowledge of medical surgical tools and instruments.
-Provide comprehensive, accurate, and clinically relevant information about surgical tools. Focus on practical applications,
-safety considerations, and clinical usage."""
-
-    @staticmethod
-    def create_user_prompt(tool: str) -> str:
-        """Create the user prompt for surgical tool information generation.
-
-        Args:
-            tool: The name of the surgical tool to generate information for.
-
-        Returns:
-            A comprehensive prompt asking for detailed surgical tool information.
-        """
-        return f"""Generate comprehensive information for the surgical tool: {tool}.
-Include the following details:
-- Description and purpose
-- Key features and specifications
-- Clinical applications
-- Proper handling and sterilization
-- Safety considerations
-- Common variants or related instruments"""
 
 
 class SurgicalToolInfoGenerator:
@@ -52,6 +23,7 @@ class SurgicalToolInfoGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
+        self.tool = None  # Store the tool being analyzed
         logger.debug(f"Initialized SurgicalToolInfoGenerator")
 
     def generate_text(self, tool: str, structured: bool = False) -> ModelOutput:
@@ -59,6 +31,8 @@ class SurgicalToolInfoGenerator:
         if not tool or not str(tool).strip():
             raise ValueError("Tool name cannot be empty")
 
+        # Store the tool for later use in save
+        self.tool = tool
         logger.debug(f"Starting surgical tool information generation for: {tool}")
 
         system_prompt = PromptBuilder.create_system_prompt()
@@ -89,11 +63,15 @@ class SurgicalToolInfoGenerator:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutput, output_path: Path) -> Path:
-        """Saves the surgical tool information to a JSON or MD file."""
-        if isinstance(result, str) and output_path.suffix == ".json":
-            output_path = output_path.with_suffix(".md")
-        return save_model_response(result, output_path)
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
+        """Saves the surgical tool information to a file."""
+        if self.tool is None:
+            raise ValueError("No tool information available. Call generate_text first.")
+        
+        # Generate base filename - save_model_response will add appropriate extension
+        base_filename = f"{self.tool.lower().replace(' ', '_')}"
+        
+        return save_model_response(result, output_dir / base_filename)
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -104,7 +82,7 @@ def get_user_arguments() -> argparse.Namespace:
         epilog="""
 Examples:
   python surgical_tool_info_cli.py -i scalpel
-  python surgical_tool_info_cli.py -i "surgical forceps" -o output.json -v 3
+  python surgical_tool_info_cli.py -i "surgical forceps" -v 3
   python surgical_tool_info_cli.py -i "retractor" -d outputs/tools
         """
     )
@@ -112,10 +90,6 @@ Examples:
         "-i", "--tool",
         required=True,
         help="The name of the surgical tool to generate information for."
-    )
-    parser.add_argument(
-        "-o", "--output",
-        help="Path to save the output JSON file."
     )
     parser.add_argument(
         "-d", "--output-dir",
@@ -158,7 +132,6 @@ def app_cli() -> int:
     logger.debug(f"CLI Arguments:")
     logger.debug(f"  Tool: {args.tool}")
     logger.debug(f"  Output Dir: {args.output_dir}")
-    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
     logger.debug(f"  Verbosity: {args.verbosity}")
 
     # Ensure output directory exists
@@ -172,21 +145,18 @@ def app_cli() -> int:
 
         if tool_info is None:
             logger.error("✗ Failed to generate surgical tool information.")
-            sys.exit(1)
+            return 1
 
-        if args.output:
-            generator.save(tool_info, Path(args.output))
-        else:
-            default_path = output_dir / f"{args.tool.lower().replace(' ', '_')}.json"
-            generator.save(tool_info, default_path)
+        # Save result to output directory
+        generator.save(tool_info, output_dir)
 
         logger.debug("✓ Surgical tool information generation completed successfully")
         return 0
     except Exception as e:
         logger.error(f"✗ Surgical tool information generation failed: {e}")
         logger.exception("Full exception details:")
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(app_cli())
+    app_cli()
