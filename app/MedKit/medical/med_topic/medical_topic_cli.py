@@ -55,6 +55,7 @@ class MedicalTopicGenerator:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config)
+        self.topic = None  # Store the topic being analyzed
         logger.debug(f"Initialized MedicalTopicGenerator")
 
     def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
@@ -62,6 +63,8 @@ class MedicalTopicGenerator:
         if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
 
+        # Store the topic for later use in save
+        self.topic = topic
         logger.debug(f"Starting medical topic information generation for: {topic}")
 
         system_prompt = PromptBuilder.create_system_prompt()
@@ -92,11 +95,15 @@ class MedicalTopicGenerator:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutput, output_path: Path) -> Path:
-        """Saves the medical topic information to a JSON or MD file."""
-        if isinstance(result, str) and output_path.suffix == ".json":
-            output_path = output_path.with_suffix(".md")
-        return save_model_response(result, output_path)
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
+        """Saves the medical topic information to a file."""
+        if self.topic is None:
+            raise ValueError("No topic information available. Call generate_text first.")
+        
+        # Generate base filename - save_model_response will add appropriate extension
+        base_filename = f"{self.topic.lower().replace(' ', '_')}"
+        
+        return save_model_response(result, output_dir / base_filename)
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -107,7 +114,7 @@ def get_user_arguments() -> argparse.Namespace:
         epilog="""
 Examples:
   python medical_topic_cli.py -i inflammation
-  python medical_topic_cli.py -i "immune response" -o output.json -v 3
+  python medical_topic_cli.py -i "immune response" -v 3
   python medical_topic_cli.py -i metabolism -d outputs/topics
         """
     )
@@ -115,10 +122,6 @@ Examples:
         "-i", "--topic",
         required=True,
         help="The name of the medical topic to generate information for."
-    )
-    parser.add_argument(
-        "-o", "--output",
-        help="Path to save the output JSON file."
     )
     parser.add_argument(
         "-d", "--output-dir",
@@ -165,7 +168,6 @@ def app_cli() -> int:
     logger.debug(f"CLI Arguments:")
     logger.debug(f"  Topic: {args.topic}")
     logger.debug(f"  Output Dir: {args.output_dir}")
-    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
     logger.debug(f"  Verbosity: {args.verbosity}")
 
     # Ensure output directory exists
@@ -173,27 +175,24 @@ def app_cli() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalTopicGenerator(model_config)
         topic_info = generator.generate_text(topic=args.topic, structured=args.structured)
 
         if topic_info is None:
             logger.error("✗ Failed to generate medical topic information.")
-            sys.exit(1)
+            return 1
 
-        if args.output:
-            generator.save(topic_info, Path(args.output))
-        else:
-            default_path = output_dir / f"{args.topic.lower().replace(' ', '_')}_topic.json"
-            generator.save(topic_info, default_path)
+        # Save result to output directory
+        generator.save(topic_info, output_dir)
 
         logger.debug("✓ Medical topic information generation completed successfully")
         return 0
     except Exception as e:
         logger.error(f"✗ Medical topic information generation failed: {e}")
         logger.exception("Full exception details:")
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(app_cli())
+    app_cli()
