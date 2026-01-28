@@ -45,13 +45,13 @@ class DiseaseBackgroundModel(BaseModel):
     etiology: str = Field(description="The cause or origin of the disease.")
 
 
-class DiseaseEpidemiology(BaseModel):
+class DiseaseEpidemiologyModel(BaseModel):
     """
     Epidemiological information about the disease.
     """
     prevalence: str = Field(description="The proportion of a population found to have the disease.")
     incidence: str = Field(description="The number of new cases of the disease during a certain period.")
-    risk_factors: RiskFactors = Field(description="Factors that increase the risk of developing the disease.")
+    risk_factors: RiskFactorsModel = Field(description="Factors that increase the risk of developing the disease.")
 
 
 class DiseaseClinicalPresentationModel(BaseModel):
@@ -67,7 +67,7 @@ class DiseaseDiagnosisModel(BaseModel):
     """
     How the disease is diagnosed.
     """
-    diagnostic_criteria: DiagnosticCriteria = Field(description="Criteria used to establish a diagnosis.")
+    diagnostic_criteria: DiagnosticCriteriaModel = Field(description="Criteria used to establish a diagnosis.")
     differential_diagnosis: List[str] = Field(description="Other diseases with similar presentations.")
 
 
@@ -111,7 +111,7 @@ class DiseaseInfoModel(BaseModel):
     """
     identity: DiseaseIdentityModel = Field(description="Basic identifying information.")
     background: DiseaseBackgroundModel = Field(description="Background and pathophysiology.")
-    epidemiology: DiseaseEpidemiologyModel = Field(description="Epidemiological data.")
+    epidemiology: DiseaseEpidemiology = Field(description="Epidemiological data.")
     clinical_presentation: DiseaseClinicalPresentationModel = Field(description="Clinical presentation.")
     diagnosis: DiseaseDiagnosisModel = Field(description="Diagnostic criteria and methods.")
     management: DiseaseManagementModel = Field(description="Treatment and management strategies.")

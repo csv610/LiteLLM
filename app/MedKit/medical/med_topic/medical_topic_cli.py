@@ -2,108 +2,15 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from lite.utils import save_model_response
 
-from medical_topic_models import MedicalTopicModel, ModelOutput
+from medical_topic import MedicalTopicGenerator
+from medical_topic_models import MedicalTopicModel
 
 logger = logging.getLogger(__name__)
-
-
-class PromptBuilder:
-    """Builder class for creating prompts for medical topic information."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """Creates the system prompt for medical topic generation."""
-        return """You are a medical information expert specializing in providing comprehensive, accurate, and well-structured information about medical topics.
-
-Your task is to generate detailed medical topic information including:
-- Clear definitions and descriptions
-- Key concepts and terminology
-- Clinical significance and applications
-- Related conditions or concepts
-- Current understanding and research perspectives
-
-Provide information that is:
-- Medically accurate and evidence-based
-- Well-organized and easy to understand
-- Comprehensive yet concise
-- Appropriate for healthcare professionals and students"""
-
-    @staticmethod
-    def create_user_prompt(topic: str) -> str:
-        """Creates the user prompt for medical topic generation.
-
-        Args:
-            topic: The name of the medical topic to generate information for
-
-        Returns:
-            A formatted user prompt string
-        """
-        return f"Generate comprehensive information for the medical topic: {topic}."
-
-
-class MedicalTopicGenerator:
-    """Generates comprehensive medical topic information based on provided configuration."""
-
-    def __init__(self, model_config: ModelConfig):
-        self.model_config = model_config
-        self.client = LiteClient(model_config)
-        self.topic = None  # Store the topic being analyzed
-        logger.debug(f"Initialized MedicalTopicGenerator")
-
-    def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive medical topic information."""
-        if not topic or not str(topic).strip():
-            raise ValueError("Topic name cannot be empty")
-
-        # Store the topic for later use in save
-        self.topic = topic
-        logger.debug(f"Starting medical topic information generation for: {topic}")
-
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(topic)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = MedicalTopicModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.debug("Calling LiteClient.generate_text()...")
-        try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated medical topic information")
-            return result
-        except Exception as e:
-            logger.error(f"✗ Error generating medical topic information: {e}")
-            raise
-
-    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
-        """Call the LLM client to generate content."""
-        return self.client.generate_text(model_input=model_input)
-
-    def save(self, result: ModelOutput, output_dir: Path) -> Path:
-        """Saves the medical topic information to a file."""
-        if self.topic is None:
-            raise ValueError("No topic information available. Call generate_text first.")
-        
-        # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.topic.lower().replace(' ', '_')}"
-        
-        return save_model_response(result, output_dir / base_filename)
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -150,9 +57,7 @@ Examples:
     return parser.parse_args()
 
 
-def app_cli() -> int:
-    """CLI entry point."""
-    args = get_user_arguments()
+def create_medical_topic_report(args):
 
     # Apply verbosity level using centralized logging configuration
     configure_logging(
@@ -193,6 +98,6 @@ def app_cli() -> int:
         logger.exception("Full exception details:")
         return 1
 
-
 if __name__ == "__main__":
-    app_cli()
+    args = get_user_arguments()
+    create_medical_topic_report(args)
