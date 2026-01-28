@@ -1,77 +1,16 @@
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from lite.utils import save_model_response
 
-from herbal_info_models import HerbalInfoModel, ModelOutput
-from herbal_info_prompts import PromptBuilder
+from herbal_info import HerbalInfoGenerator
 
 logger = logging.getLogger(__name__)
 
-
-class HerbalInfoGenerator:
-    """Generates comprehensive herbal remedy information based on provided configuration."""
-
-    def __init__(self, model_config: ModelConfig):
-        self.model_config = model_config
-        self.client = LiteClient(model_config)
-        self.herb = None  # Store the herb being analyzed
-        logger.debug(f"Initialized HerbalInfoGenerator")
-
-    def generate_text(self, herb: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive herbal information."""
-        # Validate inputs
-        if not herb or not str(herb).strip():
-            raise ValueError("Herb name cannot be empty")
-
-        # Store the herb for later use in save
-        self.herb = herb
-        logger.debug(f"Starting herbal information generation for: {herb}")
-
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(herb)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = HerbalInfoModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.info("Calling LiteClient.generate_text()...")
-        try:
-            result = self.ask_llm(model_input)
-            return result
-        except Exception as e:
-            logger.error(f"✗ Error generating herbal information: {e}")
-            raise
-
-    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
-        """Call the LLM client to generate information."""
-        return self.client.generate_text(model_input=model_input)
-
-    def save(self, result: ModelOutput, output_dir: Path) -> Path:
-        """Saves the herbal information to a file."""
-        if self.herb is None:
-            raise ValueError("No herb information available. Call generate_text first.")
-        
-        # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.herb.lower().replace(' ', '_')}"
-        
-        return save_model_response(result, output_dir / base_filename)
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -117,9 +56,7 @@ Examples:
     return parser.parse_args()
 
 
-def app_cli():
-    """CLI entry point."""
-    args = get_user_arguments()
+def create_herbal_info_report(args):
 
     # Apply verbosity level using centralized logging configuration
     configure_logging(
@@ -159,4 +96,5 @@ def app_cli():
 
 
 if __name__ == "__main__":
+    args = get_user_arguments()
     app_cli()
