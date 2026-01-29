@@ -69,7 +69,7 @@ class MedicalTermExtractor:
         """Internal helper to call the LLM client."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutut, output_dir: Path) -> Path:
+    def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical term extraction information to a file."""
         if self.text is None:
             raise ValueError("No text information available. Call generate_text first.")
