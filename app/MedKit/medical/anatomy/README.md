@@ -1,26 +1,29 @@
 # Medical Anatomy Information Generator
 
-A powerful CLI tool that generates comprehensive, evidence-based anatomical information reports using AI models. This tool is designed for clinical reference, educational purposes, and anatomical research.
+A command-line tool for generating anatomical reports. This tool serves clinical reference, educational, and research purposes.
 
 ## Features
 
-- **Comprehensive Reports**: Generates detailed information including gross anatomy, microscopic structure, clinical significance, imaging characteristics, and more.
-- **Structured Data**: Option to output data in a structured JSON format (Pydantic models) for programmatic use.
-- **Customizable**: Configure the AI model, output directory, and logging verbosity.
-- **Evidence-Based Prompts**: Uses expert-level system prompts to ensure accurate and clinically relevant terminology.
+- **Reports**: Generates information on gross anatomy, microscopic structure, clinical significance, and imaging.
+- **Structured Data**: Outputs data in JSON format for programmatic use.
+- **Configuration**: Options for AI model selection, output directory, and logging.
+- **Standardized Terminology**: Uses system prompts to ensure medical accuracy.
 
 ## Components
 
-The report covers the following anatomical aspects:
-- **Overview**: Classification, body system, and embryological origin.
-- **Position**: Location, landmarks, and anatomical relationships.
-- **Morphology**: Shape, dimensions, and surface features.
-- **Microscopic Structure**: Histology and cellular components.
-- **Function**: Primary/secondary functions and mechanisms.
-- **Vascular & Innervation**: Blood supply, lymphatics, and nerve supply.
-- **Clinical Significance**: Pathologies, surgical considerations, and injury vulnerability.
-- **Imaging**: Appearance on X-ray, CT, MRI, and Ultrasound.
-- **Development**: Embryology and growth patterns.
+The report includes the following sections:
+
+- **Overview**: Basic identification, classification, and body system.
+- **Anatomical Position**: Location, orientation, and relationships to nearby structures.
+- **Gross Morphology**: Shape, dimensions, and external appearance.
+- **Microscopic Structure**: Tissue types, cellular components, and histology.
+- **Function**: Physiological roles and mechanisms of action.
+- **Vascular & Innervation**: Arterial supply, venous drainage, lymphatics, and nerve supply.
+- **Clinical Significance**: Medical relevance, pathologies, and injury vulnerability.
+- **Imaging Characteristics**: Appearance on X-ray, CT, MRI, and Ultrasound.
+- **Developmental Anatomy**: Embryological origin, fetal development, and postnatal growth.
+- **Variations & Anomalies**: Normal anatomical variations and congenital anomalies.
+- **Landmarks & Approaches**: Surface landmarks and surgical access points.
 
 ## Prerequisites
 
@@ -30,7 +33,7 @@ The report covers the following anatomical aspects:
 
 ## Usage
 
-Run the CLI tool using `python medical_anatomy_cli.py`.
+Run the tool using `python medical_anatomy_cli.py`.
 
 ### Basic Example
 
@@ -42,7 +45,7 @@ python medical_anatomy_cli.py -i "heart"
 
 ### Advanced Usage
 
-Generate a structured report for the "femur", save it to a specific folder, and set verbosity to INFO:
+Generate a structured report for the "femur", save to a specific directory, and set verbosity to INFO:
 
 ```bash
 python medical_anatomy_cli.py -i "femur" -d outputs/femur -v 3 --structured
@@ -52,7 +55,7 @@ python medical_anatomy_cli.py -i "femur" -d outputs/femur -v 3 --structured
 
 | Argument | Short | Description | Default |
 |----------|-------|-------------|---------|
-| `--body_part` | `-i` | **Required.** The name of the anatomical structure. | N/A |
+| `--body_part` | `-i` | **Required.** Name of the anatomical structure. | N/A |
 | `--output-dir` | `-d` | Directory for output files. | `outputs` |
 | `--model` | `-m` | AI model to use. | `ollama/gemma3` |
 | `--verbosity` | `-v` | Logging level (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG). | `2` |
@@ -60,16 +63,16 @@ python medical_anatomy_cli.py -i "femur" -d outputs/femur -v 3 --structured
 
 ## Project Structure
 
-- `medical_anatomy_cli.py`: CLI entry point and argument parsing.
-- `medical_anatomy.py`: Core generator logic and API interaction.
-- `medical_anatomy_models.py`: Pydantic data definitions for structured output.
+- `medical_anatomy_cli.py`: CLI entry point.
+- `medical_anatomy.py`: Core logic and API interaction.
+- `medical_anatomy_models.py`: Data definitions for structured output.
 - `medical_anatomy_prompts.py`: System and user prompt templates.
-- `assets/`: Reference materials (PDFs and text).
+- `assets/`: Reference materials.
 - `logs/`: Application logs.
 
 ## Output
 
-Generated reports are saved to the specified output directory (default: `outputs`). The filenames are sanitized versions of the body part name (e.g., `heart.txt` or `heart.json` depending on the output format).
+Reports are saved to the output directory (default: `outputs`). Filenames use the sanitized body part name (e.g., `heart.txt` or `heart.json`).
 
 ---
-*Note: This tool uses LLMs for content generation. While designed for accuracy, always verify critical medical information with standard anatomical texts.*
+*Note: This tool uses AI for content generation. Verify information with standard anatomical texts.*
