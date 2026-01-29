@@ -1,97 +1,67 @@
-"""medical_speciality.py - Medical Specialists Database and Lookup"""
+"""medical_speciality_cli.py - CLI for Medical Specialists Database and Lookup"""
 
-import json
-import sys
 import argparse
+import logging
+import sys
 from pathlib import Path
-from typing import Optional, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-from lite.utils import save_model_response
+from lite.config import ModelConfig
+from lite.logging_config import configure_logging
 
-from medical_speciality_models import MedicalSpecialistDatabase
+from medical_speciality import MedicalSpecialityGenerator
 
-
-class PromptBuilder:
-    """Builder class for creating prompts for medical speciality generation."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """Generate the system prompt for the medical specialties generator."""
-        return "You are an expert in medical education and healthcare systems. Generate a complete and accurate database of medical specialties."
-
-    @staticmethod
-    def create_user_prompt() -> str:
-        """Generate the user prompt for the medical specialties generator."""
-        return """Generate a comprehensive list of medical specialists covering all major fields of medicine.
-Organize them by logical categories (body system, type of care, patient population).
-
-For each specialist, provide:
-1. Formal specialty name
-2. Category name and description
-3. Role description
-4. Conditions/diseases treated
-5. Common referral reasons
-6. Subspecialties
-7. Surgical vs non-surgical
-8. Patient population focus
-
-Include both common (cardiology, dermatology) and specialized (physiatry, interventional radiology) fields."""
+logger = logging.getLogger(__name__)
 
 
-class MedicalSpecialityGenerator:
-    """Generate a comprehensive database of medical specialities using LiteClient."""
-
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the generator."""
-        self.client = LiteClient(model_config=model_config)
-
-    def generate_text(self, structured: bool = False) -> Union[MedicalSpecialistDatabase, str]:
-        """Generate a comprehensive medical specialists database."""
-        response_format = None
-        if structured:
-            response_format = MedicalSpecialistDatabase
-
-        model_input = ModelInput(
-            user_prompt=PromptBuilder.create_user_prompt(),
-            response_format=response_format,
-            system_prompt=PromptBuilder.create_system_prompt()
-        )
-
-        result = self._ask_llm(model_input)
-        return result
-
-    def _ask_llm(self, model_input: ModelInput) -> Union[MedicalSpecialistDatabase, str]:
-        """Internal helper to call the LLM client."""
-        return self.client.generate_text(model_input=model_input)
-
-
-def main():
+def get_user_arguments() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Generate comprehensive medical specialist database")
-    parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
-    parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-d", "--output-dir", default="outputs", help="Directory for output files (default: outputs).")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use (default: ollama/gemma3).")
+    parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def create_medical_speciality_report(args) -> int:
+    """Generate medical speciality database."""
+    # Apply verbosity level using centralized logging configuration
+    configure_logging(
+        log_file=str(Path(__file__).parent / "logs" / "medical_speciality.log"),
+        verbosity=args.verbosity,
+        enable_console=True
+    )
+    logger.debug(f"CLI Arguments:")
+    logger.debug(f"  Output Dir: {args.output_dir}")
+    logger.debug(f"  Verbosity: {args.verbosity}")
+
+    # Ensure output directory exists
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.3)
-        generator = MedicalSpecialityGenerator(model_config=model_config)
-        print("Generating medical specialist database...")
-        result = generator.generate_text(structured=args.structured)
+        generator = MedicalSpecialityGenerator(model_config)
         
-        if args.output:
-            output_path = args.output
-            if isinstance(result, str) and output_path.suffix == ".json":
-                output_path = output_path.with_suffix(".md")
-            save_model_response(result, output_path)
-            print(f"✓ Database saved to {output_path}")
+        speciality_info = generator.generate_text(structured=args.structured)
 
+        if speciality_info is None:
+            logger.error("✗ Failed to generate medical speciality database.")
+            return 1
+
+        # Save result to output directory
+        generator.save(speciality_info, output_dir)
+
+        logger.debug("✓ Medical speciality database generation completed successfully")
+        return 0
     except Exception as e:
-        print(f"✗ Error: {e}")
-        sys.exit(1)
+        logger.error(f"✗ Medical speciality database generation failed: {e}")
+        logger.exception("Full exception details:")
+        return 1
 
-if __name__ == '__main__':
-    main()
+
+if __name__ == "__main__":
+    args = get_user_arguments()
+    create_medical_speciality_report(args)
