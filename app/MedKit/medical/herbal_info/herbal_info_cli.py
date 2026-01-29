@@ -78,14 +78,14 @@ def create_herbal_info_report(args):
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = HerbalInfoGenerator(model_config)
-        herbal_info = generator.generate_text(herb=args.herb, structured=args.structured)
+        result    = generator.generate_text(herb=args.herb, structured=args.structured)
 
-        if herbal_info is None:
+        if result is None:
             logger.error("✗ Failed to generate herbal information.")
             return 1
 
         # Save result to output directory
-        generator.save(herbal_info, output_dir)
+        generator.save(result, output_dir)
 
         logger.debug("✓ Herbal information generation completed successfully")
         return 0
@@ -97,4 +97,4 @@ def create_herbal_info_report(args):
 
 if __name__ == "__main__":
     args = get_user_arguments()
-    app_cli()
+    create_herbal_info_report(args):
