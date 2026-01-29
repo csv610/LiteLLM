@@ -1,69 +1,14 @@
-"""Medical Facts Checker - Comprehensive fact vs. fiction analysis with confidence scoring."""
-
 import json
 import sys
 import argparse
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional, List, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-from lite.utils import save_model_response
+from lite.config import ModelConfig
 
-from medical_facts_checker_models import MedicalFactFictionAnalysisModel, ModelOutput
-from medical_facts_checker_prompts import PromptBuilder
+from medical_facts_checker import MedicalFactsChecker
 
-class MedicalFactsChecker:
-    """Analyzes medical statements for factual accuracy."""
-
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the facts checker."""
-        self.client = LiteClient(model_config=model_config)
-        self.statement: Optional[str] = None
-        self.output_path: Optional[Path] = None
-
-    def generate_text(self, statement: str, structured: bool = False) -> ModelOutput:
-        """
-        Analyze a statement and determine if it is a fact or fiction.
-
-        Args:
-            statement: The statement to analyze.
-
-        Returns:
-            The generated FactFictionAnalysis object.
-        
-        Raises:
-            ValueError: If statement is empty.
-        """
-        if not statement or not statement.strip():
-            raise ValueError("Statement cannot be empty")
-
-        self.statement = statement
-
-        response_format = None
-        if structured:
-            response_format = MedicalFactFictionAnalysisModel
-
-        model_input = ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=PromptBuilder.create_user_prompt(statement),
-            response_format=response_format,
-        )
-
-        result = self._ask_llm(model_input)
-        return result
-
-    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
-        """
-        Internal helper to call the LLM client.
-        """
-        return self.client.generate_text(model_input=model_input)
-
-    
-
-def main():
+def get_user_arguments():
     parser = argparse.ArgumentParser(
         description="Analyze statements and determine if they are fact or fiction",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -82,7 +27,9 @@ Examples:
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbosity level")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
-    args = parser.parse_args()
+    return parser.parse_args()
+   
+def create_medical_fact_check_report(args):
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.3)
@@ -106,4 +53,5 @@ Examples:
         sys.exit(1)
 
 if __name__ == '__main__':
-   main()
+    args = get_user_arguments()
+    create_medical_fact_check_report(args)
