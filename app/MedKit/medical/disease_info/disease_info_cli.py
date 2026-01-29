@@ -29,6 +29,7 @@ Examples:
         required=True,
         help="The name of the disease to generate information for."
     )
+
     parser.add_argument(
         "-d", "--output-dir",
         default="outputs",
@@ -77,14 +78,14 @@ def create_disease_info_report(args) -> int:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = DiseaseInfoGenerator(model_config)
         
-        disease_info = generator.generate_text(disease=args.disease, structured=args.structured)
+        result = generator.generate_text(disease=args.disease, structured=args.structured)
 
-        if disease_info is None:
+        if result is None:
             logger.error("✗ Failed to generate disease information.")
             return 1
 
         # Save result to output directory
-        generator.save(disease_info, output_dir)
+        generator.save(result, output_dir)
 
         logger.debug("✓ Disease information generation completed successfully")
         return 0
