@@ -1,153 +1,67 @@
 # Herbal Information Generator
 
-A command-line tool that generates comprehensive information about medicinal herbs using structured language model prompting.
+A command-line tool for generating structured, evidence-based reports on medicinal herbs. This system utilizes large language models to aggregate botanical data, therapeutic mechanisms, safety profiles, and clinical evidence.
 
 ## Overview
 
-The Herbal Information Generator retrieves and formats information about herbs including traditional uses, active compounds, safety considerations, and relevant research. The tool uses a large language model to synthesize information based on a system prompt designed to prioritize accuracy and evidence-based content.
+The Herbal Information Generator provides a standardized framework for documenting herbal remedies. It is designed for practitioners, researchers, and educators who require objective data on medicinal plants. The system supports both unstructured narrative reports and strictly validated JSON output using Pydantic models.
 
-## Important Medical Disclaimers
+## Core Features
 
-**This tool is for informational purposes only.** It is not a substitute for professional medical advice, diagnosis, or treatment. Users should:
+- **Comprehensive Data Collection**: Covers botanical nomenclature, active phytochemicals, and traditional medicine systems.
+- **Safety Analysis**: Detailed sections for contraindications, drug interactions, and special population considerations (pregnancy, pediatric, etc.).
+- **Dosing & Administration**: Age-specific dosage guidelines and preparation methods (teas, tinctures, extracts).
+- **Evidence-Based Reporting**: Summarizes clinical evidence, regulatory status, and current research.
+- **Structured Output**: Support for JSON schema validation for integration into larger medical databases.
 
-- Consult qualified healthcare providers before using any herb for medical purposes
-- Verify information with peer-reviewed medical literature and authoritative sources
-- Be aware that LLM-generated content may contain inaccuracies or outdated information
-- Understand that herbal preparations vary in potency and composition
-- Consider individual health conditions, medications, and potential drug-herb interactions
-- Report any adverse effects to a healthcare provider
+## Project Structure
 
-The information generated reflects the training data and methodology of the underlying language model and should not be considered definitive or complete.
+- `herbal_info.py`: Core logic and `HerbalInfoGenerator` class.
+- `herbal_info_cli.py`: Command-line interface for report generation.
+- `herbal_info_models.py`: Data schemas and Pydantic validation models.
+- `herbal_info_prompts.py`: Standardized prompt templates for medical accuracy.
+- `assets/herb_list.txt`: Reference list of supported or common herbs.
 
 ## Installation
 
-### Requirements
-
-- Python 3.8+
-- LiteClient and related dependencies from the parent project
-- Rich library for formatted console output
-
-### Setup
+Ensure you have Python 3.8+ and the required dependencies installed. This tool depends on a local or remote `LiteClient` configuration for LLM access.
 
 ```bash
-cd herbal_info
-pip install -r requirements.txt
+pip install pydantic
 ```
 
 ## Usage
 
-### Basic Command
-
-Generate information for a single herb:
-
+### Basic Report Generation
+To generate a standard Markdown report for a specific herb:
 ```bash
-python herbal_info_cli.py -i "ginger"
+python herbal_info_cli.py -i "Ginger"
 ```
 
-### Command-Line Options
-
-| Option | Short | Description | Default |
-|--------|-------|-------------|---------|
-| `--herb` | `-i` | **Required.** Name of the herb | — |
-| `--output` | `-o` | Path to save output JSON file | Auto-generated |
-| `--output-dir` | `-d` | Directory for output files | `outputs` |
-| `--model` | `-m` | Language model to use | `ollama/gemma3` |
-| `--verbosity` | `-v` | Logging level (0-4) | `2` |
-
-### Examples
-
-Save to a specific file:
+### Structured Data Export
+To generate a validated JSON report:
 ```bash
-python herbal_info_cli.py -i "echinacea" -o echinacea_info.json
+python herbal_info_cli.py -i "Turmeric" --structured
 ```
 
-Use a different model:
-```bash
-python herbal_info_cli.py -i turmeric -m "ollama/llama2"
-```
+### Options
+- `-i`, `--herb`: (Required) Name of the herb.
+- `-d`, `--output-dir`: Directory for saved reports (default: `outputs`).
+- `-m`, `--model`: LLM model identifier (default: `ollama/gemma3`).
+- `-s`, `--structured`: Enable Pydantic-validated JSON output.
+- `-v`, `--verbosity`: Logging level (0-4).
 
-Increase logging verbosity:
-```bash
-python herbal_info_cli.py -i "St. John's Wort" -v 4
-```
+## Data Schema
 
-## Features
+Reports are organized into the following logical modules:
+1.  **Metadata**: Nomenclature and plant family.
+2.  **Classification**: Traditional systems and energetics.
+3.  **Mechanism**: Biochemical action and targeted body systems.
+4.  **Usage**: Preparation, storage, and dosage.
+5.  **Safety**: Side effects, interactions, and toxicity.
+6.  **Special Populations**: Pregnancy, breastfeeding, and pediatric use.
+7.  **Evidence**: Clinical studies and regulatory status.
 
-- **Structured Output**: Results are returned as `HerbalInfo` objects with standardized fields
-- **JSON Export**: Save results to files for further processing or archival
-- **Formatted Console Output**: Results displayed in organized panels using Rich
-- **Configurable Logging**: Multiple verbosity levels for debugging and production use
-- **System Prompting**: Uses role-based system prompts to guide information generation
+## Disclaimer
 
-## Code Architecture
-
-### Core Components
-
-**`HerbalInfoGenerator`** - Main class for information generation
-- Initializes with language model configuration
-- Validates inputs and generates herbal information
-- Handles file output
-
-**`PromptBuilder`** (in `herbal_info_prompts.py`)
-- `create_system_prompt()`: Defines the LLM's role and instructions
-- `create_user_prompt(herb)`: Creates the specific query for a given herb
-
-**Output**
-- `save()`: Exports results to JSON/Markdown files
-
-## Output Format
-
-The tool generates a `HerbalInfoModel` object with the following structure (see `herbal_info_models.py` for complete schema):
-
-```json
-{
-  "metadata": {
-    "common_name": "...",
-    "scientific_name": "...",
-    "other_names": ["..."]
-  },
-  "active_compounds": ["..."],
-  "traditional_uses": "...",
-  "modern_research": "...",
-  "safety_considerations": "...",
-  "drug_interactions": "..."
-}
-```
-
-## Logging
-
-Logs are written to `herbal_info.log` in the working directory.
-
-Verbosity levels:
-- `0`: CRITICAL only
-- `1`: ERROR messages
-- `2`: WARNING messages (default)
-- `3`: INFO messages
-- `4`: DEBUG messages (verbose)
-
-## Limitations
-
-1. **Model Dependency**: Output quality depends on the underlying language model's training data and capabilities
-2. **Knowledge Cutoff**: LLM training data has a cutoff date; recent research may not be included
-3. **No Medical Validation**: Generated information is not reviewed by medical professionals
-4. **Incomplete Information**: Some herbs may have limited coverage in training data
-5. **Dosage Uncertainty**: The tool does not provide personalized dosage recommendations
-6. **Interaction Data**: Drug-herb interactions may not be comprehensive or current
-
-## Best Practices
-
-- Use this tool as a starting point for research, not as a final authority
-- Cross-reference information with established sources (NIH, PubMed, professional herbalist references)
-- Consult healthcare providers before recommending or using herbs
-- Keep records of sources and generation dates for audit trails
-- Update information periodically as new research emerges
-
-## Related Files
-
-- `herbal_info_models.py` - Pydantic models for structured data
-- `herbal_info_prompts.py` - Prompt builder logic
-- `herbal_info.log` - Log file (auto-generated)
-
-## License
-
-See parent project LICENSE file.
+This tool is intended for informational and educational purposes only. The generated reports should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider or certified herbalist before beginning any new herbal regimen.
