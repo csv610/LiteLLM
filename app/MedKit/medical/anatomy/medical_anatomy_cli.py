@@ -19,6 +19,34 @@ from medical_anatomy import MedicalAnatomyGenerator
 
 logger = logging.getLogger(__name__)
 
+def common_user_arguments(parser):
+
+    parser.add_argument(
+        "-d", "--output-dir",
+        default="outputs",
+        help="Directory for output files (default: outputs)."
+    )
+
+    parser.add_argument(
+        "-m", "--model",
+        default="ollama/gemma3",
+        help="Model to use for generation (default: ollama/gemma3)."
+    )
+
+    parser.add_argument(
+        "-v", "--verbosity",
+        type=int,
+        default=2,
+        choices=[0, 1, 2, 3, 4],
+        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
+    )
+
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        default=False,
+        help="Use structured output (Pydantic model) for the response."
+    )
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -28,37 +56,16 @@ def get_user_arguments() -> argparse.Namespace:
         epilog="""
 Examples:
   python medical_anatomy_cli.py -i "heart"
-  python medical_anatomy_cli.py -i "femur" -o output.json -v 3
+  python medical_anatomy_cli.py -i "femur" -d outputs/femur -v 3
   python medical_anatomy_cli.py -i "left ventricle" -d outputs/anatomy
         """
     )
+    common_user_arguments(parser)
+
     parser.add_argument(
         "-i", "--body_part",
         required=True,
         help="The name of the anatomical part  to generate information for."
-    )
-    parser.add_argument(
-        "-d", "--output-dir",
-        default="outputs",
-        help="Directory for output files (default: outputs)."
-    )
-    parser.add_argument(
-        "-m", "--model",
-        default="ollama/gemma3",
-        help="Model to use for generation (default: ollama/gemma3)."
-    )
-    parser.add_argument(
-        "-v", "--verbosity",
-        type=int,
-        default=2,
-        choices=[0, 1, 2, 3, 4],
-        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
-    )
-    parser.add_argument(
-        "-s", "--structured",
-        action="store_true",
-        default=False,
-        help="Use structured output (Pydantic model) for the response."
     )
 
     return parser.parse_args()
