@@ -27,7 +27,7 @@ class Outcome(BaseModel):
     warning_signs: str = Field(description="Red flags requiring immediate attention, comma-separated")
 
 
-class MedicalDecisionGuide(BaseModel):
+class MedicalDecisionGuideModel(BaseModel):
     """
     Medical decision tree for symptom assessment.
 
@@ -46,3 +46,7 @@ class MedicalDecisionGuide(BaseModel):
 
     warning_signs: str = Field(description="Red flags requiring immediate attention, comma-separated")
     emergency_indicators: str = Field(description="Signs of medical emergency, comma-separated")
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalDecisionGuideModel] = None
+    markdown: Optional[str] = None
