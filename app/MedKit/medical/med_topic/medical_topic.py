@@ -7,6 +7,7 @@ comprehensive medical topic information based on provided configuration.
 """
 
 import logging
+import sys
 from pathlib import Path
 from typing import Union
 

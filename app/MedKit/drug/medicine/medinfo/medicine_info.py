@@ -28,7 +28,7 @@ from medicine_info_models import MedicineInfoResult
 logger = logging.getLogger(__name__)
 
 
-class MedicineInfoPromptBuilder(BasePromptBuilder):
+class PromptBuilder(BasePromptBuilder):
     """Builder class for creating prompts for medicine information generation.
 
     Inherits from BasePromptBuilder and implements the abstract methods
@@ -87,9 +87,9 @@ class MedicineInfoGenerator(BaseGenerator):
         self.logger.debug(f"Starting medicine information fetch for: {medicine_name}")
 
         # Create model input with prompts
-        user_prompt = MedicineInfoPromptBuilder.create_user_prompt(medicine_name)
+        user_prompt = PromptBuilder.create_user_prompt(medicine_name)
         model_input = ModelInput(
-            system_prompt=MedicineInfoPromptBuilder.create_system_prompt(),
+            system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=user_prompt,
             response_format=MedicineInfoResult if structured else None,
         )

@@ -1,4 +1,5 @@
 Acne
+Acute Intermittent Porphyria
 Anorexia nervosa
 Anxiety disorders
 Asthma
@@ -21,6 +22,7 @@ Cervical cancer
 Chlamydia
 Chronic fatigue syndrome
 Chronic obstructive pulmonary disease 
+Cirrhosis
 Date rape drugs
 Depression
 Depression during and after pregnancy
@@ -59,6 +61,7 @@ Insomnia
 Interstitial cystitis
 Iron-deficiency anemia
 Irritable bowel syndrome
+Jaundice
 Lupus
 Mammograms
 Menopause
@@ -77,6 +80,7 @@ Ovarian cysts
 Ovarian syndrome 
 Overweight, obesity, and weight loss
 Ovulation calculator
+Panniculitis
 Pap and HPV tests
 Polycystic ovary syndrome 
 Pelvic inflammatory disease 
