@@ -1,109 +1,79 @@
 """medical_term_extractor.py - Extract and categorize medical concepts from text."""
 
-import json
-import sys
 import argparse
+import logging
+import sys
 from pathlib import Path
-from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-from lite.utils import save_model_response
-from utils.output_formatter import print_result
+from lite.config import ModelConfig
+from lite.logging_config import configure_logging
 
-from medical_term_extractor_models import MedicalTerms
+from medical_term_extractor import MedicalTermExtractor
 
-
-class PromptBuilder:
-    """Builder class for creating prompts for medical term extraction."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """Generate the system prompt for medical term extraction."""
-        return "You are an expert medical documentation specialist. Extract medical terms accurately from the provided text."
-
-    @staticmethod
-    def create_user_prompt(text: str) -> str:
-        """Generate the user prompt for term extraction."""
-        return f"""Extract all medical terms from the following text and structure them according to the provided schema.
-
-Text to extract from:
-{text}
-
-For each category:
-- Extract only relevant terms that appear in the text
-- Include the context (the sentence or phrase where it appears)
-- For side_effects, include the related_medicine if mentioned
-- For causation_relationships, identify connections between medical concepts (e.g., "disease X causes symptom Y")
-
-Be thorough and accurate. Extract ALL medical terms found in the text."""
+logger = logging.getLogger(__name__)
 
 
-class MedicalTermExtractor:
-    """Extracts and categorizes medical terms from text using LiteClient."""
-
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the extractor."""
-        self.client = LiteClient(model_config=model_config)
-
-    def generate_text(self, text: str, structured: bool = False) -> Union[MedicalTerms, str]:
-        """Extract medical terms from text."""
-        if not text or not text.strip():
-            raise ValueError("Input text cannot be empty")
-
-        response_format = None
-        if structured:
-            response_format = MedicalTerms
-
-        model_input = ModelInput(
-            user_prompt=PromptBuilder.create_user_prompt(text),
-            response_format=response_format,
-            system_prompt=PromptBuilder.create_system_prompt()
-        )
-
-        result = self._ask_llm(model_input)
-        return result
-
-    def _ask_llm(self, model_input: ModelInput) -> Union[MedicalTerms, str]:
-        """Internal helper to call the LLM client."""
-        return self.client.generate_text(model_input=model_input)
-
-
-def main():
+def get_user_arguments() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Extract medical terms from text or a file.")
     parser.add_argument("input", help="The input text file path or a string of text.")
-    parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
-    parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument("-d", "--output-dir", default="outputs", help="Directory for output files (default: outputs).")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use (default: ollama/gemma3).")
+    parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def create_medical_term_extractor_report(args) -> int:
+    """Extract medical terms from text or file."""
+    # Apply verbosity level using centralized logging configuration
+    configure_logging(
+        log_file=str(Path(__file__).parent / "logs" / "medical_term_extractor.log"),
+        verbosity=args.verbosity,
+        enable_console=True
+    )
+    logger.debug(f"CLI Arguments:")
+    logger.debug(f"  Input: {args.input}")
+    logger.debug(f"  Output Dir: {args.output_dir}")
+    logger.debug(f"  Verbosity: {args.verbosity}")
+
+    # Ensure output directory exists
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.1)
-        extractor = MedicalTermExtractor(model_config=model_config)
+        extractor = MedicalTermExtractor(model_config)
         
+        # Handle input - check if it's a file or direct text
         input_text = args.input
         input_path = Path(args.input)
         if input_path.is_file():
             with open(input_path, 'r', encoding='utf-8') as f:
                 input_text = f.read()
+            logger.debug(f"Read input from file: {input_path}")
+        else:
+            logger.debug(f"Using direct text input")
 
-        print("Extracting medical terms...")
-        result = extractor.generate_text(text=input_text, structured=args.structured)
-        
-        print_result(result, title="Medical Term Extraction Results")
-        
-        if args.output:
-            output_path = args.output
-            if isinstance(result, str) and output_path.suffix == ".json":
-                output_path = output_path.with_suffix(".md")
-            save_model_response(result, output_path)
-            print(f"✓ Results saved to {output_path}")
+        terms_info = extractor.generate_text(input_text, structured=args.structured)
 
+        if terms_info is None:
+            logger.error("✗ Failed to extract medical terms.")
+            return 1
+
+        # Save result to output directory
+        extractor.save(terms_info, output_dir)
+
+        logger.debug("✓ Medical term extraction completed successfully")
+        return 0
     except Exception as e:
-        print(f"✗ Error: {e}")
-        sys.exit(1)
+        logger.error(f"✗ Medical term extraction failed: {e}")
+        logger.exception("Full exception details:")
+        return 1
 
-if __name__ == '__main__':
-    main()
+
+if __name__ == "__main__":
+    args = get_user_arguments()
+    create_medical_term_extractor_report(args)

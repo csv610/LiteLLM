@@ -63,7 +63,7 @@ class CausationRelationship(BaseModel):
     context: str = Field(description="Context where this relationship was mentioned")
 
 
-class MedicalTerms(BaseModel):
+class MedicalTermsModel(BaseModel):
     """
     Comprehensive extraction of medical terms from text.
     """
@@ -79,3 +79,10 @@ class MedicalTerms(BaseModel):
         default_factory=list,
         description="Causation relationships between medical concepts"
     )
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicalTermsModel] = None
+    markdown: Optional[str] = None
+
+
