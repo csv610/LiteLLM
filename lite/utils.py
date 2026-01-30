@@ -41,7 +41,7 @@ def save_model_response(model: Union[BaseModel, str], output_path: Union[str, Pa
         
         with open(path, 'w', encoding='utf-8') as f:
             if isinstance(model, BaseModel):
-                json.dump(model.model_dump(), f, indent=2, default=str)
+                json.dump(model.model_dump(exclude_none=True), f, indent=2, default=str)
             elif isinstance(model, str):
                 f.write(model)
             else:

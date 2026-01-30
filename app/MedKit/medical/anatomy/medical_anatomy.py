@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 from typing import Optional, Union
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+#sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response

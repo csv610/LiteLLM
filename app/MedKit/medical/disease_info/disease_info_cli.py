@@ -95,6 +95,11 @@ def create_disease_info_report(args) -> int:
         return 1
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the CLI."""
     args = get_user_arguments()
     create_disease_info_report(args)
+
+
+if __name__ == "__main__":
+    main()

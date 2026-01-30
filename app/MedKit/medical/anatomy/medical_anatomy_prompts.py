@@ -33,7 +33,9 @@ Guidelines:
 - Include relevant embryological development when applicable
 - Highlight clinically important anatomical features and variations
 - Organize information systematically for educational and clinical reference
-- Emphasize anatomical relationships critical for medical practice"""
+- Emphasize anatomical relationships critical for medical practice
+- Do not add any preamble, disclaimer in the report.
+"""
 
     @staticmethod
     def create_user_prompt(structure: str) -> str:

@@ -1,4 +1,4 @@
-.PHONY: help venv venv-activate install install-dev uv-install test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
+.PHONY: help venv vact dact venv-activate install install-dev uv-install test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision setup-aliases
 
 VENV_DIR := litenv
 PYTHON := python3.12
@@ -13,6 +13,9 @@ help:
 	@echo ""
 	@echo "Virtual Environment:"
 	@echo "  make venv                 Create virtual environment using standard venv"
+	@echo "  make vact                 Show activation command"
+	@echo "  make dact                 Show deactivation command"
+	@echo "  make setup-aliases        Configure shell aliases (vact/dact)"
 	@echo "  make venv-activate        Show activation command"
 	@echo ""
 	@echo "Installation:"
@@ -52,6 +55,28 @@ venv-activate:
 	@echo ""
 	@echo "  source $(VENV_DIR)/bin/activate"
 	@echo ""
+
+vact: venv
+	@echo "source $(VENV_DIR)/bin/activate"
+
+dact:
+	@echo "deactivate"
+
+setup-aliases:
+	@echo "Adding aliases to ~/.zshrc..."
+	@if ! grep -q "alias vact=" ~/.zshrc; then \
+		echo "alias vact='eval \"\$$(make vact)\"'" >> ~/.zshrc; \
+		echo "Added vact alias."; \
+	else \
+		echo "vact alias already exists."; \
+	fi
+	@if ! grep -q "alias dact=" ~/.zshrc; then \
+		echo "alias dact='eval \"\$$(make dact)\"'" >> ~/.zshrc; \
+		echo "Added dact alias."; \
+	else \
+		echo "dact alias already exists."; \
+	fi
+	@echo "Done. Please run 'source ~/.zshrc' to apply changes."
 
 # Installation targets
 install: venv
