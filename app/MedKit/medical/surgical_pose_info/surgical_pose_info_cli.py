@@ -1,93 +1,15 @@
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from lite.utils import save_model_response
 
-from surgical_pose_info_models import SurgicalPoseInfoModel, ModelOutput
-from surgical_pose_info_prompts import PromptBuilder
+from .surgical_pose_info import SurgicalPoseInfoGenerator, COMMON_SURGICAL_POSITIONS
 
 logger = logging.getLogger(__name__)
-
-COMMON_SURGICAL_POSITIONS = [
-    "Supine (Dorsal Decubitus)",
-    "Prone (Ventral Decubitus)",
-    "Lithotomy",
-    "Trendelenburg",
-    "Reverse Trendelenburg",
-    "Lateral Decubitus (Right/Left)",
-    "Fowler's Position",
-    "Semi-Fowler's Position",
-    "Jackknife (Kraske)",
-    "Kidney Position",
-    "Sims' Position",
-    "Sitting (Beach Chair)"
-]
-
-
-class SurgicalPoseInfoGenerator:
-    """Generates comprehensive surgical position information based on provided configuration."""
-
-    def __init__(self, model_config: ModelConfig):
-        self.model_config = model_config
-        self.client = LiteClient(model_config)
-        self.pose = None  # Store the position being analyzed
-        logger.debug(f"Initialized SurgicalPoseInfoGenerator")
-
-    def generate_text(self, pose: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive surgical position information."""
-        if not pose or not str(pose).strip():
-            raise ValueError("Position name cannot be empty")
-
-        # Store the pose for later use in save
-        self.pose = pose
-        logger.debug(f"Starting surgical position information generation for: {pose}")
-
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(pose)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = SurgicalPoseInfoModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.info("Calling LiteClient.generate_text()...")
-        try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated surgical position information")
-            return result
-        except Exception as e:
-            logger.error(f"✗ Error generating surgical position information: {e}")
-            raise
-
-    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
-        """Call the LLM client to generate content."""
-        return self.client.generate_text(model_input=model_input)
-
-    def save(self, result: ModelOutput, output_dir: Path) -> Path:
-        """Saves the surgical position information to a file."""
-        if self.pose is None:
-            raise ValueError("No position information available. Call generate_text first.")
-        
-        # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.pose.lower().replace(' ', '_')}"
-        
-        return save_model_response(result, output_dir / base_filename)
-
 
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
