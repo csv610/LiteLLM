@@ -27,8 +27,10 @@ Arterial thrombosis
 Arthritis
 Asbestosis
 Asthma
+Asymptomatic Carotid Stenosis
 Ataxia
 Atopic eczema
+Atretic Cephalocele
 Atrial fibrillation
 Attention deficit hyperactivity disorder (ADHD)
 Autism
@@ -115,6 +117,7 @@ Diabetic ketoacidosis (DKA)
 Diabetic retinopathy
 Diarrhoea in adults
 Diarrhoea in children and babies
+Diplopia
 Discoid eczema
 Diverticular disease and diverticulitis
 Dizziness (Lightheadedness)
@@ -132,6 +135,7 @@ Ectopic pregnancy
 Elbow (radial head or neck) fracture
 Edwards’ syndrome
 Emery-Dreifuss muscular dystrophy
+Empyema necessitans
 Endometriosis
 Epilepsy
 Erectile dysfunction (impotence)
@@ -154,6 +158,7 @@ Food allergy
 Food poisoning
 Fragility fracture of the hip
 Frozen shoulder
+Functional Dyspepsia
 Functional neurological disorder (FND)
 Fungal nail infection
 Gallbladder cancer
@@ -170,6 +175,7 @@ Glandular fever
 Golfers elbow
 Gonorrhoea
 Gout
+Granulomatosis
 Greater trochanteric pain syndrome
 Gum disease
 Haemorrhoids (piles)
@@ -247,6 +253,7 @@ Mechanical neck pain
 Meningitis
 Meniere’s disease
 Menopause
+Merkel-Cell Carcinoma
 Mesothelioma
 Metacarpal fracture of the hand
 Middle ear infection (otitis media)
@@ -282,6 +289,7 @@ Obstructive sleep apnoea
 Oculopharyngeal muscular dystrophy (OPMD)
 Oesophageal cancer
 Oral thrush in adults
+Osteogenesis Imperfecta
 Osteoarthritis
 Osteoarthritis of the hip
 Osteoarthritis of the knee
@@ -293,6 +301,7 @@ Ovarian cyst
 Overactive thyroid
 Pain in the ball of the foot
 Paget’s disease of the breast
+Palmoplantar Pustulosis
 Pancreatic cancer
 Panic disorder
 Parkinson’s disease
@@ -303,6 +312,7 @@ Pelvic organ prolapse
 Penile cancer
 Peripheral neuropathy
 Peripheral Artery Disease
+Periumbilical Erythema 
 Personality disorder
 Perthes’ disease
 PIMS
@@ -310,6 +320,7 @@ Plantar heel pain
 Pleurisy
 Pneumonia
 Polio
+Polyangiitis
 Polycystic ovary syndrome (PCOS)
 Polymyalgia rheumatica
 Post-concussion syndrome
