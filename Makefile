@@ -1,9 +1,10 @@
-.PHONY: help venv venv-activate install install-dev test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
+.PHONY: help venv venv-activate install install-dev uv-install test lint format clean run-cli-text run-cli-vision run-web-text run-web-vision
 
 VENV_DIR := litenv
 PYTHON := python3.12
 PIP := $(VENV_DIR)/bin/pip
 PYTHON_VENV := $(VENV_DIR)/bin/python
+UV := uv
 
 # Default target
 help:
@@ -11,12 +12,13 @@ help:
 	@echo "=============================="
 	@echo ""
 	@echo "Virtual Environment:"
-	@echo "  make venv                 Create virtual environment"
+	@echo "  make venv                 Create virtual environment using standard venv"
 	@echo "  make venv-activate        Show activation command"
 	@echo ""
 	@echo "Installation:"
-	@echo "  make install              Install dependencies"
+	@echo "  make install              Install dependencies using pip"
 	@echo "  make install-dev          Install with development dependencies"
+	@echo "  make uv-install           Install dependencies using uv (fastest)"
 	@echo ""
 	@echo "Development:"
 	@echo "  make test                 Run unit tests"
@@ -67,6 +69,13 @@ install-dev: venv
 	$(PIP) install pylint black pytest-cov
 	@echo "Development dependencies installed in virtual environment"
 
+uv-install:
+	$(UV) venv
+	$(UV) pip install -r requirements.txt
+	$(UV) pip install -e .
+	@echo "Dependencies installed using uv in .venv/"
+	@echo "To activate, run: source .venv/bin/activate"
+
 # Testing and linting
 test:
 	$(PYTHON_VENV) -m pytest tests/ -v --cov=lite --cov-report=html
@@ -105,7 +114,8 @@ clean:
 
 clean-venv:
 	rm -rf $(VENV_DIR)
-	@echo "Removed virtual environment"
+	rm -rf .venv
+	@echo "Removed virtual environments (litenv and .venv)"
 
 clean-all: clean clean-venv
 	@echo "Full cleanup complete"
