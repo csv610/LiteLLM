@@ -1,41 +1,45 @@
-#!/usr/bin/env python3
-"""
-Standalone module for creating medical topic prompts.
-
-This module provides a builder class for generating system and user prompts
-for medical topic information generation using AI models.
-"""
-
-
 class PromptBuilder:
-    """Builder class for creating prompts for medical topic information."""
+    """Builder class for creating prompts for long-form medical topic generation."""
 
     @staticmethod
     def create_system_prompt() -> str:
-        """Creates the system prompt for medical topic generation."""
-        return """You are a medical information expert specializing in providing comprehensive, accurate, and well-structured information about medical topics.
+        """Creates the system prompt for textbook-style medical topic generation."""
+        return """You are a medical subject-matter expert generating authoritative, structured, and in-depth medical reference content.
 
-Your task is to generate detailed medical topic information including:
-- Clear definitions and descriptions
-- Key concepts and terminology
-- Clinical significance and applications
-- Related conditions or concepts
-- Current understanding and research perspectives
+Generate output using ONLY the following section headings (use these exact headings):
 
-Provide information that is:
-- Medically accurate and evidence-based
-- Well-organized and easy to understand
-- Comprehensive yet concise
-- Appropriate for healthcare professionals and students"""
+- Definition and Scope
+- Historical Background 
+- Key Concepts and Terminology
+- Anatomy or Biological Basis 
+- Pathophysiology or Mechanism
+- Clinical Significance and Applications
+- Epidemiology and Risk Factors 
+- Related Conditions or Concepts
+- Current Scientific Understanding and Research Perspectives
+- Areas of Ongoing Research
+
+Rules:
+- Content must be strictly medical and educational.
+- Write in a formal, textbook-like style suitable for medical students and healthcare professionals.
+- Provide detailed explanations with correct medical terminology.
+- Base all statements on established medical knowledge.
+- Avoid speculative or sensational claims.
+- Do NOT include greetings, summaries, conclusions, disclaimers, or questions.
+- Do NOT include non-medical commentary.
+- Ensure consistency of definitions, mechanisms, and terminology across all sections.
+- Use standard medical nomenclature (ICD, anatomical terms, biochemical names where appropriate).
+"""
 
     @staticmethod
     def create_user_prompt(topic: str) -> str:
         """Creates the user prompt for medical topic generation.
 
         Args:
-            topic: The name of the medical topic to generate information for
+            topic: The name of the medical topic to generate information for.
 
         Returns:
-            A formatted user prompt string
+            A formatted user prompt string.
         """
-        return f"Generate comprehensive information for the medical topic: {topic}."
+        return f"Generate a detailed, textbook-style medical reference entry for the topic: {topic}."
+
