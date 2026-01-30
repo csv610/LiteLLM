@@ -10,7 +10,8 @@ import logging
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+#sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
@@ -93,34 +94,38 @@ def create_medical_quiz(args) -> int:
     logger.debug(f"  Output Dir: {args.output_dir}")
     logger.debug(f"  Verbosity: {args.verbosity}")
 
-    # Ensure output directory exists
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Generating medical quiz information for: {args.topic}")
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.2)
+        # Create model configuration
+        model_config = ModelConfig(
+            model=args.model,
+            temperature=0.7
+        )
+
+        # Initialize the generator
         generator = MedicalQuizGenerator(model_config)
-        
-        result = generator.generate_quiz(
+
+        # Always use structured output internally for proper formatting
+        # The user doesn't need to specify -s flag - we handle it automatically
+        logger.info("Generating quiz with automatic formatting...")
+        result = generator.generate_text(
             topic=args.topic,
             difficulty=args.difficulty,
             num_questions=args.num_questions,
             num_options=args.num_options,
-            structured=args.structured
+            structured=True  # Always use structured for proper formatting
         )
 
-        if result is None:
-            logger.error(f"✗ Failed to generate medical quiz information.")
-            return 1
-
-        # Save result to output directory
-        generator.save(result, output_dir)
-
-        logger.debug(f"✓ Medical quiz generation completed successfully")
+        # Save the result
+        output_path = generator.save(result, Path(args.output_dir))
+        logger.info(f"✓ Medical quiz generation completed successfully")
+        logger.info(f"✓ Output saved to: {output_path}")
         return 0
+
     except Exception as e:
         logger.error(f"✗ Medical quiz generation failed: {e}")
-        logger.exception("Full exception details:")
+        logger.error(f"Full exception details: {e}")
         return 1
 
 

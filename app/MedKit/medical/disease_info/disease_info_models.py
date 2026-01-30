@@ -111,7 +111,7 @@ class DiseaseInfoModel(BaseModel):
     """
     identity: DiseaseIdentityModel = Field(description="Basic identifying information.")
     background: DiseaseBackgroundModel = Field(description="Background and pathophysiology.")
-    epidemiology: DiseaseEpidemiology = Field(description="Epidemiological data.")
+    epidemiology: DiseaseEpidemiologyModel = Field(description="Epidemiological data.")
     clinical_presentation: DiseaseClinicalPresentationModel = Field(description="Clinical presentation.")
     diagnosis: DiseaseDiagnosisModel = Field(description="Diagnostic criteria and methods.")
     management: DiseaseManagementModel = Field(description="Treatment and management strategies.")

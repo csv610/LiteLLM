@@ -11,7 +11,7 @@ import logging
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+#sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 

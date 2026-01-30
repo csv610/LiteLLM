@@ -3,7 +3,6 @@ import logging
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
@@ -11,24 +10,7 @@ from herbal_info import HerbalInfoGenerator
 
 logger = logging.getLogger(__name__)
 
-
-def get_user_arguments() -> argparse.Namespace:
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate comprehensive herbal information.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python herbal_info_cli.py -i ginger
-  python herbal_info_cli.py -i "echinacea" -o output.json -v 3
-  python herbal_info_cli.py -i turmeric -d outputs/herbs
-        """
-    )
-    parser.add_argument(
-        "-i", "--herb",
-        required=True,
-        help="The name of the herb to generate information for."
-    )
+def add_common_arguments(parser):
     parser.add_argument(
         "-d", "--output-dir",
         default="outputs",
@@ -53,8 +35,25 @@ Examples:
         help="Use structured output (Pydantic model) for the response."
     )
 
+def get_user_arguments():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Generate comprehensive herbal information.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python herbal_info_cli.py -i ginger
+  python herbal_info_cli.py -i "echinacea" -o output.json -v 3
+  python herbal_info_cli.py -i turmeric -d outputs/herbs
+        """
+    )
+    parser.add_argument(
+        "-i", "--herb",
+        required=True,
+        help="The name of the herb to generate information for."
+    )
+    add_common_arguments(parser)
     return parser.parse_args()
-
 
 def create_herbal_info_report(args):
 
@@ -97,4 +96,4 @@ def create_herbal_info_report(args):
 
 if __name__ == "__main__":
     args = get_user_arguments()
-    create_herbal_info_report(args):
+    create_herbal_info_report(args)

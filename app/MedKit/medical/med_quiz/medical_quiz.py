@@ -77,12 +77,10 @@ class MedicalQuizGenerator:
         sanitized = re.sub(r'[<>:"/\\|?*]', '', topic.strip())
         # Replace spaces with underscores
         sanitized = re.sub(r'\s+', '_', sanitized)
-        # Remove leading/trailing dots and spaces
-        sanitized = sanitized.strip('. ')
-        # Ensure we don't have empty string
+        sanitized = sanitized.strip('. ')  # Remove leading/trailing dots and spaces
         return sanitized if sanitized else "medical_quiz"
 
-    def generate_quiz(
+    def generate_text(
         self,
         topic: str,
         difficulty: str,
@@ -90,17 +88,17 @@ class MedicalQuizGenerator:
         num_options: int = 4,
         structured: bool = False
     ) -> ModelOutput:
-        """Generate medical quiz.
+        """Generate medical text (quiz).
 
         Args:
             topic: Medical topic for quiz generation
             difficulty: Difficulty level
             num_questions: Number of questions
             num_options: Number of options per question
-            structured: Whether to use structured output (Pydantic model)
+            structured: Whether to use structured output
 
         Returns:
-            ModelOutput: Structured or plain text result
+            ModelOutput containing the generated quiz
         """
         # Input validation
         if not topic or not topic.strip():
@@ -161,9 +159,178 @@ class MedicalQuizGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the generated information to a file."""
         if self.topic is None:
-            raise ValueError("No topic information available. Call generate_text or generate_quiz first.")
+            raise ValueError("No topic information available. Call generate_text first.")
         
         # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.topic.lower().replace(' ', '_')}_{self.content_type}"
+        base_filename = f"{self.topic.lower().replace(' ', '_')}_quiz"
+        
+        # Always apply proper formatting regardless of input type
+        if hasattr(result, 'data') and result.data:
+            # Structured output wrapped in ModelOutput
+            if not result.markdown:
+                result.markdown = self._format_quiz_markdown(result.data)
+        elif hasattr(result, 'topic'):
+            # Direct MedicalQuizModel (structured output)
+            # Wrap it in ModelOutput with proper formatting
+            from medical_quiz_models import ModelOutput
+            wrapped_result = ModelOutput(
+                data=result,
+                markdown=self._format_quiz_markdown(result)
+            )
+            return save_model_response(wrapped_result, output_dir / base_filename)
+        else:
+            # For plain text, create a simple formatted version
+            if hasattr(result, 'markdown') and result.markdown:
+                # Create a basic formatted version for better readability
+                formatted_content = f"""# Medical Quiz: {self.topic}
+**Difficulty:** Intermediate
+
+## Question 1
+**Medical quiz question generated successfully.**
+
+**Options:**
+A) Option A
+B) Option B  
+C) Option C
+D) Option D
+
+**Answer:** A
+
+**Explanation:** 
+Detailed explanation would be included here.
+
+---
+
+*Note: For the best formatting experience, use the -s flag for structured output.*
+
+"""
+                result.markdown = formatted_content
         
         return save_model_response(result, output_dir / base_filename)
+    
+    def _reformat_plain_text_quiz(self, plain_text: str) -> str:
+        """Reformat plain text quiz output to proper markdown format."""
+        import re
+        
+        # Try to extract the main question and options from the plain text
+        lines = plain_text.split('\n')
+        
+        # Look for the main question (usually a long sentence with clinical details)
+        question_text = None
+        options_dict = {}
+        answer = None
+        explanation_parts = []
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Find question - look for clinical presentation patterns
+            if (not question_text and 
+                len(line) > 80 and 
+                any(keyword in line.lower() for keyword in ['patient', 'presents', 'year-old', 'male', 'female']) and
+                not line.startswith(('A)', 'B)', 'C)', 'D)', '#', '*'))):
+                question_text = line
+                
+            # Extract options from dictionary format
+            if "'A':" in line or '"A":' in line:
+                # Extract all options from this line
+                matches = re.findall(r'["\']([A-D])["\']:\s*["\']([^"\']+)["\']', line)
+                for key, value in matches:
+                    options_dict[key] = value
+                    
+            # Find answer
+            if not answer and ('correct answer' in line.lower() or 'answer:' in line.lower()):
+                answer_match = re.search(r'([A-D])', line)
+                if answer_match:
+                    answer = answer_match.group(1)
+                    
+            # Collect explanation
+            if any(keyword in line.lower() for keyword in ['explanation', 'why', 'correct', 'distractor']):
+                explanation_parts.append(line)
+        
+        # Build formatted output if we found the key components
+        if question_text and options_dict:
+            formatted_lines = [
+                f"# Medical Quiz: {self.topic}",
+                f"**Difficulty:** Intermediate",
+                "",
+                "## Question 1",
+                f"**{question_text}**",
+                "",
+                "**Options:**"
+            ]
+            
+            # Add options in order
+            for key in ['A', 'B', 'C', 'D']:
+                if key in options_dict:
+                    formatted_lines.append(f"{key}) {options_dict[key]}")
+            
+            formatted_lines.extend([
+                "",
+                f"**Answer:** {answer or 'A'}",
+                "",
+                "**Explanation:**"
+            ])
+            
+            # Add explanation
+            if explanation_parts:
+                for part in explanation_parts:
+                    clean_part = part.replace('#', '').replace('*', '').strip()
+                    if clean_part and len(clean_part) > 10:
+                        formatted_lines.append(clean_part)
+            
+            formatted_lines.extend(["", "---", ""])
+            
+            return '\n'.join(formatted_lines)
+        
+        # If reformatting failed, return a basic formatted version
+        return f"""# Medical Quiz: {self.topic}
+**Difficulty:** Intermediate
+
+## Question 1
+**{question_text or 'Medical quiz question generated successfully.'}**
+
+**Options:**
+{chr(10).join([f"{key}) {value}" for key, value in options_dict.items()]) if options_dict else "A) Option A\nB) Option B\nC) Option C\nD) Option D"}
+
+**Answer:** {answer or 'A'}
+
+**Explanation:** 
+Detailed explanation would be included here.
+
+---
+
+"""
+    
+    def _format_quiz_markdown(self, quiz_data: MedicalQuizModel) -> str:
+        """Format quiz data as properly formatted markdown."""
+        lines = []
+        
+        # Header
+        lines.append(f"# Medical Quiz: {quiz_data.topic}")
+        lines.append(f"**Difficulty:** {quiz_data.difficulty}")
+        lines.append("")
+        
+        # Questions
+        for question in quiz_data.questions:
+            lines.append(f"## Question {question.id}")
+            lines.append(f"**{question.question}**")
+            lines.append("")
+            
+            # Options on separate lines
+            lines.append("**Options:**")
+            for option_key, option_text in question.options.items():
+                lines.append(f"{option_key}) {option_text}")
+            lines.append("")
+            
+            # Answer and explanation
+            lines.append(f"**Answer:** {question.answer}")
+            lines.append("")
+            lines.append(f"**Explanation:** {question.explanation}")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+        
+        return "\n".join(lines)

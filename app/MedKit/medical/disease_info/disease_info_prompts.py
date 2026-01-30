@@ -34,7 +34,9 @@ Guidelines:
 - Include both acute management and long-term care considerations
 - Highlight red flags and conditions requiring urgent intervention
 - Provide balanced, comprehensive information suitable for healthcare professionals
-- Reference established diagnostic criteria and treatment protocols"""
+- Reference established diagnostic criteria and treatment protocols
+- Do not add any preamble, greetings, disclaimer in the report
+"""
 
     @staticmethod
     def create_user_prompt(disease: str) -> str:

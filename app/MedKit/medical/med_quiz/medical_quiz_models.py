@@ -13,7 +13,7 @@ class QuizQuestionModel(BaseModel):
     id: int = Field(ge=1, description="Question number (must be >= 1)")
     question: str = Field(min_length=10, description="The quiz question text")
     options: Dict[str, str] = Field(description="Dictionary of options (e.g., {'A': 'option text', 'B': 'option text'})")
-    answer: str = Field(regex=r'^[A-Z]$', description="The correct answer key (e.g., 'A', 'B', 'C', 'D')")
+    answer: str = Field(pattern=r'^[A-Z]$', description="The correct answer key (e.g., 'A', 'B', 'C', 'D')")
     explanation: str = Field(min_length=20, description="Explanation of why the answer is correct")
 
 
