@@ -456,6 +456,7 @@ Drug metabolism analyzer
 Dry chemistry analyzer
 Dual-energy CT
 Dual-energy X-ray system
+Duodenoscope
 Dynamic balance analyzer
 Dynamic contrast MRI system
 Dynamic contrast-enhanced CT system
