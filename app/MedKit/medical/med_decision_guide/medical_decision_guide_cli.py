@@ -9,7 +9,6 @@ import logging
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
@@ -91,7 +90,7 @@ def create_medical_decision_guide_report(args) -> int:
 
     # Generate decision guide
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalDecisionGuideGenerator(model_config)
         guide = generator.generate_text(symptom=args.symptom, structured=args.structured)
 
@@ -115,6 +114,9 @@ def create_medical_decision_guide_report(args) -> int:
         sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
     args = get_user_arguments()
     create_medical_decision_guide_report(args)
+
+if __name__ == "__main__":
+    main()

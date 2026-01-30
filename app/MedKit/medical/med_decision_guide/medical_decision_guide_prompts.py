@@ -36,7 +36,9 @@ Guidelines:
 - Provide context for when to seek emergency care versus routine evaluation
 - Consider common presentations while recognizing atypical cases
 - Ensure decision points are practical and clinically relevant
-- Focus on supporting clinical judgment, not replacing it"""
+- Focus on supporting clinical judgment, not replacing it
+- Do not add preamble, or disclaimer in the report.
+"""
 
     @staticmethod
     def create_user_prompt(symptom: str) -> str:
