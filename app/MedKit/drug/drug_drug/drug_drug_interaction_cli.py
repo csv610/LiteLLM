@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Drug-Drug Interaction Analyzer - Check interactions between two medicines",
+        description="Drug-Drug Interaction Analyzer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -125,14 +125,14 @@ def create_drug_drug_interaction_report(args) -> int:
             prompt_style=PromptStyle(args.style)
         )
         
-        interaction_info = generator.generate_text(config=input_config, structured=args.structured)
+        result = generator.generate_text(config=input_config, structured=args.structured)
 
-        if interaction_info is None:
+        if result is None:
             logger.error("✗ Failed to generate drug-drug interaction information.")
             return 1
 
         # Save result to output directory
-        generator.save(interaction_info, output_dir)
+        generator.save(result, output_dir)
 
         logger.debug("✓ Drug-drug interaction generation completed successfully")
         return 0
