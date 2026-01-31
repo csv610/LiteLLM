@@ -1,4 +1,4 @@
-# Drug-Disease Interaction Analyzer - User Guide
+# Drug-Disease Interaction Analyzer 
 
 ## Overview
 
@@ -29,13 +29,14 @@ This will generate a detailed analysis and save results to `outputs/metformin_ki
 
 | Short | Long | Description | Default |
 |-------|------|-------------|---------|
-| `-s` | `--condition-severity` | Severity level of the condition: `mild`, `moderate`, or `severe` | None |
+| `-S` | `--severity` | Severity level of the condition: `mild`, `moderate`, or `severe` | None |
 | `-a` | `--age` | Patient's age in years (0-150) | None |
-| `-m` | `--other-medications` | Other medications the patient is taking (comma-separated) | None |
-| `-o` | `--output` | Custom output file path for results | `outputs/{medicine}_{condition}_interaction.json` |
-| `-p` | `--prompt-style` | Analysis style: `detailed`, `concise`, or `balanced` | `detailed` |
-| `-v` | `--verbose` | Enable detailed logging output | Disabled |
-| `-j` | `--json-output` | Output results as JSON to stdout in addition to file | Disabled |
+| `-M` | `--medications` | Other medications the patient is taking (comma-separated) | None |
+| `-od` | `--output-dir` | Directory for output files | `outputs` |
+| `-s` | `--style` | Prompt style for analysis: `detailed`, `concise`, or `balanced` | `detailed` |
+| `-v` | `--verbosity` | Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG | 2 |
+| `-t` | `--structured` | Use structured output (Pydantic model) for the response | False |
+| `-m` | `--model` | LLM model to use for analysis | `ollama/gemma3` |
 
 ## Usage Examples
 
@@ -47,32 +48,32 @@ Analyzes how kidney disease affects metformin use.
 
 ### Example 2: With Condition Severity
 ```bash
-python drug_disease_interaction_cli.py "Warfarin" "Liver Disease" --condition-severity severe
+python drug_disease_interaction_cli.py "Warfarin" "Liver Disease" --severity severe
 ```
 Analyzes warfarin interaction with severe liver disease, which affects dosing and safety.
 
 ### Example 3: With Patient Demographics
 ```bash
-python drug_disease_interaction_cli.py "Lisinopril" "Hypertension" --age 72 --other-medications "Atorvastatin, Aspirin"
+python drug_disease_interaction_cli.py "Lisinopril" "Hypertension" --age 72 --medications "Atorvastatin, Aspirin"
 ```
 Analyzes lisinopril use in a 72-year-old patient already on cholesterol and blood-thinning medications.
 
 ### Example 4: Full Analysis with All Options
 ```bash
 python drug_disease_interaction_cli.py "NSAIDs" "Asthma" \
-  --condition-severity moderate \
+  --severity moderate \
   --age 45 \
-  --other-medications "Albuterol, Prednisone" \
-  --output custom_analysis.json \
-  --prompt-style balanced \
-  --verbose \
-  --json-output
+  --medications "Albuterol, Prednisone" \
+  --output-dir custom_analysis_output \
+  --style balanced \
+  --verbosity 3 \
+  --structured
 ```
-Complete analysis with all optional parameters and additional output.
+Complete analysis with all optional parameters and structured output.
 
 ### Example 5: Concise Analysis
 ```bash
-python drug_disease_interaction_cli.py "Ibuprofen" "Hypertension" --prompt-style concise
+python drug_disease_interaction_cli.py "Ibuprofen" "Hypertension" --style concise
 ```
 Generates a more concise analysis focused on key findings.
 
@@ -208,27 +209,27 @@ python drug_disease_interaction_cli.py "ACE Inhibitor" "Diabetes" --age 65
 ### 2. Comorbidity Assessment
 Understand how multiple conditions affect drug safety:
 ```bash
-python drug_disease_interaction_cli.py "Statin" "Liver Disease" --condition-severity moderate
+python drug_disease_interaction_cli.py "Statin" "Liver Disease" --severity moderate
 ```
 
 ### 3. Clinical Decision Support
 Support clinical decisions during patient consultations:
 ```bash
-python drug_disease_interaction_cli.py "Beta Blocker" "Asthma" --verbose
+python drug_disease_interaction_cli.py "Beta Blocker" "Asthma" --verbosity 3
 ```
 
 ### 4. Patient Counseling
-Generate patient-friendly information:
+Generate patient-friendly information (included in standard output):
 ```bash
-python drug_disease_interaction_cli.py "Warfarin" "Kidney Disease" --json-output
+python drug_disease_interaction_cli.py "Warfarin" "Kidney Disease"
 ```
 
 ### 5. Integration with Workflows
 Export results for integration with medical records systems:
 ```bash
 python drug_disease_interaction_cli.py "Medication" "Condition" \
-  --output results.json \
-  --json-output
+  --output-dir results \
+  --structured
 ```
 
 ## Error Handling
@@ -247,7 +248,7 @@ python drug_disease_interaction_cli.py "Medication" "Condition" \
 
 Enable verbose logging to troubleshoot issues:
 ```bash
-python drug_disease_interaction_cli.py "Medicine" "Condition" --verbose
+python drug_disease_interaction_cli.py "Medicine" "Condition" --verbosity 4
 ```
 
 This displays detailed information about:
@@ -269,50 +270,43 @@ The tool caches analysis results to improve performance. Cache settings can be c
 
 ### Basic Analysis
 ```python
-from drug_disease_interaction_cli import DrugDiseaseInteraction, DrugDiseaseInteractionConfig
+from lite.config import ModelConfig
+from drug_disease_interaction import DrugDiseaseInteraction, DrugDiseaseInput, PromptStyle
 
-# Configure
-config = DrugDiseaseInteractionConfig(
-    output_path=None,
-    verbosity=False,
-    prompt_style="DETAILED"
+# Configure Model
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+
+# Initialize Analyzer
+analyzer = DrugDiseaseInteraction(model_config)
+
+# Prepare Input
+input_config = DrugDiseaseInput(
+    medicine_name="Metformin",
+    condition_name="Kidney Disease",
+    prompt_style=PromptStyle.DETAILED
 )
 
 # Analyze
-analyzer = DrugDiseaseInteraction(config)
-result = analyzer.analyze(
-    medicine_name="Metformin",
-    condition_name="Kidney Disease"
-)
+result = analyzer.generate_text(input_config, structured=True)
 
 # Access results
-if result.interaction_details:
-    print(f"Severity: {result.interaction_details.overall_severity}")
-    print(f"Efficacy Impact: {result.interaction_details.efficacy_impact}")
-    print(f"Safety Impact: {result.interaction_details.safety_impact}")
+if result.data and result.data.interaction_details:
+    print(f"Severity: {result.data.interaction_details.overall_severity}")
+    print(f"Efficacy Impact: {result.data.interaction_details.efficacy_impact}")
+    print(f"Safety Impact: {result.data.interaction_details.safety_impact}")
 ```
 
 ### With Additional Context
 ```python
-result = analyzer.analyze(
+input_config = DrugDiseaseInput(
     medicine_name="Warfarin",
     condition_name="Liver Disease",
     condition_severity="severe",
     age=72,
-    other_medications="Aspirin, Atorvastatin"
+    other_medications="Aspirin, Atorvastatin",
+    prompt_style=PromptStyle.DETAILED
 )
-```
-
-### Using the Convenience Function
-```python
-from drug_disease_interaction_cli import get_drug_disease_interaction
-
-result = get_drug_disease_interaction(
-    medicine_name="Lisinopril",
-    condition_name="Hypertension",
-    config=config,
-    age=65
-)
+result = analyzer.generate_text(input_config, structured=True)
 ```
 
 ## Output Location
@@ -325,10 +319,10 @@ outputs/
 └── lisinopril_hypertension_interaction.json
 ```
 
-Specify a custom location with the `--output` flag:
+Specify a custom directory with the `--output-dir` flag:
 ```bash
 python drug_disease_interaction_cli.py "Medicine" "Condition" \
-  --output /path/to/custom_location.json
+  --output-dir /path/to/custom_directory
 ```
 
 ## Data Sources
@@ -361,7 +355,7 @@ This tool is designed as a **clinical decision support tool**, not a replacement
 ## Getting Help
 
 For issues or questions:
-- Run with `--verbose` flag to see detailed logs
+- Run with `--verbosity 4` flag to see detailed logs
 - Check that input medicine and condition names are valid
 - Verify internet connection for API calls
 - Review output JSON for detailed analysis data

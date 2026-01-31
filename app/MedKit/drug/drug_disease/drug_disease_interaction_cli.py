@@ -68,7 +68,7 @@ def get_user_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--medications",
-        "-m",
+        "-M",
         type=str,
         default=None,
         help="Other medications the patient is taking (comma-separated)",
@@ -85,7 +85,7 @@ def get_user_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--output-dir",
-        "-d",
+        "-od",
         default="outputs",
         help="Directory for output files (default: outputs)."
     )
@@ -109,6 +109,7 @@ def get_user_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--model",
+        "-m",
         type=str,
         default="ollama/gemma3",
         help="LLM model to use for analysis (default: ollama/gemma3)",
