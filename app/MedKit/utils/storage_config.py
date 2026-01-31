@@ -23,8 +23,7 @@ USAGE:
         storage: StorageConfig = field(default_factory=StorageConfig)
         verbosity: bool = False
 """
-
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 

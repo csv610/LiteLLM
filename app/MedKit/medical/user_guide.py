@@ -13,8 +13,8 @@ USAGE:
 """
 
 import argparse
-from pathlib import Path
-from typing import Dict, List, Optional
+
+
 
 from medkit.utils.logging_config import setup_logger
 

@@ -10,15 +10,15 @@ Tests for:
 import sys
 import logging
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch, call
-from io import StringIO
+from unittest.mock import MagicMock, patch
+
 
 import pytest
 from pydantic import BaseModel, Field
 
 # Import after path setup
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelInput
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.cli_base import (

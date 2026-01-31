@@ -1,6 +1,4 @@
 import streamlit as st
-import subprocess
-import pandas as pd
 from biomcp_article_search import MedicalArticleSearch
 
 # Set layout to wide

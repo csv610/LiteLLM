@@ -4,7 +4,7 @@ This module contains all Pydantic data models for mental health assessment,
 including assessment tools, symptom categories, risk assessment, and diagnostic information.
 """
 
-from typing import List, Dict, Optional
+from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 

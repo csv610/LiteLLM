@@ -1,8 +1,7 @@
-from typing import List, Dict, Optional
+from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-import os
-from pathlib import Path
+
 
 
 class ChatMessage(BaseModel):

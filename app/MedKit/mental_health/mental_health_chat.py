@@ -1,13 +1,10 @@
 import json
-import os
-from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 
 try:
     from medkit.core.gemini_client import GeminiClient, ModelConfig, ModelInput
     from medkit.utils.privacy_compliance import PrivacyManager
-    from medkit.core.config import PrivacyConfig
 except ImportError:
     # Fallback for standalone testing
     class ModelConfig:
@@ -36,24 +33,15 @@ except ImportError:
         def load_session(self, session_id):
             return None
 
-    class PrivacyConfig:
-        pass
-
 try:
-    from .mental_health_assessment import (
-        MentalHealthAssessment, RedFlagCategory, PHQ9Assessment, GAD7Assessment
-    )
+    from .mental_health_assessment import MentalHealthAssessment
     from .models import ChatSession, ChatMessage
 except ImportError:
     try:
-        from medkit.mental_health.mental_health_assessment import (
-            MentalHealthAssessment, RedFlagCategory, PHQ9Assessment, GAD7Assessment
-        )
+        from medkit.mental_health.mental_health_assessment import MentalHealthAssessment
         from medkit.mental_health.models import ChatSession, ChatMessage
     except ImportError:
-        from mental_health_assessment import (
-            MentalHealthAssessment, RedFlagCategory, PHQ9Assessment, GAD7Assessment
-        )
+        from mental_health_assessment import MentalHealthAssessment
         from models import ChatSession, ChatMessage
 
 # ==================== Prompt Builder ====================

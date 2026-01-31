@@ -7,8 +7,7 @@ medical definitions.
 """
 
 import argparse
-import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -18,7 +17,7 @@ from pydantic import BaseModel, Field
 from lite.utils import save_model_response
 from medkit.core.medkit_client import MedKitClient, MedKitConfig
 from medkit.utils.logging_config import setup_logger
-from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
+
 
 # Configure logging
 logger = setup_logger(__name__)

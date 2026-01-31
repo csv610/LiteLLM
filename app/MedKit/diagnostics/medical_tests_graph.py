@@ -13,16 +13,14 @@ Author: ChatGPT (for Chaman Singh Verma)
 # =========================
 from typing import List, Literal, Optional
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pydantic import BaseModel, Field, validator
 import networkx as nx
-import matplotlib.pyplot as plt
 import json
-from medkit.core.medkit_client import MedKitClient, MedKitConfig
-from medkit.core.gemini_client import ModelInput
+from medkit.core.medkit_client import MedKitConfig
+
 
 import hashlib
-from medkit.utils.lmdb_storage import LMDBStorage, LMDBConfig
 
 # Uncomment in production:
 # from google import genai

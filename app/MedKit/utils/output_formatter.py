@@ -4,7 +4,7 @@ This module provides unified output formatting functions for displaying
 results in a consistent, readable format using the Rich library.
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 from pydantic import BaseModel
 from rich.console import Console
 from rich.panel import Panel

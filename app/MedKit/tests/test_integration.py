@@ -9,17 +9,16 @@ Tests for:
 """
 
 import sys
-import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock, call
-from io import StringIO
+from unittest.mock import patch
+
 
 import pytest
 from pydantic import BaseModel, Field
 
 # Setup paths
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.cli_base import BaseCLI, BaseGenerator, BasePromptBuilder

@@ -5,7 +5,6 @@ multiple formats (clinical, patient-friendly, JSON) for integration with
 EHR systems and clinical use.
 """
 
-import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -14,38 +13,23 @@ from typing import Dict, List, Optional
 from lite.utils import save_model_response
 
 try:
-    from medkit.core.gemini_client import GeminiClient, ModelConfig, ModelInput
-    from medkit.core.config import PrivacyConfig
+    pass
 except ImportError:
-    # Fallback classes
-    class ModelConfig:
-        pass
-    class ModelInput:
-        pass
-    class GeminiClient:
-        pass
-    class PrivacyConfig:
-        pass
+    pass
 
 try:
     from .mental_health_assessment import (
-        MentalHealthAssessment, ChatSession, MentalHealthCondition,
-        RiskAssessment, TreatmentRecommendation
+        MentalHealthAssessment, ChatSession, MentalHealthCondition
     )
-    from .models import ChatMessage
 except ImportError:
     try:
         from medkit.mental_health.mental_health_assessment import (
-            MentalHealthAssessment, ChatSession, MentalHealthCondition,
-            RiskAssessment, TreatmentRecommendation
+            MentalHealthAssessment, ChatSession, MentalHealthCondition
         )
-        from medkit.mental_health.models import ChatMessage
     except ImportError:
         from mental_health_assessment import (
-            MentalHealthAssessment, ChatSession, MentalHealthCondition,
-            RiskAssessment, TreatmentRecommendation
+            MentalHealthAssessment, ChatSession, MentalHealthCondition
         )
-        from models import ChatMessage
 
 # Report Configuration and Generator
 

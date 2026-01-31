@@ -42,17 +42,12 @@ KEY FEATURES AND COVERAGE AREAS:
     - Trauma-Informed Design: safe, validating assessment environment
 """
 
-import os
-import sys
 import argparse
 import traceback
-from datetime import datetime
-from typing import Optional
 
 try:
     from medkit.mental_health.mental_health_chat import MentalHealthChatEngine, ChatConfig
     from medkit.utils.privacy_compliance import PrivacyManager
-    from medkit.core.config import PrivacyConfig
 except ImportError:
     try:
         from .mental_health_chat import MentalHealthChatEngine, ChatConfig
@@ -60,8 +55,6 @@ except ImportError:
         from mental_health_chat import MentalHealthChatEngine, ChatConfig
 
     class PrivacyManager:
-        pass
-    class PrivacyConfig:
         pass
 
 # ==================== CLI Application ====================

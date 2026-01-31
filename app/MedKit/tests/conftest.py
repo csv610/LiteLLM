@@ -9,7 +9,7 @@ This module provides:
 import sys
 import logging
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 from typing import Any, Dict, Optional
 
 import pytest

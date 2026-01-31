@@ -44,7 +44,7 @@ KEY FEATURES AND COVERAGE AREAS:
 
 import json
 import os
-from pathlib import Path
+
 
 def update_json_file(file_path):
     """Update a single JSON file to replace 'question_number' with 'id'."""

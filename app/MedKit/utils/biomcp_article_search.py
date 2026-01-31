@@ -1,5 +1,4 @@
 import subprocess
-import datetime
 
 class MedicalArticleSearch:
     def __init__(self):

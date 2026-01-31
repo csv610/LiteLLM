@@ -9,7 +9,7 @@ Tests for:
 
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+
 
 import pytest
 from pydantic import BaseModel, Field, ValidationError

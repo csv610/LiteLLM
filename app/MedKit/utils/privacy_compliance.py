@@ -26,20 +26,17 @@ KEY CONCEPTS:
 """
 
 import json
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from uuid import uuid4
-
-from pydantic import BaseModel, Field
 
 from lite.utils import save_model_response
 
 # Use relative imports
 try:
-    from ..mental_health.models import PrivacyConsent, AuditLog, ChatSession
-    from ..mental_health.mental_health_assessment import MentalHealthAssessment
+    from ..mental_health.models import AuditLog, ChatSession
+
     # Define PrivacyConfig locally since it doesn't exist in core
     class PrivacyConfig:
         """Local privacy configuration."""
@@ -47,7 +44,7 @@ try:
         retention_days_audit = 2555
 except (ImportError, ModuleNotFoundError):
     # Fallback definitions for testing
-    from pydantic import BaseModel, Field as PydanticField
+    from pydantic import BaseModel
 
     class PrivacyConsent(BaseModel):
         """Fallback privacy consent model."""
