@@ -1,6 +1,6 @@
 # MedKit - Medical Speciality Generator
 
-A powerful Python tool designed to generate a comprehensive, structured database of medical specialties using Large Language Models (LLMs). This module is part of the **MedKit** suite and leverages the `LiteClient` for AI interaction.
+A Python tool designed to generate a structured database of medical specialties using Large Language Models (LLMs). This module is part of the **MedKit** suite and leverages the `LiteClient` for AI interaction.
 
 ## 📋 Overview
 
@@ -8,7 +8,7 @@ The Medical Speciality Generator creates a detailed catalog of medical specialis
 
 ## ✨ Features
 
-- **Comprehensive Database:** Generates a wide range of medical specialties, from common fields like Cardiology to specialized areas like Interventional Radiology.
+- **Specialist Database:** Generates a wide range of medical specialties, from common fields like Cardiology to specialized areas like Interventional Radiology.
 - **Structured Data:** Supports generating output as a strongly-typed Pydantic model (`MedicalSpecialistDatabase`) for reliable programmatic use.
 - **Detailed Metadata:** For each specialist, it captures:
   - Official Specialty Name

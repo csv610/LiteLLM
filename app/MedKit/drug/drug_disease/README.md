@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Drug-Disease Interaction Analyzer is a clinical decision support tool that analyzes how medical conditions affect drug efficacy, safety, and metabolism. It provides comprehensive guidance on potential interactions between medications and patient conditions, helping clinicians make informed prescribing decisions.
+The Drug-Disease Interaction Analyzer is a clinical decision support tool that analyzes how medical conditions affect drug efficacy, safety, and metabolism. It provides guidance on potential interactions between medications and patient conditions, helping clinicians make informed prescribing decisions.
 
 ## Quick Start
 
@@ -172,7 +172,7 @@ The analysis includes a confidence level indicating the strength of evidence:
 
 ## Key Features
 
-### 1. Comprehensive Analysis
+### 1. Analysis
 - Examines multiple dimensions of drug-disease interactions
 - Considers patient demographics and comorbidities
 - Integrates clinical guidelines and evidence
@@ -188,7 +188,7 @@ The analysis includes a confidence level indicating the strength of evidence:
 - Provides guidance on when to seek medical help
 
 ### 4. Flexible Output
-- Rich console formatting with color coding
+- Console formatting with color coding
 - JSON export for integration with other systems
 - Stdout output for automation and scripting
 

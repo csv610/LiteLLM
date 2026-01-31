@@ -1,10 +1,10 @@
 # Medical Topic Information Generator
 
-A command-line tool that generates comprehensive, structured medical topic documentation using large language models to create detailed educational and reference materials for healthcare topics.
+A command-line tool that generates structured medical topic documentation using large language models to create detailed educational and reference materials for healthcare topics.
 
 ## Overview
 
-The Medical Topic Information Generator analyzes medical topics and produces comprehensive documentation covering 17 distinct aspects including epidemiology, pathophysiology, clinical presentation, diagnosis, treatment, prognosis, prevention, psychosocial impact, and more. The tool uses a large language model to generate detailed, well-structured medical topic overviews suitable for educational purposes, clinical reference, or medical knowledge base development.
+The Medical Topic Information Generator analyzes medical topics and produces documentation covering 17 distinct aspects including epidemiology, pathophysiology, clinical presentation, diagnosis, treatment, prognosis, prevention, psychosocial impact, and more. The tool uses a large language model to generate detailed, well-structured medical topic overviews suitable for educational purposes, clinical reference, or medical knowledge base development.
 
 ## Important Medical Disclaimers
 
@@ -89,7 +89,7 @@ python medical_topic_cli.py -i "asthma" -o asthma.json
 
 ## Features
 
-- **Comprehensive Coverage**: Generates 17 distinct aspects of medical topic information
+- **Detailed Coverage**: Generates 17 distinct aspects of medical topic information
 - **Structured Output**: Returns `MedicalTopic` objects with standardized Pydantic schema
 - **System Prompting**: Uses specialized prompts for medical information expertise
 - **JSON Export**: Saves results in machine-readable format for downstream processing

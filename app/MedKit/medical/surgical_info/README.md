@@ -2,13 +2,13 @@
 
 ## Overview
 
-The **MedKit Surgical Info CLI** is a powerful command-line tool designed to generate comprehensive, evidence-based information about surgical procedures. Utilizing advanced Large Language Models (LLMs) via the `LiteLLM` framework, it produces detailed reports covering indications, risks, procedural steps, recovery timelines, and more.
+The **MedKit Surgical Info CLI** is a command-line tool designed to generate evidence-based information about surgical procedures. Utilizing advanced Large Language Models (LLMs) via the `LiteLLM` framework, it produces detailed reports covering indications, risks, procedural steps, recovery timelines, and more.
 
 This tool is part of the **MedKit** suite and is capable of generating both free-form text reports and highly structured JSON data adhering to strict medical schemas.
 
 ## Features
 
-*   **Comprehensive Generation**: Generates detailed surgical reports including Anatomy, Indications, Contraindications, Pre-op/Post-op care, Risks, and Recovery.
+*   **Detailed Generation**: Generates surgical reports including Anatomy, Indications, Contraindications, Pre-op/Post-op care, Risks, and Recovery.
 *   **Dual Output Modes**:
     *   **Text Mode**: Natural language descriptions suitable for reading.
     *   **Structured Mode (`--structured`)**: Returns data strictly validated against Pydantic models, perfect for API integration or database storage.

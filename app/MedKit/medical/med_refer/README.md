@@ -1,6 +1,6 @@
 # MedRefer CLI
 
-MedRefer CLI is a Python-based command-line interface tool designed to assist in identifying appropriate medical specialists based on reported symptoms or medical questions. Leveraging the power of Large Language Models (LLMs) via `LiteLLM`, it analyzes user input and provides a list of recommended specialists, filtering results against a verified list of medical disciplines.
+MedRefer CLI is a Python-based command-line interface tool designed to assist in identifying appropriate medical specialists based on reported symptoms or medical questions. Using Large Language Models (LLMs) via `LiteLLM`, it analyzes user input and provides a list of recommended specialists, filtering results against a verified list of medical disciplines.
 
 ## ⚠️ Disclaimer
 

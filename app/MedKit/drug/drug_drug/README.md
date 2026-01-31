@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Drug-Drug Interaction Analyzer is a command-line tool that analyzes potential harmful interactions between two medicines and provides comprehensive clinical recommendations. It uses AI-powered analysis to identify dangerous drug combinations and understand the mechanisms, clinical effects, and management strategies for interactions.
+The Drug-Drug Interaction Analyzer is a command-line tool that analyzes potential harmful interactions between two medicines and provides clinical recommendations. It uses AI-powered analysis to identify dangerous drug combinations and understand the mechanisms, clinical effects, and management strategies for interactions.
 
 **Key Use Cases:**
 - Identify dangerous drug combinations before prescribing

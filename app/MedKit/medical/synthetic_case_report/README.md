@@ -1,6 +1,6 @@
 # Synthetic Case Report Generator
 
-A command-line tool that generates comprehensive, realistic synthetic medical case reports using structured language model prompting following CARE Guidelines standards.
+A command-line tool that generates realistic synthetic medical case reports using structured language model prompting following CARE Guidelines standards.
 
 ## Overview
 
@@ -89,7 +89,7 @@ python synthetic_case_report_cli.py -i "acute kidney injury" -d outputs/renal
 
 ## Features
 
-- **Comprehensive Case Reports**: Generates detailed synthetic cases following CARE Guidelines structure
+- **Detailed Case Reports**: Generates detailed synthetic cases following CARE Guidelines structure
 - **Structured Output**: Results returned as `SyntheticCaseReport` objects with standardized fields
 - **CARE Guidelines Compliant**: Follows international case report standards for medical documentation
 - **Realistic Patient Narratives**: Creates coherent, clinically plausible patient presentations

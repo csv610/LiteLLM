@@ -2,7 +2,7 @@
 
 ## Overview
 
-Generate comprehensive, evidence-based medical test documentation using structured data models and the MedKit AI client with schema-aware prompting.
+Generate medical test documentation using structured data models and the MedKit AI client with schema-aware prompting.
 
 This module creates detailed information about medical tests and diagnostics for clinicians and patient education.
 
@@ -11,7 +11,7 @@ This module creates detailed information about medical tests and diagnostics for
 ```python
 from medical_test_info import MedicalTestInfoGenerator
 
-# Generate comprehensive test information
+# Generate test information
 generator = MedicalTestInfoGenerator()
 test_info = generator.generate("blood glucose test")
 

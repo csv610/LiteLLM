@@ -1,10 +1,10 @@
 # Medical Facts Checker
 
-An LLM-powered tool designed to critically analyze medical and health-related statements for factual accuracy. It distinguishes between scientifically proven facts and medical myths, providing detailed evidence-based explanations.
+An LLM-powered tool designed to analyze medical and health-related statements for factual accuracy. It distinguishes between scientifically proven facts and medical myths, providing detailed explanations.
 
 ## Features
 
-- **Fact vs. Fiction Classification**: Determines the veracity of medical claims using advanced AI models.
+- **Fact vs. Fiction Classification**: Determines the veracity of medical claims using AI models.
 - **Evidence Evaluation**: Analyzes the strength of supporting evidence and identifies potential factual errors.
 - **Structured Output**: Support for Pydantic-validated JSON output for easy integration into other systems.
 - **Detailed Context**: Provides subject area classification, key terms, and potential reasons for common misconceptions.
@@ -16,7 +16,7 @@ An LLM-powered tool designed to critically analyze medical and health-related st
 - `medical_facts_checker_cli.py`: Command-line interface entry point.
 - `medical_facts_checker.py`: Core logic for statement analysis and LLM interaction.
 - `medical_facts_checker_models.py`: Pydantic data models for structured output.
-- `medical_facts_checker_prompts.py`: Expert-curated system and user prompts.
+- `medical_facts_checker_prompts.py`: System and user prompts.
 - `assets/facts_list.json`: A collection of verifiable medical facts for testing and reference.
 
 ## Installation
@@ -55,7 +55,7 @@ python medical_facts_checker_cli.py -i "Insulin lowers blood glucose." -o insuli
 
 ## Analysis Model
 
-The checker provides a comprehensive analysis including:
+The checker provides an analysis including:
 
 - **Classification**: Fact or Fiction.
 - **Confidence Level**: High, Medium, or Low (with percentage).

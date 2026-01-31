@@ -1,10 +1,10 @@
 # Medical Module
 
-Comprehensive medical information system with 18+ specialized modules.
+Medical information system with 18+ specialized modules.
 
 ## Overview
 
-The Medical Module provides extensive medical information across all major medical specialties including diseases, anatomy, procedures, surgical information, herbal remedies, FAQs, and more.
+The Medical Module provides medical information across major medical specialties including diseases, anatomy, procedures, surgical information, herbal remedies, FAQs, and more.
 
 ## Module Structure
 

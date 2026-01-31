@@ -1,6 +1,6 @@
 # MedSpecialityRoles CLI
 
-MedSpecialityRoles CLI is a Python-based command-line interface tool designed to provide detailed information about the roles, responsibilities, and common procedures of various medical specialists. Leveraging the power of Large Language Models (LLMs) via `LiteLLM`, it generates comprehensive descriptions for any given medical speciality.
+MedSpecialityRoles CLI is a Python-based command-line interface tool designed to provide detailed information about the roles, responsibilities, and common procedures of various medical specialists. Using Large Language Models (LLMs) via `LiteLLM`, it generates detailed descriptions for any given medical speciality.
 
 ## Features
 

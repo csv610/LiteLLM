@@ -1,10 +1,10 @@
 # Medical Procedure Information Generator
 
-This tool is a command-line interface (CLI) application designed to generate comprehensive, evidence-based documentation for medical procedures using Large Language Models (LLMs). It produces detailed reports covering various aspects of a medical procedure, from preparation to recovery and long-term outcomes.
+This tool is a command-line interface (CLI) application designed to generate evidence-based documentation for medical procedures using Large Language Models (LLMs). It produces detailed reports covering various aspects of a medical procedure, from preparation to recovery and long-term outcomes.
 
 ## Features
 
-- **Comprehensive Reports:** Generates detailed information including:
+- **Procedure Reports:** Generates detailed information including:
     - Procedure Purpose & Indications
     - Preparation Requirements (fasting, medications, etc.)
     - Step-by-Step Procedure Details

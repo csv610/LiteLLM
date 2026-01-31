@@ -1,6 +1,6 @@
 # Medical Quiz Generator 🏥
 
-A powerful CLI tool for generating comprehensive, board-style medical quizzes using AI models. This tool leverages advanced prompting techniques and structured data models to produce high-quality medical quiz questions that test clinical reasoning and practical application.
+A CLI tool for generating board-style medical quizzes using AI models. This tool leverages advanced prompting techniques and structured data models to produce medical quiz questions that test clinical reasoning and practical application.
 
 ## ✨ Features
 
@@ -9,8 +9,8 @@ A powerful CLI tool for generating comprehensive, board-style medical quizzes us
 - 🔄 **Unique & Diverse**: Ensures questions are unique and cover diverse clinical scenarios
 - ⚙️ **Highly Customizable**: Adjustable difficulty, question count, and options
 - 📊 **Structured Output**: JSON format with Pydantic models or plain Markdown
-- 🚀 **Progress Indicators**: Visual feedback for large quiz generation
-- 🔒 **Input Validation**: Robust validation prevents invalid inputs
+- 🚀 **Progress Indicators**: Feedback for large quiz generation
+- 🔒 **Input Validation**: Validation prevents invalid inputs
 - 📝 **Smart Sanitization**: Safe filename generation for all operating systems
 
 ## 🚀 Quick Start

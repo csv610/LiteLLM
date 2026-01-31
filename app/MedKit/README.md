@@ -1,16 +1,16 @@
-# MedKit - Comprehensive Medical and Healthcare Information System
+# MedKit - Medical and Healthcare Information System
 
-MedKit is a comprehensive, AI-powered medical information and healthcare toolkit built with Python and large language models. It provides modular, command-line accessible tools for accessing, analyzing, and generating medical information across multiple domains.
+MedKit is a medical information and healthcare toolkit built with Python and large language models. It provides modular, command-line accessible tools for accessing, analyzing, and generating medical information across multiple domains.
 
 ## Overview
 
-MedKit integrates multiple specialized modules to provide healthcare professionals, researchers, and informed patients with evidence-based medical information, interactive assessments, and decision support tools. The system is built on a foundation of reusable base classes and follows consistent patterns for CLI interactions, error handling, and data output.
+MedKit integrates specialized modules to provide healthcare professionals, researchers, and patients with medical information, assessments, and decision support tools. The system uses reusable base classes and follows consistent patterns for CLI interactions, error handling, and data output.
 
 ### Core Features
 
-- **Drug Information Systems**: Comprehensive medicine information, interactions (drug-drug, drug-food, drug-disease)
+- **Drug Information Systems**: Medicine information, interactions (drug-drug, drug-food, drug-disease)
 - **Medical Information**: Disease info, anatomy, procedures, specialties, herbal remedies, FAQs
-- **Physical Examination Tools**: Structured assessment modules covering all major body systems
+- **Physical Examination Tools**: Structured assessment modules covering major body systems
 - **Mental Health Assessment**: Depression screening, symptom detection, and mental health reporting
 - **Diagnostics**: Medical devices and medical tests information
 - **Decision Support**: Medical fact checking, myth busting, and clinical decision guidance

@@ -4,7 +4,7 @@ Medical tests and devices information system.
 
 ## Overview
 
-The Diagnostics Module provides comprehensive information about medical tests, diagnostic procedures, and medical devices used in healthcare.
+The Diagnostics Module provides information about medical tests, diagnostic procedures, and medical devices used in healthcare.
 
 ## Module Structure
 

@@ -1,6 +1,6 @@
 # Disease Information Generator
 
-A command-line tool that generates comprehensive, evidence-based medical information reports for specific diseases using Large Language Models (LLMs).
+A command-line tool that generates medical information reports for specific diseases using Large Language Models (LLMs).
 
 > **⚠️ Medical Disclaimer**
 >
@@ -12,7 +12,7 @@ The Disease Information Generator utilizes the `LiteClient` library to interface
 
 ## Features
 
-- **Comprehensive Reports:** Generates detailed information on:
+- **Reports:** Generates information on:
   - Disease Identity & Background (Definition, Pathophysiology, Etiology)
   - Epidemiology & Risk Factors
   - Clinical Presentation (Symptoms, Signs)

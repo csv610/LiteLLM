@@ -1,13 +1,13 @@
 # Medical Implant Information Generator
 
-A powerful CLI tool that leverages Large Language Models (LLMs) to generate comprehensive, evidence-based reports on medical implants. This tool can produce both free-text descriptions and highly structured data suitable for clinical databases or educational resources.
+A CLI tool that leverages Large Language Models (LLMs) to generate evidence-based reports on medical implants. This tool can produce both free-text descriptions and highly structured data suitable for clinical databases or educational resources.
 
 ## Features
 
-*   **Comprehensive Generation:** Generates detailed information covering purpose, indications, materials, surgical procedure, recovery, complications, and more.
+*   **Detailed Generation:** Generates information covering purpose, indications, materials, surgical procedure, recovery, complications, and more.
 *   **Structured Data:** Optional support for Pydantic-based structured output (JSON) ensures consistent and machine-readable data formats.
 *   **Customizable Models:** Supports various LLM backends (default: `ollama/gemma3`) via the `lite` client configuration.
-*   **Extensive Schema:** Utilizes a rich data model covering over 15 categories of implant information, from "Metadata" to "Insurance & Cost".
+*   **Data Schema:** Utilizes a data model covering over 15 categories of implant information, from "Metadata" to "Insurance & Cost".
 *   **Flexible Output:** Save reports to a specified directory with automatic naming.
 
 ## Prerequisites

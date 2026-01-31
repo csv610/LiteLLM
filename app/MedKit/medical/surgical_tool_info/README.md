@@ -1,6 +1,6 @@
 # Surgical Tool Information Generator
 
-A command-line tool that generates comprehensive information about surgical instruments and tools using structured language model prompting.
+A command-line tool that generates information about surgical instruments and tools using structured language model prompting.
 
 ## Overview
 
@@ -79,7 +79,7 @@ python surgical_tool_info_cli.py -i "tissue clamp" -d /path/to/outputs
 
 ## Features
 
-- **Comprehensive Tool Documentation**: Generates detailed information covering basics, specifications, operational characteristics, safety features, handling techniques, and clinical applications
+- **Tool Documentation**: Generates detailed information covering basics, specifications, operational characteristics, safety features, handling techniques, and clinical applications
 - **Structured Output**: Results are returned as `SurgicalToolInfo` objects with standardized fields
 - **JSON Export**: Save results to files for reference, training, or documentation purposes
 - **Formatted Console Output**: Results displayed in organized panels using Rich for readability

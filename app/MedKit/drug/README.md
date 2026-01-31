@@ -1,6 +1,6 @@
 # Drug Module
 
-Comprehensive drug and pharmaceutical information system.
+Drug and pharmaceutical information system.
 
 ## Overview
 
@@ -42,7 +42,7 @@ drug/
 ## Features
 
 ### 1. Medicine Information
-Get comprehensive information about medicines:
+Get information about medicines:
 - Names and aliases
 - Therapeutic uses
 - Dosage information

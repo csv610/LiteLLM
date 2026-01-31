@@ -1,10 +1,10 @@
 # Medical Decision Guide
 
-A Python-based tool for generating and visualizing medical decision trees for symptom assessment using LLMs (Large Language Models). This project creates structured, evidence-based decision guides to assist in clinical decision support and triage.
+A Python-based tool for generating and visualizing medical decision trees for symptom assessment using LLMs (Large Language Models). This project creates structured decision guides to assist in clinical decision support and triage.
 
 ## Overview
 
-The Medical Decision Guide system leverages generative AI to synthesize clinical knowledge into structured decision trees. It allows users to input a symptom (e.g., "fever", "abdominal pain") and receive a comprehensive JSON-based decision guide. This guide includes logic paths (Yes/No questions), clinical outcomes, severity assessments, and triage recommendations.
+The Medical Decision Guide system leverages generative AI to synthesize clinical knowledge into structured decision trees. It allows users to input a symptom (e.g., "fever", "abdominal pain") and receive a JSON-based decision guide. This guide includes logic paths (Yes/No questions), clinical outcomes, severity assessments, and triage recommendations.
 
 ## Features
 
@@ -12,7 +12,7 @@ The Medical Decision Guide system leverages generative AI to synthesize clinical
 *   **Structured Output:** Uses Pydantic models to ensure strictly typed, reliable JSON output suitable for software integration.
 *   **LLM Powered:** Built to work with modern LLMs (defaulting to `ollama/gemma3`) via a `LiteClient` wrapper.
 *   **Visualization Tools:** Includes utilities to convert decision trees into **DOT** (Graphviz) and **Mermaid** formats for visual inspection.
-*   **Customizable CLI:** Robust command-line interface for batch processing or single-use generation.
+*   **CLI:** Command-line interface for batch processing or single-use generation.
 
 ## Project Structure
 

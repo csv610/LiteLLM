@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Medical Test Devices CLI** is a comprehensive documentation generator for medical devices and equipment. It leverages AI-powered analysis to produce detailed, evidence-based information about diagnostic imaging equipment, surgical instruments, monitoring devices, and other medical devices.
+The **Medical Test Devices CLI** is a documentation generator for medical devices and equipment. It uses AI-powered analysis to produce detailed information about diagnostic imaging equipment, surgical instruments, monitoring devices, and other medical devices.
 
 This tool is designed for:
 - **Clinical staff** preparing procurement decisions and specifications
@@ -13,8 +13,8 @@ This tool is designed for:
 
 ## Key Features
 
-- **Comprehensive Coverage**: Generates 15+ categories of device information
-- **Evidence-Based**: Uses AI-powered analysis based on medical knowledge
+- **Coverage**: Generates 15+ categories of device information
+- **AI-Analysis**: Uses AI-powered analysis based on medical knowledge
 - **Structured Output**: Organized JSON format for easy processing and integration
 - **Flexible Configuration**: Customizable model selection, caching, and logging
 - **Both CLI and API**: Command-line interface for quick access, Python API for integration

@@ -1,6 +1,6 @@
 # Herbal Information Generator
 
-A command-line tool for generating structured, evidence-based reports on medicinal herbs. This system utilizes large language models to aggregate botanical data, therapeutic mechanisms, safety profiles, and clinical evidence.
+A command-line tool for generating structured reports on medicinal herbs. This system utilizes large language models to aggregate botanical data, therapeutic mechanisms, safety profiles, and clinical evidence.
 
 ## Overview
 
@@ -8,10 +8,10 @@ The Herbal Information Generator provides a standardized framework for documenti
 
 ## Core Features
 
-- **Comprehensive Data Collection**: Covers botanical nomenclature, active phytochemicals, and traditional medicine systems.
+- **Data Collection**: Covers botanical nomenclature, active phytochemicals, and traditional medicine systems.
 - **Safety Analysis**: Detailed sections for contraindications, drug interactions, and special population considerations (pregnancy, pediatric, etc.).
 - **Dosing & Administration**: Age-specific dosage guidelines and preparation methods (teas, tinctures, extracts).
-- **Evidence-Based Reporting**: Summarizes clinical evidence, regulatory status, and current research.
+- **Reporting**: Summarizes clinical evidence, regulatory status, and current research.
 - **Structured Output**: Support for JSON schema validation for integration into larger medical databases.
 
 ## Project Structure

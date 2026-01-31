@@ -1,6 +1,6 @@
 # Patient Medical History Generator
 
-A professional CLI tool for generating comprehensive, exam-specific patient medical history questions using AI. This module creates trauma-informed, clinically relevant questions tailored to specific medical examinations, patient demographics, and clinical purposes.
+A CLI tool for generating exam-specific patient medical history questions using AI. This module creates trauma-informed, clinically relevant questions tailored to specific medical examinations, patient demographics, and clinical purposes.
 
 ## Features
 

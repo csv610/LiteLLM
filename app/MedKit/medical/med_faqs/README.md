@@ -1,10 +1,10 @@
 # Medical FAQ Generator
 
-A CLI tool for generating comprehensive, patient-friendly medical FAQs using AI models. This tool leverages the `LiteClient` to produce structured or plain-text FAQ content for various medical topics.
+A CLI tool for generating patient-friendly medical FAQs using AI models. This tool leverages the `LiteClient` to produce structured or plain-text FAQ content for various medical topics.
 
 ## Features
 
-- **Comprehensive FAQ Generation:** Creates detailed FAQs including patient-friendly answers, common misconceptions, and guidance on when to seek care.
+- **FAQ Generation:** Creates detailed FAQs including patient-friendly answers, common misconceptions, and guidance on when to seek care.
 - **Structured Output:** Option to generate output as structured JSON data (using Pydantic models) or plain text.
 - **Customizable Models:** Support for different LLM backends (default: `ollama/gemma3`).
 - **Flexible Logging:** Adjustable verbosity levels for debugging and monitoring.

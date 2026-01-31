@@ -1,6 +1,6 @@
 # Medical Myths Checker
 
-Medical Myths Checker is a specialized tool designed to analyze medical claims and common myths for factual accuracy. It provides evidence-based assessments grounded exclusively in peer-reviewed scientific literature, clinical trials, and established medical guidelines.
+Medical Myths Checker is a tool designed to analyze medical claims and common myths for factual accuracy. It provides evidence-based assessments grounded exclusively in peer-reviewed scientific literature, clinical trials, and established medical guidelines.
 
 ## Features
 
@@ -8,7 +8,7 @@ Medical Myths Checker is a specialized tool designed to analyze medical claims a
 - **Structured Output**: Support for structured data extraction using Pydantic models (JSON format).
 - **Markdown Reporting**: Generates readable Markdown reports of the analysis.
 - **Customizable LLM Integration**: Uses the `LiteClient` to interface with various LLM providers (defaulting to `ollama/gemma3`).
-- **Comprehensive Database**: Includes a starter collection of common medical myths across various categories like Mental Health, Skin Health, Cardiovascular Disease, and more.
+- **Database**: Includes a starter collection of common medical myths across various categories like Mental Health, Skin Health, Cardiovascular Disease, and more.
 
 ## Project Structure
 
