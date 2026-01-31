@@ -16,12 +16,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Drug-Drug Interaction Analyzer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python drug_drug_interaction_cli.py "Warfarin" "Aspirin"
-  python drug_drug_interaction_cli.py "Metformin" "Lisinopril" --age 65 --dosage1 "500mg twice daily"
-  python drug_drug_interaction_cli.py "Simvastatin" "Clarithromycin" --style detailed -v 3
-        """
     )
     parser.add_argument(
         "medicine1",

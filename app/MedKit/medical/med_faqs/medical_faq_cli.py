@@ -22,12 +22,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive medical FAQs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medical_faq_cli.py -i diabetes
-  python medical_faq_cli.py -i "heart disease" -o output.json -v 3
-  python medical_faq_cli.py -i hypertension -d outputs/faq -s
-        """
     )
     parser.add_argument(
         "-i", "--topic",

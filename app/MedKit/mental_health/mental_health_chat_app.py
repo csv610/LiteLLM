@@ -413,11 +413,6 @@ def cli():
     parser = argparse.ArgumentParser(
         description="MedKit Mental Health Assessment Chat",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python mental_health_chat_app.py              # Start new assessment
-  python mental_health_chat_app.py --resume     # Resume previous session
-        """
     )
 
     parser.add_argument(

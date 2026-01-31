@@ -16,12 +16,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive medical topic information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medical_topic_cli.py -i inflammation
-  python medical_topic_cli.py -i "immune response" -v 3
-  python medical_topic_cli.py -i metabolism -d outputs/topics
-        """
     )
     parser.add_argument(
         "-i", "--topic",

@@ -42,14 +42,14 @@ def create_medical_test_info_report(args) -> int:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = MedicalTestInfoGenerator(model_config)
         
-        test_info = generator.generate_text(args.test, structured=args.structured)
+        result = generator.generate_text(args.test, structured=args.structured)
 
-        if test_info is None:
+        if result is None:
             logger.error("✗ Failed to generate medical test information.")
             return 1
 
         # Save result to output directory
-        saved_path = generator.save(test_info, output_dir)
+        saved_path = generator.save(result, output_dir)
         logger.info(f"✓ Medical test information saved to: {saved_path}")
         return 0
     except Exception as e:

@@ -19,12 +19,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Analyze medical myths and provide evidence-based assessments",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medical_myths_checker_cli.py -i "Vitamin C prevents the common cold"
-  python medical_myths_checker_cli.py -i "Cracking knuckles causes arthritis" -v 3
-  python medical_myths_checker_cli.py -i "Eating carrots improves vision" -d outputs/myths
-        """
     )
     parser.add_argument(
         "-i", "--input",

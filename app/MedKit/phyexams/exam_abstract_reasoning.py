@@ -344,17 +344,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Evaluate patient abstract reasoning capabilities through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_abstract_reasoning.json
-  python exam_abstract_reasoning.py "John Doe"
-
-  # Custom output path
-  python exam_abstract_reasoning.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_abstract_reasoning.py "John Doe" --concise
-        """
     )
     parser.add_argument("-u", "--patient", nargs='+', default='unknown', help="Name or identifier of the patient")
     parser.add_argument(

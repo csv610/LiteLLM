@@ -627,54 +627,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Evaluate patient head and neck health through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_head_and_neck.json
-  python exam_head_and_neck.py "John Doe"
-
-  # Custom output path
-  python exam_head_and_neck.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_head_and_neck.py "John Doe" --concise
-
-Head and Neck Assessment Protocol:
-  1. SCALP ASSESSMENT: Palpate for symmetry, smooth bones, lesions, parasites
-     - Document any indentations, depressions, scabs, tenderness
-     - Check for scalp condition (normal/abnormal)
-
-  2. HAIR ASSESSMENT: Evaluate texture, color, thickness, and distribution
-     - Assess for splitting/cracking, breakage, hair loss patterns
-     - Note male/female pattern baldness or alopecia
-
-  3. FACIAL FEATURES: Inspect head position, symmetry, and facial appearance
-     - Note any edema, coarsening, prominent eyes, hirsutism
-     - Evaluate facial expression and skin pigmentation
-
-  4. TEMPORAL ARTERIES: Palpate for course, thickening, hardness, tenderness
-     - Auscultate for bruits over skull, eyes, and temporal regions
-     - Document any abnormalities concerning for temporal arteritis
-
-  5. SALIVARY GLANDS: Inspect and palpate for symmetry, enlargement, tenderness
-     - Express salivary ducts to assess material quality
-     - Note any discrete nodules or asymmetry
-
-  6. NECK INSPECTION: Assess position, symmetry, and muscle development
-     - Note JVD, carotid prominence, webbing, short neck, edema
-     - Check for torticollis or other abnormalities
-
-  7. TRACHEA: Inspect position (midline/deviated) and movement with swallowing
-     - Assess for masses, deviation, or tracheal tug
-     - Document any abnormalities
-
-  8. THYROID: Palpate for size, symmetry, consistency, mobility, nodules
-     - Auscultate for bruits if enlarged
-     - Document nodule characteristics and lower border position
-
-  9. LYMPH NODES: Palpate neck nodes for size, consistency, mobility, tenderness
-     - Note any matting, fixation, warmth, or concerning characteristics
-     - Assess regional distribution and characteristics
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

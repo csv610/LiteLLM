@@ -410,43 +410,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate patient breast and axillary system through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/unknown_breast_axillae.json
-  python exam_breast_axillae.py
-
-  # With patient name
-  python exam_breast_axillae.py "Jane Doe"
-
-  # Custom output path
-  python exam_breast_axillae.py "Jane Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_breast_axillae.py "Jane Doe" --concise
-
-Breast and Axillae Assessment Protocol:
-  1. PATIENT SYMPTOMS:
-     - Breast pain or tenderness
-     - Lumps or masses
-     - Nipple discharge (character, unilateral/bilateral)
-     - Skin changes (dimpling, redness, rash)
-     - Axillary symptoms (swelling, lumps, tenderness)
-     - Family history (breast, ovarian cancer)
-     - Recent trauma
-
-  2. PHYSICAL EXAMINATION:
-     - Breast inspection (asymmetry, skin, nipples)
-     - Breast palpation (all quadrants, masses, tenderness)
-     - Nipple assessment (retraction, discharge, symmetry)
-     - Axillary palpation (masses, nodes, tenderness)
-     - Lymph node assessment (axillary, supraclavicular)
-
-  3. RISK FACTOR ASSESSMENT:
-     - Age, menarche age, menopause status
-     - Pregnancy and breastfeeding history
-     - Hormone therapy use
-     - Lifestyle factors (alcohol, obesity)
-        """
     )
     parser.add_argument("patient", nargs='*', default=['unknown'], help="Name or identifier of the patient (default: 'unknown')")
     parser.add_argument(

@@ -470,12 +470,6 @@ def main():
     parser = argparse.ArgumentParser(
         description="Extract medical codes from medical terms using multiple coding systems "
                     "(RxNorm, ICD-10/11, LOINC, SNOMED CT, MeSH)",
-        epilog="INPUT can be:\n"
-               "  - A single medical term (e.g., 'aspirin', 'diabetes', 'glucose')\n"
-               "  - Path to a JSON file with terms as dict keys or list items\n"
-               "  - Path to a text file with one term per line\n\n"
-               "OPTIONAL: Set UMLS_API_KEY environment variable to enable SNOMED CT and MeSH lookups\n"
-               "Get free API key at: https://uts.nlm.nih.gov/uts/signup-login",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(

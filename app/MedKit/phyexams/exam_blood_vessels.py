@@ -416,43 +416,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate patient vascular system through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/unknown_vascular.json
-  python exam_blood_vessels.py
-
-  # With patient name
-  python exam_blood_vessels.py "John Doe"
-
-  # Custom output path
-  python exam_blood_vessels.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_blood_vessels.py "John Doe" --concise
-
-Vascular Assessment Protocol:
-  1. PATIENT SYMPTOMS:
-     - Limb pain, claudication with walking
-     - Swelling in legs or arms
-     - Coldness or numbness in extremities
-     - Color changes (pale, cyanotic, red)
-     - Varicose veins or bulging veins
-     - Ulcers or non-healing wounds
-     - History of thrombosis or embolism
-
-  2. PHYSICAL EXAMINATION:
-     - Blood pressure measurement
-     - Pulse assessment (radial, femoral, popliteal, dorsalis pedis, posterior tibial)
-     - Skin inspection (color, temperature, edema, ulcers)
-     - Auscultation (carotid, femoral bruits)
-     - Ankle-brachial index if available
-
-  3. RISK FACTOR ASSESSMENT:
-     - Hypertension, diabetes, hyperlipidemia
-     - Smoking status
-     - Family history
-     - Physical activity level
-        """
     )
     parser.add_argument("patient", nargs='*', default=['unknown'], help="Name or identifier of the patient (default: 'unknown')")
     parser.add_argument(

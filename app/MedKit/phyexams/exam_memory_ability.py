@@ -435,41 +435,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Evaluate patient memory capabilities through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_memory_ability.json
-  python exam_memory_ability.py "John Doe"
-
-  # Custom output path
-  python exam_memory_ability.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_memory_ability.py "John Doe" --concise
-
-Memory Testing Protocol:
-  1. IMMEDIATE RECALL: Ask patient to repeat sentences and number sequences
-     - Forward digits: 3-8+ digit sequences
-     - Backward digits: 2-6+ digit sequences
-     - Sentence repetition
-
-  2. RECENT MEMORY (Present objects/words to remember):
-     - Standard items: carpet, iris, bench, fortune
-     - Or objects: pen, watch, coin, key
-     - Recall at: immediate, 5 minutes, 10 minutes
-
-  3. REMOTE MEMORY: Ask about verifiable past events
-     - Mother's maiden name
-     - High school name and location
-     - Parents' occupations
-     - Childhood address(es)
-     - Significant family events
-     - Common knowledge (current date, president, historical events)
-
-  4. WORKING MEMORY: Manipulation tasks
-     - Recite digits backward
-     - Spell words backward
-     - Count backward from 20
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

@@ -232,9 +232,6 @@ def cli():
     """Command-line interface."""
     parser = argparse.ArgumentParser(
         description="Explore medical dictionary with fuzzy matching for misspelled terms",
-        epilog="The script will accept your queries one by one.\n"
-               "If a term is spelled correctly, you'll see its definition.\n"
-               "If misspelled, you'll see the 5 closest matching terms.",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 

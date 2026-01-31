@@ -18,10 +18,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Recommend medical specialists based on symptoms.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medrefer_cli.py -i "I have a headache"
-        """
     )
     parser.add_argument(
         "-i", "--question",

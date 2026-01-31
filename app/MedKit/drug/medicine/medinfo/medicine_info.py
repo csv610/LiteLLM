@@ -110,12 +110,6 @@ class MedicineInfoCLI(BaseCLI):
     """
 
     description = "Fetch comprehensive medicine information using AI"
-    epilog = """
-Examples:
-  python medicine_info.py "Ibuprofen"
-  python medicine_info.py "Metformin" -m "anthropic/claude-3-5-sonnet" -t 0.3
-  python medicine_info.py "Aspirin" -o outputs/aspirin.json -v 3
-    """
 
     def add_arguments(self, parser) -> None:
         """Add domain-specific arguments.

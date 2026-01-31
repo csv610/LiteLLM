@@ -576,45 +576,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate patient attention span and concentration capabilities through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_attention_span.json
-  python exam_attention_span.py "John Doe"
-
-  # Custom output path
-  python exam_attention_span.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_attention_span.py "John Doe" --concise
-
-Attention Span Testing Protocol:
-  1. COMMAND FOLLOWING: Progress from simple to complex
-     - Single step: "Close your eyes"
-     - Two step: "Take off your glasses and put them on the table"
-     - Three step: "Take off all clothes, put on patient gown, sit on examining table"
-     - Complex: Commands with conditional elements
-
-  2. SPELLING TASKS: Forward and backward
-     - Spell "WORLD" forward (W-O-R-L-D)
-     - Spell "WORLD" backward (D-L-R-O-W)
-
-  3. SERIAL TASKS: Recitation and backward counting
-     - Months backward from December
-     - Days backward from Sunday
-     - Count backward from 20
-     - Serial 7s (100, 93, 86, 79...)
-
-  4. ARITHMETIC ATTENTION: Focus during calculation
-     - Simple arithmetic without paper/pencil
-     - Multiple calculations in sequence
-     - Increasing difficulty level
-
-  5. SUSTAINED ATTENTION: Monitor throughout all tasks
-     - Initial focus quality
-     - Maintenance of focus over time
-     - Fatigue effects
-     - Recovery with breaks
-        """
     )
     parser.add_argument("patient", nargs='*', default=['unknown'], help="Name or identifier of the patient (default: 'unknown')")
     parser.add_argument(

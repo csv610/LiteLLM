@@ -18,10 +18,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Get roles and responsibilities of a medical specialist.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python med_speciality_roles_cli.py -s "Cardiologist"
-        """
     )
     parser.add_argument(
         "-s", "--speciality",

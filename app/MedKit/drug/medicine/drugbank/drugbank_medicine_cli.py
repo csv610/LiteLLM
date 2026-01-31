@@ -20,11 +20,6 @@ def get_user_arguments():
     parser = argparse.ArgumentParser(
         description="Fetch comprehensive medicine information (pharmacology, safety, interactions, regulatory data).",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python drugbank_medicine.py "Aspirin"
-  python drugbank_medicine.py "Metformin" -m "anthropic/claude-3-5-sonnet"
-        """,
     )
     parser.add_argument("medicine", help="Medicine name (e.g., 'Aspirin', 'Ibuprofen')")
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="LLM model (default: ollama/gemma3)")

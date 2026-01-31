@@ -17,14 +17,8 @@ logger = logging.getLogger(__name__)
 def get_user_arguments():
     """Create and configure the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
-        description="Drug-Food Interaction Checker - Analyze interactions between medicines and foods",
+        description="Drug-Food Interaction Checker",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""\
-Examples:
-  python drug_food_interaction.py "Warfarin"
-  python drug_food_interaction.py "Metformin" --age 65 --conditions "kidney disease"
-  python drug_food_interaction.py "Simvastatin" --verbose
-"""
     )
 
     parser.add_argument("medicine_name", type=str, help="Name of the medicine to analyze")

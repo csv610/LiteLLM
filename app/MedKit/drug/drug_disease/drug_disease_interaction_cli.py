@@ -33,22 +33,8 @@ def parse_prompt_style(style_str: str) -> PromptStyle:
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Drug-Disease Interaction Analyzer - Assess how medical conditions affect medicines",
+        description="Drug-Disease Interaction Analyzer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Basic analysis
-  python drug_disease_interaction_cli.py "Metformin" "Kidney Disease"
-
-  # With condition severity
-  python drug_disease_interaction_cli.py "Warfarin" "Liver Disease" --severity severe
-
-  # With patient details and other medications
-  python drug_disease_interaction_cli.py "Lisinopril" "Hypertension" --age 72 --medications "Atorvastatin, Aspirin"
-
-  # With custom verbosity
-  python drug_disease_interaction_cli.py "NSAIDs" "Asthma" -v 3
-        """
     )
 
     parser.add_argument(

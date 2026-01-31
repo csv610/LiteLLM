@@ -703,42 +703,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Evaluate patient lymphatic system health through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_lymphatic_system.json
-  python exam_lymphatic_system.py "John Doe"
-
-  # Custom output path
-  python exam_lymphatic_system.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_lymphatic_system.py "John Doe" --concise
-
-Lymphatic System Assessment Protocol:
-  1. LYMPH NODE ASSESSMENT: Palpate nodes in neck, armpits, groin, elbows
-     - Document size, location, consistency, mobility, tenderness
-     - Assess for generalized vs localized lymphadenopathy
-
-  2. EDEMA ASSESSMENT: Check for swelling in arms, legs, face
-     - Determine if pitting or non-pitting
-     - Measure circumferences for asymmetry
-     - Assess skin changes (fibrosis, color changes)
-
-  3. DRAINAGE ASSESSMENT: Evaluate lymphatic flow and obstruction
-     - Check for asymmetry suggesting obstruction
-     - Assess venous insufficiency
-     - Look for collateral circulation
-
-  4. SYSTEMIC ASSESSMENT: Evaluate for associated symptoms
-     - Fever, night sweats, fatigue, weight loss
-     - Recurrent infections in affected areas
-     - Pain and functional limitations
-
-  5. HISTORY: Cancer treatment, surgery, trauma affecting lymphatic system
-     - Node removal, radiation, chemotherapy
-     - Previous surgeries in affected areas
-     - Current medications affecting function
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

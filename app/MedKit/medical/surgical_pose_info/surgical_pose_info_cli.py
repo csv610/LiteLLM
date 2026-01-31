@@ -14,13 +14,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive surgical position information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python surgical_pose_info_cli.py -i supine
-  python surgical_pose_info_cli.py -i "lithotomy position" -v 3
-  python surgical_pose_info_cli.py -i "prone" -d outputs/positions
-  python surgical_pose_info_cli.py -l
-        """
     )
     parser.add_argument(
         "-i", "--pose",

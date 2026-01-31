@@ -15,12 +15,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive medical implant information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medical_implant_cli.py -i "cardiac pacemaker"
-  python medical_implant_cli.py -i "hip prosthesis" -o output.json -v 3
-  python medical_implant_cli.py -i "cochlear implant" -d outputs/implants
-        """
     )
     parser.add_argument(
         "-i", "--implant",

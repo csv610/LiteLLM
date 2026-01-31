@@ -11,14 +11,6 @@ def get_user_arguments():
     parser = argparse.ArgumentParser(
         description="Analyze statements and determine if they are fact or fiction",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default output to console
-  python medical_facts_checker.py -i "The Earth is round"
-
-  # Custom output path
-  python medical_facts_checker.py -i "Gravity causes objects to fall" -o gravity_analysis.json
-        """
     )
     parser.add_argument("-i", "--statement", required=True, help="Statement to analyze")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")

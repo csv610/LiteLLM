@@ -83,10 +83,6 @@ def build_med_dict(input_data: str, model: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Fetch medical dictionary definitions using AI",
-        epilog="INPUT can be:\n"
-               "  - A single medical term (e.g., 'acetaminophen')\n"
-               "  - Path to a JSON file with terms as dict keys or list items\n"
-               "  - Path to a text file with one term per line",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(

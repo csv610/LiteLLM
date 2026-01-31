@@ -917,64 +917,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Nutrition and Growth Measurements Assessment - Doctor-Nurse Consultation",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_nutrition_growth.json
-  python exam_nutrition_growth.py "John Doe"
-
-  # Custom output path
-  python exam_nutrition_growth.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_nutrition_growth.py "John Doe" --concise
-
-Doctor-Nurse Consultation Process:
-
-  DOCTOR DIRECTS NURSE TO:
-
-  1. TAKE ANTHROPOMETRIC MEASUREMENTS:
-     "Nurse, please measure the patient's height (standing or lying),
-      weight, and if pediatric patient, head and chest circumference."
-
-  2. ASSESS PHYSICAL SIGNS OF NUTRITION:
-     "Observe and report on muscle mass, subcutaneous fat, skin turgor,
-      hair quality, nails, eyes, and overall appearance."
-
-  3. ASSESS GROWTH STATUS:
-     "Compare measurements to age-appropriate standards and growth charts.
-      Report height-for-age, weight-for-height, BMI, and growth trend."
-
-  4. GATHER DIETARY HISTORY:
-     "Ask about typical daily meals, food intake, eating patterns,
-      food preferences, allergies, and dietary restrictions."
-
-  5. ASSESS SOCIOECONOMIC FACTORS:
-     "Inquire about food security, ability to afford nutritious food,
-      access to food preparation facilities, and community resources."
-
-  6. ASSESS MEDICAL FACTORS:
-     "Note any chronic illnesses, GI issues, medications, dental problems,
-      and how they affect nutrition."
-
-  7. PREPARE COMPREHENSIVE REPORT:
-     "Summarize all findings, identify nutritional concerns, growth issues,
-      risk factors, and recommendations for doctor review."
-
-  NURSE REPORTS TO DOCTOR:
-  - Objective measurements and growth indicators
-  - Physical signs of nutritional status
-  - Dietary intake patterns
-  - Socioeconomic context
-  - Medical factors affecting nutrition
-  - Overall assessment and recommendations
-
-  DOCTOR REVIEWS AND DETERMINES:
-  - Clinical significance of findings
-  - Need for further investigations
-  - Dietary or medical interventions
-  - Referrals (dietitian, specialist)
-  - Follow-up plan
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

@@ -375,17 +375,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Evaluate patient arithmetic calculation capabilities through mental math assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_arithmetic_calculation.json
-  python exam_arithmetic_calculation.py "John Doe"
-
-  # Custom output path
-  python exam_arithmetic_calculation.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_arithmetic_calculation.py "John Doe" --concise
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

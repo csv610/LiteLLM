@@ -77,12 +77,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive surgical tool information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python surgical_tool_info_cli.py -i scalpel
-  python surgical_tool_info_cli.py -i "surgical forceps" -v 3
-  python surgical_tool_info_cli.py -i "retractor" -d outputs/tools
-        """
     )
     parser.add_argument(
         "-i", "--tool",

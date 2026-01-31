@@ -416,7 +416,6 @@ def cli(json_file: str, model: str = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Review and validate medical dictionary entries",
-        epilog="Validates entries for medical recognition, abbreviations, definition quality, and accuracy",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(

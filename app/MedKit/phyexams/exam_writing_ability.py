@@ -383,20 +383,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Evaluate patient writing and drawing capabilities through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_writing_ability.json
-  python exam_writing_ability.py "John Doe"
-
-  # Custom output path
-  python exam_writing_ability.py "John Doe" -o custom_assessment.json
-
-  # With images for computer vision analysis
-  python exam_writing_ability.py "John Doe" --images /path/to/writing_sample.jpg /path/to/drawing_sample.jpg
-
-  # With concise prompting
-  python exam_writing_ability.py "John Doe" --concise
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

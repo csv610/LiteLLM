@@ -25,20 +25,6 @@ def get_user_arguments():
     parser = argparse.ArgumentParser(
         description="Medicines Comparison Tool - Compare two medicines side-by-side",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Basic comparison
-  python drugs_comparison.py "Aspirin" "Ibuprofen"
-
-  # With use case
-  python drugs_comparison.py "Lisinopril" "Losartan" --use-case "hypertension management"
-
-  # With patient details
-  python drugs_comparison.py "Metformin" "Glipizide" --age 68 --conditions "type-2 diabetes, kidney disease"
-
-  # With custom model and JSON output
-  python drugs_comparison.py "Atorvastatin" "Simvastatin" --model "ollama/llama3" --json-output
-        """,
     )
 
     # Required arguments

@@ -52,12 +52,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive medical anatomy information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medical_anatomy_cli.py -i "heart"
-  python medical_anatomy_cli.py -i "femur" -d outputs/femur -v 3
-  python medical_anatomy_cli.py -i "left ventricle" -d outputs/anatomy
-        """
     )
     common_user_arguments(parser)
 

@@ -214,12 +214,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate quality of generated physical exam questions",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python eval_physical_exam_questions_cli.py -i exam_questions.json
-  python eval_physical_exam_questions_cli.py -i exam_questions.json -o report.txt
-  python eval_physical_exam_questions_cli.py -i exam_questions.json -j results.json -v
-        """
     )
     parser.add_argument(
         "-i", "--input",

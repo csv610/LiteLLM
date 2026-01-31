@@ -71,20 +71,6 @@ def create_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Similar Drugs Finder - Find alternative medicines and similar drug options",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Basic analysis
-  python similar_drugs.py "Ibuprofen"
-
-  # Include generics
-  python similar_drugs.py "Aspirin" --include-generics
-
-  # With patient details
-  python similar_drugs.py "Metformin" --age 65 --conditions "kidney disease, hypertension"
-
-  # With custom output
-  python similar_drugs.py "Simvastatin" --output alternatives.json --verbose
-        """,
     )
 
     # Required arguments

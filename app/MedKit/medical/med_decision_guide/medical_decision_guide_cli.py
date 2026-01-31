@@ -22,12 +22,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate medical decision trees for symptom assessment.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python medical_decision_guide_cli.py -i fever
-  python medical_decision_guide_cli.py -i "sore throat" -o output.json -v 3
-  python medical_decision_guide_cli.py -i cough -d outputs/guides
-        """
     )
     parser.add_argument(
         "-i", "--symptom",

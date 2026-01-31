@@ -77,12 +77,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate comprehensive surgical procedure information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python surgery_info_cli.py -i "appendectomy"
-  python surgery_info_cli.py -i "coronary bypass" -v 3
-  python surgery_info_cli.py -i "knee replacement" -d outputs/surgeries
-        """
     )
     parser.add_argument(
         "-i", "--surgery",

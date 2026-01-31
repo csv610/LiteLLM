@@ -754,61 +754,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate patient judgment capability through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_judgement.json
-  python exam_judgement.py "John Doe"
-
-  # Custom output path
-  python exam_judgement.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_judgement.py "John Doe" --concise
-
-Judgment Assessment Protocol:
-  1. SOCIAL OBLIGATIONS:
-     - How do you meet social commitments (appointments, gatherings)?
-     - Are you reliable to your friends?
-     - How punctual are you to social events?
-     - Do you understand impact of your behavior on others?
-
-  2. FAMILY OBLIGATIONS:
-     - How do you meet family responsibilities (caregiving, financial, household)?
-     - Do you maintain regular communication with family?
-     - How do you handle family conflicts?
-     - Are you aware of family members' needs?
-
-  3. BUSINESS AND PRACTICAL AFFAIRS:
-     - How is your work performance and attendance?
-     - Do you pay bills on time?
-     - How do you manage money and spending?
-     - Do you maintain your living space?
-     - Do you have long-term financial plans?
-
-  4. FUTURE PLANNING:
-     - What are your goals for the next 6 months? 1 year? 5 years?
-     - Are these goals realistic?
-     - How do you plan to achieve them?
-     - What obstacles might get in the way?
-     - How motivated are you to pursue goals?
-
-  5. HYPOTHETICAL SITUATIONS (Present scenarios):
-     - What would you do if you found a stamped, addressed envelope?
-     - What would you do if stopped for running a red light?
-     - What would you do if your house was on fire?
-     - What would you do if you found someone's wallet with ID and money?
-     - What would you do if prescribed wrong medication dose?
-     - What would you do if offered money through questionable means?
-
-  6. RISK ASSESSMENT:
-     - Do you recognize dangerous situations?
-     - Do you engage in risky behaviors?
-     - Can you avoid being exploited?
-
-  EXPECTED: Able to evaluate situations and provide appropriate responses,
-            managing family and business affairs appropriately.
-  UNEXPECTED: Responses indicating hazardous behavior or inappropriate action.
-        """
     )
     parser.add_argument("patient", nargs='*', default=['unknown'], help="Name or identifier of the patient (default: 'unknown')")
     parser.add_argument(

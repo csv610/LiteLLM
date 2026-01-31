@@ -393,17 +393,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate patient emotional stability through structured assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_emotional_stability.json
-  python emotional_stability.py "John Doe"
-
-  # Custom output path
-  python emotional_stability.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python emotional_stability.py "John Doe" --concise
-        """
     )
     parser.add_argument("patient", nargs='+', help="Name or identifier of the patient")
     parser.add_argument(

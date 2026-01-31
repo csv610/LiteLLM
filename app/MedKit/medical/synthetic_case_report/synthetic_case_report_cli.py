@@ -77,12 +77,6 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate synthetic medical case reports.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python synthetic_case_report_cli.py -i "myocardial infarction"
-  python synthetic_case_report_cli.py -i "pneumonia" -v 3
-  python synthetic_case_report_cli.py -i "diabetes" -d outputs/cases
-        """
     )
     parser.add_argument(
         "-i", "--condition",

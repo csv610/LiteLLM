@@ -792,17 +792,6 @@ def main():
     parser = argparse.ArgumentParser(
         description="MedKit Medical Module User Guide",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python user_guide.py                           # Interactive menu
-  python user_guide.py --chapters                # List all chapters
-  python user_guide.py --chapter 1               # Show chapter 1 guide
-  python user_guide.py --chapter medical_info   # Browse chapter by name
-  python user_guide.py --list                    # List all modules
-  python user_guide.py --module medical_faq      # Show FAQ module guide
-  python user_guide.py --search "anatomy"        # Search for modules
-  python user_guide.py --reference               # Quick reference guide
-        """
     )
 
     parser.add_argument("--chapters", action="store_true",

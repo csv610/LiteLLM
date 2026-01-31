@@ -744,69 +744,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Conduct depression screening assessment for a patient",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default - saves to outputs/patient_depression_screening.json
-  python exam_depression_screening.py "John Doe"
-
-  # Custom output path
-  python exam_depression_screening.py "John Doe" -o custom_assessment.json
-
-  # With concise prompting
-  python exam_depression_screening.py "John Doe" --concise
-
-Depression Screening Protocol:
-  1. CORE SCREENING QUESTIONS (2-week timeframe):
-     - Over the past 2 weeks, have you felt down, depressed, or hopeless?
-     - Over the past 2 weeks, have you felt little interest or pleasure in doing things?
-     EXPECTED: Negative response to one or both
-     UNEXPECTED: Positive response to both indicates depression risk
-
-  2. FATIGUE AND LOSS OF ENERGY:
-     - Have you felt constantly tired or lacking energy?
-     - Is it mild, moderate, or severe?
-     - When during the day is fatigue worst?
-     - How much does it interfere with work, social life, self-care?
-     - What makes it better or worse?
-
-  3. RESTLESSNESS AND AGITATION:
-     - Have you felt restless or unable to sit still?
-     - Do you fidget, pace, or feel agitated?
-     - How severe is it? Observable by others?
-     - Does it interfere with sleep or daily activities?
-     - How is this different from your usual self?
-
-  4. POOR CONCENTRATION AND DIFFICULTY THINKING:
-     - Have you had trouble concentrating or focusing?
-     - Can you read, work, follow conversations?
-     - Is your mind wandering or racing?
-     - How long can you focus before losing attention?
-     - What impact on work, school, daily tasks?
-
-  5. MOOD AND EMOTION:
-     - Describe your mood over the past 2 weeks
-     - Any irritability, crying spells, or emotional numbness?
-     - Rate sadness/emptiness on 0-10 scale
-
-  6. CRITICAL - SUICIDE RISK:
-     - Have you thought about harming yourself?
-     - Do you have a plan? Access to means?
-     - Any past suicide attempts?
-     ALERT: If positive ideation with plan/intent → immediate safety assessment
-
-  7. PHYSICAL AND FUNCTIONAL:
-     - Changes in sleep, appetite, energy level?
-     - Ability to work, socialize, self-care?
-
-  8. TIMELINE AND HISTORY:
-     - When did symptoms start?
-     - Any previous depressive episodes?
-     - Family history of depression?
-
-  9. TREATMENTS:
-     - Previous antidepressants or therapy?
-     - Current treatments?
-        """
     )
     parser.add_argument("patient", nargs='*', default=['unknown'], help="Name or identifier of the patient (default: 'unknown')")
     parser.add_argument(

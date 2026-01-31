@@ -39,12 +39,6 @@ def get_user_arguments():
     parser = argparse.ArgumentParser(
         description="Generate comprehensive herbal information.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python herbal_info_cli.py -i ginger
-  python herbal_info_cli.py -i "echinacea" -o output.json -v 3
-  python herbal_info_cli.py -i turmeric -d outputs/herbs
-        """
     )
     parser.add_argument(
         "-i", "--herb",
