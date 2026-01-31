@@ -1,4 +1,4 @@
-"""rxclass_examples - Comprehensive demonstrations of RxClass API use cases.
+"rxclass_examples - Comprehensive demonstrations of RxClass API use cases.
 
 This module showcases practical applications of the National Library of Medicine's RxClass
 API through six real-world use cases. Each example demonstrates how to retrieve drug
@@ -32,110 +32,36 @@ KEY FEATURES AND COVERAGE AREAS:
     - RxNorm Integration: converting drug names to RxCUI identifiers
     - Data Source Handling: working with ATC, MEDRT, and other classification systems
     - Relationship Types: navigating may_treat, ci_with, and other relationships
-"""
+"
 
-import requests
 import json
 from typing import Dict, List, Any, Optional
 
-# =============================================================================
-# RxClass API Wrapper
-# =============================================================================
-
-class RxClassClient:
-    """Client for RxClass API - Drug classification and relationships"""
-
-    BASE_URL = "https://rxnav.nlm.nih.gov/REST/rxclass"
-
-    def __init__(self):
-        self.session = requests.Session()
-
-    def get_classes_by_rxcui(self, rxcui: str, rela_source: str = "MEDRT") -> Dict[str, Any]:
-        """Get classes containing a specific drug (by RxCUI)"""
-        response = self.session.get(
-            f"{self.BASE_URL}/class/byRxcui.json",
-            params={"rxcui": rxcui, "relaSource": rela_source}
-        )
-        return response.json() if response.status_code == 200 else {}
-
-    def get_classes_by_drug_name(self, drug_name: str, rela_source: str = "MEDRT") -> Dict[str, Any]:
-        """Get classes for a drug by name"""
-        response = self.session.get(
-            f"{self.BASE_URL}/class/byDrugName.json",
-            params={"drugName": drug_name, "relaSource": rela_source}
-        )
-        return response.json() if response.status_code == 200 else {}
-
-    def find_class_by_name(self, class_name: str) -> Dict[str, Any]:
-        """Find drug classes by name"""
-        response = self.session.get(
-            f"{self.BASE_URL}/class/byName.json",
-            params={"className": class_name}
-        )
-        return response.json() if response.status_code == 200 else {}
-
-    def get_class_tree(self, class_id: str, rela_source: str = "ATC") -> Dict[str, Any]:
-        """Get class hierarchy/subclasses"""
-        response = self.session.get(
-            f"{self.BASE_URL}/classTree.json",
-            params={"classId": class_id, "relaSource": rela_source}
-        )
-        return response.json() if response.status_code == 200 else {}
-
-    def get_class_members(self, class_id: str, rela_source: str = "ATC") -> Dict[str, Any]:
-        """Get drugs in a specific class"""
-        response = self.session.get(
-            f"{self.BASE_URL}/classMembers.json",
-            params={"classId": class_id, "relaSource": rela_source}
-        )
-        return response.json() if response.status_code == 200 else {}
-
-    def get_class_types(self) -> List[str]:
-        """Get available class types"""
-        response = self.session.get(f"{self.BASE_URL}/classTypes.json")
-        data = response.json()
-        if "classTypeList" in data:
-            return data["classTypeList"].get("classTypeName", [])
-        return []
-
-    def get_rela_sources(self) -> List[str]:
-        """Get available relationship sources"""
-        response = self.session.get(f"{self.BASE_URL}/relaSources.json")
-        data = response.json()
-        if "relaSourceList" in data:
-            return data["relaSourceList"].get("relaSourceName", [])
-        return []
-
-    def get_relas(self, source: str) -> List[str]:
-        """Get relationship types from a source"""
-        response = self.session.get(
-            f"{self.BASE_URL}/relas.json",
-            params={"source": source}
-        )
-        data = response.json()
-        if "relaList" in data:
-            return data["relaList"].get("rela", [])
-        return []
+# Import shared clients
+from rxclass_client import RxClassClient
+from rxnorm_client import RxNormClient
 
 # =============================================================================
-# RxNorm Client (for getting RxCUI from drug names)
+# Helper Functions for Response Parsing
 # =============================================================================
 
-class RxNormClient:
-    """Client for RxNorm API"""
+def parse_class_types(response: Dict[str, Any]) -> List[str]:
+    """Helper to parse get_class_types response."""
+    if "classTypeList" in response:
+        return response["classTypeList"].get("classTypeName", [])
+    return []
 
-    BASE_URL = "https://rxnav.nlm.nih.gov/REST"
+def parse_rela_sources(response: Dict[str, Any]) -> List[str]:
+    """Helper to parse get_sources_of_drug_class_relations response."""
+    if "relaSourceList" in response:
+        return response["relaSourceList"].get("relaSourceName", [])
+    return []
 
-    def __init__(self):
-        self.session = requests.Session()
-
-    def get_identifier(self, name: str) -> Optional[str]:
-        """Get RxCUI for a drug name"""
-        url = f"{self.BASE_URL}/rxcui.json"
-        response = self.session.get(url, params={"name": name})
-        data = response.json()
-        ids = data.get("idGroup", {}).get("rxnormId")
-        return ids[0] if ids else None
+def parse_relas(response: Dict[str, Any]) -> List[str]:
+    """Helper to parse get_relas response."""
+    if "relaList" in response:
+        return response["relaList"].get("rela", [])
+    return []
 
 # =============================================================================
 # USE CASE 1: Drug Classification System
@@ -168,7 +94,8 @@ def use_case_1_drug_classification():
 
     # Step 2: Get ATC classifications
     print(f"\n📊 ATC Classifications (Anatomical Therapeutic Chemical):")
-    atc_data = rxclass.get_classes_by_rxcui(rxcui, rela_source="ATC")
+    # Updated method name and parameter usage
+    atc_data = rxclass.get_class_by_rxcui(rxcui, rela_source="ATC")
 
     if "rxclassDrugInfoList" in atc_data:
         drugs_info = atc_data["rxclassDrugInfoList"].get("rxclassDrugInfo", [])
@@ -182,7 +109,8 @@ def use_case_1_drug_classification():
 
     # Step 3: Get MEDRT classifications (therapeutic indications)
     print(f"\n💊 MEDRT Classifications (Medical Reference Terminology):")
-    medrt_data = rxclass.get_classes_by_rxcui(rxcui, rela_source="MEDRT")
+    # Updated method name
+    medrt_data = rxclass.get_class_by_rxcui(rxcui, rela_source="MEDRT")
 
     if "rxclassDrugInfoList" in medrt_data:
         drugs_info = medrt_data["rxclassDrugInfoList"].get("rxclassDrugInfo", [])
@@ -225,7 +153,8 @@ def use_case_2_contraindication_check():
     print(f"\n💉 Checking contraindications for: {drug_name}")
 
     # Get MEDRT classifications which include contraindications
-    medrt_data = rxclass.get_classes_by_drug_name(drug_name, rela_source="MEDRT")
+    # Updated method name
+    medrt_data = rxclass.get_class_by_drug_name(drug_name, rela_source="MEDRT")
 
     if "rxclassDrugInfoList" in medrt_data:
         drugs_info = medrt_data["rxclassDrugInfoList"].get("rxclassDrugInfo", [])
@@ -318,7 +247,8 @@ def use_case_3_drug_hierarchy():
 
     # Show available class types
     print(f"\n📋 Available Classification Systems:")
-    class_types = rxclass.get_class_types()
+    # Updated to parse raw API response
+    class_types = parse_class_types(rxclass.get_class_types())
     for i, ctype in enumerate(class_types, 1):
         print(f"   {i}. {ctype}")
 
@@ -360,12 +290,14 @@ def use_case_4_disease_treatments():
             class_id = first_class.get("classId")
 
             print(f"\n📊 Available Data Sources:")
-            sources = rxclass.get_rela_sources()
+            # Updated to use correct method name and parser
+            sources = parse_rela_sources(rxclass.get_sources_of_drug_class_relations())
             for source in sources[:5]:
                 print(f"   • {source}")
 
             print(f"\n🔗 Available Relationships:")
-            relationships = rxclass.get_relas("MEDRT")
+            # Updated to parse raw API response
+            relationships = parse_relas(rxclass.get_relas("MEDRT"))
             relationship_desc = {
                 "may_treat": "May treat this disease",
                 "may_prevent": "May prevent this disease",
@@ -399,9 +331,9 @@ def use_case_5_complete_drug_profile():
     drug_names = ["Ibuprofen", "Lisinopril", "Omeprazole"]
 
     for drug_name in drug_names:
-        print(f"\n{'='*80}")
+        print(f"\n{ '='*80}")
         print(f"Drug: {drug_name}")
-        print(f"{'='*80}")
+        print(f"{ '='*80}")
 
         # Get RxCUI
         rxcui = rxnorm.get_identifier(drug_name)
@@ -416,7 +348,8 @@ def use_case_5_complete_drug_profile():
 
         # ATC
         print(f"\n  ATC (Anatomical Therapeutic Chemical):")
-        atc_data = rxclass.get_classes_by_rxcui(rxcui, rela_source="ATC")
+        # Updated method name
+        atc_data = rxclass.get_class_by_rxcui(rxcui, rela_source="ATC")
         if "rxclassDrugInfoList" in atc_data:
             drugs_info = atc_data["rxclassDrugInfoList"].get("rxclassDrugInfo", [])
             for drug_info in drugs_info[:3]:
@@ -425,7 +358,8 @@ def use_case_5_complete_drug_profile():
 
         # MEDRT
         print(f"\n  MEDRT (Medical Reference Terminology):")
-        medrt_data = rxclass.get_classes_by_rxcui(rxcui, rela_source="MEDRT")
+        # Updated method name
+        medrt_data = rxclass.get_class_by_rxcui(rxcui, rela_source="MEDRT")
         if "rxclassDrugInfoList" in medrt_data:
             drugs_info = medrt_data["rxclassDrugInfoList"].get("rxclassDrugInfo", [])
 
@@ -459,13 +393,15 @@ def use_case_6_interaction_preparation():
 
     # Get common interaction-related data sources
     print(f"\n📊 Available Data Sources for Interactions:")
-    sources = rxclass.get_rela_sources()
+    # Updated to use correct method name and parser
+    sources = parse_rela_sources(rxclass.get_sources_of_drug_class_relations())
     for source in sources:
         print(f"   • {source}")
 
     # Get interaction-related relationships
     print(f"\n🔗 Interaction-Related Relationships (from MEDRT):")
-    relationships = rxclass.get_relas("MEDRT")
+    # Updated to parse raw API response
+    relationships = parse_relas(rxclass.get_relas("MEDRT"))
     interaction_relas = ["ci_with", "induces", "has_moa", "site_of_metabolism"]
     for rela in interaction_relas:
         if rela in relationships:
@@ -481,7 +417,8 @@ def use_case_6_interaction_preparation():
     for drug in drugs:
         rxcui = rxnorm.get_identifier(drug)
         if rxcui:
-            medrt = rxclass.get_classes_by_rxcui(rxcui, rela_source="MEDRT")
+            # Updated method name
+            medrt = rxclass.get_class_by_rxcui(rxcui, rela_source="MEDRT")
             if "rxclassDrugInfoList" in medrt:
                 drugs_info = medrt["rxclassDrugInfoList"].get("rxclassDrugInfo", [])
 
