@@ -51,7 +51,6 @@ CLI USAGE:
 """
 
 import requests
-import sys
 from typing import Optional, Dict, Any
 
 

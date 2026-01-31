@@ -3,9 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
-import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.utils import save_model_response
 
 

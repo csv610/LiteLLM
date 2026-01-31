@@ -27,23 +27,12 @@ KEY CONCEPTS:
 
 import json
 import os
-import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
-
-# Ensure repository root is in path for imports
-# Use .resolve() to get absolute paths to avoid issues with relative CWDs
-# For utils/module.py: need to go up 3 levels to reach LiteLLM root
-_repo_root = Path(__file__).resolve().parent.parent.parent.parent
-_medkit_root = _repo_root / "app" / "MedKit"
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
-if str(_medkit_root) not in sys.path:
-    sys.path.insert(0, str(_medkit_root))
 
 from lite.utils import save_model_response
 

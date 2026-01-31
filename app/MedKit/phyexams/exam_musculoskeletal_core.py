@@ -10,9 +10,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List, Dict, Tuple
 
-import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.utils import save_model_response
 
 

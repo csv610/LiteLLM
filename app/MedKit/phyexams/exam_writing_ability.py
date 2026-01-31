@@ -13,11 +13,9 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.utils import save_model_response
 
 # Fix import path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.pydantic_prompt_generator import PromptStyle
 
 

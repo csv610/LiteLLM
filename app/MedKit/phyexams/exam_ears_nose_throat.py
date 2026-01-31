@@ -7,7 +7,6 @@ This refactored module separates ENT assessment questions into two categories:
 These are combined into a final MedicalReport for comprehensive ENT evaluation.
 """
 
-import sys
 import json
 from pathlib import Path
 from pydantic import BaseModel, Field
@@ -15,7 +14,6 @@ from typing import Optional
 from datetime import datetime
 
 # Fix import path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.pydantic_prompt_generator import PromptStyle
 
 

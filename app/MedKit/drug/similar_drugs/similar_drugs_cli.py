@@ -17,7 +17,6 @@ from utils.output_formatter import print_result
 # ==============================================================================
 # LOCAL IMPORTS (LiteClient setup)
 # ==============================================================================
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging

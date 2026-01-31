@@ -7,11 +7,9 @@ comprehensive anatomical information based on provided configuration.
 """
 
 import logging
-import sys
 from pathlib import Path
 from typing import Optional, Union
 
-#sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

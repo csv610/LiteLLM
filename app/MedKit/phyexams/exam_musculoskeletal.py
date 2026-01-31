@@ -29,7 +29,6 @@ from pydantic import BaseModel, Field
 # ==============================================================================
 # LOCAL IMPORTS (LiteClient setup)
 # ==============================================================================
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
@@ -37,7 +36,6 @@ from lite.utils import save_model_response
 # ==============================================================================
 # LOCAL IMPORTS (Module models)
 # ==============================================================================
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.pydantic_prompt_generator import PromptStyle
 
 # ==============================================================================

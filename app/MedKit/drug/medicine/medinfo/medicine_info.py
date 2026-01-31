@@ -19,7 +19,6 @@ import sys
 from pathlib import Path
 from typing import Union
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 from lite.config import ModelConfig, ModelInput
 from utils.cli_base import BaseCLI, BaseGenerator, BasePromptBuilder
 
