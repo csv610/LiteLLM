@@ -33,6 +33,13 @@ class DrugDiseaseInput:
             raise ValueError("Medicine name cannot be empty")
         if not self.condition_name or not self.condition_name.strip():
             raise ValueError("Condition name cannot be empty")
+            
+        # Ensure only one drug and one disease are allowed
+        if "," in self.medicine_name or " and " in self.medicine_name.lower():
+            raise ValueError("Only one medicine can be analyzed at a time. Please do not use commas or 'and'.")
+        if "," in self.condition_name or " and " in self.condition_name.lower():
+            raise ValueError("Only one condition can be analyzed at a time. Please do not use commas or 'and'.")
+
         if self.age is not None and (self.age < 0 or self.age > 150):
             raise ValueError("Age must be between 0 and 150 years")
 

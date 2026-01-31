@@ -22,8 +22,8 @@ This will generate a detailed analysis and save results to `outputs/metformin_ki
 
 | Argument | Description |
 |----------|-------------|
-| `medicine_name` | Name of the medicine to analyze (e.g., "Metformin", "Warfarin", "NSAIDs") |
-| `condition_name` | Name of the medical condition (e.g., "Kidney Disease", "Liver Disease", "Heart Failure") |
+| `medicine_name` | Name of a **single** medicine to analyze (e.g., "Metformin", "Warfarin"). Multiple medicines are not supported. |
+| `condition_name` | Name of a **single** medical condition (e.g., "Kidney Disease", "Liver Disease"). Multiple conditions are not supported. |
 
 ### Optional Arguments
 
@@ -240,6 +240,8 @@ python drug_disease_interaction_cli.py "Medication" "Condition" \
 |-------|-------|----------|
 | `Medicine name cannot be empty` | Missing medicine name | Provide a valid medicine name |
 | `Condition name cannot be empty` | Missing condition name | Provide a valid condition name |
+| `Only one medicine can be analyzed...` | Multiple medicines provided | Provide only one medicine name (no commas or "and") |
+| `Only one condition can be analyzed...` | Multiple conditions provided | Provide only one condition name (no commas or "and") |
 | `Age must be between 0 and 150 years` | Invalid age value | Enter a realistic age between 0-150 |
 | `Invalid prompt style` | Wrong prompt style option | Use: `detailed`, `concise`, or `balanced` |
 | `Error analyzing disease interaction` | API or network issue | Check internet connection; review logs with `-v` flag |
@@ -347,10 +349,11 @@ This tool is designed as a **clinical decision support tool**, not a replacement
 - Always verify results against current clinical guidelines and patient-specific factors
 
 ### Input Guidelines
-- Use standard drug names (generic names are preferred)
-- Use recognized medical condition names
-- Provide realistic age values for personalized recommendations
-- List other medications that might interact
+- Use standard drug names (generic names are preferred).
+- Use recognized medical condition names.
+- **Single Item Only**: Provide exactly one medicine and one condition. Do not use commas or "and" to list multiple items.
+- Provide realistic age values for personalized recommendations.
+- List other medications that might interact in the `--medications` field, not the primary medicine field.
 
 ## Getting Help
 
