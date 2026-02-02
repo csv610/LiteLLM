@@ -72,7 +72,7 @@ def create_disease_info_report(args) -> int:
         generator = DiseaseInfoGenerator(model_config)
         
         logger.debug(f"  Organ: {args.organ}")
-        result = generator.generate_organ_diseases(organ=args.organ, structured=args.structured)
+        result = generator.generate_text(organ=args.organ, structured=args.structured)
 
         if result is None:
             logger.error("✗ Failed to generate disease information.")

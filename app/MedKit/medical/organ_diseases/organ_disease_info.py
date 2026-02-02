@@ -31,45 +31,11 @@ class DiseaseInfoGenerator:
         self.organ = None    # Store the organ being analyzed
         logger.debug(f"Initialized DiseaseInfoGenerator")
 
-    def generate_text(self, disease: str, structured: bool = False) -> ModelOutput:
-        """Generate comprehensive disease information."""
-        if not disease or not str(disease).strip():
-            raise ValueError("Disease name cannot be empty")
-
-        # Store the disease for later use in save
-        self.disease = disease
-        self.organ = None
-        logger.debug(f"Starting disease information generation for: {disease}")
-
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(disease)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = DiseaseInfoModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.debug("Calling LiteClient.generate_text()...")
-        try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated disease information")
-            return result
-        except Exception as e:
-            logger.error(f"✗ Error generating disease information: {e}")
-            raise
-
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""
         return self.client.generate_text(model_input=model_input)
 
-    def generate_organ_diseases(self, organ: str, structured: bool = False) -> ModelOutput:
+    def generate_text(self, organ: str, structured: bool = False) -> ModelOutput:
         """Generate diseases associated with an organ."""
         if not organ or not str(organ).strip():
             raise ValueError("Organ name cannot be empty")
@@ -79,7 +45,7 @@ class DiseaseInfoGenerator:
         logger.debug(f"Starting organ diseases generation for: {organ}")
 
         system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_organ_user_prompt(organ)
+        user_prompt = PromptBuilder.create_user_prompt(organ)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 

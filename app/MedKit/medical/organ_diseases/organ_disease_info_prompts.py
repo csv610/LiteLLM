@@ -39,19 +39,7 @@ Guidelines:
 """
 
     @staticmethod
-    def create_user_prompt(disease: str) -> str:
-        """Create the user prompt for disease information.
-
-        Args:
-            disease: The name of the disease
-
-        Returns:
-            str: Formatted user prompt
-        """
-        return f"Generate comprehensive information for the disease: {disease}."
-
-    @staticmethod
-    def create_organ_user_prompt(organ: str) -> str:
+    def create_user_prompt(organ: str) -> str:
         """Create the user prompt for organ disease information.
 
         Args:
