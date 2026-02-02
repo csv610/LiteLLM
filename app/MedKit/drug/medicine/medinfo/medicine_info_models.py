@@ -140,7 +140,7 @@ class MedicineResearch(BaseModel):
     future_developments: str = Field(description="Potential future improvements or new formulations, comma-separated")
 
 
-class MedicineInfoResult(BaseModel):
+class MedicineInfoModel(BaseModel):
     """
     Comprehensive pharmaceutical medicine information.
 
@@ -179,3 +179,9 @@ class MedicineInfoResult(BaseModel):
 
     # Research and innovation
     research: MedicineResearch
+
+
+class ModelOutput(BaseModel):
+    data: Optional[MedicineInfoModel] = None
+    markdown: Optional[str] = None
+
