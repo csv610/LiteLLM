@@ -1,95 +1,301 @@
+# General Anatomical Terms
+Anatomical Position
+Superior
+Inferior
+Medial
+Lateral
+Superficial
+Deep
+Ventral
+Dorsal
+Proximal
+Distal
+Median Plane
+Sagittal Plane
+Frontal Plane
+Coronal Plane
+Transverse Plane
+Thorax
 Abdomen
-Adrenal gland
-Alveoli
-Ankle
-Anus
-Aorta
-Appendix
-Arm
-Artery
-Atrium
-Bladder
-Blood vessel
+Pelvis
+Axilla
+Inguinal Region
+Umbilicus
+
+# Integumentary System
+Skin
+Epidermis
+Stratum Corneum
+Stratum Basale
+Dermis
+Hypodermis
+Subcutaneous Tissue
+Hair Follicle
+Sebaceous Gland
+Sudoriferous Gland
+Nail Bed
+Nail Plate
+
+# Skeletal System
+Skull
+Cranium
+Frontal Bone
+Parietal Bone
+Temporal Bone
+Occipital Bone
+Sphenoid Bone
+Ethmoid Bone
+Zygomatic Bone
+Maxilla
+Mandible
+Nasal Bone
+Hyoid Bone
+Vertebral Column
+Cervical Vertebrae
+Thoracic Vertebrae
+Lumbar Vertebrae
+Sacrum
+Coccyx
+Sternum
+Manubrium
+Xiphoid Process
+Ribs
+Clavicle
+Scapula
+Humerus
+Radius
+Ulna
+Carpals
+Scaphoid
+Lunate
+Triquetrum
+Pisiform
+Trapezium
+Trapezoid
+Capitate
+Hamate
+Metacarpals
+Phalanges
+Pelvis
+Ilium
+Ischium
+Pubis
+Femur
+Patella
+Tibia
+Fibula
+Tarsals
+Calcaneus
+Talus
+Navicular
+Cuboid
+Cuneiforms
+Metatarsals
+
+# Muscular System
+Skeletal Muscle
+Smooth Muscle
+Cardiac Muscle
+Tendon
+Fascia
+Temporalis
+Masseter
+Sternocleidomastoid
+Trapezius
+Deltoid
+Pectoralis Major
+Latissimus Dorsi
+Biceps Brachii
+Triceps Brachii
+Rectus Abdominis
+External Oblique
+Internal Oblique
+Gluteus Maximus
+Gluteus Medius
+Quadriceps Femoris
+Rectus Femoris
+Vastus Lateralis
+Vastus Medialis
+Vastus Intermedius
+Hamstrings
+Biceps Femoris
+Semitendinosus
+Semimembranosus
+Gastrocnemius
+Soleus
+Tibialis Anterior
+Diaphragm
+Intercostal Muscles
+
+# Nervous System
+Central Nervous System
 Brain
+Cerebrum
+Frontal Lobe
+Parietal Lobe
+Temporal Lobe
+Occipital Lobe
+Cerebellum
+Brainstem
+Midbrain
+Pons
+Medulla Oblongata
+Thalamus
+Hypothalamus
+Spinal Cord
+Peripheral Nervous System
+Cranial Nerves
+Olfactory Nerve
+Optic Nerve
+Oculomotor Nerve
+Trochlear Nerve
+Trigeminal Nerve
+Abducens Nerve
+Facial Nerve
+Vestibulocochlear Nerve
+Glossopharyngeal Nerve
+Vagus Nerve
+Accessory Nerve
+Hypoglossal Nerve
+Spinal Nerves
+Sciatic Nerve
+Ulnar Nerve
+Radial Nerve
+Median Nerve
+Femoral Nerve
+Sympathetic Nervous System
+Parasympathetic Nervous System
+Neuron
+Glial Cells
+Meninges
+Dura Mater
+Arachnoid Mater
+Pia Mater
+
+# Endocrine System
+Pituitary Gland
+Pineal Gland
+Thyroid Gland
+Parathyroid Glands
+Thymus
+Adrenal Glands
+Adrenal Cortex
+Adrenal Medulla
+Pancreas (Islets of Langerhans)
+Ovaries
+Testes
+
+# Cardiovascular System
+Heart
+Atria
+Ventricles
+Aorta
+Superior Vena Cava
+Inferior Vena Cava
+Pulmonary Artery
+Pulmonary Vein
+Coronary Arteries
+Carotid Artery
+Jugular Vein
+Subclavian Artery
+Femoral Artery
+Popliteal Artery
+Tibial Artery
+Capillaries
+Erythrocytes
+Leukocytes
+Platelets
+Plasma
+Pericardium
+Myocardium
+Endocardium
+
+# Lymphatic System
+Lymph
+Lymph Nodes
+Lymphatic Vessels
+Thoracic Duct
+Spleen
+Thymus
+Tonsils
+Adenoids
+Bone Marrow
+
+# Respiratory System
+Nasal Cavity
+Pharynx
+Larynx
+Epiglottis
+Trachea
 Bronchi
 Bronchioles
-Capillaries
-Carotid artery
-Cerebellum
-Cerebrum
-Cervix
-Chest
-Clavicle
-Colon
-Cornea
+Alveoli
+Lungs
+Pleura
 Diaphragm
-Duodenum
-Ear
-Elbow
-Epidermis
-Esophagus
-Eye
-Femur
-Fibula
-Finger
-Foot
-Gallbladder
-Hand
-Heart
-Hip
-Humerus
-Ileum
-Intestine
-Jejunum
-Joint
-Kidney
-Knee
-Larynx
-Leg
-Ligament
-Liver
-Lung
-Lymph node
-Mandible
-Medulla
-Mouth
-Muscle
-Nasal cavity
-Nerve
-Nose
-Ovary
-Pancreas
-Patella
-Pelvis
-Phalanges
-Pharynx
-Popliteal Fossa
-Prostate
-Radius
-Rectum
-Rib
-Sacrum
-Scapula
-Skin
-Spinal cord
-Spleen
-Sternum
-Stomach
-Tendon
-Testis
-Throat
-Thymus
-Thyroid gland
-Tibia
-Tongue
-Tonsil
-Trachea
-Ulna
-Ureter
-Urethra
-Uterus
-Vein
-Ventricle
-Vertebra
-Wrist
 
+# Digestive System
+Oral Cavity
+Teeth
+Tongue
+Salivary Glands
+Parotid Gland
+Submandibular Gland
+Sublingual Gland
+Pharynx
+Esophagus
+Stomach
+Cardia
+Fundus
+Pylorus
+Small Intestine
+Duodenum
+Jejunum
+Ileum
+Large Intestine
+Cecum
+Appendix
+Colon
+Ascending Colon
+Transverse Colon
+Descending Colon
+Sigmoid Colon
+Rectum
+Anus
+Liver
+Gallbladder
+Pancreas
+Mesentery
+Peritoneum
+
+# Urinary System
+Kidney
+Renal Cortex
+Renal Medulla
+Nephron
+Glomerulus
+Renal Pelvis
+Ureter
+Urinary Bladder
+Urethra
+
+# Reproductive System
+Testes
+Epididymis
+Vas Deferens
+Seminal Vesicles
+Prostate Gland
+Bulbourethral Gland
+Penis
+Scrotum
+Ovaries
+Fallopian Tubes
+Uterus
+Cervix
+Vagina
+Vulva
+Clitoris
+Labia Majora
+Labia Minora
+Mammary Glands
+Placenta
