@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from drug.recognizer import DrugIdentifier
-from drug.models import ModelOutput, DrugIdentifierModel, DrugIdentificationModel
+from drug.drug_recognizer import DrugIdentifier
+from drug.drug_recognizer_model import ModelOutput, DrugIdentifierModel, DrugIdentificationModel
 from lite.config import ModelConfig
 
 @pytest.fixture
@@ -10,10 +10,10 @@ def mock_model_config():
 
 @pytest.fixture
 def drug_identifier(mock_model_config):
-    with patch('drug.recognizer.LiteClient'):
+    with patch('drug.drug_recognizer.LiteClient'):
         return DrugIdentifier(mock_model_config)
 
-def test_identify_drug_success(drug_identifier):
+def test_identify(drug_identifier):
     # Setup mock response
     mock_data = DrugIdentifierModel(
         identification=DrugIdentificationModel(
@@ -31,13 +31,13 @@ def test_identify_drug_success(drug_identifier):
     drug_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = drug_identifier.identify_drug("Aspirin")
+    result = drug_identifier.identify("Aspirin")
     
     # Assert
     assert result.data.identification.drug_name == "Aspirin"
     assert result.data.identification.is_well_known is True
     assert drug_identifier.client.generate_text.called
 
-def test_identify_drug_empty_name(drug_identifier):
+def test_identify(drug_identifier):
     with pytest.raises(ValueError, match="Drug name cannot be empty"):
-        drug_identifier.identify_drug("")
+        drug_identifier.identify("")

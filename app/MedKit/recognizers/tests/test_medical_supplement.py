@@ -14,7 +14,7 @@ def supplement_identifier(mock_model_config):
     with patch('medical_supplement.recognizer.LiteClient'):
         return MedicalSupplementIdentifier(mock_model_config)
 
-def test_identify_supplement_success(supplement_identifier):
+def test_identify(supplement_identifier):
     # Setup mock response
     mock_data = SupplementIdentifierModel(
         identification=SupplementIdentificationModel(
@@ -32,13 +32,13 @@ def test_identify_supplement_success(supplement_identifier):
     supplement_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = supplement_identifier.identify_supplement("Vitamin D3")
+    result = supplement_identifier.identify("Vitamin D3")
     
     # Assert
     assert result.data.identification.supplement_name == "Vitamin D3"
     assert result.data.identification.is_well_known is True
     assert supplement_identifier.client.generate_text.called
 
-def test_identify_supplement_empty(supplement_identifier):
+def test_identify(supplement_identifier):
     with pytest.raises(ValueError, match="Supplement name cannot be empty"):
-        supplement_identifier.identify_supplement("")
+        supplement_identifier.identify("")

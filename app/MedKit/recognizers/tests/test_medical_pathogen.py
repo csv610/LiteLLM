@@ -14,7 +14,7 @@ def pathogen_identifier(mock_model_config):
     with patch('medical_pathogen.recognizer.LiteClient'):
         return MedicalPathogenIdentifier(mock_model_config)
 
-def test_identify_pathogen_success(pathogen_identifier):
+def test_identify(pathogen_identifier):
     # Setup mock response
     mock_data = PathogenIdentifierModel(
         identification=PathogenIdentificationModel(
@@ -32,13 +32,13 @@ def test_identify_pathogen_success(pathogen_identifier):
     pathogen_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = pathogen_identifier.identify_pathogen("Staphylococcus aureus")
+    result = pathogen_identifier.identify("Staphylococcus aureus")
     
     # Assert
     assert result.data.identification.pathogen_name == "Staphylococcus aureus"
     assert result.data.identification.is_well_known is True
     assert pathogen_identifier.client.generate_text.called
 
-def test_identify_pathogen_empty(pathogen_identifier):
+def test_identify(pathogen_identifier):
     with pytest.raises(ValueError, match="Pathogen name cannot be empty"):
-        pathogen_identifier.identify_pathogen("")
+        pathogen_identifier.identify("")

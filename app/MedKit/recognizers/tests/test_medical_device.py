@@ -14,7 +14,7 @@ def device_identifier(mock_model_config):
     with patch('medical_device.recognizer.LiteClient'):
         return MedicalDeviceIdentifier(mock_model_config)
 
-def test_identify_device_success(device_identifier):
+def test_identify(device_identifier):
     # Setup mock response
     mock_data = MedicalDeviceIdentifierModel(
         identification=MedicalDeviceIdentificationModel(
@@ -32,14 +32,14 @@ def test_identify_device_success(device_identifier):
     device_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = device_identifier.identify_device("Pacemaker")
+    result = device_identifier.identify("Pacemaker")
     
     # Assert
     assert result.data.identification.device_name == "Pacemaker"
     assert result.data.identification.is_well_known is True
     assert device_identifier.client.generate_text.called
 
-def test_identify_device_empty_name(device_identifier):
+def test_identify(device_identifier):
     with pytest.raises(ValueError, match="Device name cannot be empty"):
-        device_identifier.identify_device("")
+        device_identifier.identify("")
 

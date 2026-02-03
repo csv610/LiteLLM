@@ -1,0 +1,57 @@
+# Medical Specialty Examples
+
+## Common Medical Specialties
+cardiology
+neurology
+pediatrics
+oncology
+psychiatry
+dermatology
+orthopedics
+gastroenterology
+endocrinology
+rheumatology
+pulmonology
+nephrology
+hematology
+infectious_disease
+anesthesiology
+radiology
+surgery
+emergency_medicine
+family_medicine
+internal_medicine
+
+## Subspecialties
+interventional_cardiology
+pediatric_cardiology
+neurosurgery
+orthopedic_sports_medicine
+medical_oncology
+radiation_oncology
+child_psychiatry
+geriatric_psychiatry
+dermatopathology
+cosmetic_dermatology
+colorectal_surgery
+cardiothoracic_surgery
+pediatric_surgery
+trauma_surgery
+critical_care_medicine
+sleep_medicine
+pain_medicine
+addiction_medicine
+palliative_care
+hospice_medicine
+
+## Emerging Specialties
+genomic_medicine
+precision_medicine
+telemedicine
+digital_health
+lifestyle_medicine
+integrative_medicine
+functional_medicine
+anti_aging_medicine
+regenerative_medicine
+nanomedicine

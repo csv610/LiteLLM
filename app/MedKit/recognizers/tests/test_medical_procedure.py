@@ -14,7 +14,7 @@ def procedure_identifier(mock_model_config):
     with patch('medical_procedure.recognizer.LiteClient'):
         return MedicalProcedureIdentifier(mock_model_config)
 
-def test_identify_procedure_success(procedure_identifier):
+def test_identify(procedure_identifier):
     # Setup mock response
     mock_data = MedicalProcedureIdentifierModel(
         identification=MedicalProcedureIdentificationModel(
@@ -32,14 +32,14 @@ def test_identify_procedure_success(procedure_identifier):
     procedure_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = procedure_identifier.identify_procedure("Appendectomy")
+    result = procedure_identifier.identify("Appendectomy")
     
     # Assert
     assert result.data.identification.procedure_name == "Appendectomy"
     assert result.data.identification.is_well_known is True
     assert procedure_identifier.client.generate_text.called
 
-def test_identify_procedure_empty_name(procedure_identifier):
+def test_identify(procedure_identifier):
     with pytest.raises(ValueError, match="Procedure name cannot be empty"):
-        procedure_identifier.identify_procedure("")
+        procedure_identifier.identify("")
 

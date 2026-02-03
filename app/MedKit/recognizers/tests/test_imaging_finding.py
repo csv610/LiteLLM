@@ -13,7 +13,7 @@ def identifier(mock_model_config):
     with patch('imaging_finding.recognizer.LiteClient'):
         return ImagingFindingIdentifier(mock_model_config)
 
-def test_identify_success(identifier):
+def test_identify(identifier):
     mock_data = ImagingFindingIdentifierModel(
         identification=ImagingFindingIdentificationModel(
             finding_name="Consolidation",
@@ -25,5 +25,5 @@ def test_identify_success(identifier):
     )
     mock_output = ModelOutput(data=mock_data)
     identifier.client.generate_text.return_value = mock_output
-    result = identifier.identify_finding("Consolidation")
+    result = identifier.identify("Consolidation")
     assert getattr(result.data.identification, 'finding_name') == "Consolidation"

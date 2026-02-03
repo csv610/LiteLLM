@@ -14,7 +14,7 @@ def vaccine_identifier(mock_model_config):
     with patch('medical_vaccine.recognizer.LiteClient'):
         return MedicalVaccineIdentifier(mock_model_config)
 
-def test_identify_vaccine_success(vaccine_identifier):
+def test_identify(vaccine_identifier):
     # Setup mock response
     mock_data = VaccineIdentifierModel(
         identification=VaccineIdentificationModel(
@@ -32,13 +32,13 @@ def test_identify_vaccine_success(vaccine_identifier):
     vaccine_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = vaccine_identifier.identify_vaccine("MMR")
+    result = vaccine_identifier.identify("MMR")
     
     # Assert
     assert result.data.identification.vaccine_name == "MMR"
     assert result.data.identification.is_well_known is True
     assert vaccine_identifier.client.generate_text.called
 
-def test_identify_vaccine_empty(vaccine_identifier):
+def test_identify(vaccine_identifier):
     with pytest.raises(ValueError, match="Vaccine name cannot be empty"):
-        vaccine_identifier.identify_vaccine("")
+        vaccine_identifier.identify("")

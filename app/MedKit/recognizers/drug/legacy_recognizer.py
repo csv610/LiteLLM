@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import DrugIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, DrugIdentifierInput
+from .drug_recognizer_model import DrugIdentifierModel, ModelOutput
+from .drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
 
 class DrugIdentifier:
     def __init__(self, model_config: ModelConfig):

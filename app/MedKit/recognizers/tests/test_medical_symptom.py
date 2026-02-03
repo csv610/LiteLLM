@@ -14,7 +14,7 @@ def symptom_identifier(mock_model_config):
     with patch('medical_symptom.recognizer.LiteClient'):
         return MedicalSymptomIdentifier(mock_model_config)
 
-def test_identify_symptom_success(symptom_identifier):
+def test_identify(symptom_identifier):
     # Setup mock response
     mock_data = MedicalSymptomIdentifierModel(
         identification=MedicalSymptomIdentificationModel(
@@ -32,14 +32,14 @@ def test_identify_symptom_success(symptom_identifier):
     symptom_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = symptom_identifier.identify_symptom("Jaundice")
+    result = symptom_identifier.identify("Jaundice")
     
     # Assert
     assert result.data.identification.symptom_name == "Jaundice"
     assert result.data.identification.is_well_known is True
     assert symptom_identifier.client.generate_text.called
 
-def test_identify_symptom_empty_name(symptom_identifier):
+def test_identify(symptom_identifier):
     with pytest.raises(ValueError, match="Symptom name cannot be empty"):
-        symptom_identifier.identify_symptom("")
+        symptom_identifier.identify("")
 

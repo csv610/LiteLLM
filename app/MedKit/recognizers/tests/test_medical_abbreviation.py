@@ -14,7 +14,7 @@ def abbr_identifier(mock_model_config):
     with patch('medical_abbreviation.recognizer.LiteClient'):
         return MedicalAbbreviationIdentifier(mock_model_config)
 
-def test_identify_abbreviation_success(abbr_identifier):
+def test_identify(abbr_identifier):
     # Setup mock response
     mock_data = AbbreviationIdentifierModel(
         identification=AbbreviationIdentificationModel(
@@ -32,13 +32,13 @@ def test_identify_abbreviation_success(abbr_identifier):
     abbr_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = abbr_identifier.identify_abbreviation("PRN")
+    result = abbr_identifier.identify("PRN")
     
     # Assert
     assert result.data.identification.abbreviation == "PRN"
     assert result.data.identification.is_well_known is True
     assert abbr_identifier.client.generate_text.called
 
-def test_identify_abbreviation_empty(abbr_identifier):
+def test_identify(abbr_identifier):
     with pytest.raises(ValueError, match="Abbreviation cannot be empty"):
-        abbr_identifier.identify_abbreviation("")
+        abbr_identifier.identify("")

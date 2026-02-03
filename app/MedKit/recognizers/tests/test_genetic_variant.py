@@ -13,7 +13,7 @@ def identifier(mock_model_config):
     with patch('genetic_variant.recognizer.LiteClient'):
         return GeneticVariantIdentifier(mock_model_config)
 
-def test_identify_success(identifier):
+def test_identify(identifier):
     mock_data = GeneticVariantIdentifierModel(
         identification=GeneticVariantIdentificationModel(
             variant_name="BRCA1",
@@ -25,5 +25,5 @@ def test_identify_success(identifier):
     )
     mock_output = ModelOutput(data=mock_data)
     identifier.client.generate_text.return_value = mock_output
-    result = identifier.identify_variant("BRCA1")
+    result = identifier.identify("BRCA1")
     assert getattr(result.data.identification, 'variant_name') == "BRCA1"

@@ -14,7 +14,7 @@ def class_identifier(mock_model_config):
     with patch('medication_class.recognizer.LiteClient'):
         return MedicationClassIdentifier(mock_model_config)
 
-def test_identify_class_success(class_identifier):
+def test_identify(class_identifier):
     # Setup mock response
     mock_data = MedicationClassIdentifierModel(
         identification=MedicationClassIdentificationModel(
@@ -32,13 +32,13 @@ def test_identify_class_success(class_identifier):
     class_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = class_identifier.identify_class("SSRIs")
+    result = class_identifier.identify("SSRIs")
     
     # Assert
     assert result.data.identification.class_name == "SSRIs"
     assert result.data.identification.is_well_known is True
     assert class_identifier.client.generate_text.called
 
-def test_identify_class_empty(class_identifier):
+def test_identify(class_identifier):
     with pytest.raises(ValueError, match="Class name cannot be empty"):
-        class_identifier.identify_class("")
+        class_identifier.identify("")

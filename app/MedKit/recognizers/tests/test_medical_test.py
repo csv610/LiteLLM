@@ -14,7 +14,7 @@ def test_identifier(mock_model_config):
     with patch('medical_test.recognizer.LiteClient'):
         return MedicalTestIdentifier(mock_model_config)
 
-def test_identify_test_success(test_identifier):
+def test_identify(test_identifier):
     # Setup mock response
     mock_data = MedicalTestIdentifierModel(
         identification=MedicalTestIdentificationModel(
@@ -32,14 +32,14 @@ def test_identify_test_success(test_identifier):
     test_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = test_identifier.identify_test("HbA1c")
+    result = test_identifier.identify("HbA1c")
     
     # Assert
     assert result.data.identification.test_name == "HbA1c"
     assert result.data.identification.is_well_known is True
     assert test_identifier.client.generate_text.called
 
-def test_identify_test_empty_name(test_identifier):
+def test_identify(test_identifier):
     with pytest.raises(ValueError, match="Test name cannot be empty"):
-        test_identifier.identify_test("")
+        test_identifier.identify("")
 

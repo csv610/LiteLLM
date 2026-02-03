@@ -14,7 +14,7 @@ def condition_identifier(mock_model_config):
     with patch('medical_condition.recognizer.LiteClient'):
         return MedicalConditionIdentifier(mock_model_config)
 
-def test_identify_condition_success(condition_identifier):
+def test_identify(condition_identifier):
     # Setup mock response
     mock_data = MedicalConditionIdentifierModel(
         identification=MedicalConditionIdentificationModel(
@@ -32,14 +32,14 @@ def test_identify_condition_success(condition_identifier):
     condition_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = condition_identifier.identify_condition("Hypertension")
+    result = condition_identifier.identify("Hypertension")
     
     # Assert
     assert result.data.identification.condition_name == "Hypertension"
     assert result.data.identification.is_well_known is True
     assert condition_identifier.client.generate_text.called
 
-def test_identify_condition_empty_name(condition_identifier):
+def test_identify(condition_identifier):
     with pytest.raises(ValueError, match="Condition name cannot be empty"):
-        condition_identifier.identify_condition("")
+        condition_identifier.identify("")
 

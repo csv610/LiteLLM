@@ -14,7 +14,7 @@ def anatomy_identifier(mock_model_config):
     with patch('medical_anatomy.recognizer.LiteClient'):
         return MedicalAnatomyIdentifier(mock_model_config)
 
-def test_identify_anatomy_success(anatomy_identifier):
+def test_identify(anatomy_identifier):
     # Setup mock response
     mock_data = MedicalAnatomyIdentifierModel(
         identification=MedicalAnatomyIdentificationModel(
@@ -32,14 +32,14 @@ def test_identify_anatomy_success(anatomy_identifier):
     anatomy_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = anatomy_identifier.identify_anatomy("Heart")
+    result = anatomy_identifier.identify("Heart")
     
     # Assert
     assert result.data.identification.structure_name == "Heart"
     assert result.data.identification.is_well_known is True
     assert anatomy_identifier.client.generate_text.called
 
-def test_identify_anatomy_empty_name(anatomy_identifier):
+def test_identify(anatomy_identifier):
     with pytest.raises(ValueError, match="Structure name cannot be empty"):
-        anatomy_identifier.identify_anatomy("")
+        anatomy_identifier.identify("")
 

@@ -13,7 +13,7 @@ def identifier(mock_model_config):
     with patch('medical_coding.recognizer.LiteClient'):
         return MedicalCodingIdentifier(mock_model_config)
 
-def test_identify_success(identifier):
+def test_identify(identifier):
     mock_data = MedicalCodingIdentifierModel(
         identification=MedicalCodingIdentificationModel(
             system_name="ICD-10",
@@ -25,5 +25,5 @@ def test_identify_success(identifier):
     )
     mock_output = ModelOutput(data=mock_data)
     identifier.client.generate_text.return_value = mock_output
-    result = identifier.identify_coding("ICD-10")
+    result = identifier.identify("ICD-10")
     assert getattr(result.data.identification, 'system_name') == "ICD-10"

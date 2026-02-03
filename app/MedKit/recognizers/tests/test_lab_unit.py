@@ -13,7 +13,7 @@ def identifier(mock_model_config):
     with patch('lab_unit.recognizer.LiteClient'):
         return LabUnitIdentifier(mock_model_config)
 
-def test_identify_success(identifier):
+def test_identify(identifier):
     mock_data = LabUnitIdentifierModel(
         identification=LabUnitIdentificationModel(
             unit_name="mEq/L",
@@ -25,5 +25,5 @@ def test_identify_success(identifier):
     )
     mock_output = ModelOutput(data=mock_data)
     identifier.client.generate_text.return_value = mock_output
-    result = identifier.identify_unit("mEq/L")
+    result = identifier.identify("mEq/L")
     assert getattr(result.data.identification, 'unit_name') == "mEq/L"
