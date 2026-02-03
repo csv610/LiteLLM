@@ -127,19 +127,240 @@ The tool generates comprehensive device information in JSON format:
 
 ## Advanced Usage
 
-### Structured Output Mode
+### Structured vs Unstructured Output
 
-Use the `-s` flag to get structured Pydantic model output:
+The tool provides two output modes to serve different use cases:
+
+#### **Unstructured Output (Default)**
+**Use Case**: Quick reference, documentation, human-readable reports
 
 ```bash
+# Generate unstructured text output
+python medical_test_devices_cli.py -i "MRI Scanner"
+```
+
+**Output Format**: Natural language text with clear sections
+```text
+MRI Scanner - Medical Device Information
+
+BASIC INFORMATION
+=================
+Device Name: MRI Scanner
+Device Type: Diagnostic Imaging
+Primary Use: Medical imaging using magnetic resonance
+Manufacturer: Multiple manufacturers (Siemens, GE, Philips)
+
+TECHNICAL SPECIFICATIONS
+========================
+Magnetic Field Strength: 1.5T, 3.0T, 7.0T
+Gradient Systems: High-performance gradient coils
+RF Coils: Multi-channel phased array coils
+Image Resolution: Sub-millimeter spatial resolution
+
+CLINICAL APPLICATIONS
+====================
+Primary Uses:
+- Neurological imaging
+- Musculoskeletal imaging
+- Cardiovascular imaging
+- Oncological imaging
+
+Specialties:
+- Radiology
+- Neurology
+- Orthopedics
+- Cardiology
+
+SAFETY FEATURES
+===============
+Electrical Safety:
+- IEC 60601-1 compliance
+- Magnetic field safety protocols
+- Emergency shut-off systems
+
+Patient Safety:
+- Screening for contraindications
+- Noise protection measures
+- Patient monitoring systems
+```
+
+**Benefits:**
+- **Human-readable** format
+- **Easy to review** and share
+- **Quick reference** for clinical staff
+- **Documentation ready** for reports
+- **No additional dependencies** required
+
+#### **Structured Output (Pydantic Models)**
+**Use Case**: Programmatic processing, data integration, validation
+
+```bash
+# Generate structured JSON output
 python medical_test_devices_cli.py -i "MRI Scanner" -s
 ```
 
-This provides:
+**Output Format**: Validated JSON with structured schema
+```json
+{
+  "device_name": "MRI Scanner",
+  "basic_information": {
+    "device_type": "Diagnostic Imaging",
+    "primary_use": "Medical imaging using magnetic resonance",
+    "manufacturer": "Multiple manufacturers (Siemens, GE, Philips)",
+    "fda_classification": "Class II",
+    "device_category": "Imaging Equipment"
+  },
+  "technical_specifications": {
+    "magnetic_field_strength": ["1.5T", "3.0T", "7.0T"],
+    "gradient_systems": "High-performance gradient coils",
+    "rf_coils": "Multi-channel phased array coils",
+    "image_resolution": "Sub-millimeter spatial resolution",
+    "scan_time": "15-60 minutes depending on protocol",
+    "power_requirements": "3-phase 480V, 50-60 Hz"
+  },
+  "clinical_applications": {
+    "primary_uses": [
+      "Neurological imaging",
+      "Musculoskeletal imaging", 
+      "Cardiovascular imaging",
+      "Oncological imaging"
+    ],
+    "specialties": ["Radiology", "Neurology", "Orthopedics", "Cardiology"],
+    "patient_population": "Adults and children (with appropriate protocols)",
+    "contraindications": ["Pacemakers", "Metal implants", "Pregnancy (first trimester)"]
+  },
+  "safety_features": {
+    "electrical_safety": {
+      "compliance_standards": ["IEC 60601-1", "UL 2601-1"],
+      "magnetic_field_safety": "Controlled access zones",
+      "emergency_systems": "Quench and emergency shut-off"
+    },
+    "patient_safety": {
+      "screening_protocols": "Standardized metal screening",
+      "noise_protection": "Ear protection and communication systems",
+      "monitoring": "Vital signs monitoring during scanning"
+    }
+  },
+  "regulatory_compliance": {
+    "fda_status": "510(k) cleared",
+    "ce_marking": "CE marked for medical use",
+    "other_certifications": ["ISO 13485", "ISO 14971"],
+    "quality_standards": ["FDA 21 CFR Part 820", "MDR compliance"]
+  },
+  "maintenance_requirements": {
+    "routine_maintenance": "Daily, weekly, monthly checks",
+    "calibration_requirements": "Annual calibration and QA",
+    "service_intervals": "Preventive maintenance every 6 months",
+    "technical_support": "24/7 manufacturer support"
+  }
+}
+```
+
+**Benefits:**
 - **Type-safe** data structures
-- **Validation** of output format
-- **Better IDE support** with autocompletion
-- **Easier integration** with Python applications
+- **Automatic validation** of output format
+- **IDE autocompletion** and better development experience
+- **Easy integration** with Python applications
+- **Consistent schema** across all devices
+- **Database ready** for storage and analysis
+- **API compatible** for system integration
+
+#### **Choosing the Right Output Mode**
+
+| Use Case | Recommended Mode | Reason |
+|----------|------------------|---------|
+| **Clinical Documentation** | Unstructured | Human-readable, easy to include in reports |
+| **Training Materials** | Unstructured | Natural language for educational content |
+| **Procurement Systems** | Structured | Database storage and comparison |
+| **Integration with EHR** | Structured | Standardized data format |
+| **Regulatory Submissions** | Structured | Validated, consistent format |
+| **Quick Reference** | Unstructured | Fast, readable format |
+| **Research & Analysis** | Structured | Data processing and statistics |
+| **API Integration** | Structured | Programmatic access and validation |
+
+#### **Python API Usage Examples**
+
+**Unstructured Output Processing:**
+```python
+from pathlib import Path
+from medical_test_devices import MedicalTestDeviceGenerator
+
+# Generate unstructured output
+generator = MedicalTestDeviceGenerator()
+result = generator.generate_text("Ultrasound Machine", structured=False)
+
+# Process as plain text
+lines = result.split('\n')
+sections = {}
+current_section = None
+
+for line in lines:
+    if line.isupper() and line:
+        current_section = line
+        sections[current_section] = []
+    elif current_section and line.strip():
+        sections[current_section].append(line.strip())
+
+# Access specific information
+if 'BASIC INFORMATION' in sections:
+    print("Device Info:", sections['BASIC INFORMATION'])
+```
+
+**Structured Output Processing:**
+```python
+from pathlib import Path
+from medical_test_devices import MedicalTestDeviceGenerator
+
+# Generate structured output
+generator = MedicalTestDeviceGenerator()
+result = generator.generate_text("Ultrasound Machine", structured=True)
+
+# Access data with type safety
+device_name = result.device_name  # String
+device_type = result.basic_information.device_type  # String
+clinical_uses = result.clinical_applications.primary_uses  # List[str]
+safety_compliance = result.safety_features.electrical_safety.compliance_standards  # List[str]
+
+# Database integration
+import json
+device_data = result.model_dump()  # Convert to dict
+json_output = json.dumps(device_data, indent=2)
+
+# Validation is automatic - Pydantic ensures data integrity
+try:
+    # This will raise ValidationError if data is invalid
+    device_data = result.model_dump()
+    print(f"Validated data for {device_name}")
+except Exception as e:
+    print(f"Validation error: {e}")
+```
+
+#### **Performance Comparison**
+
+| Aspect | Unstructured | Structured |
+|--------|---------------|------------|
+| **Generation Speed** | Faster | Slightly slower |
+| **Output Size** | Smaller | Larger |
+| **Processing** | Manual parsing | Direct access |
+| **Validation** | Manual | Automatic |
+| **Memory Usage** | Lower | Higher |
+| **Integration** | Limited | Excellent |
+| **Error Handling** | Manual | Built-in |
+
+#### **Best Practices**
+
+**For Unstructured Output:**
+- Use for **documentation** and **reports**
+- Include in **training materials**
+- Share with **clinical staff**
+- Use for **quick reference**
+
+**For Structured Output:**
+- Use for **system integration**
+- Store in **databases**
+- Process with **automated workflows**
+- Use for **data analysis**
+- Implement in **API endpoints**
 
 ### Custom Model Configuration
 
@@ -206,21 +427,46 @@ from pathlib import Path
 saved_path = generator.save(result, Path("outputs/ecg_machine.json"))
 ```
 
-### Configuration Class
+### Configuration
+
+The tool uses `ModelConfig` from the LiteLLM framework for configuration:
 
 ```python
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional
+from lite.config import ModelConfig
 
-@dataclass
-class DeviceConfig:
-    output_path: Optional[Path] = None
-    verbosity: int = 2
-    enable_cache: bool = True
+# Standard configuration
+model_config = ModelConfig(
+    model="ollama/gemma3",
+    temperature=0.2
+)
 
 # Use with the generator
-config = DeviceConfig(verbosity=3)
+generator = MedicalTestDeviceGenerator(model_config)
+```
+
+### Available Configuration Options
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `model` | str | `"ollama/gemma3"` | LLM model to use for generation |
+| `temperature` | float | `0.2` | Sampling temperature (0.0-2.0) |
+
+### CLI Configuration
+
+Command-line arguments are handled through argparse:
+
+```bash
+# Model selection
+python medical_test_devices_cli.py -i "MRI Scanner" -m "gpt-4"
+
+# Verbosity control
+python medical_test_devices_cli.py -i "MRI Scanner" -v 3
+
+# Output directory
+python medical_test_devices_cli.py -i "MRI Scanner" -d "./custom_output/"
+
+# Structured output
+python medical_test_devices_cli.py -i "MRI Scanner" -s
 ```
 
 ## Device Categories Supported
