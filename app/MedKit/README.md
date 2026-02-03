@@ -1,23 +1,76 @@
-# MedKit - Medical and Healthcare Information System
+# MedKit
 
-MedKit is a medical information and healthcare toolkit built with Python and large language models. It provides modular, command-line accessible tools for accessing, analyzing, and generating medical information across multiple domains.
+A comprehensive medical information toolkit providing command-line access to disease identification, drug interaction checking, medical reference information, and clinical decision support tools.
 
-## Overview
+## Why Use MedKit
 
-MedKit integrates specialized modules to provide healthcare professionals, researchers, and patients with medical information, assessments, and decision support tools. The system uses reusable base classes and follows consistent patterns for CLI interactions, error handling, and data output.
+### **Medical Terminology Recognition**
+- 19 specialized recognizers for diseases, symptoms, drugs, and medical procedures
+- Quick identification of medical terms with confidence levels
+- Standardized medical terminology validation
+- Support for clinical signs, lab units, and genetic variants
 
-### Core Features
+### **Drug Information and Safety**
+- Drug-drug interaction checking with severity levels
+- Drug-disease contraindication identification
+- Drug-food interaction analysis
+- Medication reference and safety information
 
-- **Drug Information Systems**: Medicine information, interactions (drug-drug, drug-food, drug-disease)
-- **Medical Information**: Disease info, anatomy, procedures, specialties, herbal remedies, FAQs
-- **Physical Examination Tools**: Structured assessment modules covering major body systems
-- **Mental Health Assessment**: Depression screening, symptom detection, and mental health reporting
-- **Diagnostics**: Medical devices and medical tests information
-- **Decision Support**: Medical fact checking, myth busting, and clinical decision guidance
-- **Data Extraction**: Medical term extraction, synthesis of case reports
-- **Structured Output**: Pydantic-based data models for type-safe, validated information
+### **Clinical Reference Tools**
+- Disease information with symptoms and treatments
+- Medical procedure descriptions and guidelines
+- Anatomy and specialty information
+- Physical examination guides and protocols
 
-## Quick Navigation
+### **Decision Support Systems**
+- Medical fact checking and validation
+- Clinical decision guidance frameworks
+- Symptom assessment and screening tools
+- Mental health evaluation modules
+
+## Quick Start
+
+### **Medical Recognition Tools**
+```bash
+# Disease identification
+python app/MedKit/recognizers/disease/disease_identifier_cli.py "diabetes mellitus"
+
+# Symptom recognition
+python app/MedKit/recognizers/medical_symptom/medical_symptom_cli.py "chest pain"
+
+# Clinical sign identification
+python app/MedKit/recognizers/clinical_sign/clinical_sign_cli.py "babinski sign"
+
+# Drug identification
+python app/MedKit/recognizers/medication_class/medication_class_cli.py "beta blockers"
+```
+
+### **Drug Interaction Tools**
+```bash
+# Drug-drug interactions
+python app/MedKit/drug/drug_drug/drug_drug_interaction_cli.py --drug1 "aspirin" --drug2 "warfarin"
+
+# Drug-disease interactions
+python app/MedKit/drug/drug_disease/drug_disease_interaction_cli.py --drug "metformin" --disease "renal impairment"
+
+# Drug-food interactions
+python app/MedKit/drug/drug_food/drug_food_interaction_cli.py --drug "warfarin" --food "leafy greens"
+```
+
+### **Medical Reference Tools**
+```bash
+# Disease information
+python app/MedKit/medical/disease_info/disease_info_cli.py --disease "hypertension"
+
+# Medical procedures
+python app/MedKit/medical/med_procedure_info/med_procedure_info_cli.py "appendectomy"
+
+# Anatomy information
+python app/MedKit/medical/anatomy/medical_anatomy_cli.py "heart"
+
+# Medical specialties
+python app/MedKit/medical/med_specialty/med_specialty_cli.py "cardiology"
+```
 
 ### For Developers
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Quick setup and first steps

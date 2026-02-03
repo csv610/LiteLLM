@@ -1,32 +1,274 @@
 # LiteLLM
 
-A unified CLI tool and library for interacting with language models and vision models from multiple providers (OpenAI, Ollama, Google Gemini, Anthropic, etc.) using the LiteLLM library.
+A unified command-line interface for accessing multiple language model providers through a single client. Supports text generation, image analysis, and specialized medical information tools.
 
-## Features
+## Why Use LiteLLM
 
-- **Unified LiteClient**: Single interface for text generation and image analysis across all supported providers.
-- **MedKit**: A comprehensive medical and healthcare information toolkit with modules for drugs, diagnostics, physical exams, and mental health.
-- **Specialized CLI Tools**: Dozens of purpose-built tools for article reviewing, FAQ generation, book chapter creation, and more.
-- **Support for Multiple Providers**: Seamless integration with OpenAI, Ollama, Google Gemini, and others.
-- **Flexible Interactions**: Support for single and multi-image vision analysis.
-- **Structured Data**: Built-in support for Pydantic models to ensure type-safe and validated model responses.
-- **Streamlit Web UI**: Interactive web interface for both text and vision operations.
+### **Unified Access to Multiple AI Providers**
+- Single interface for OpenAI, Anthropic, Google Gemini, Ollama, and other providers
+- Switch between models without changing code or learning different APIs
+- Consistent response format across all providers
+
+### **Medical Information Tools (MedKit)**
+- 19 specialized medical recognizers for disease, symptom, and drug identification
+- Drug interaction checking and medical reference information
+- Clinical decision support tools for healthcare professionals
+
+### **Specialized Content Tools**
+- Article analysis and improvement
+- FAQ generation from existing content
+- Educational content creation and tutoring systems
+- Medical terminology extraction and validation
+
+### **Cost and Performance Optimization**
+- Local model support with Ollama (no API costs)
+- Provider selection based on cost, speed, or capability requirements
+- Structured output with Pydantic models for type-safe responses
+
+## Quick Start
+
+### **Basic Usage**
+```bash
+# Text generation
+python app/cli/liteclient_cli.py -q "Explain machine learning concepts"
+
+# Image analysis
+python app/cli/liteclient_cli.py -i image.jpg -q "Describe this image"
+
+# Model selection
+python app/cli/liteclient_cli.py -q "Write Python code" -m "gpt-4"
+```
+
+### **Medical Tools**
+```bash
+# Disease identification
+python app/MedKit/recognizers/disease/disease_identifier_cli.py "diabetes mellitus"
+
+# Drug interaction check
+python app/MedKit/drug/drug_drug/drug_drug_interaction_cli.py --drug1 "aspirin" --drug2 "warfarin"
+
+# Medical symptom recognition
+python app/MedKit/recognizers/medical_symptom/medical_symptom_cli.py "chest pain"
+```
+
+### **Content Tools**
+```bash
+# Article review
+python app/cli/article_reviewer.py "your article text here"
+
+# FAQ generation
+python app/cli/faq_generator.py "your content text here"
+
+# Educational tutoring
+python app/cli/feymann_tutor.py "explain quantum computing"
+```
 
 ## Installation
 
-1. Clone the repository:
+### **Standard Installation**
 ```bash
 git clone <repository-url>
 cd LiteLLM
+pip install -r requirements.txt
+pip install -e .
 ```
 
-2. Create and activate a virtual environment (recommended):
-
-**Using uv (fastest):**
+### **API Configuration**
 ```bash
-uv venv
-source .venv/bin/activate
+# Optional: Configure API keys for cloud providers
+export OPENAI_API_KEY="your-openai-key"
+export GEMINI_API_KEY="your-gemini-key"
+export ANTHROPIC_API_KEY="your-anthropic-key"
 ```
+
+### **Local Model Setup**
+```bash
+# Install Ollama for local model access
+curl -fsSL https://ollama.ai/install.sh | sh
+ollama pull llama2
+ollama pull gemma3
+```
+
+## Core Components
+
+### **LiteClient Interface**
+- Unified client for text and vision tasks
+- Provider-agnostic API calls
+- Structured output with validation
+- Error handling and retry logic
+
+### **MedKit Medical Tools**
+- **Medical Recognizers** (19 modules): Disease, symptom, drug, and medical terminology identification
+- **Drug Information**: Interactions, contraindications, and safety information
+- **Clinical Tools**: Physical examination guides and decision support
+- **Medical Reference**: Disease information, anatomy, and procedures
+
+### **Content Processing Tools**
+- Article analysis and improvement suggestions
+- FAQ generation from source material
+- Educational content creation
+- Medical terminology extraction
+
+### **Specialized Utilities**
+- Data extraction and analysis tools
+- Web interface through Streamlit
+- Comprehensive testing framework
+- Automation through Makefile commands
+
+## Usage Examples
+
+### **For General AI Tasks**
+```bash
+# Research and analysis
+python app/cli/liteclient_cli.py -q "Summarize recent developments in renewable energy"
+
+# Content creation
+python app/cli/liteclient_cli.py -q "Write a technical blog post about cloud computing"
+
+# Problem solving
+python app/cli/liteclient_cli.py -q "Debug this Python code: [code]"
+```
+
+### **For Healthcare Applications**
+```bash
+# Clinical reference
+python app/MedKit/medical/disease_info/disease_info_cli.py --disease "hypertension"
+
+# Drug safety checks
+python app/MedKit/drug/drug_disease/drug_disease_interaction_cli.py --drug "metformin" --disease "renal impairment"
+
+# Medical education
+python app/MedKit/recognizers/clinical_sign/clinical_sign_cli.py "babinski sign"
+```
+
+### **For Development and Integration**
+```bash
+# Code review and improvement
+python app/cli/liteclient_cli.py -q "Review this Python code for security issues"
+
+# Documentation generation
+python app/cli/faq_generator.py "generate FAQ from technical documentation"
+
+# Data analysis
+python app/cli/liteclient_cli.py -q "Analyze this dataset and provide insights"
+```
+
+## Provider Support
+
+### **Cloud Providers**
+- OpenAI (GPT models)
+- Anthropic (Claude models)
+- Google (Gemini models)
+- Other OpenAI-compatible providers
+
+### **Local Models**
+- Ollama integration
+- Custom model endpoints
+- Local deployment options
+
+### **Model Selection**
+```bash
+# Specify provider and model
+python app/cli/liteclient_cli.py -q "question" -m "openai/gpt-4"
+python app/cli/liteclient_cli.py -q "question" -m "anthropic/claude-3"
+python app/cli/liteclient_cli.py -q "question" -m "ollama/llama2"
+```
+
+## Output Formats
+
+### **Structured Responses**
+```json
+{
+  "response": "Generated text content",
+  "provider": "openai",
+  "model": "gpt-4",
+  "tokens_used": 150,
+  "response_time": 2.3
+}
+```
+
+### **Medical Recognition Results**
+```json
+{
+  "identification": {
+    "term": "diabetes mellitus",
+    "is_recognized": true,
+    "confidence": "high",
+    "category": "disease"
+  },
+  "data_available": true
+}
+```
+
+## Development and Testing
+
+### **Run Tests**
+```bash
+make test
+```
+
+### **Web Interface**
+```bash
+make run-web
+```
+
+### **Development Setup**
+```bash
+make dev
+```
+
+## Architecture
+
+### **Core Components**
+- `lite/lite_client.py` - Unified client interface
+- `lite/config.py` - Configuration and model management
+- `app/cli/` - Command-line tools and interfaces
+- `app/MedKit/` - Medical information tools
+- `app/web/` - Web interface components
+
+### **Data Models**
+- Pydantic models for structured output
+- Type-safe response validation
+- Consistent data formats across providers
+
+## Limitations and Considerations
+
+### **Medical Tools**
+- Medical information is for reference and educational purposes
+- Not intended for clinical diagnosis or treatment decisions
+- Always verify critical medical information with authoritative sources
+- Consult qualified healthcare professionals for medical decisions
+
+### **AI Model Limitations**
+- Responses may contain inaccuracies or hallucinations
+- Model capabilities vary between providers
+- API rate limits and costs apply to cloud providers
+- Local models require sufficient computational resources
+
+### **Usage Guidelines**
+- Verify important information through primary sources
+- Use appropriate models for specific tasks
+- Consider cost and performance requirements
+- Follow provider terms of service and usage policies
+
+## Support and Documentation
+
+### **Additional Documentation**
+- `app/MedKit/README.md` - Medical tools documentation
+- Module-specific README files in respective directories
+- Contract files for legal and ethical usage terms
+
+### **Technical Support**
+- Check requirements.txt for dependency information
+- Verify Python version compatibility (3.8+)
+- Test with basic commands before complex usage
+- Review API key configuration for cloud providers
+
+### **Contributing**
+- Follow development guidelines in CONTRIBUTING.md
+- Run tests before submitting changes
+- Maintain documentation consistency
+- Respect medical AI safety and ethical guidelines
 
 **Using standard venv:**
 ```bash
@@ -73,6 +315,25 @@ LiteLLM/
 │   │   ├── feymann_tutor.py     # Feynman technique tutor
 │   │   └── ... (many other specialized tools)
 │   ├── MedKit/                  # Comprehensive Medical Toolkit
+│   │   ├── recognizers/         # 19 medical recognizer modules
+│   │   │   ├── disease/         # Disease identification
+│   │   │   ├── medical_symptom/ # Medical symptom identification
+│   │   │   ├── clinical_sign/   # Clinical sign identification
+│   │   │   ├── lab_unit/        # Laboratory unit identification
+│   │   │   ├── medical_test/     # Medical test identification
+│   │   │   ├── medical_specialty/ # Medical specialty identification
+│   │   │   ├── medication_class/ # Medication class identification
+│   │   │   ├── medical_device/   # Medical device identification
+│   │   │   ├── medical_procedure/ # Medical procedure identification
+│   │   │   ├── medical_vaccine/  # Medical vaccine identification
+│   │   │   ├── medical_condition/ # Medical condition identification
+│   │   │   ├── medical_coding/   # Medical coding identification
+│   │   │   ├── medical_abbreviation/ # Medical abbreviation identification
+│   │   │   ├── imaging_finding/  # Imaging finding identification
+│   │   │   ├── genetic_variant/  # Genetic variant identification
+│   │   │   ├── medical_pathogen/ # Medical pathogen identification
+│   │   │   ├── medical_supplement/ # Medical supplement identification
+│   │   │   └── medical_anatomy/  # Medical anatomy identification
 │   │   ├── drug/                # Drug information and interactions
 │   │   ├── medical/             # Disease info, anatomy, procedures
 │   │   ├── phyexams/            # 26+ Physical examination modules
@@ -112,7 +373,45 @@ python app/cli/liteclient_cli.py -q "Write a poem about AI" -m "gpt-4" -t 0.8
 
 ### MedKit
 
-MedKit provides specialized medical information tools. Most submodules have their own CLI:
+MedKit provides specialized medical information tools with 19 recognizer modules for quick medical terminology identification:
+
+#### Medical Recognizers
+
+The recognizers module contains 19 specialized tools for identifying medical terminology:
+
+```bash
+# Disease identification
+python app/MedKit/recognizers/disease/disease_identifier_cli.py "diabetes mellitus"
+
+# Medical symptom identification  
+python app/MedKit/recognizers/medical_symptom/medical_symptom_cli.py "chest pain"
+
+# Clinical sign identification
+python app/MedKit/recognizers/clinical_sign/clinical_sign_cli.py "Babinski sign"
+
+# Laboratory unit identification
+python app/MedKit/recognizers/lab_unit/lab_unit_cli.py "mg/dL"
+
+# Medical test identification
+python app/MedKit/recognizers/medical_test/medical_test_cli.py "CBC"
+
+# Genetic variant identification
+python app/MedKit/recognizers/genetic_variant/genetic_variant_cli.py "BRCA1 mutation"
+
+# Imaging finding identification
+python app/MedKit/recognizers/imaging_finding/imaging_finding_cli.py "pulmonary nodule"
+
+# Medical pathogen identification
+python app/MedKit/recognizers/medical_pathogen/medical_pathogen_cli.py "Staphylococcus aureus"
+
+# And 11 more specialized recognizers...
+```
+
+All recognizers support:
+- `--model`: Model selection (default: ollama/gemma3)
+- `--temperature`: Temperature control (default: 0.2)
+
+#### Traditional MedKit Modules
 
 ```bash
 # Get disease information
