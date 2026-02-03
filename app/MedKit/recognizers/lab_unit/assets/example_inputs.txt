@@ -1,82 +1,81 @@
-# Laboratory Unit Examples
+# LaboRAtory Unit Examples
 
-## Common Laboratory Units
-mg_dl
-g_dl
-mmol_l
-umol_l
-ng_ml
-pg_ml
-iu_l
-miu_ml
-ul_u_ml
-kat_l
+## Common LaboRAtory Units
+mg/dL
+g/dL
+mmol/L
+μmol/L
+ng/mL
+pg/mL
+iu/L
+miu/mL
+U/L
+kat/L
 
 ## Hematology Units
-cells_mcl
-cells_ul
+cells/μL
+cells/μL
 fl
 pg
-g_dl
+g/dL
 percent
 ratio
-absolute_count
-relative_count
+Absolute Count
+Relative Count
 index
 
 ## Chemistry Units
-mg_dl
-g_dl
-mmol_l
-umol_l
-meq_l
-mm_hg
-ph_units
-mosm_kg
-ng_ml
-iu_l
+mg/dL
+g/dL
+mmol/L
+μmol/L
+Meq L
+Mm Hg
+Ph Units
+Mosm Kg
+ng/mL
+iu/L
 
 ## Hormone Units
-ng_ml
-pg_ml
-miu_ml
-iu_l
-pmol_l
-nmol_l
-umol_l
-mg_dl
-mcg_dl
-pmol_l
+ng/mL
+pg/mL
+miu/mL
+iu/L
+Pmol L
+Nmol L
+μmol/L
+mg/dL
+mcg/dL
+Pmol L
 
 ## Enzyme Units
-u_l
-iu_l
-kat_l
-ul_u_ml
-nkatal_l
-international_units
-enzyme_units
-activity_units
-catalytic_activity
-reaction_rate
+U/L
+iu/L
+kat/L
+nkat/L
+International Units
+Enzyme Units
+Activity Units
+Catalytic Activity
+Reaction Rate
 
 ## Drug Level Units
-ng_ml
-ug_ml
-mg_l
-umol_l
-mcg_ml
-pmol_l
-nmol_l
-free_concentration
-total_concentration
-therapeutic_range
+ng/mL
+μg/mL
+mg/L
+μmol/L
+mcg/mL
+pmol/L
+nmol/L
+Free Concentration
+Total Concentration
+Therapeutic Range
 
 ## Specialized Units
-arbitrary_units
-relative_units
-standard_deviation
-coefficient_variation
+Arbitrary Units
+Relative Units
+Standard Deviation
+Coefficient Variation
 titer
 dilution
 concentration

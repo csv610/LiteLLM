@@ -1,8 +1,8 @@
 # Medical Symptom Examples
 
-## Common Symptoms
-chest_pain
-shortness_of_breath
+## Common SymptoMS
+Chest Pain
+Shortness Of Breath
 headache
 dizziness
 fatigue
@@ -10,75 +10,75 @@ nausea
 vomiting
 diarrhea
 constipation
-abdominal_pain
-back_pain
-joint_pain
-muscle_pain
+Abdominal Pain
+Back Pain
+Joint Pain
+Muscle Pain
 fever
 chills
 sweating
 cough
-sore_throat
-runny_nose
+sore/thrOAt
+Runny Nose
 congestion
 wheezing
 
-## Neurological Symptoms
+## Neurological SymptoMS
 seizure
 fainting
-memory_loss
+Memory Loss
 confusion
-difficulty_speaking
+Difficulty Speaking
 weakness
 numbness
 tingling
 tremor
-balance_problems
-vision_changes
-hearing_loss
+balance/probleMS
+Vision Changes
+Hearing Loss
 tinnitus
-difficulty_swallowing
-facial_droop
-slurred_speech
-loss_of_consciousness
+Difficulty Swallowing
+Facial Droop
+Slurred Speech
+Loss Of Consciousness
 disorientation
 hallucinations
 delusions
 
-## Cardiovascular Symptoms
+## Cardiovascular SymptoMS
 palpitations
-irregular_heartbeat
-rapid_heartbeat
-slow_heartbeat
-leg_swelling
-ankle_swelling
-cold_extremities
-blue_lips
-blue_fingers
-blood_pressure_changes
-pulse_changes
+Irregular Heartbeat
+RApid/heartbeat
+Slow Heartbeat
+Leg Swelling
+Ankle Swelling
+Cold Extremities
+Blue Lips
+Blue Fingers
+Blood Pressure Changes
+Pulse Changes
 
-## Gastrointestinal Symptoms
+## Gastrointestinal SymptoMS
 heartburn
-acid_reflux
+Acid Reflux
 indigestion
 bloating
 gas
 belching
-loss_of_appetite
-weight_loss
-weight_gain
-difficulty_swallowing
-painful_swallowing
+loss/of/apPETite
+Weight Loss
+Weight Gain
+Difficulty Swallowing
+Painful Swallowing
 regurgitation
-blood_in_stool
-black_stool
-pale_stool
-dark_urine
-yellow_skin
-yellow_eyes
+Blood In Stool
+Black Stool
+Pale Stool
+Dark Urine
+Yellow Skin
+Yellow Eyes
 
-## Dermatological Symptoms
+## Dermatological SymptoMS
 rash
 hives
 itching
@@ -87,15 +87,15 @@ swelling
 blisters
 sores
 ulcers
-dry_skin
-oily_skin
+Dry Skin
+Oily Skin
 acne
 eczema
 psoriasis
-skin_discoloration
+skin/discoloRAtion
 bruising
 bleeding
-hair_loss
-nail_changes
-skin_tags
+Hair Loss
+Nail Changes
+Skin Tags
 moles

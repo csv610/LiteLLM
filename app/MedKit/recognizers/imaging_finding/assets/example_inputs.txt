@@ -1,64 +1,64 @@
 # Imaging Finding Examples
 
 ## Common Radiological Findings
-pulmonary_nodule
-lung_mass
-pleural_effusion
+pulmonary nodule
+lung mass
+pleuRAl/effusion
 pneumothorax
 atelectasis
 consolidation
-interstitial_lung_disease
-pulmonary_infiltrate
-cavitary_lesion
-ground_glass_opacity
+interstitial lung disease
+pulmonary/infiltRAte
+cavitary lesion
+ground glass opacity
 
 ## Cardiac Imaging Findings
-left_ventricular_hypertrophy
-right_ventricular_hypertrophy
+Left Ventricular Hypertrophy
+Right Ventricular Hypertrophy
 cardiomegaly
-pericardial_effusion
-aortic_aneurysm
-aortic_dissection
-valvular_stenosis
-valvular_regurgitation
-wall_motion_abnormality
-myocardial_infarction
+pericardial effusion
+aortic aneurysm
+aortic/disseCTion
+valvular stenosis
+valvular regurgitation
+wall motion abnormality
+myocardial infarction
 
 ## Neurological Imaging Findings
-brain_tumor
-cerebral_edema
+bRAin/tumor
+cerebRAl/edema
 hydrocephalus
-subdural_hematoma
-epidural_hematoma
-subarachnoid_hemorrhage
-intracerebral_hemorrhage
-ischemic_stroke
-hemorrhagic_stroke
-white_matter_lesions
+subduRAl/hematoma
+epiduRAl/hematoma
+subaRAchnoid/hemorrhage
+intRAcerebRAl/hemorrhage
+ischemic stroke
+hemorrhagic stroke
+white matter lesions
 
 ## Abdominal Imaging Findings
-hepatic_lesion
-renal_mass
+hepatic lesion
+renal mass
 splenomegaly
 hepatomegaly
 gallstones
-kidney_stones
-pancreatic_mass
-adrenal_mass
+kidney stones
+pancreatic mass
+adrenal mass
 lymphadenopathy
 ascites
 
 ## Musculoskeletal Findings
 fracture
 dislocation
-bone_lesion
-soft_tissue_mass
-joint_effusion
+bone lesion
+soft tissue mass
+joint effusion
 osteomyelitis
-septic_arthritis
-degenerative_joint_disease
-herniated_disc
-spinal_stenosis
+septic arthritis
+degeneRAtive/joint/disease
+herniated disc
+spinal stenosis
 
 ## Vascular Imaging Findings
 atherosclerosis
@@ -67,7 +67,7 @@ occlusion
 aneurysm
 thrombosis
 embolism
-vascular_malformation
-venous_insufficiency
-deep_vein_thrombosis
-pulmonary_embolism
+vascular malformation
+venous insufficiency
+deep vein thrombosis
+pulmonary embolism

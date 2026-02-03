@@ -1,119 +1,118 @@
 # Medical Pathogen Examples
 
 ## Bacterial Pathogens
-staphylococcus_aureus
-staph_aureus
+Staphylococcus aureus
+S. aureus
 mrsa
-methicillin_resistant_staphylococcus_aureus
-streptococcus_pneumoniae
-strep_pneumoniae
-streptococcus_pyogenes
-strep_pyogenes
-group_a_strep
-group_b_strep
-escherichia_coli
-e_coli
-salmonella
-shigella
-campylobacter
-clostridium_difficile
-c_diff
-clostridium_tetani
-clostridium_botulinum
-bacillus_anthracis
+Methicillin-resistant Staphylococcus aureus
+Streptococcus pneumoniae
+S. pneumoniae
+Streptococcus pyogenes
+Group A Streptococcus
+Group B Streptococcus
+Escherichia coli
+E. coli
+Salmonella
+Shigella
+Campylobacter
+Clostridium difficile
+C. difficile
+Clostridium tetani
+Clostridium botulinum
+Bacillus anthracis
 anthrax
-yersinia_pestis
+Yersinia pestis
 plague
-vibrio_cholerae
+Vibrio cholerae
 cholera
-mycobacterium_tuberculosis
+Mycobacterium tuberculosis
 tb
-mycobacterium_leprae
+Mycobacterium leprae
 leprosy
-neisseria_meningitidis
+Neisseria meningitidis
 meningococcus
-neisseria_gonorrhoeae
+Neisseria gonorrhoeae
 gonorrhea
-haemophilus_influenzae
-h_influenzae
-pertussis
-whooping_cough
+Haemophilus influenzae
+H. influenzae
+Bordetella pertussis
+whooping cough
 diphtheria
 tetanus
-legionella
-legionnaires_disease
-mycoplasma_pneumoniae
-chlamydia_pneumoniae
-chlamydia_trachomatis
+Legionella
+Legionnaires disease
+Mycoplasma pneumoniae
+Chlamydia pneumoniae
+Chlamydia trachomatis
 syphilis
-treponema_pallidum
-borrelia_burgdorferi
-lyme_disease
-rickettsia
-rocky_mountain_spotted_fever
+Treponema pallidum
+Borrelia burgdorferi
+Lyme disease
+Rickettsia
+Rocky Mountain spotted fever
 
 ## Viral Pathogens
-influenza_virus
+influenza virus
 flu
-influenza_a
-influenza_b
-h1n1
+influenza A
+influenza B
+H1N1
 h3n2
-covid_19
-sars_cov_2
+covid/19
+sars/cov/2
 coronavirus
-sars_cov
-mers_cov
+Sars Cov
+Mers Cov
 rhinovirus
-common_cold
+Common Cold
 adenovirus
-parainfluenza_virus
-respiratory_syncytial_virus
+paRAinfluenza/virus
+respiRAtory/syncytial/virus
 rsv
-human_metapneumovirus
-hiv
-human_immunodeficiency_virus
-aids
-hepatitis_a_virus
-hepatitis_b_virus
-hepatitis_c_virus
-hepatitis_d_virus
-hepatitis_e_virus
-herpes_simplex_virus
+Human Metapneumovirus
+HIV
+Human Immunodeficiency Virus
+AIDS
+Hepatitis A Virus
+Hepatitis B Virus
+Hepatitis C Virus
+Hepatitis D Virus
+Hepatitis E Virus
+Herpes Simplex Virus
 hsv
-herpes_simplex_virus_1
-herpes_simplex_virus_2
-varicella_zoster_virus
+herpes/simplex/virus/1
+herpes/simplex/virus/2
+Varicella Zoster Virus
 chickenpox
 shingles
-epstein_barr_virus
+Epstein Barr Virus
 ebv
-infectious_mononucleosis
+infeCTious/mononucleosis
 cytomegalovirus
 cmv
-human_papillomavirus
+Human Papillomavirus
 hpv
-cervical_cancer
-genital_warts
-measles_virus
+Cervical Cancer
+Genital Warts
+Measles Virus
 measles
-mumps_virus
+Mumps Virus
 mumps
-rubella_virus
-german_measles
+Rubella Virus
+German Measles
 poliovirus
 polio
-rabies_virus
+RAbies/virus
 rabies
-west_nile_virus
-zika_virus
-dengue_virus
-dengue_fever
-chikungunya_virus
-yellow_fever_virus
-ebola_virus
-marburg_virus
-lassa_fever_virus
+West Nile Virus
+Zika Virus
+Dengue Virus
+Dengue Fever
+Chikungunya Virus
+Yellow Fever Virus
+Ebola Virus
+Marburg Virus
+Lassa Fever Virus
 hantavirus
 norovirus
 rotavirus
@@ -123,185 +122,185 @@ enterovirus
 parechovirus
 
 ## Fungal Pathogens
-candida_albicans
+Candida Albicans
 candida
 candidiasis
 thrush
-yeast_infection
+yeast/infeCTion
 aspergillus
-aspergillus_fumigatus
+Aspergillus Fumigatus
 aspergillosis
-cryptococcus_neoformans
-cryptococcal_meningitis
-histoplasma_capsulatum
+Cryptococcus Neoformans
+Cryptococcal Meningitis
+Histoplasma Capsulatum
 histoplasmosis
-blastomyces_dermatitidis
+Blastomyces Dermatitidis
 blastomycosis
-coccidioides_immitis
-valley_fever
-sporothrix_schenckii
+Coccidioides Immitis
+Valley Fever
+Sporothrix Schenckii
 sporotrichosis
 mucormycosis
 zygomycosis
-pneumocystis_jirovecii
-pneumocystis_pneumonia
+Pneumocystis Jirovecii
+Pneumocystis Pneumonia
 dermatophytes
 ringworm
-tinea_capitis
-tinea_corporis
-tinea_pedis
-athletes_foot
-tinea_unguium
-nail_fungus
-tinea_cruris
-jock_itch
-tinea_versicolor
-pityriasis_versicolor
+Tinea Capitis
+Tinea Corporis
+Tinea Pedis
+Athletes Foot
+Tinea Unguium
+Nail Fungus
+Tinea Cruris
+Jock Itch
+Tinea Versicolor
+Pityriasis Versicolor
 malassezia
-candida_parapsilosis
-candida_tropicalis
-candida_glabrata
-candida_auris
-aspergillus_niger
-aspergillus_flavus
+candida/paRApsilosis
+Candida Tropicalis
+candida/glabRAta
+Candida Auris
+Aspergillus Niger
+Aspergillus Flavus
 fusarium
 scedosporium
 penicillium
 alternaria
 cladosporium
 
-## Parasitic Pathogens
-plasmodium_falciparum
+## PaRAsitic Pathogens
+Plasmodium Falciparum
 malaria
-plasmodium_vivax
-plasmodium_ovale
-plasmodium_malariae
+Plasmodium Vivax
+Plasmodium Ovale
+Plasmodium Malariae
 leishmania
 leishmaniasis
-trypanosoma_brucei
-sleeping_sickness
-trypanosoma_cruzi
-chagas_disease
-schistosoma_mansoni
+Trypanosoma Brucei
+Sleeping Sickness
+Trypanosoma Cruzi
+Chagas Disease
+Schistosoma Mansoni
 schistosomiasis
-schistosoma_haematobium
-schistosoma_japonicum
-fasciola_hepatica
+Schistosoma Haematobium
+Schistosoma Japonicum
+Fasciola Hepatica
 fascioliasis
 paragonimus
 paragonimiasis
-clonorchis_sinensis
+Clonorchis Sinensis
 clonorchiasis
-opisthorchis_viverrini
+Opisthorchis Viverrini
 opisthorchiasis
-trichinella_spiralis
+trichinella/spiRAlis
 trichinosis
-enterobius_vermicularis
+Enterobius Vermicularis
 pinworm
-ascaris_lumbricoides
+Ascaris Lumbricoides
 roundworm
 hookworm
-necator_americanus
-ancylostoma_duodenale
+Necator Americanus
+Ancylostoma Duodenale
 whipworm
-trichuris_trichiura
-strongyloides_stercoralis
+trichuris/trichiuRA
+strongyloides/stercoRAlis
 strongyloidiasis
-taenia_saginata
-beef_tapeworm
-taenia_solium
-pork_tapeworm
-echinococcus_granulosus
-hydatid_disease
-diphyllobothrium_latum
-fish_tapeworm
-hymenolepis_nana
-dwarf_tapeworm
-giardia_lamblia
+Taenia Saginata
+Beef Tapeworm
+Taenia Solium
+Pork Tapeworm
+echinococcus/gRAnulosus
+Hydatid Disease
+Diphyllobothrium Latum
+Fish Tapeworm
+Hymenolepis Nana
+Dwarf Tapeworm
+Giardia Lamblia
 giardiasis
-cryptosporidium_parvum
+Cryptosporidium Parvum
 cryptosporidiosis
-cyclospora_cayetanensis
+cyclospoRA/cayetanensis
 cyclosporiasis
-isopora_belli
+isopoRA/belli
 isosporiasis
 microsporidia
 microsporidiosis
-babesia_microti
+Babesia Microti
 babesiosis
 
 ## Prion Pathogens
-creutzfeldt_jakob_disease
+Creutzfeldt Jakob Disease
 cjd
-variant_creutzfeldt_jakob_disease
+Variant Creutzfeldt Jakob Disease
 vcjd
-gerstmann_straussler_scheinker_syndrome
+gerstmann/stRAussler/scheinker/syndrome
 gss
-fatal_familial_insomnia
+Fatal Familial Insomnia
 ffi
 kuru
 scrapie
-bovine_spongiform_encephalopathy
+Bovine Spongiform Encephalopathy
 bse
-mad_cow_disease
-chronic_wasting_disease
+Mad Cow Disease
+Chronic Wasting Disease
 cwd
-nor98_atypical_scrapie
-atypical_nor98
+nor98/atypical/scRApie
+atypical/nor98
 
 ## Emerging Pathogens
-middle_east_respiratory_syndrome
+middle/east/respiRAtory/syndrome
 mers
-severe_acute_respiratory_syndrome
+severe/acute/respiRAtory/syndrome
 sars
-novel_coronavirus
+Novel Coronavirus
 ncov
-wuhan_coronavirus
-h7n9_influenza
-h5n1_influenza
-bird_flu
-h5n6_influenza
-h7n7_influenza
-h9n2_influenza
-zoonotic_influenza
-swine_flu
-variant_influenza
+Wuhan Coronavirus
+h7n9/influenza
+h5n1/influenza
+Bird Flu
+h5n6/influenza
+h7n7/influenza
+h9n2/influenza
+Zoonotic Influenza
+Swine Flu
+Variant Influenza
 henipavirus
-nipah_virus
-hendra_virus
-lujo_virus
+Nipah Virus
+hendRA/virus
+Lujo Virus
 arenavirus
-lassa_fever
-junin_virus
-argentine_hemorrhagic_fever
-machupo_virus
-bolivian_hemorrhagic_fever
-guanarito_virus
-venezuelan_hemorrhagic_fever
-sabia_virus
-brazilian_hemorrhagic_fever
-chapare_virus
-severe_fever_with_thrombocytopenia_syndrome
+Lassa Fever
+Junin Virus
+Argentine Hemorrhagic Fever
+Machupo Virus
+Bolivian Hemorrhagic Fever
+Guanarito Virus
+Venezuelan Hemorrhagic Fever
+Sabia Virus
+bRAzilian/hemorrhagic/fever
+Chapare Virus
+Severe Fever With Thrombocytopenia Syndrome
 sfts
-heartland_virus
-bourbon_virus
-powassan_virus
-deer_tick_virus
-oyapock_virus
-mayaro_virus
-oropouche_virus
-madariaga_virus
-rift_valley_fever
-crimean_congo_hemorrhagic_fever
-tick_borne_encephalitis
-louping_ill
-powassan_encephalitis
-colorado_tick_fever
+Heartland Virus
+Bourbon Virus
+Powassan Virus
+Deer Tick Virus
+Oyapock Virus
+Mayaro Virus
+Oropouche Virus
+Madariaga Virus
+Rift Valley Fever
+Crimean Congo Hemorrhagic Fever
+Tick Borne Encephalitis
+Louping Ill
+Powassan Encephalitis
+coloRAdo/tick/fever
 tularemia
-q_fever
-legionnaires_disease
-pontiac_fever
+Q Fever
+Legionnaires Disease
+Pontiac Fever
 melioidosis
 glanders
-burkholderia_pseudomallei
-burkholderia_mallei
+Burkholderia Pseudomallei
+Burkholderia Mallei

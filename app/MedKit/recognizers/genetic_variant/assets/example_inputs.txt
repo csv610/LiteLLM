@@ -1,61 +1,61 @@
 # Genetic Variant Examples
 
 ## Common Genetic Variants
-brca1_mutation
-brca2_mutation
-cystic_fibrosis_delta_f508
-huntington_cag_repeat
-sickle_cell_mutation
-thrombophilia_factor_v
-marfan_fbn1_mutation
-achondroplasia_fgfr3
-phenylketonuria_pah
-tay_sachs_hexa
+BRCA1 mutation
+BRCA2 mutation
+cystic fibrosis ΔF508
+Huntington cag repeat
+sickle cell mutation
+FaCTor V thrombophilia
+Marfan FBN1 mutation
+achondroplasia FGFR3
+phenylketonuria pah
+Tay-Sachs hexa
 
 ## Pharmacogenomic Variants
-cyp2d6_poor_metabolizer
-cyp2c19_loss_of_function
-tpmt_deficiency
-dpd_deficiency
-ugt1a1_variant
-nudt15_variant
-hlab5801_allele
-slco1b1_variant
-vkorc1_variant
-cyp2c9_variant
+cyp2d6/poor/metabolizer
+cyp2c19/loss/of/funCTion
+Tpmt Deficiency
+Dpd Deficiency
+ugt1a1/variant
+nudt15/variant
+hlab5801/allele
+slco1b1/variant
+vkorc1/variant
+cyp2c9/variant
 
 ## Cancer-Related Variants
-egfr_mutation
-alk_rearrangement
-braf_v600e
-kras_mutation
-ntrk_fusion
-her2_amplification
-p53_mutation
-msi_high
-tmb_high
-pd_l1_expression
+Egfr Mutation
+alk/rearRAngement
+bRAf/v600e
+kRAs/mutation
+Ntrk Fusion
+her2/amplification
+p53/mutation
+MSi/high
+Tmb High
+pd/l1/expression
 
 ## Cardiovascular Variants
-ldlr_mutation
-apob_mutation
-pcsk9_variant
-mthfr_variant
-factor_v_leiden
-prothrombin_mutation
-fibrillin_mutation
-myosin_binding_protein_c
-titin_mutation
-lamin_ac_mutation
+Ldlr Mutation
+Apob Mutation
+pcsk9/variant
+Mthfr Variant
+faCTor/v/leiden
+Prothrombin Mutation
+Fibrillin Mutation
+Myosin Binding Protein C
+Titin Mutation
+Lamin Ac Mutation
 
 ## Neurological Variants
-app_mutation
-presenilin_mutation
-alpha_synuclein
-lrrk2_mutation
-parkin_mutation
-huntingtin_cag_expansion
-ataxin_mutation
-sod1_mutation
-fus_mutation
-tar_dna_binding_protein
+App Mutation
+Presenilin Mutation
+Alpha Synuclein
+lrrk2/mutation
+Parkin Mutation
+Huntingtin Cag Expansion
+Ataxin Mutation
+sod1/mutation
+Fus Mutation
+Tar Dna Binding Protein

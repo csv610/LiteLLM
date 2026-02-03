@@ -14,44 +14,44 @@ rheumatology
 pulmonology
 nephrology
 hematology
-infectious_disease
+infeCTious/disease
 anesthesiology
 radiology
 surgery
-emergency_medicine
-family_medicine
-internal_medicine
+Emergency Medicine
+Family Medicine
+Internal Medicine
 
 ## Subspecialties
-interventional_cardiology
-pediatric_cardiology
+Interventional Cardiology
+Pediatric Cardiology
 neurosurgery
-orthopedic_sports_medicine
-medical_oncology
-radiation_oncology
-child_psychiatry
-geriatric_psychiatry
+Orthopedic Sports Medicine
+Medical Oncology
+RAdiation/oncology
+Child Psychiatry
+Geriatric Psychiatry
 dermatopathology
-cosmetic_dermatology
-colorectal_surgery
-cardiothoracic_surgery
-pediatric_surgery
-trauma_surgery
-critical_care_medicine
-sleep_medicine
-pain_medicine
-addiction_medicine
-palliative_care
-hospice_medicine
+Cosmetic Dermatology
+coloreCTal/surgery
+cardiothoRAcic/surgery
+Pediatric Surgery
+tRAuma/surgery
+Critical Care Medicine
+Sleep Medicine
+Pain Medicine
+addiCTion/medicine
+Palliative Care
+Hospice Medicine
 
 ## Emerging Specialties
-genomic_medicine
-precision_medicine
+Genomic Medicine
+Precision Medicine
 telemedicine
-digital_health
-lifestyle_medicine
-integrative_medicine
-functional_medicine
-anti_aging_medicine
-regenerative_medicine
+Digital Health
+Lifestyle Medicine
+integRAtive/medicine
+funCTional/medicine
+Anti Aging Medicine
+regeneRAtive/medicine
 nanomedicine

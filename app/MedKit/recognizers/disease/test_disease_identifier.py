@@ -42,67 +42,66 @@ def read_random_example_from_assets():
 
 
 def test_prompt_builder():
-    """Test the PromptBuilder class."""
-    print("Testing PromptBuilder...")
+    """Validate the PromptBuilder class functionality."""
+    print("Validating PromptBuilder...")
     
     # Read random example from assets
     example_disease = read_random_example_from_assets()
     
-    # Test system prompt
+    # Validate system prompt generation
     system_prompt = PromptBuilder.create_system_prompt()
     assert isinstance(system_prompt, str)
     assert len(system_prompt) > 0
-    print("✓ System prompt created successfully")
+    print("✓ System prompt generated successfully")
     
-    # Test user prompt
+    # Validate user prompt generation
     disease_input = DiseaseIdentifierInput(example_disease)
     user_prompt = PromptBuilder.create_user_prompt(disease_input)
     assert isinstance(user_prompt, str)
     assert example_disease in user_prompt
-    print("✓ User prompt created successfully")
+    print("✓ User prompt generated successfully")
     
-    # Test empty disease name
+    # Validate empty disease name handling
     try:
         empty_input = DiseaseIdentifierInput("")
-        assert False, "Should have raised ValueError for empty disease name"
+        assert False, "Expected ValueError for empty disease name"
     except ValueError:
-        print("✓ Empty disease name validation works correctly")
+        print("✓ Empty disease name validation functions correctly")
 
 
 def test_disease_identifier_models():
-    """Test the Pydantic models."""
-    print("\nTesting Disease Identifier Models...")
+    """Validate the Pydantic model structures."""
+    print("\nValidating Disease Identifier Models...")
     
     # Read random example from assets
     example_disease = read_random_example_from_assets()
     
-    # Test DiseaseIdentificationModel
+    # Validate DiseaseIdentificationModel structure (corrected for focused objective)
     identification = DiseaseIdentifierModel(
         disease_name=example_disease,
         is_well_known=True,
-        common_symptoms=["symptom1", "symptom2"],
-        prevalence="Common",
-        medical_significance="Significant"
+        recognition_confidence="high",
+        medical_literature_reference="Recognized in major medical databases"
     )
-    print("✓ DiseaseIdentificationModel created successfully")
+    print("✓ DiseaseIdentificationModel instantiated successfully")
     
-    # Test DiseaseIdentifierModel
+    # Validate DiseaseIdentifierModel structure
     disease_model = DiseaseIdentifierModel(
         identification=identification,
-        summary=f"{example_disease} is a well-known disease",
+        summary=f"{example_disease} is a recognized disease in medical literature",
         data_available=True
     )
-    print("✓ DiseaseIdentifierModel created successfully")
+    print("✓ DiseaseIdentifierModel instantiated successfully")
     
-    # Test ModelOutput
+    # Validate ModelOutput structure
     model_output = ModelOutput(data=disease_model)
     assert model_output.data.disease_name == example_disease
-    print("✓ ModelOutput created successfully")
+    print("✓ ModelOutput instantiated successfully")
 
 
 def test_disease_identifier_initialization():
-    """Test DiseaseIdentifier initialization."""
-    print("\nTesting DiseaseIdentifier Initialization...")
+    """Validate DiseaseIdentifier initialization."""
+    print("\nValidating DiseaseIdentifier Initialization...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = DiseaseIdentifier(config)
@@ -111,82 +110,97 @@ def test_disease_identifier_initialization():
     print("✓ DiseaseIdentifier initialized successfully")
 
 
-def test_disease_identifier_validation():
-    """Test DiseaseIdentifier input validation."""
-    print("\nTesting DiseaseIdentifier Validation...")
+def test_method_name_consistency():
+    """Validate that the identify method exists and works correctly."""
+    print("\nValidating Method Name Consistency...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = DiseaseIdentifier(config)
     
-    # Test empty disease name
-    try:
-        # This should not raise an error as validation happens in the input model
-        disease_input = DiseaseIdentifierInput("")
-        assert False, "Should have raised ValueError for empty disease name"
-    except ValueError:
-        print("✓ Empty disease name validation works correctly")
+    # Validate that the identify method exists and can be called
+    assert hasattr(identifier, 'identify'), "identify method should exist"
+    assert callable(getattr(identifier, 'identify')), "identify should be callable"
     
-    # Test whitespace-only disease name
+    # Validate method signature
+    try:
+        example_disease = read_random_example_from_assets()
+        result = identifier.identify(example_disease)
+        print("✓ identify method has correct signature")
+    except Exception as e:
+        print(f"✗ Error with identify method: {e}")
+        raise
+
+
+def test_disease_identifier_validation():
+    """Validate DiseaseIdentifier input validation."""
+    print("\nValidating DiseaseIdentifier Input Validation...")
+    
+    config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+    identifier = DiseaseIdentifier(config)
+    
+    # Validate empty disease name handling
+    try:
+        disease_input = DiseaseIdentifierInput("")
+        assert False, "Expected ValueError for empty disease name"
+    except ValueError:
+        print("✓ Empty disease name validation functions correctly")
+    
+    # Validate whitespace-only disease name handling
     try:
         disease_input = DiseaseIdentifierInput("   ")
-        assert False, "Should have raised ValueError for whitespace-only disease name"
+        assert False, "Expected ValueError for whitespace-only disease name"
     except ValueError:
-        print("✓ Whitespace-only disease name validation works correctly")
+        print("✓ Whitespace-only disease name validation functions correctly")
 
 
 def test_with_example_diseases():
-    """Test with example diseases from assets."""
-    print("\nTesting with Example Diseases...")
+    """Validate with random example diseases from assets."""
+    print("\nValidating with Example Diseases...")
     
-    # Read example diseases from assets
-    assets_file = Path(__file__).parent / "assets" / "example_inputs.txt"
-    if assets_file.exists():
-        with open(assets_file, 'r') as f:
-            content = f.read()
+    config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+    identifier = DiseaseIdentifier(config)
+    
+    # Validate multiple random examples
+    for i in range(3):
+        example_disease = read_random_example_from_assets()
         
-        # Extract disease names (skip comments and empty lines)
-        diseases = []
-        for line in content.split('\n'):
-            line = line.strip()
-            if line and not line.startswith('#') and not line.startswith('##'):
-                diseases.append(line)
-        
-        print(f"Found {len(diseases)} example diseases")
-        
-        # Test a few examples
-        test_diseases = diseases[:5]  # Test first 5 diseases
-        config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-        identifier = DiseaseIdentifier(config)
-        
-        for disease in test_diseases:
-            try:
-                disease_input = DiseaseIdentifierInput(disease)
-                print(f"✓ Disease input created for: {disease}")
-            except Exception as e:
-                print(f"✗ Error creating input for {disease}: {e}")
-    else:
-        print("⚠ Example inputs file not found")
+        try:
+            # Validate input creation
+            disease_input = DiseaseIdentifierInput(example_disease)
+            assert disease_input.name == example_disease
+            print(f"✓ Test {i+1}: Input created for {example_disease}")
+            
+            # Validate actual identification
+            result = identifier.identify(example_disease)
+            assert result is not None
+            assert hasattr(result, 'data')
+            print(f"✓ Test {i+1}: Successfully identified {example_disease}")
+            
+        except Exception as e:
+            print(f"✗ Test {i+1}: Error with {example_disease}: {e}")
+            raise  # Re-raise to fail the test
 
 
 def main():
-    """Run all tests."""
+    """Run all validations."""
     print("=" * 60)
-    print("DISEASE IDENTIFIER MODULE TESTS")
+    print("DISEASE IDENTIFIER MODULE VALIDATIONS")
     print("=" * 60)
     
     try:
         test_prompt_builder()
         test_disease_identifier_models()
         test_disease_identifier_initialization()
+        test_method_name_consistency()
         test_disease_identifier_validation()
         test_with_example_diseases()
         
         print("\n" + "=" * 60)
-        print("ALL TESTS COMPLETED SUCCESSFULLY!")
+        print("ALL VALIDATIONS COMPLETED SUCCESSFULLY!")
         print("=" * 60)
         
     except Exception as e:
-        print(f"\n❌ TEST FAILED: {e}")
+        print(f"\n❌ VALIDATION FAILED: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

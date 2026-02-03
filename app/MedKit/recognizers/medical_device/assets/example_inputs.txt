@@ -4,25 +4,25 @@
 pacemaker
 defibrillator
 icd
-cardiac_monitor
-ecg_machine
-holter_monitor
-event_monitor
-blood_pressure_monitor
-heart_valve
+Cardiac Monitor
+ecg machine
+Holter Monitor
+Event Monitor
+Blood Pressure Monitor
+Heart Valve
 stent
 
 ## Diagnostic Devices
-xray_machine
-ct_scanner
-mri_machine
-ultrasound_machine
-pet_scanner
-spect_scanner
-mammography_machine
-bone_density_scanner
-fluoroscopy_machine
-angiography_machine
+X-ray machine
+ct scanner
+mri machine
+ultrasound machine
+PET/scanner
+spect scanner
+mammogRAphy/machine
+Bone Density Scanner
+Fluoroscopy Machine
+angiogRAphy/machine
 
 ## Surgical Instruments
 scalpel
@@ -32,66 +32,66 @@ retractors
 clamps
 needles
 sutures
-electrosurgical_unit
-laser_system
+eleCTrosurgical/unit
+Laser System
 endoscope
 
 ## Monitoring Devices
-pulse_oximeter
-blood_glucose_monitor
+Pulse Oximeter
+Blood Glucose Monitor
 thermometer
-blood_pressure_cuff
-heart_rate_monitor
-respiratory_monitor
-temperature_monitor
-pressure_monitor
-flow_meter
-oxygen_monitor
+Blood Pressure Cuff
+heart/RAte/monitor
+respiRAtory/monitor
+tempeRAture/monitor
+Pressure Monitor
+Flow Meter
+Oxygen Monitor
 
 ## Orthopedic Devices
-artificial_joint
+Artificial Joint
 prosthesis
 implant
 plate
 screw
 rod
-external_fixator
-internal_fixator
-spinal_fusion_device
-joint_replacement
+External Fixator
+Internal Fixator
+Spinal Fusion Device
+joint replacement
 
-## Respiratory Devices
+## RespiRAtory Devices
 ventilator
-oxygen_tank
+Oxygen Tank
 nebulizer
 inhaler
-cpap_machine
-bipap_machine
-oxygen_mask
-tracheostomy_tube
-chest_tube
-suction_device
+Cpap Machine
+Bipap Machine
+Oxygen Mask
+tRAcheostomy/tube
+Chest Tube
+suCTion/device
 
-## Laboratory Equipment
+## LaboRAtory Equipment
 centrifuge
 microscope
 spectrophotometer
 incubator
 autoclave
 pipette
-blood_analyzer
-urine_analyzer
-cell_counter
-dna_sequencer
+Blood Analyzer
+Urine Analyzer
+Cell Counter
+Dna Sequencer
 
 ## Drug Delivery Devices
-infusion_pump
-syringe_pump
-iv_pump
-insulin_pump
-pain_pump
-chemotherapy_pump
-antibiotic_pump
-nutrition_pump
-blood_product_pump
-medication_dispenser
+infusion pump
+syringe pump
+Iv Pump
+Insulin Pump
+Pain Pump
+chemotheRApy/pump
+Antibiotic Pump
+Nutrition Pump
+blood/produCT/pump
+Medication Dispenser

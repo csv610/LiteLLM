@@ -1,8 +1,8 @@
 # Medication Class Examples
 
 ## Common Drug Classes
-beta_blockers
-ace_inhibitors
+Beta Blockers
+Ace Inhibitors
 statins
 nsaids
 opioids
@@ -13,10 +13,10 @@ antidiabetics
 anticoagulants
 
 ## Cardiovascular Medications
-beta_blockers
-ace_inhibitors
+Beta Blockers
+Ace Inhibitors
 arb
-calcium_channel_blockers
+Calcium Channel Blockers
 diuretics
 statins
 antiplatelets
@@ -33,53 +33,53 @@ tetracyclines
 sulfonamides
 aminoglycosides
 carbapenems
-monobactams
+monobaCTaMS
 glycopeptides
 
 ## Pain Medications
 opioids
 nsaids
 acetaminophen
-muscle_relaxants
+Muscle Relaxants
 anticonvulsants
 antidepressants
 corticosteroids
-local_anesthetics
-topical_analgesics
-nerve_blocks
+Local Anesthetics
+Topical Analgesics
+Nerve Blocks
 
 ## Psychiatric Medications
 ssri
 snri
-tricyclic_antidepressants
+Tricyclic Antidepressants
 maoi
-atypical_antipsychotics
-typical_antipsychotics
+Atypical Antipsychotics
+Typical Antipsychotics
 benzodiazepines
-mood_stabilizers
+Mood Stabilizers
 stimulants
 anxiolytics
 
 ## Diabetes Medications
 metformin
 sulfonylureas
-dpp_4_inhibitors
-sglt2_inhibitors
-glp_1_agonists
+dpp/4/inhibitors
+sglt2/inhibitors
+glp/1/agonists
 insulin
 thiazolidinediones
-alpha_glucosidase_inhibitors
-amylin_analogues
-bile_acid_sequestrants
+Alpha Glucosidase Inhibitors
+Amylin Analogues
+bile/acid/sequestRAnts
 
-## Respiratory Medications
+## RespiRAtory Medications
 bronchodilators
-inhaled_corticosteroids
-leukotriene_modifiers
-mast_cell_stabilizers
+Inhaled Corticosteroids
+Leukotriene Modifiers
+Mast Cell Stabilizers
 antihistamines
 decongestants
-expectorants
+expeCToRAnts
 mucolytics
-cough_suppressants
+Cough Suppressants
 anticholinergics

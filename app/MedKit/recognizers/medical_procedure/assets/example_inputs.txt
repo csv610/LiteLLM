@@ -11,7 +11,7 @@ gastrectomy
 nephrectomy
 splenectomy
 thyroidectomy
-parathyroidectomy
+paRAthyroideCTomy
 adrenalectomy
 pancreatectomy
 hepatectomy
@@ -21,51 +21,51 @@ thoracotomy
 craniotomy
 laminectomy
 discectomy
-spinal_fusion
-joint_replacement
-knee_replacement
-hip_replacement
-shoulder_replacement
-elbow_replacement
-wrist_replacement
-ankle_replacement
-heart_valve_replacement
-coronary_artery_bypass
+Spinal Fusion
+joint replacement
+knee replacement
+hip replacement
+shoulder replacement
+Elbow Replacement
+Wrist Replacement
+Ankle Replacement
+Heart Valve replacement
+coronary artery bypass
 cabg
 angioplasty
-stent_placement
-pacemaker_implantation
-defibrillator_implantation
-cataract_surgery
-lasik_surgery
-corneal_transplant
-skin_graft
-burn_debridement
+Stent Placement
+Pacemaker Implantation
+Defibrillator Implantation
+cataRACT/surgery
+Lasik Surgery
+corneal/tRAnsplant
+skin/gRAft
+Burn Debridement
 amputation
-cesarean_section
-tubal_ligation
+cesarean/seCTion
+Tubal Ligation
 vasectomy
 circumcision
 tonsillectomy
 adenoidectomy
 myringotomy
-ear_tube_placement
-sinus_surgery
+Ear Tube Placement
+Sinus Surgery
 septoplasty
 rhinoplasty
 facelift
-breast_augmentation
-breast_reduction
+Breast Augmentation
+breast/reduCTion
 abdominoplasty
 liposuction
-gastric_bypass
-sleeve_gastrectomy
-bariatric_surgery
-hernia_repair
-inguinal_hernia_repair
-umbilical_hernia_repair
-hiatal_hernia_repair
-ventral_hernia_repair
+Gastric Bypass
+sleeve/gastreCTomy
+Bariatric Surgery
+Hernia Repair
+Inguinal Hernia Repair
+Umbilical Hernia Repair
+Hiatal Hernia Repair
+ventRAl/hernia/repair
 
 ## Diagnostic Procedures
 colonoscopy
@@ -78,59 +78,59 @@ arthroscopy
 hysteroscopy
 colposcopy
 sigmoidoscopy
-upper_endoscopy
-capsule_endoscopy
-endoscopic_ultrasound
+Upper Endoscopy
+Capsule Endoscopy
+endoscopic/ultRAsound
 biopsy
-needle_biopsy
-core_biopsy
-excisional_biopsy
-incisional_biopsy
-fine_needle_aspiration
-lumbar_puncture
-spinal_tap
-bone_marrow_biopsy
-skin_biopsy
-lymph_node_biopsy
-liver_biopsy
-kidney_biopsy
-lung_biopsy
-prostate_biopsy
-breast_biopsy
-cervical_biopsy
-endometrial_biopsy
+Needle Biopsy
+Core Biopsy
+Excisional Biopsy
+Incisional Biopsy
+fine/needle/aspiRAtion
+lumbar/punCTure
+Spinal Tap
+Bone Marrow Biopsy
+Skin Biopsy
+Lymph Node Biopsy
+Liver Biopsy
+Kidney Biopsy
+Lung Biopsy
+Prostate Biopsy
+Breast Biopsy
+Cervical Biopsy
+Endometrial Biopsy
 
 ## Cardiac Procedures
-cardiac_catheterization
+Cardiac Catheterization
 angioplasty
 stenting
 atherectomy
-brachytherapy
+bRAchytheRApy
 ablation
-electrophysiology_study
-defibrillator_implantation
-pacemaker_implantation
-icd_implantation
+eleCTrophysiology/study
+Defibrillator Implantation
+Pacemaker Implantation
+Icd Implantation
 cardioversion
 defibrillation
 thrombolysis
 embolectomy
 endarterectomy
-valve_replacement
-valve_repair
+valve replacement
+Valve Repair
 annuloplasty
 valvuloplasty
-mitral_valve_repair
-aortic_valve_replacement
-tricuspid_valve_replacement
-pulmonary_valve_replacement
+mitRAl/valve/repair
+Aortic Valve replacement
+Tricuspid Valve replacement
+Pulmonary Valve replacement
 
 ## Orthopedic Procedures
 arthroscopy
-joint_replacement
-fracture_repair
-internal_fixation
-external_fixation
+joint replacement
+fRACTure/repair
+Internal Fixation
+External Fixation
 casting
 splinting
 reduction
@@ -143,9 +143,9 @@ excision
 curettage
 bursectomy
 tenotomy
-tendon_repair
-ligament_repair
-cartilage_repair
+Tendon Repair
+Ligament Repair
+Cartilage Repair
 microfracture
 osteotomy
 arthrodesis
@@ -160,56 +160,56 @@ kyphoplasty
 
 ## Neurological Procedures
 craniotomy
-craniectomy
-burr_hole
+cRAnieCTomy
+Burr Hole
 ventriculostomy
-shunt_placement
-vp_shunt
-lp_shunt
-deep_brain_stimulation
-vagus_nerve_stimulation
-motor_cortex_stimulation
-stereotactic_radiosurgery
-gamma_knife
+Shunt Placement
+Vp Shunt
+Lp Shunt
+deep/bRAin/stimulation
+Vagus Nerve Stimulation
+Motor Cortex Stimulation
+stereotaCTic/RAdiosurgery
+Gamma Knife
 cyberknife
-proton_beam_therapy
-aneurysm_clipping
-aneurysm_coiling
-carotid_endarterectomy
-carotid_stenting
+proton/beam/theRApy
+Aneurysm Clipping
+Aneurysm Coiling
+carotid/endartereCTomy
+Carotid Stenting
 thrombectomy
 embolectomy
-bypass_graft
-microvascular_decompression
-trigeminal_neuralgia_surgery
-hemifacial_spasm_surgery
+bypass/gRAft
+Microvascular Decompression
+trigeminal/neuRAlgia/surgery
+Hemifacial Spasm Surgery
 
 ## Gastrointestinal Procedures
-upper_endoscopy
+Upper Endoscopy
 colonoscopy
 sigmoidoscopy
-capsule_endoscopy
-endoscopic_ultrasound
+Capsule Endoscopy
+endoscopic/ultRAsound
 ercp
 sphincterotomy
-stone_extraction
-stent_placement
+stone/extRACTion
+Stent Placement
 dilation
-band_ligation
+Band Ligation
 sclerotherapy
 polypectomy
 mucosectomy
-submucosal_dissection
-percutaneous_endoscopic_gastrostomy
-peg_tube
-feeding_tube
+submucosal/disseCTion
+Percutaneous Endoscopic Gastrostomy
+Peg Tube
+Feeding Tube
 jejunostomy
 ileostomy
 colostomy
-ileal_pouch
-j_pouch
-kock_pouch
-continent_ileostomy
+Ileal Pouch
+J Pouch
+Kock Pouch
+Continent Ileostomy
 
 ## Urological Procedures
 cystoscopy
@@ -219,51 +219,51 @@ pcnl
 eswl
 lithotripsy
 turp
-prostate_biopsy
+Prostate Biopsy
 prostatectomy
 cystectomy
 nephrectomy
 pyeloplasty
-ureteral_reimplantation
-bladder_augmentation
-artificial_urinary_sphincter
-penile_implant
+ureteRAl/reimplantation
+Bladder Augmentation
+artificial/urinary/sphinCTer
+Penile Implant
 varicocelectomy
-vasectomy_reversal
+vaseCTomy/reversal
 vasectomy
 circumcision
-hypospadias_repair
-epispadias_repair
+Hypospadias Repair
+Epispadias Repair
 urethroplasty
-urethral_dilation
+urethRAl/dilation
 urethrotomy
-internal_urethrotomy
+Internal Urethrotomy
 
 ## Dermatological Procedures
-skin_biopsy
+Skin Biopsy
 excision
 curettage
 electrodessication
 cryotherapy
-laser_therapy
-photodynamic_therapy
-chemical_peel
+laser/theRApy
+photodynamic/theRApy
+Chemical Peel
 dermabrasion
 microdermabrasion
-laser_resurfacing
-botox_injection
-filler_injection
+Laser Resurfacing
+botox/injeCTion
+filler/injeCTion
 sclerotherapy
-hair_transplant
-mohs_surgery
-skin_graft
-flap_reconstruction
-tissue_expansion
-scar_revision
-tattoo_removal
-laser_hair_removal
-vein_treatment
+hair/tRAnsplant
+Mohs Surgery
+skin/gRAft
+flap/reconstruCTion
+Tissue Expansion
+Scar Revision
+Tattoo Removal
+Laser Hair Removal
+Vein Treatment
 sclerotherapy
-vein_stripping
-laser_vein_ablation
-radiofrequency_ablation
+Vein Stripping
+Laser Vein Ablation
+RAdiofrequency/ablation

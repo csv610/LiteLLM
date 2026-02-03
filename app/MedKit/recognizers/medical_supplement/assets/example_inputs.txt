@@ -1,23 +1,23 @@
 # Medical Supplement Examples
 
 ## Vitamins
-vitamin_a
-vitamin_b1
-vitamin_b2
-vitamin_b3
-vitamin_b5
-vitamin_b6
-vitamin_b7
-vitamin_b9
-vitamin_b12
-vitamin_c
-vitamin_d
-vitamin_d3
-vitamin_e
-vitamin_k
-vitamin_k2
+Vitamin A
+vitamin/b1
+vitamin/b2
+vitamin/b3
+vitamin/b5
+vitamin/b6
+vitamin/b7
+vitamin/b9
+vitamin/b12
+Vitamin C
+Vitamin D
+vitamin/d3
+Vitamin E
+Vitamin K
+vitamin/k2
 
-## Minerals
+## MineRAls
 calcium
 magnesium
 zinc
@@ -44,18 +44,18 @@ garlic
 ginger
 turmeric
 curcumin
-green_tea
-tea_tree_oil
-peppermint_oil
-lavender_oil
+Green Tea
+Tea Tree Oil
+Peppermint Oil
+Lavender Oil
 chamomile
-valerian_root
-st_johns_wort
-ginkgo_biloba
-saw_palmetto
-milk_thistle
-black_cohosh
-dong_quai
+Valerian Root
+St Johns Wort
+Ginkgo Biloba
+Saw Palmetto
+Milk Thistle
+Black Cohosh
+Dong Quai
 ashwagandha
 rhodiola
 maca
@@ -63,13 +63,13 @@ maca
 ## Probiotics
 lactobacillus
 bifidobacterium
-saccharomyces_boulardii
-probiotic_supplement
+Saccharomyces Boulardii
+Probiotic Supplement
 acidophilus
 prebiotic
 synbiotic
-fermented_foods
-yogurt_cultures
+Fermented Foods
+Yogurt Cultures
 kefir
 kombucha
 sauerkraut
@@ -78,87 +78,87 @@ tempeh
 miso
 
 ## Omega Supplements
-omega_3
-fish_oil
+omega/3
+Fish Oil
 epa
 dha
 ala
-flaxseed_oil
-chia_seed_oil
-walnut_oil
-hemp_seed_oil
-krill_oil
-cod_liver_oil
+Flaxseed Oil
+Chia Seed Oil
+Walnut Oil
+Hemp Seed Oil
+Krill Oil
+Cod Liver Oil
 
 ## Protein Supplements
-whey_protein
-casein_protein
-soy_protein
-pea_protein
-rice_protein
-hemp_protein
-egg_protein
-collagen_protein
-bone_broth_protein
-plant_based_protein
+Whey Protein
+Casein Protein
+Soy Protein
+Pea Protein
+Rice Protein
+Hemp Protein
+Egg Protein
+Collagen Protein
+Bone Broth Protein
+Plant Based Protein
 
 ## Performance Supplements
 creatine
-beta_alanine
+Beta Alanine
 citrulline
 arginine
 glutamine
 bcaa
-branched_chain_amino_acids
+bRAnched/chain/amino/acids
 caffeine
-pre_workout
-post_workout
-nitric_oxide
+Pre Workout
+Post Workout
+Nitric Oxide
 
 ## Joint Health
 glucosamine
 chondroitin
 msm
-turmeric_curcumin
+Turmeric Curcumin
 boswellia
-hyaluronic_acid
+Hyaluronic Acid
 collagen
-type_2_collagen
+type/2/collagen
 gelatin
-bone_broth
+Bone Broth
 
-## Brain Health
-ginkgo_biloba
-bacopa_monnieri
-lion's_mane
-rhodiola_rosea
+## BRAin Health
+Ginkgo Biloba
+Bacopa Monnieri
+lion'S Mane
+Rhodiola Rosea
 ashwagandha
 phosphatidylserine
-acetyl_l_carnitine
+Acetyl L Carnitine
 coq10
-alpha_lipoic_acid
+Alpha Lipoic Acid
 dha
 
 ## Women's Health
-folic_acid
-iron_supplement
-calcium_vitamin_d
-evening_primrose_oil
-black_cohosh
-dong_quai
-red_raspberry_leaf
+Folic Acid
+Iron Supplement
+Calcium Vitamin D
+Evening Primrose Oil
+Black Cohosh
+Dong Quai
+red/RAspberry/leaf
 nettle
 vitex
-maca_root
+Maca Root
 
 ## Men's Health
-saw_palmetto
+Saw Palmetto
 pygeum
-stinging_nettle
-zinc_supplement
+Stinging Nettle
+Zinc Supplement
 selenium
-vitamin_e
-l_arginine
-tribulus_terrestris
+Vitamin E
+L Arginine
+Tribulus Terrestris
 fenugreek
 ashwagandha

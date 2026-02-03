@@ -1,36 +1,36 @@
 # Disease Examples
 
 ## Common Diseases
-diabetes_mellitus
+diabetes mellitus
 hypertension
-coronary_artery_disease
+coronary artery disease
 asthma
-chronic_obstructive_pulmonary_disease
+COPD
 arthritis
-alzheimer_disease
-parkinson_disease
-multiple_sclerosis
+Alzheimer Disease
+Parkinson Disease
+multiple sclerosis
 lupus
-crohn_disease
-ulcerative_colitis
+Crohn Disease
+ulceRAtive/colitis
 cirrhosis
-kidney_disease
-heart_failure
+Kidney Disease
+Heart Failure
 stroke
 cancer
 depression
 anxiety
-bipolar_disorder
+bipolar disorder
 schizophrenia
 
-## Infectious Diseases
+## InfeCTious Diseases
 influenza
-covid_19
-hiv_aids
+covid/19
+HIV/AIDS
 tuberculosis
 malaria
-dengue_fever
-zika_virus
+Dengue Fever
+Zika Virus
 ebola
 hepatitis
 herpes
@@ -46,23 +46,23 @@ meningitis
 pneumonia
 
 ## Rare Diseases
-cystic_fibrosis
-huntington_disease
-amyotrophic_lateral_sclerosis
-guillain_barre_syndrome
-myasthenia_gravis
+Cystic Fibrosis
+Huntington Disease
+amyotrophic/lateRAl/sclerosis
+Guillain Barre Syndrome
+myasthenia/gRAvis
 sarcoidosis
 scleroderma
-wilms_tumor
+wilMS/tumor
 retinoblastoma
 neurofibromatosis
-tuberous_sclerosis
-marfan_syndrome
-ehlers_danlos_syndrome
-osteogenesis_imperfecta
-gaucher_disease
-tay_sachs_disease
+Tuberous Sclerosis
+Marfan Syndrome
+Ehlers Danlos Syndrome
+osteogenesis/imperfeCTa
+Gaucher Disease
+Tay Sachs Disease
 phenylketonuria
 cystinosis
-fabry_disease
-pompe_disease
+Fabry Disease
+Pompe Disease

@@ -1,37 +1,37 @@
 # Clinical Sign Examples
 
 ## Common Clinical Signs
-babinski_sign
-kernig_sign
-brudzinski_sign
-mcmurray_test
-lachman_test
-anterior_drawer_test
-posterior_drawer_test
-valgus_stress_test
-varus_stress_test
-phalen_test
-tinel_sign
-hoffmann_sign
-romberg_sign
-gower_sign
-murphy_sign
-costovertebral_angle_tenderness
-rebound_tenderness
+Babinski sign
+Kernig sign
+Brudzinski sign
+McMurRAy test
+Lachman test
+anterior drawer test
+posterior drawer test
+valgus stress test
+varus stress test
+Phalen test
+Tinel sign
+Hoffmann sign
+Romberg sign
+Gower sign
+Murphy sign
+costovertebral angle tenderness
+rebound tenderness
 guarding
 rigidity
-flank_tenderness
+Flank Tenderness
 
 ## Neurological Signs
-positive_babinski
+Positive Babinski
 hyperreflexia
 hyporeflexia
 areflexia
 clonus
 ataxia
 dysmetria
-intention_tremor
-resting_tremor
+Intention Tremor
+Resting Tremor
 nystagmus
 diplopia
 ptosis
@@ -40,43 +40,43 @@ photophobia
 phonophobia
 
 ## Cardiovascular Signs
-jugular_venous_distention
-hepatojugular_reflux
-peripheral_edema
-pitting_edema
-dependent_edema
+Jugular Venous Distention
+Hepatojugular Reflux
+peripheRAl/edema
+Pitting Edema
+Dependent Edema
 cyanosis
 pallor
 clubbing
-splinter_hemorrhages
-janeway_lesions
-osler_nodes
-roth_spots
+Splinter Hemorrhages
+Janeway Lesions
+Osler Nodes
+Roth Spots
 
-## Respiratory Signs
+## RespiRAtory Signs
 rales
 rhonchi
 wheezes
 stridor
-pleural_friction_rub
-diminished_breath_sounds
+pleuRAl/friCTion/rub
+Diminished Breath Sounds
 hyperresonance
-dullness_to_percussion
-tactile_fremitus
+Dullness To Percussion
+taCTile/fremitus
 egophony
-whispered_pectoriloquy
+whispered/peCToriloquy
 
 ## Abdominal Signs
-shifting_dullness
-fluid_wave
+Shifting Dullness
+Fluid Wave
 ballotment
-rebound_tenderness
-costovertebral_angle_tenderness
-murphy_sign
-obturator_sign
-ropes_sign
-psoas_sign
-iliopsoas_sign
+rebound tenderness
+costovertebral angle tenderness
+Murphy sign
+obtuRAtor/sign
+Ropes Sign
+psOAs/sign
+iliopsOAs/sign
 
 ## Musculoskeletal Signs
 crepitus
@@ -88,7 +88,7 @@ swelling
 erythema
 warmth
 tenderness
-limited_range_of_motion
+limited/RAnge/of/motion
 
 ## Dermatological Signs
 jaundice
@@ -99,18 +99,18 @@ petechiae
 purpura
 ecchymosis
 telangiectasia
-spider_angioma
-palmar_erythema
+Spider Angioma
+Palmar Erythema
 
 ## Special Signs
-kussmaul_sign
-becks_triad
-cushings_triad
-cushings_reflex
-virchows_triad
-charcots_triad
-reynolds_pentad
-gerhardts_sign
-auspitz_sign
-koebner_phenomenon
-nikolsky_sign
+Kussmaul Sign
+Becks Triad
+Cushings Triad
+Cushings Reflex
+Virchows Triad
+Charcots Triad
+Reynolds Pentad
+Gerhardts Sign
+Auspitz Sign
+Koebner Phenomenon
+Nikolsky Sign

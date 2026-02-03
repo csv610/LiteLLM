@@ -24,12 +24,12 @@ svr
 pvr
 co
 
-## Laboratory Abbreviations
+## LaboRAtory Abbreviations
 cbc
 cmp
 bmp
 lft
-lipid_panel
+Lipid Panel
 hba1c
 esr
 crp
@@ -57,7 +57,7 @@ ppg
 ekg
 eeg
 mri
-ct_scan
+CT/scan
 ultrasound
 
 ## Medication Abbreviations
@@ -72,7 +72,7 @@ tid
 qid
 qid
 
-## Clinical Terms
+## Clinical TerMS
 sob
 cp
 nvd
