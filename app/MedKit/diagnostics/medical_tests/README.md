@@ -21,16 +21,16 @@ This module creates detailed information about medical tests and diagnostics for
 
 ```python
 from medical_test_info import MedicalTestInfoGenerator
+from lite.config import ModelConfig
 from pathlib import Path
 
 # Generate test information
-generator = MedicalTestInfoGenerator()
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.7)
+generator = MedicalTestInfoGenerator(model_config)
 test_info = generator.generate_text("blood glucose test")
 
-# Access different sections
-print(test_info.test_name)
-print(test_info.test_purpose.primary_purpose)
-print(test_info.results_information.normal_range)
+# View the results
+print(test_info)
 
 # Generate and save to file
 test_info = generator.generate_text("complete blood count")
@@ -62,21 +62,40 @@ saved_path = generator.save(test_info, Path("outputs/"))  # Directory, not file 
 ## Command Line Interface
 
 ```bash
-python medical_test_info_cli.py -i "test name" [-o "output_path"]
+python medical_test_info_cli.py -i "test name" [-d "output_directory"]
 ```
 
 ### Arguments
 
 - `-i, --test` (required): The name of the medical test to generate information for
-- `-o, --output` (optional): The path to save the output JSON file
+- `-d, --output-dir` (optional): Directory for output files (default: outputs)
+- `-m, --model` (optional): Model to use for generation (default: ollama/gemma3)
+- `-v, --verbosity` (optional): Logging verbosity level 0-4 (default: 2)
+- `-s, --structured` (optional): Use structured output format (default: False)
 
 ## Configuration
 
-The generator uses a `Config` class with the following options:
+The generator uses `ModelConfig` from the LiteLLM framework:
 
-- `enable_cache`: Enable/disable caching of results (default: True)
-- `verbosity`: Logging level (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG)
-- `db_path`: Path to LMDB storage database
+```python
+from lite.config import ModelConfig
+
+# Standard configuration
+model_config = ModelConfig(
+    model="ollama/gemma3",
+    temperature=0.7
+)
+
+# Use with the generator
+generator = MedicalTestInfoGenerator(model_config)
+```
+
+### Available Configuration Options
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `model` | str | `"ollama/gemma3"` | LLM model to use for generation |
+| `temperature` | float | `0.7` | Sampling temperature (0.0-2.0) |
 
 ## Output
 
