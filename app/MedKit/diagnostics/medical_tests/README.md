@@ -1,27 +1,40 @@
-# Medical Test Information Generator User Guide
+# Medical Test Information Generator
+
+## Why This Matters
+
+Medical tests are ordered billions of times annually, yet patients and clinicians often lack accessible, standardized information about what these tests measure, how to prepare, and how to interpret results. This gap leads to:
+
+- **Patient anxiety** from unclear test procedures and expectations
+- **Clinical inefficiency** from repeated basic questions about common tests
+- **Medical errors** from improper test preparation or result interpretation
+- **Healthcare costs** from cancelled tests due to preparation failures
+
+The Medical Test Information Generator addresses these problems by providing instant, comprehensive documentation for medical tests that serves both clinical decision support and patient education needs.
 
 ## Overview
 
 Generate medical test documentation using structured data models and the MedKit AI client with schema-aware prompting.
 
-This module creates detailed information about medical tests and diagnostics for clinicians and patient education.
+This module creates detailed information about medical tests and diagnostics for clinicians and patient education, standardizing access to critical medical testing information.
 
 ## Quick Start
 
 ```python
 from medical_test_info import MedicalTestInfoGenerator
+from pathlib import Path
 
 # Generate test information
 generator = MedicalTestInfoGenerator()
-test_info = generator.generate("blood glucose test")
+test_info = generator.generate_text("blood glucose test")
 
 # Access different sections
 print(test_info.test_name)
 print(test_info.test_purpose.primary_purpose)
 print(test_info.results_information.normal_range)
 
-# Save to file
-test_info = generator.generate("complete blood count", output_path="cbc.json")
+# Generate and save to file
+test_info = generator.generate_text("complete blood count")
+saved_path = generator.save(test_info, Path("outputs/"))  # Directory, not file path
 ```
 
 ## Common Uses

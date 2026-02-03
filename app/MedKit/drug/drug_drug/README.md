@@ -342,28 +342,31 @@ rm ../storage/drug_drug_interaction.lmdb
 For programmatic use, import the module directly:
 
 ```python
-from drug_drug_interaction_cli import (
-    DrugDrugInteraction,
-    DrugDrugInteractionConfig,
-    get_drug_drug_interaction
-)
+from lite.config import ModelConfig
+from drug_drug_interaction import DrugDrugInteractionGenerator
+from drug_drug_interaction_prompts import DrugDrugInput
 
-# Using the convenience function
-config = DrugDrugInteractionConfig()
-result = get_drug_drug_interaction(
+# Initialize the generator
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+generator = DrugDrugInteractionGenerator(model_config)
+
+# Create input configuration
+drug_input = DrugDrugInput(
     medicine1="Warfarin",
     medicine2="Aspirin",
-    config=config,
     age=65,
     dosage1="5mg once daily",
     dosage2="100mg once daily",
     medical_conditions="atrial fibrillation"
 )
 
-# Check the result
-if result.interaction_details:
-    severity = result.interaction_details.severity_level.value
-    print(f"Interaction Severity: {severity}")
+# Generate interaction analysis
+result = generator.generate_text(drug_input, structured=True)
+
+# Save to file
+from pathlib import Path
+saved_path = generator.save(result, Path("outputs/"))
+print(f"Interaction analysis saved to: {saved_path}")
 ```
 
 ---
