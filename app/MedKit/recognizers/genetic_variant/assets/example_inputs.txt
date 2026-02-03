@@ -1,0 +1,61 @@
+# Genetic Variant Examples
+
+## Common Genetic Variants
+brca1_mutation
+brca2_mutation
+cystic_fibrosis_delta_f508
+huntington_cag_repeat
+sickle_cell_mutation
+thrombophilia_factor_v
+marfan_fbn1_mutation
+achondroplasia_fgfr3
+phenylketonuria_pah
+tay_sachs_hexa
+
+## Pharmacogenomic Variants
+cyp2d6_poor_metabolizer
+cyp2c19_loss_of_function
+tpmt_deficiency
+dpd_deficiency
+ugt1a1_variant
+nudt15_variant
+hlab5801_allele
+slco1b1_variant
+vkorc1_variant
+cyp2c9_variant
+
+## Cancer-Related Variants
+egfr_mutation
+alk_rearrangement
+braf_v600e
+kras_mutation
+ntrk_fusion
+her2_amplification
+p53_mutation
+msi_high
+tmb_high
+pd_l1_expression
+
+## Cardiovascular Variants
+ldlr_mutation
+apob_mutation
+pcsk9_variant
+mthfr_variant
+factor_v_leiden
+prothrombin_mutation
+fibrillin_mutation
+myosin_binding_protein_c
+titin_mutation
+lamin_ac_mutation
+
+## Neurological Variants
+app_mutation
+presenilin_mutation
+alpha_synuclein
+lrrk2_mutation
+parkin_mutation
+huntingtin_cag_expansion
+ataxin_mutation
+sod1_mutation
+fus_mutation
+tar_dna_binding_protein

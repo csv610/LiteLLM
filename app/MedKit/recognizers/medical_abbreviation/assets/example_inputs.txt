@@ -1,0 +1,85 @@
+# Medical Abbreviation Examples
+
+## Common Medical Abbreviations
+cpr
+cpr
+cpr
+cpr
+cpr
+cpr
+cpr
+cpr
+cpr
+cpr
+
+## Vital Signs Abbreviations
+hr
+bp
+rr
+temp
+spo2
+map
+cpp
+svr
+pvr
+co
+
+## Laboratory Abbreviations
+cbc
+cmp
+bmp
+lft
+lipid_panel
+hba1c
+esr
+crp
+pt
+inr
+
+## Imaging Abbreviations
+ct
+mri
+xray
+us
+pet
+spect
+cta
+mra
+doppler
+fluoroscopy
+
+## Procedure Abbreviations
+ecg
+eeg
+emg
+npg
+ppg
+ekg
+eeg
+mri
+ct_scan
+ultrasound
+
+## Medication Abbreviations
+po
+iv
+im
+sc
+sl
+pr
+bid
+tid
+qid
+qid
+
+## Clinical Terms
+sob
+cp
+nvd
+heme
+melena
+hematuria
+dysuria
+oliguria
+anuria
+polyuria

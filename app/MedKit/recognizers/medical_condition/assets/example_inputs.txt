@@ -1,0 +1,85 @@
+# Medical Condition Examples
+
+## Common Chronic Conditions
+hypertension
+diabetes_mellitus
+hyperlipidemia
+asthma
+copd
+coronary_artery_disease
+heart_failure
+arthritis
+osteoporosis
+depression
+
+## Acute Conditions
+pneumonia
+urinary_tract_infection
+cellulitis
+gastroenteritis
+appendicitis
+cholecystitis
+pancreatitis
+myocardial_infarction
+stroke
+pulmonary_embolism
+
+## Neurological Conditions
+alzheimer_disease
+parkinson_disease
+multiple_sclerosis
+epilepsy
+migraine
+neuropathy
+myasthenia_gravis
+als
+huntington_disease
+cerebral_palsy
+
+## Endocrine Conditions
+hypothyroidism
+hyperthyroidism
+addison_disease
+cushing_syndrome
+diabetes_insipidus
+parathyroid_disorder
+pituitary_disorder
+adrenal_insufficiency
+metabolic_syndrome
+polycystic_ovary_syndrome
+
+## Gastrointestinal Conditions
+gastroesophageal_reflux
+irritable_bowel_syndrome
+inflammatory_bowel_disease
+crohn_disease
+ulcerative_colitis
+celiac_disease
+liver_cirrhosis
+hepatitis
+pancreatitis
+gallbladder_disease
+
+## Respiratory Conditions
+asthma
+copd
+pulmonary_fibrosis
+sleep_apnea
+bronchitis
+pneumothorax
+pleural_effusion
+pulmonary_hypertension
+cystic_fibrosis
+sarcoidosis
+
+## Autoimmune Conditions
+lupus
+rheumatoid_arthritis
+psoriatic_arthritis
+ankylosing_spondylitis
+scleroderma
+sjogren_syndrome
+vasculitis
+multiple_sclerosis
+type_1_diabetes
+graves_disease

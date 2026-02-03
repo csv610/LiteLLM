@@ -1,0 +1,73 @@
+# Imaging Finding Examples
+
+## Common Radiological Findings
+pulmonary_nodule
+lung_mass
+pleural_effusion
+pneumothorax
+atelectasis
+consolidation
+interstitial_lung_disease
+pulmonary_infiltrate
+cavitary_lesion
+ground_glass_opacity
+
+## Cardiac Imaging Findings
+left_ventricular_hypertrophy
+right_ventricular_hypertrophy
+cardiomegaly
+pericardial_effusion
+aortic_aneurysm
+aortic_dissection
+valvular_stenosis
+valvular_regurgitation
+wall_motion_abnormality
+myocardial_infarction
+
+## Neurological Imaging Findings
+brain_tumor
+cerebral_edema
+hydrocephalus
+subdural_hematoma
+epidural_hematoma
+subarachnoid_hemorrhage
+intracerebral_hemorrhage
+ischemic_stroke
+hemorrhagic_stroke
+white_matter_lesions
+
+## Abdominal Imaging Findings
+hepatic_lesion
+renal_mass
+splenomegaly
+hepatomegaly
+gallstones
+kidney_stones
+pancreatic_mass
+adrenal_mass
+lymphadenopathy
+ascites
+
+## Musculoskeletal Findings
+fracture
+dislocation
+bone_lesion
+soft_tissue_mass
+joint_effusion
+osteomyelitis
+septic_arthritis
+degenerative_joint_disease
+herniated_disc
+spinal_stenosis
+
+## Vascular Imaging Findings
+atherosclerosis
+stenosis
+occlusion
+aneurysm
+thrombosis
+embolism
+vascular_malformation
+venous_insufficiency
+deep_vein_thrombosis
+pulmonary_embolism

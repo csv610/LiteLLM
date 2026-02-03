@@ -1,0 +1,97 @@
+# Medical Device Examples
+
+## Cardiovascular Devices
+pacemaker
+defibrillator
+icd
+cardiac_monitor
+ecg_machine
+holter_monitor
+event_monitor
+blood_pressure_monitor
+heart_valve
+stent
+
+## Diagnostic Devices
+xray_machine
+ct_scanner
+mri_machine
+ultrasound_machine
+pet_scanner
+spect_scanner
+mammography_machine
+bone_density_scanner
+fluoroscopy_machine
+angiography_machine
+
+## Surgical Instruments
+scalpel
+forceps
+scissors
+retractors
+clamps
+needles
+sutures
+electrosurgical_unit
+laser_system
+endoscope
+
+## Monitoring Devices
+pulse_oximeter
+blood_glucose_monitor
+thermometer
+blood_pressure_cuff
+heart_rate_monitor
+respiratory_monitor
+temperature_monitor
+pressure_monitor
+flow_meter
+oxygen_monitor
+
+## Orthopedic Devices
+artificial_joint
+prosthesis
+implant
+plate
+screw
+rod
+external_fixator
+internal_fixator
+spinal_fusion_device
+joint_replacement
+
+## Respiratory Devices
+ventilator
+oxygen_tank
+nebulizer
+inhaler
+cpap_machine
+bipap_machine
+oxygen_mask
+tracheostomy_tube
+chest_tube
+suction_device
+
+## Laboratory Equipment
+centrifuge
+microscope
+spectrophotometer
+incubator
+autoclave
+pipette
+blood_analyzer
+urine_analyzer
+cell_counter
+dna_sequencer
+
+## Drug Delivery Devices
+infusion_pump
+syringe_pump
+iv_pump
+insulin_pump
+pain_pump
+chemotherapy_pump
+antibiotic_pump
+nutrition_pump
+blood_product_pump
+medication_dispenser

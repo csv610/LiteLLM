@@ -1,0 +1,85 @@
+# Medication Class Examples
+
+## Common Drug Classes
+beta_blockers
+ace_inhibitors
+statins
+nsaids
+opioids
+antibiotics
+antidepressants
+antihypertensives
+antidiabetics
+anticoagulants
+
+## Cardiovascular Medications
+beta_blockers
+ace_inhibitors
+arb
+calcium_channel_blockers
+diuretics
+statins
+antiplatelets
+anticoagulants
+antiarrhythmics
+vasodilators
+
+## Antibiotics
+penicillins
+cephalosporins
+macrolides
+fluoroquinolones
+tetracyclines
+sulfonamides
+aminoglycosides
+carbapenems
+monobactams
+glycopeptides
+
+## Pain Medications
+opioids
+nsaids
+acetaminophen
+muscle_relaxants
+anticonvulsants
+antidepressants
+corticosteroids
+local_anesthetics
+topical_analgesics
+nerve_blocks
+
+## Psychiatric Medications
+ssri
+snri
+tricyclic_antidepressants
+maoi
+atypical_antipsychotics
+typical_antipsychotics
+benzodiazepines
+mood_stabilizers
+stimulants
+anxiolytics
+
+## Diabetes Medications
+metformin
+sulfonylureas
+dpp_4_inhibitors
+sglt2_inhibitors
+glp_1_agonists
+insulin
+thiazolidinediones
+alpha_glucosidase_inhibitors
+amylin_analogues
+bile_acid_sequestrants
+
+## Respiratory Medications
+bronchodilators
+inhaled_corticosteroids
+leukotriene_modifiers
+mast_cell_stabilizers
+antihistamines
+decongestants
+expectorants
+mucolytics
+cough_suppressants
+anticholinergics

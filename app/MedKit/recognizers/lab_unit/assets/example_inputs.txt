@@ -1,0 +1,85 @@
+# Laboratory Unit Examples
+
+## Common Laboratory Units
+mg_dl
+g_dl
+mmol_l
+umol_l
+ng_ml
+pg_ml
+iu_l
+miu_ml
+ul_u_ml
+kat_l
+
+## Hematology Units
+cells_mcl
+cells_ul
+fl
+pg
+g_dl
+percent
+ratio
+absolute_count
+relative_count
+index
+
+## Chemistry Units
+mg_dl
+g_dl
+mmol_l
+umol_l
+meq_l
+mm_hg
+ph_units
+mosm_kg
+ng_ml
+iu_l
+
+## Hormone Units
+ng_ml
+pg_ml
+miu_ml
+iu_l
+pmol_l
+nmol_l
+umol_l
+mg_dl
+mcg_dl
+pmol_l
+
+## Enzyme Units
+u_l
+iu_l
+kat_l
+ul_u_ml
+nkatal_l
+international_units
+enzyme_units
+activity_units
+catalytic_activity
+reaction_rate
+
+## Drug Level Units
+ng_ml
+ug_ml
+mg_l
+umol_l
+mcg_ml
+pmol_l
+nmol_l
+free_concentration
+total_concentration
+therapeutic_range
+
+## Specialized Units
+arbitrary_units
+relative_units
+standard_deviation
+coefficient_variation
+titer
+dilution
+concentration
+activity
+index
+score
