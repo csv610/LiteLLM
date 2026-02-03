@@ -59,7 +59,8 @@ def create_medical_test_device_report(args):
         result = generator.generate_text(args.test_device, structured=args.structured)
         
         # Save results
-        saved_path = generator.save(result, output_dir / base_filename)
+        saved_path = generator.save(result, output_dir)
+        logger.info(f"✓ Medical test device information saved to: {saved_path}")
         
     except Exception as e:
         logger.error(f"Critical error during CLI execution: {e}", exc_info=True)

@@ -30,8 +30,8 @@ When generating medical test information, you must:
 6. Address patient preparation requirements and potential limitations
 7. Maintain objectivity and avoid making diagnostic conclusions
 8. Structure information logically and comprehensively
-
-Remember: This information is for educational and reference purposes. Always emphasize that test results should be interpreted by qualified healthcare professionals in the context of the patient's clinical presentation."""
+9. Do not include any preamble, disclaimer, and unnecessary information in the report.
+"""
         return system_prompt
 
     @staticmethod

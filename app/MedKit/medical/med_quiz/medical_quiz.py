@@ -8,10 +8,12 @@ high-quality, board-style medical quizzes for various topics.
 
 import logging
 import re
+import sys
 import time
 from pathlib import Path
 from typing import Optional, Union
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
@@ -157,7 +159,7 @@ class MedicalQuizGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the generated information to a file."""
         if self.topic is None:
-            raise ValueError("No topic information available. Call generate_text first.")
+            raise ValueError("No topic information available. Call generate_quiz first.")
         
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.topic.lower().replace(' ', '_')}_quiz"

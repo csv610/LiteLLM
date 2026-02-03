@@ -92,6 +92,6 @@ class MedicalTestInfoGenerator:
             raise ValueError("No test name information available. Call generate_text first.")
         
         # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.test_name.lower().replace(' ', '_')}_test_info"
+        base_filename = f"{self.test_name.lower().replace(' ', '_')}"
         
         return save_model_response(result, output_dir / base_filename)

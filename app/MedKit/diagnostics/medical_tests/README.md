@@ -1,5 +1,20 @@
 # Medical Test Information Generator
 
+## Pains of abundance 
+While there is no single "final" number because medical science is constantly evolving, there are thousands of individual medical tests. For context, the international standard used by hospitals and insurance companies (ICD-10-CM) contains over 70,000 codes for different medical tests and procedures. 
+Most tests fall into these primary categories:
+**Laboratory Tests:** These analyze samples of blood, urine, or tissue.
+**Blood Tests:** Common ones include the Complete Blood Count (CBC) and Lipid Panels for cholesterol.
+**Urinalysis:** Checks for kidney function, diabetes, and infections.
+**Genetic Testing:** Screens for inherited conditions or disease predispositions.
+**Diagnostic Imaging:** Non-invasive ways to look inside the body.
+**X-rays & CT Scans:** Used for bones and identifying internal structures.
+**MRI & Ultrasound:** Detailed imaging for soft tissues and organs.
+**PET Scans:** Often used to detect cancer or monitor organ function.
+Physical & Visual Examinations:
+**Endoscopy:** Using a camera to look inside the digestive tract.
+**Biopsy:** Removing a small tissue sample for laboratory analysis.
+
 ## Why This Matters
 
 Medical tests are ordered billions of times annually, yet patients and clinicians often lack accessible, standardized information about what these tests measure, how to prepare, and how to interpret results. This gap leads to:
@@ -25,7 +40,7 @@ from lite.config import ModelConfig
 from pathlib import Path
 
 # Generate test information
-model_config = ModelConfig(model="ollama/gemma3", temperature=0.7)
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
 generator = MedicalTestInfoGenerator(model_config)
 test_info = generator.generate_text("blood glucose test")
 
@@ -33,7 +48,6 @@ test_info = generator.generate_text("blood glucose test")
 print(test_info)
 
 # Generate and save to file
-test_info = generator.generate_text("complete blood count")
 saved_path = generator.save(test_info, Path("outputs/"))  # Directory, not file path
 ```
 

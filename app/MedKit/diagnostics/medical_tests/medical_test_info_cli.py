@@ -58,6 +58,9 @@ def create_medical_test_info_report(args) -> int:
         return 1
 
 
-if __name__ == "__main__":
+def main():
     args = get_user_arguments()
     create_medical_test_info_report(args)
+
+if __name__ == "__main__":
+   main()

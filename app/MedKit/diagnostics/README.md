@@ -6,6 +6,21 @@ Medical tests and devices information system.
 
 The Diagnostics Module provides information about medical tests, diagnostic procedures, and medical devices used in healthcare.
 
+While there is no single "final" number because medical science is constantly evolving, there are thousands of individual medical tests. For context, the international standard used by hospitals and insurance companies (ICD-10-CM) contains over 70,000 codes for different medical tests and procedures. 
+Most tests fall into these primary categories:
+Laboratory Tests: These analyze samples of blood, urine, or tissue.
+Blood Tests: Common ones include the Complete Blood Count (CBC) and Lipid Panels for cholesterol.
+Urinalysis: Checks for kidney function, diabetes, and infections.
+Genetic Testing: Screens for inherited conditions or disease predispositions.
+Diagnostic Imaging: Non-invasive ways to look inside the body.
+X-rays & CT Scans: Used for bones and identifying internal structures.
+MRI & Ultrasound: Detailed imaging for soft tissues and organs.
+PET Scans: Often used to detect cancer or monitor organ function.
+Physical & Visual Examinations:
+Endoscopy: Using a camera to look inside the digestive tract.
+Biopsy: Removing a small tissue sample for laboratory analysis.
+
+
 ## Module Structure
 
 ```
@@ -30,23 +45,17 @@ diagnostics/
 Information about medical devices, equipment, and instruments used in healthcare.
 
 ```bash
-python -m medkit diagnostics medical_devices --device <device_name>
+python medical_test_devices_cli.py -i "pacemaker" \
+  --output-dir outputs/
 ```
-
-**Information Includes**:
-- Device description and purpose
-- Clinical applications
-- Operation principles
-- Safety considerations
-- Maintenance requirements
-- Cost and availability
 
 ### 2. Medical Tests
 
 Information about laboratory and diagnostic tests.
 
 ```bash
-python -m medkit diagnostics medical_tests --test <test_name>
+python medical_test_info_cli.py -i "CBC" \
+  --output-dir outputs/
 ```
 
 **Information Includes**:
@@ -62,23 +71,23 @@ python -m medkit diagnostics medical_tests --test <test_name>
 ### Example 1: Get Device Information
 
 ```bash
-python -m medkit diagnostics medical_devices --device "pacemaker" \
-  --output pacemaker_info.json
+python medical_test_devices_cli.py -i "pacemaker" \
+  --output-dir outputs/
 ```
 
 ### Example 2: Get Test Information
 
 ```bash
-python -m medkit diagnostics medical_tests --test "CBC" \
-  --output cbc_test.json
+python medical_test_info_cli.py -i "CBC" \
+  --output-dir outputs/
 ```
 
 ### Example 3: Batch Device Processing
 
 ```bash
 for device in "pacemaker" "defibrillator" "stent"; do
-  python -m medkit diagnostics medical_devices --device "$device" \
-    --output "devices_${device}.json"
+  python medical_test_devices_cli.py -i "$device" \
+    --output-dir outputs/
 done
 ```
 
@@ -86,8 +95,8 @@ done
 
 ```bash
 for test in "CBC" "BMP" "CMP" "TSH" "Lipid Panel"; do
-  python -m medkit diagnostics medical_tests --test "$test" \
-    --output "tests_${test}.json"
+  python medical_test_info_cli.py -i "$test" \
+    --output-dir outputs/
 done
 ```
 
@@ -96,28 +105,27 @@ done
 ### Medical Devices
 
 ```python
-from diagnostics.medical_devices.medical_devices_cli import MedicalDevicesGenerator
+from lite.config import ModelConfig
+from diagnostics.medical_devices.medical_test_devices import MedicalTestDeviceGenerator
 
-generator = MedicalDevicesGenerator()
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+generator = MedicalTestDeviceGenerator(model_config)
 result = generator.generate_text("pacemaker", structured=True)
 
-print(f"Device: {result.name}")
-print(f"Purpose: {result.purpose}")
-print(f"Applications: {result.applications}")
+print(result)
 ```
 
 ### Medical Tests
 
 ```python
-from diagnostics.medical_tests.medical_tests_cli import MedicalTestsGenerator
+from lite.config import ModelConfig
+from diagnostics.medical_tests.medical_test_info import MedicalTestInfoGenerator
 
-generator = MedicalTestsGenerator()
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+generator = MedicalTestInfoGenerator(model_config)
 result = generator.generate_text("CBC", structured=True)
 
-print(f"Test: {result.name}")
-print(f"Full Name: {result.full_name}")
-print(f"Purpose: {result.purpose}")
-print(f"Normal Range: {result.normal_range}")
+print(result)
 ```
 
 ## Common Use Cases
@@ -128,8 +136,8 @@ print(f"Normal Range: {result.normal_range}")
 #!/bin/bash
 DEVICE=$1
 
-python -m medkit diagnostics medical_devices --device "$DEVICE" \
-  --output "${DEVICE}_info.json"
+python medical_test_devices_cli.py -i "$DEVICE" \
+  --output-dir outputs/
 
 echo "Device information saved for $DEVICE"
 ```
@@ -138,7 +146,9 @@ echo "Device information saved for $DEVICE"
 
 ```python
 # Build test reference library
-from diagnostics.medical_tests.medical_tests_cli import MedicalTestsGenerator
+from lite.config import ModelConfig
+from diagnostics.medical_tests.medical_test_info import MedicalTestInfoGenerator
+from pathlib import Path
 
 tests = [
     "CBC",          # Complete Blood Count
@@ -148,11 +158,12 @@ tests = [
     "Lipid Panel"   # Cholesterol and triglycerides
 ]
 
-generator = MedicalTestsGenerator()
+model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
+generator = MedicalTestInfoGenerator(model_config)
 
 for test in tests:
     result = generator.generate_text(test, structured=True)
-    result.save(f"{test}_reference.json")
+    generator.save(result, Path("outputs/"))
 ```
 
 ### Use Case 3: Comprehensive Diagnostic Information
@@ -161,20 +172,20 @@ for test in tests:
 #!/bin/bash
 # Get comprehensive diagnostic information
 
-mkdir -p diagnostic_reference
+mkdir -p outputs
 
 # Collect test information
 echo "Collecting test information..."
 for test in CBC TSH CMP BMP; do
-  python -m medkit diagnostics medical_tests --test "$test" \
-    --output "diagnostic_reference/${test}.json"
+  python medical_test_info_cli.py -i "$test" \
+    --output-dir outputs/
 done
 
 # Collect device information
 echo "Collecting device information..."
 for device in "pacemaker" "stent"; do
-  python -m medkit diagnostics medical_devices --device "$device" \
-    --output "diagnostic_reference/${device}.json"
+  python medical_test_devices_cli.py -i "$device" \
+    --output-dir outputs/
 done
 
 echo "Diagnostic reference complete"
