@@ -22,6 +22,7 @@ Activated clotting time analyzer
 Activated partial thromboplastin time analyzer
 Acute care chemistry analyzer
 Acute myocardial infarction marker analyzer
+Adjunctive Hemostats
 Adaptive optics retinal imaging system
 Adaptive optics scanning laser ophthalmoscope
 Adenosine deaminase analyzer
@@ -1092,6 +1093,7 @@ Spinal motion analyzer
 Spiral CT
 Spirometer
 Sputum analyzer
+Staples
 Stem cell viability analyzer
 Steroid hormone analyzer
 Stool microbiome analyzer
