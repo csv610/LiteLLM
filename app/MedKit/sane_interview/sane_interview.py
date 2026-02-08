@@ -1,708 +1,546 @@
-from pydantic import BaseModel, Field, validator
-from typing import Optional, List
-from datetime import datetime
-from enum import Enum
+"""
+sane_interview.py - SANE interview chatbot implementation
 
-from pathlib import Path
-from lite.utils import save_model_response
+Interactive chatbot for conducting SANE interviews with trauma-informed approach.
+Provides structured interview flow with proper consent handling and support resources.
+"""
 
+from sane_interview_models import (
+    YesNoUnsure, SexualContactType, PainLevel,
+    ConsentSection, MedicalHistory, IncidentHistory, SexualContactDetails,
+    InjuryAssessment, ForensicEvidence, TreatmentDiscussion,
+    PsychologicalAssessment, LegalFollowUp, ClosureSupport,
+    SANEInterviewRecord
+)
+from typing import Optional, List, Any, Generator, Union
+from dataclasses import dataclass
 
-class YesNoUnsure(str, Enum):
-    YES = "yes"
-    NO = "no"
-    UNSURE = "unsure"
-    DECLINE = "decline_to_answer"
+@dataclass
+class Question:
+    text: str
+    type: str = "text"  # "text", "yes_no", "info"
+    allow_skip: bool = True
+    options: Optional[List[str]] = None
+    explanation: Optional[str] = None
 
-
-class SexualContactType(str, Enum):
-    VAGINAL = "vaginal"
-    ORAL = "oral"
-    ANAL = "anal"
-    DIGITAL = "digital"
-    OTHER = "other"
-
-
-class PainLevel(int, Enum):
-    NONE = 0
-    MINIMAL = 1
-    MILD = 3
-    MODERATE = 5
-    SEVERE = 7
-    WORST = 10
-
-
-# 1. Introduction and Consent
-class ConsentSection(BaseModel):
-    understands_purpose: Optional[YesNoUnsure] = None
-    wants_explanation: Optional[YesNoUnsure] = None
-    gives_permission: Optional[YesNoUnsure] = None
-    additional_information: Optional[str] = None
-    wants_advocate_present: Optional[YesNoUnsure] = None
-    advocate_name: Optional[str] = None
-
-
-# 2. General Medical History
-class MedicalHistory(BaseModel):
-    medical_conditions: Optional[str] = None
-    current_medications: Optional[str] = None
-    allergies: Optional[str] = None
-    last_menstrual_period: Optional[str] = None
-    pregnancy_history: Optional[str] = None
-    currently_pregnant: Optional[YesNoUnsure] = None
-
-
-# 3. Incident History
-class IncidentHistory(BaseModel):
-    narrative: Optional[str] = Field(None, description="Survivor's own words")
-    incident_date: Optional[str] = None
-    incident_time: Optional[str] = None
-    location: Optional[str] = None
-    knows_assailant: Optional[YesNoUnsure] = None
-    number_of_individuals: Optional[int] = None
-    weapons_used: Optional[YesNoUnsure] = None
-    weapon_details: Optional[str] = None
-    physically_restrained: Optional[YesNoUnsure] = None
-    restraint_details: Optional[str] = None
-    lost_consciousness: Optional[YesNoUnsure] = None
-    forced_substances: Optional[YesNoUnsure] = None
-    substance_details: Optional[str] = None
-    witnesses: Optional[YesNoUnsure] = None
-    witness_details: Optional[str] = None
-
-
-# 4. Sexual Contact Details
-class SexualContactDetails(BaseModel):
-    contact_types: Optional[List[SexualContactType]] = None
-    condom_used: Optional[YesNoUnsure] = None
-    ejaculation_noted: Optional[YesNoUnsure] = None
-    ejaculation_location: Optional[str] = None
-    objects_used: Optional[YesNoUnsure] = None
-    object_details: Optional[str] = None
-    able_to_resist: Optional[YesNoUnsure] = None
-    resistance_details: Optional[str] = None
-    clothing_removed_torn: Optional[YesNoUnsure] = None
-    post_incident_activities: Optional[List[str]] = Field(
-        None, 
-        description="bathed, changed clothes, urinated, eaten, brushed teeth, etc."
-    )
-    items_cleaned_disposed: Optional[YesNoUnsure] = None
-
-
-# 5. Injury and Pain Assessment
-class InjuryAssessment(BaseModel):
-    has_pain: Optional[YesNoUnsure] = None
-    pain_locations: Optional[str] = None
-    pain_level: Optional[int] = Field(None, ge=0, le=10)
-    physical_assault_types: Optional[List[str]] = Field(
-        None,
-        description="hit, slap, kick, bite, strangle, etc."
-    )
-    visible_injuries: Optional[str] = None
-    symptoms: Optional[List[str]] = Field(
-        None,
-        description="dizzy, nauseous, headache, etc."
-    )
-    genital_anal_symptoms: Optional[str] = None
-
-
-# 6. Forensic Evidence Collection
-class ForensicEvidence(BaseModel):
-    urinated_since: Optional[YesNoUnsure] = None
-    defecated_since: Optional[YesNoUnsure] = None
-    changed_sanitary_products: Optional[YesNoUnsure] = None
-    eaten_drunk_smoked: Optional[YesNoUnsure] = None
-    items_left_behind: Optional[YesNoUnsure] = None
-    items_description: Optional[str] = None
-    wearing_same_clothes: Optional[YesNoUnsure] = None
-    wants_items_collected: Optional[YesNoUnsure] = None
-
-
-# 7. Prophylaxis and Treatment
-class TreatmentDiscussion(BaseModel):
-    accepts_sti_prophylaxis: Optional[YesNoUnsure] = None
-    wants_emergency_contraception: Optional[YesNoUnsure] = None
-    recent_hiv_test: Optional[YesNoUnsure] = None
-    wants_hiv_test: Optional[YesNoUnsure] = None
-    medication_concerns: Optional[str] = None
-
-
-# 8. Emotional and Psychological Assessment
-class PsychologicalAssessment(BaseModel):
-    current_emotional_state: Optional[str] = None
-    has_trusted_support: Optional[YesNoUnsure] = None
-    support_person_details: Optional[str] = None
-    previous_trauma: Optional[YesNoUnsure] = None
-    feels_safe_going_home: Optional[YesNoUnsure] = None
-    wants_counselor: Optional[YesNoUnsure] = None
-
-
-# 9. Legal and Follow-Up
-class LegalFollowUp(BaseModel):
-    reported_to_police: Optional[YesNoUnsure] = None
-    wants_reporting_explanation: Optional[YesNoUnsure] = None
-    wants_evidence_collected: Optional[YesNoUnsure] = None
-    contact_for_followup: Optional[YesNoUnsure] = None
-    contact_information: Optional[str] = None
-    needs_transportation: Optional[YesNoUnsure] = None
-    needs_safe_housing: Optional[YesNoUnsure] = None
-
-
-# 10. Closure and Support
-class ClosureSupport(BaseModel):
-    additional_questions: Optional[str] = None
-    wants_next_steps_review: Optional[YesNoUnsure] = None
-    wants_resources_explained: Optional[YesNoUnsure] = None
-
-
-# Complete Interview Record
-class SANEInterview(BaseModel):
-    interview_date: datetime = Field(default_factory=datetime.now)
-    interviewer_name: Optional[str] = None
-    patient_id: Optional[str] = Field(None, description="Use anonymous identifier")
-    
-    consent: ConsentSection = Field(default_factory=ConsentSection)
-    medical_history: MedicalHistory = Field(default_factory=MedicalHistory)
-    incident_history: IncidentHistory = Field(default_factory=IncidentHistory)
-    sexual_contact: SexualContactDetails = Field(default_factory=SexualContactDetails)
-    injury_assessment: InjuryAssessment = Field(default_factory=InjuryAssessment)
-    forensic_evidence: ForensicEvidence = Field(default_factory=ForensicEvidence)
-    treatment: TreatmentDiscussion = Field(default_factory=TreatmentDiscussion)
-    psychological: PsychologicalAssessment = Field(default_factory=PsychologicalAssessment)
-    legal_followup: LegalFollowUp = Field(default_factory=LegalFollowUp)
-    closure: ClosureSupport = Field(default_factory=ClosureSupport)
-    
-    additional_notes: Optional[str] = None
-
-
-class SANEInterviewChatbot:
+class SANEInterview:
     """
-    Interactive chatbot for conducting SANE interviews with trauma-informed approach
+    SANE Interview logic controller.
     """
     
     def __init__(self):
-        self.interview = SANEInterview()
-        self.current_section = 0
-        self.sections = [
-            ("Consent and Introduction", self.consent_questions),
-            ("Medical History", self.medical_history_questions),
-            ("Incident History", self.incident_questions),
-            ("Sexual Contact Details", self.sexual_contact_questions),
-            ("Injury and Pain Assessment", self.injury_questions),
-            ("Forensic Evidence Collection", self.forensic_questions),
-            ("Treatment Discussion", self.treatment_questions),
-            ("Emotional Support", self.psychological_questions),
-            ("Legal and Follow-Up", self.legal_questions),
-            ("Closure and Resources", self.closure_questions)
-        ]
-    
-    def display_header(self):
-        print("\n" + "="*60)
-        print("🩺 SANE INTERVIEW SYSTEM")
-        print("Sexual Assault Nurse Examiner - Trauma-Informed Interview")
-        print("="*60)
-        print("\nKey Principles:")
-        print("• Patient has the right to decline any question")
-        print("• Maintain nonjudgmental, supportive tone")
-        print("• Document exact words when possible")
-        print("• Allow pauses and breaks as needed")
-        print("="*60 + "\n")
-    
-    def get_response(self, question: str, allow_decline: bool = True) -> str:
-        """Get response with option to decline"""
-        print(f"\n{question}")
-        if allow_decline:
-            print("(Type 'skip' to decline answering)")
-        response = input("Response: ").strip()
-        return response if response.lower() != 'skip' else "decline_to_answer"
-    
-    def get_yes_no(self, question: str) -> YesNoUnsure:
-        """Get yes/no/unsure response"""
-        response = self.get_response(f"{question} (yes/no/unsure)")
-        response_lower = response.lower()
+        self.interview = SANEInterviewRecord()
+        self._generator = self._interview_flow()
+        self._current_question: Optional[Question] = None
+        self._interview_complete = False
+
+    def get_next_question(self, last_answer: str = None) -> Optional[Question]:
+        """
+        Get the next question in the interview flow.
+        Pass the answer to the *previous* question as `last_answer`.
+        """
+        if self._interview_complete:
+            return None
+
+        try:
+            if self._current_question is None:
+                # Start the generator
+                self._current_question = next(self._generator)
+            else:
+                # Send the answer to the generator
+                self._current_question = self._generator.send(last_answer)
+            
+            return self._current_question
+        except StopIteration:
+            self._interview_complete = True
+            return None
+
+    def _parse_yes_no(self, response: str) -> YesNoUnsure:
+        if not response:
+            return YesNoUnsure.DECLINE
+        response_lower = response.lower().strip()
         if response_lower in ['y', 'yes']:
             return YesNoUnsure.YES
         elif response_lower in ['n', 'no']:
             return YesNoUnsure.NO
         elif response_lower in ['u', 'unsure', 'not sure']:
             return YesNoUnsure.UNSURE
+        elif response_lower == 'skip':
+            return YesNoUnsure.DECLINE
+        elif response_lower == 'explain':
+            return YesNoUnsure.EXPLAIN
         else:
             return YesNoUnsure.DECLINE
-    
+
+    def _interview_flow(self) -> Generator[Question, str, None]:
+        # 0. Setup
+        yield from self.intro_questions()
+
+        # 1. Consent
+        if not (yield from self.consent_questions()):
+             return # Stop if no consent
+
+        # 2. Medical History
+        yield from self.medical_history_questions()
+
+        # 3. Incident History
+        yield from self.incident_questions()
+
+        # 4. Sexual Contact Details
+        yield from self.sexual_contact_questions()
+
+        # 5. Injury and Pain
+        yield from self.injury_questions()
+
+        # 6. Forensic Evidence
+        yield from self.forensic_questions()
+
+        # 7. Treatment
+        yield from self.treatment_questions()
+
+        # 8. Emotional Support
+        yield from self.psychological_questions()
+
+        # 9. Legal and Follow-Up
+        yield from self.legal_questions()
+
+        # 10. Closure
+        yield from self.closure_questions()
+
+    def intro_questions(self):
+        interviewer = yield Question("Enter interviewer name:", allow_skip=False)
+        self.interview.interviewer_name = interviewer
+        
+        patient_id = yield Question("Enter patient identifier (anonymous):", allow_skip=False)
+        self.interview.patient_id = patient_id
+
     def consent_questions(self):
-        print("\n🩺 1. INTRODUCTION AND CONSENT")
-        print("-" * 60)
+        yield Question("🩺 1. INTRODUCTION AND CONSENT\n" + "-" * 60 + "\n\nI want to make sure you understand your rights and what will happen today.", type="info")
         
-        print("\nI want to make sure you understand your rights and what will happen today.")
-        self.interview.consent.understands_purpose = self.get_yes_no(
-            "Do you understand the purpose of this examination and your rights during the process?"
+        ans = yield Question(
+            "Do you understand the purpose of this examination and your rights during the process?", 
+            type="yes_no",
+            explanation="The SANE exam is a specialized medical-forensic examination designed to provide you with medical care and to collect evidence if you choose to report the assault."
         )
+        self.interview.consent.understands_purpose = self._parse_yes_no(ans)
         
-        self.interview.consent.wants_explanation = self.get_yes_no(
-            "Would you like me to explain what will happen during the exam?"
+        if self.interview.consent.understands_purpose == YesNoUnsure.NO:
+            explanation_text = (
+                "\nThe SANE (Sexual Assault Nurse Examiner) examination is a comprehensive medical-forensic evaluation. It includes:\n\n"
+                "1. Medical Care: We will assess and treat any physical injuries you may have.\n"
+                "2. Health Services: We can provide medications to prevent STIs (including HIV) and emergency contraception if needed.\n"
+                "3. Evidence Collection: With your consent, we will collect forensic evidence (DNA, clothing, etc.) that can be used if you decide to involve the legal system.\n"
+                "4. Documentation: We will carefully document your account of the event and any physical findings.\n"
+                "5. Your Rights: This is YOUR exam. You have the right to:\n"
+                "   - Consent to all, part, or none of the exam.\n"
+                "   - Stop the exam at any time.\n"
+                "   - Skip any question or procedure.\n"
+                "   - Have a support person or advocate present.\n\n"
+                "Everything we discuss and find is confidential within the limits of the law.\n"
+                "\nPress Enter when you are ready to continue..."
+            )
+            yield Question(explanation_text, type="info")
+            self.interview.consent.wants_explanation = YesNoUnsure.YES
+        elif self.interview.consent.understands_purpose == YesNoUnsure.YES:
+            self.interview.consent.wants_explanation = YesNoUnsure.NO
+        else:
+            # For UNSURE or DECLINE, ask if they want an explanation
+            ans = yield Question("Would you like me to explain what will happen during the exam?", type="yes_no")
+            self.interview.consent.wants_explanation = self._parse_yes_no(ans)
+            
+            if self.interview.consent.wants_explanation == YesNoUnsure.YES:
+                explanation_text = (
+                    "\nThe SANE (Sexual Assault Nurse Examiner) examination is a comprehensive medical-forensic evaluation. It includes:\n\n"
+                    "1. Medical Care: We will assess and treat any physical injuries you may have.\n"
+                    "2. Health Services: We can provide medications to prevent STIs (including HIV) and emergency contraception if needed.\n"
+                    "3. Evidence Collection: With your consent, we will collect forensic evidence (DNA, clothing, etc.) that can be used if you decide to involve the legal system.\n"
+                    "4. Documentation: We will carefully document your account of the event and any physical findings.\n"
+                    "5. Your Rights: This is YOUR exam. You have the right to:\n"
+                    "   - Consent to all, part, or none of the exam.\n"
+                    "   - Stop the exam at any time.\n"
+                    "   - Skip any question or procedure.\n"
+                    "   - Have a support person or advocate present.\n\n"
+                    "Everything we discuss and find is confidential within the limits of the law.\n"
+                    "\nPress Enter when you are ready to continue..."
+                )
+                yield Question(explanation_text, type="info")
+        
+        ans = yield Question(
+            "Do I have your permission to proceed with the medical examination?", 
+            type="yes_no",
+            explanation="Your consent is required for the exam to proceed. You can stop or skip any part of the exam at any time."
         )
-        
-        if self.interview.consent.wants_explanation == YesNoUnsure.YES:
-            print("\n[Provide detailed explanation of examination process]")
-            input("Press Enter when explanation is complete...")
-        
-        self.interview.consent.gives_permission = self.get_yes_no(
-            "Do I have your permission to proceed with the medical examination?"
-        )
+        self.interview.consent.gives_permission = self._parse_yes_no(ans)
         
         if self.interview.consent.gives_permission != YesNoUnsure.YES:
-            print("\nRespecting your decision. You can take time to decide.")
+            yield Question("\nRespecting your decision. You can take time to decide.\n⚠️  Exam cannot proceed without consent.", type="info")
             return False
         
-        self.interview.consent.additional_information = self.get_response(
-            "Is there anything you would like me to know before we start?"
-        )
+        # Collect basic demographic information tactfully
+        yield Question("\nTo provide the best medical care, I need to collect some basic information.", type="info")
         
-        self.interview.consent.wants_advocate_present = self.get_yes_no(
-            "Would you like someone (advocate, friend, or family member) to be with you during the exam?"
+        ans = yield Question(
+            "May I ask your age? This helps me provide age-appropriate care and medications.", 
+            type="yes_no",
+            explanation="Age is important for determining appropriate medical treatments and dosages."
         )
+        if self._parse_yes_no(ans) == YesNoUnsure.YES:
+            ans = yield Question("What is your age in years?", allow_skip=False)
+            if ans and ans.isdigit():
+                self.interview.consent.age = int(ans)
+        
+        ans = yield Question(
+            "May I ask your sex assigned at birth? This information is important for specific medical assessments and treatments.", 
+            type="yes_no",
+            explanation="Biological sex helps us determine appropriate medical care, screenings, and potential risks."
+        )
+        if self._parse_yes_no(ans) == YesNoUnsure.YES:
+            ans = yield Question("What sex were you assigned at birth? (male, female, or intersex)", allow_skip=False)
+            if ans:
+                self.interview.consent.sex = ans.lower()
+        
+        ans = yield Question(
+            "Do you identify as transgender or have a different gender identity than your sex assigned at birth?", 
+            type="yes_no",
+            explanation="This helps us provide respectful, inclusive care and understand your specific health needs."
+        )
+        if self._parse_yes_no(ans) == YesNoUnsure.YES:
+            ans = yield Question("What gender identity do you identify with?")
+            if ans:
+                self.interview.consent.gender_identity = ans
+        
+        ans = yield Question("Is there anything you would like me to know before we start?")
+        self.interview.consent.additional_information = ans
+        
+        ans = yield Question(
+            "Would you like someone (advocate, friend, or family member) to be with you during the exam?", 
+            type="yes_no",
+            explanation="Having a support person can help you feel safer and more comfortable during the examination process."
+        )
+        self.interview.consent.wants_advocate_present = self._parse_yes_no(ans)
         
         if self.interview.consent.wants_advocate_present == YesNoUnsure.YES:
-            self.interview.consent.advocate_name = self.get_response(
-                "What is their name?", allow_decline=False
-            )
+            ans = yield Question("What is their name?", allow_skip=False)
+            self.interview.consent.advocate_name = ans
         
         return True
-    
+
     def medical_history_questions(self):
-        print("\n👩‍⚕️ 2. GENERAL MEDICAL HISTORY")
-        print("-" * 60)
+        yield Question("\n👩‍⚕️ 2. GENERAL MEDICAL HISTORY\n" + "-" * 60, type="info")
         
-        self.interview.medical_history.medical_conditions = self.get_response(
-            "Do you have any medical conditions I should know about?"
-        )
+        ans = yield Question("Do you have any medical conditions I should know about?")
+        self.interview.medical_history.medical_conditions = ans
         
-        self.interview.medical_history.current_medications = self.get_response(
-            "Are you currently taking any medications or using birth control?"
-        )
+        ans = yield Question("Are you currently taking any medications?")
+        self.interview.medical_history.current_medications = ans
         
-        self.interview.medical_history.allergies = self.get_response(
-            "Do you have any allergies, particularly to medications or latex?"
-        )
+        ans = yield Question("Do you have any allergies, particularly to medications or latex?")
+        self.interview.medical_history.allergies = ans
         
-        self.interview.medical_history.last_menstrual_period = self.get_response(
-            "When was your last menstrual period?"
-        )
-        
-        self.interview.medical_history.pregnancy_history = self.get_response(
-            "Have you ever been pregnant? If yes, how many times?"
-        )
-        
-        self.interview.medical_history.currently_pregnant = self.get_yes_no(
-            "Are you currently pregnant or do you think you could be?"
-        )
-    
+        # Only ask menstrual and pregnancy questions if age is 12 or older, or if age is unknown
+        patient_age = self.interview.consent.age
+        if patient_age is None or patient_age >= 12:
+            ans = yield Question("When was your last menstrual period?")
+            self.interview.medical_history.last_menstrual_period = ans
+            
+            ans = yield Question("Have you ever been pregnant? If yes, how many times?")
+            self.interview.medical_history.pregnancy_history = ans
+            
+            ans = yield Question("Are you currently pregnant or do you think you could be?", type="yes_no")
+            self.interview.medical_history.currently_pregnant = self._parse_yes_no(ans)
+
     def incident_questions(self):
-        print("\n⚕️ 3. INCIDENT HISTORY")
-        print("-" * 60)
-        print("Remember: You may decline to answer any question.\n")
+        yield Question("\n⚕️ 3. INCIDENT HISTORY\n" + "-" * 60 + "\nRemember: You may decline to answer any question.\n\nI need to ask you some questions about what happened.\nTake your time, and use your own words.", type="info")
         
-        print("I need to ask you some questions about what happened.")
-        print("Take your time, and use your own words.")
-        self.interview.incident_history.narrative = self.get_response(
-            "Can you tell me, in your own words, what happened?"
+        ans = yield Question(
+            "Can you tell me, in your own words, what happened?",
+            explanation="Your narrative helps us understand the context of the assault, which guides both your medical care and the collection of forensic evidence."
         )
+        self.interview.incident_history.narrative = ans
         
-        self.interview.incident_history.incident_date = self.get_response(
-            "When did the assault occur? (date)"
-        )
+        ans = yield Question("When did the assault occur? (date)")
+        self.interview.incident_history.incident_date = ans
         
-        self.interview.incident_history.incident_time = self.get_response(
-            "What time did it occur? (approximate is fine)"
-        )
+        ans = yield Question("What time did it occur? (approximate is fine)")
+        self.interview.incident_history.incident_time = ans
         
-        self.interview.incident_history.location = self.get_response(
-            "Where did it happen? (location, indoors/outdoors, bed, car, etc.)"
-        )
+        ans = yield Question("Where did it happen? (location, indoors/outdoors, bed, car, etc.)")
+        self.interview.incident_history.location = ans
         
-        self.interview.incident_history.knows_assailant = self.get_yes_no(
-            "Do you know the person(s) who assaulted you?"
-        )
+        ans = yield Question("Do you know the person(s) who hurt you?", type="yes_no")
+        self.interview.incident_history.knows_assailant = self._parse_yes_no(ans)
         
-        num_response = self.get_response(
-            "How many individuals were involved? (number)"
-        )
-        if num_response.isdigit():
-            self.interview.incident_history.number_of_individuals = int(num_response)
+        ans = yield Question("How many individuals were involved? (number)")
+        if ans and ans.isdigit():
+            self.interview.incident_history.number_of_individuals = int(ans)
         
-        self.interview.incident_history.weapons_used = self.get_yes_no(
-            "Were any weapons used or threats made?"
+        ans = yield Question(
+            "Were any weapons used or threats made?", 
+            type="yes_no",
+            explanation="Information about weapons or threats is important for assessing your safety and for legal documentation of the assault."
         )
+        self.interview.incident_history.weapons_used = self._parse_yes_no(ans)
         
         if self.interview.incident_history.weapons_used == YesNoUnsure.YES:
-            self.interview.incident_history.weapon_details = self.get_response(
-                "Can you describe the weapon(s) or threats?"
-            )
+            ans = yield Question("Can you describe the weapon(s) or threats?")
+            self.interview.incident_history.weapon_details = ans
         
-        self.interview.incident_history.physically_restrained = self.get_yes_no(
-            "Were you physically restrained (hands, ropes, clothing, etc.)?"
-        )
+        ans = yield Question("Were you physically restrained (hands, ropes, clothing, etc.)?", type="yes_no")
+        self.interview.incident_history.physically_restrained = self._parse_yes_no(ans)
         
         if self.interview.incident_history.physically_restrained == YesNoUnsure.YES:
-            self.interview.incident_history.restraint_details = self.get_response(
-                "How were you restrained?"
-            )
+            ans = yield Question("How were you restrained?")
+            self.interview.incident_history.restraint_details = ans
         
-        self.interview.incident_history.lost_consciousness = self.get_yes_no(
-            "Did you lose consciousness at any point?"
+        ans = yield Question(
+            "Did you lose consciousness at any point?", 
+            type="yes_no",
+            explanation="Loss of consciousness can indicate head trauma or the use of substances, which requires specific medical evaluation."
         )
+        self.interview.incident_history.lost_consciousness = self._parse_yes_no(ans)
         
-        self.interview.incident_history.forced_substances = self.get_yes_no(
-            "Were you forced to drink alcohol, take drugs, or any substances?"
+        ans = yield Question(
+            "Were you forced to drink alcohol, take drugs, or any substances?", 
+            type="yes_no",
+            explanation="This helps us determine if toxicology testing is needed and if any substances might interact with medications we provide today."
         )
+        self.interview.incident_history.forced_substances = self._parse_yes_no(ans)
         
         if self.interview.incident_history.forced_substances == YesNoUnsure.YES:
-            self.interview.incident_history.substance_details = self.get_response(
-                "What substances were involved?"
-            )
+            ans = yield Question("What substances were involved?")
+            self.interview.incident_history.substance_details = ans
         
-        self.interview.incident_history.witnesses = self.get_yes_no(
-            "Were there any witnesses or anyone who helped afterward?"
-        )
+        ans = yield Question("Were there any witnesses or anyone who helped afterward?", type="yes_no")
+        self.interview.incident_history.witnesses = self._parse_yes_no(ans)
         
         if self.interview.incident_history.witnesses == YesNoUnsure.YES:
-            self.interview.incident_history.witness_details = self.get_response(
-                "Can you provide details about witnesses or helpers?"
-            )
-    
+            ans = yield Question("Can you provide details about witnesses or helpers?")
+            self.interview.incident_history.witness_details = ans
+
     def sexual_contact_questions(self):
-        print("\n🧬 4. SEXUAL CONTACT DETAILS")
-        print("-" * 60)
-        print("These questions help us collect appropriate forensic evidence.\n")
+        yield Question("\n🧬 4. SEXUAL CONTACT DETAILS\n" + "-" * 60 + "\nThese questions help us collect appropriate forensic evidence.\n", type="info")
         
-        contact_response = self.get_response(
-            "What type(s) of sexual contact occurred? (vaginal, oral, anal, digital, other)"
+        contact_response = yield Question(
+            "What parts of your body were touched or penetrated? (vagina, mouth, anus/bottom, fingers, or other)",
+            explanation="Knowing the specific types of contact helps us identify where to collect DNA evidence and where to check for potential injuries."
         )
-        if contact_response != "decline_to_answer":
+        if contact_response and contact_response.lower() != "skip":
             types = []
-            if "vaginal" in contact_response.lower():
+            # Map simple terms to clinical enum
+            if any(x in contact_response.lower() for x in ["vagina", "vaginal"]):
                 types.append(SexualContactType.VAGINAL)
-            if "oral" in contact_response.lower():
+            if any(x in contact_response.lower() for x in ["mouth", "oral"]):
                 types.append(SexualContactType.ORAL)
-            if "anal" in contact_response.lower():
+            if any(x in contact_response.lower() for x in ["anal", "anus", "bottom"]):
                 types.append(SexualContactType.ANAL)
-            if "digital" in contact_response.lower():
+            if any(x in contact_response.lower() for x in ["digital", "finger", "hand"]):
                 types.append(SexualContactType.DIGITAL)
             if "other" in contact_response.lower():
                 types.append(SexualContactType.OTHER)
             self.interview.sexual_contact.contact_types = types if types else None
         
-        self.interview.sexual_contact.condom_used = self.get_yes_no(
-            "Was a condom or any barrier used?"
-        )
+        ans = yield Question("Was a condom or any protection used?", type="yes_no")
+        self.interview.sexual_contact.condom_used = self._parse_yes_no(ans)
         
-        self.interview.sexual_contact.ejaculation_noted = self.get_yes_no(
-            "Was ejaculation noted?"
+        ans = yield Question(
+            "Did the person finish (ejaculate)?", 
+            type="yes_no",
+            explanation="This information is critical for locating and collecting potential DNA evidence."
         )
+        self.interview.sexual_contact.ejaculation_noted = self._parse_yes_no(ans)
         
         if self.interview.sexual_contact.ejaculation_noted == YesNoUnsure.YES:
-            self.interview.sexual_contact.ejaculation_location = self.get_response(
-                "Where did ejaculation occur?"
-            )
+            ans = yield Question("Where did this happen (on your body, clothes, etc.)?")
+            self.interview.sexual_contact.ejaculation_location = ans
         
-        self.interview.sexual_contact.objects_used = self.get_yes_no(
-            "Did the assailant use any object(s)?"
-        )
+        ans = yield Question("Did the person use any object(s)?", type="yes_no")
+        self.interview.sexual_contact.objects_used = self._parse_yes_no(ans)
         
         if self.interview.sexual_contact.objects_used == YesNoUnsure.YES:
-            self.interview.sexual_contact.object_details = self.get_response(
-                "Can you describe the object(s)?"
-            )
+            ans = yield Question("Can you describe the object(s)?")
+            self.interview.sexual_contact.object_details = ans
         
-        self.interview.sexual_contact.able_to_resist = self.get_yes_no(
-            "Were you able to resist?"
-        )
+        ans = yield Question("Were you able to resist?", type="yes_no")
+        self.interview.sexual_contact.able_to_resist = self._parse_yes_no(ans)
         
         if self.interview.sexual_contact.able_to_resist == YesNoUnsure.YES:
-            self.interview.sexual_contact.resistance_details = self.get_response(
-                "How did you resist?"
-            )
+            ans = yield Question("How did you resist?")
+            self.interview.sexual_contact.resistance_details = ans
         
-        self.interview.sexual_contact.clothing_removed_torn = self.get_yes_no(
-            "Did the assailant remove or tear any of your clothing?"
-        )
+        ans = yield Question("Did the assailant remove or tear any of your clothing?", type="yes_no")
+        self.interview.sexual_contact.clothing_removed_torn = self._parse_yes_no(ans)
         
-        activities_response = self.get_response(
-            "Since the incident, have you: bathed, changed clothes, urinated, eaten, or brushed teeth? (list all that apply)"
-        )
-        if activities_response != "decline_to_answer":
+        activities_response = yield Question("Since the incident, have you: bathed, changed clothes, urinated, eaten, or brushed teeth? (list all that apply)")
+        if activities_response and activities_response.lower() != "skip":
             self.interview.sexual_contact.post_incident_activities = [
                 act.strip() for act in activities_response.split(',')
             ]
         
-        self.interview.sexual_contact.items_cleaned_disposed = self.get_yes_no(
-            "Have you cleaned or disposed of any items related to the incident?"
-        )
-    
+        ans = yield Question("Have you cleaned or disposed of any items related to the incident?", type="yes_no")
+        self.interview.sexual_contact.items_cleaned_disposed = self._parse_yes_no(ans)
+
     def injury_questions(self):
-        print("\n👁️ 5. INJURY AND PAIN ASSESSMENT")
-        print("-" * 60)
+        yield Question("\n👁️ 5. INJURY AND PAIN ASSESSMENT\n" + "-" * 60, type="info")
         
-        self.interview.injury_assessment.has_pain = self.get_yes_no(
-            "Do you have any pain right now?"
-        )
+        ans = yield Question("Do you have any pain right now?", type="yes_no")
+        self.interview.injury_assessment.has_pain = self._parse_yes_no(ans)
         
         if self.interview.injury_assessment.has_pain == YesNoUnsure.YES:
-            self.interview.injury_assessment.pain_locations = self.get_response(
-                "Where is the pain located?"
-            )
+            ans = yield Question("Where is the pain located?")
+            self.interview.injury_assessment.pain_locations = ans
             
-            pain_response = self.get_response(
-                "How severe is the pain on a scale of 1-10? (1=minimal, 10=worst possible)"
-            )
-            if pain_response.isdigit():
+            pain_response = yield Question("How severe is the pain on a scale of 1-10? (1=minimal, 10=worst possible)")
+            if pain_response and pain_response.isdigit():
                 level = int(pain_response)
                 if 0 <= level <= 10:
                     self.interview.injury_assessment.pain_level = level
         
-        assault_response = self.get_response(
-            "Did the assailant hit, slap, kick, bite, or strangle you? (list all that apply)"
-        )
-        if assault_response != "decline_to_answer":
+        assault_response = yield Question("Did the person hit, slap, kick, bite, or strangle (choke) you? (list all that apply)")
+        if assault_response and assault_response.lower() != "skip":
             self.interview.injury_assessment.physical_assault_types = [
                 act.strip() for act in assault_response.split(',')
             ]
         
-        self.interview.injury_assessment.visible_injuries = self.get_response(
-            "Do you have any bruises, scratches, or bleeding? Please describe locations."
-        )
+        ans = yield Question("Do you have any bruises, scratches, or bleeding? Please describe locations.")
+        self.interview.injury_assessment.visible_injuries = ans
         
-        symptoms_response = self.get_response(
-            "Are you experiencing: dizziness, nausea, or headaches? (list all that apply)"
-        )
-        if symptoms_response != "decline_to_answer":
+        symptoms_response = yield Question("Are you experiencing: dizziness, nausea, or headaches? (list all that apply)")
+        if symptoms_response and symptoms_response.lower() != "skip":
             self.interview.injury_assessment.symptoms = [
                 sym.strip() for sym in symptoms_response.split(',')
             ]
         
-        self.interview.injury_assessment.genital_anal_symptoms = self.get_response(
-            "Are you experiencing pain, discharge, or bleeding in genital or anal areas?"
-        )
-    
+        ans = yield Question("Are you having pain, discharge, or bleeding in your private parts (genital or anal areas)?")
+        self.interview.injury_assessment.genital_anal_symptoms = ans
+
     def forensic_questions(self):
-        print("\n🧫 6. FORENSIC EVIDENCE COLLECTION")
-        print("-" * 60)
+        yield Question("\n🧫 6. FORENSIC EVIDENCE COLLECTION\n" + "-" * 60, type="info")
         
-        self.interview.forensic_evidence.urinated_since = self.get_yes_no(
-            "Have you urinated since the assault?"
-        )
+        ans = yield Question("Have you peed (urinated) since the incident?", type="yes_no")
+        self.interview.forensic_evidence.urinated_since = self._parse_yes_no(ans)
         
-        self.interview.forensic_evidence.defecated_since = self.get_yes_no(
-            "Have you defecated since the assault?"
-        )
+        ans = yield Question("Have you had a bowel movement (pooped) since the incident?", type="yes_no")
+        self.interview.forensic_evidence.defecated_since = self._parse_yes_no(ans)
         
-        self.interview.forensic_evidence.changed_sanitary_products = self.get_yes_no(
-            "Have you changed sanitary products since the assault?"
-        )
+        ans = yield Question("Have you changed pads or tampons since the incident?", type="yes_no")
+        self.interview.forensic_evidence.changed_sanitary_products = self._parse_yes_no(ans)
         
-        self.interview.forensic_evidence.eaten_drunk_smoked = self.get_yes_no(
-            "Have you eaten, drunk, or smoked since the incident?"
-        )
+        ans = yield Question("Have you eaten, drunk, or smoked since the incident?", type="yes_no")
+        self.interview.forensic_evidence.eaten_drunk_smoked = self._parse_yes_no(ans)
         
-        self.interview.forensic_evidence.items_left_behind = self.get_yes_no(
-            "Did the assailant leave any items behind (hair, condom, tissues, etc.)?"
-        )
+        ans = yield Question("Did the person involved leave any items behind (hair, condom, tissues, etc.)?", type="yes_no")
+        self.interview.forensic_evidence.items_left_behind = self._parse_yes_no(ans)
         
         if self.interview.forensic_evidence.items_left_behind == YesNoUnsure.YES:
-            self.interview.forensic_evidence.items_description = self.get_response(
-                "Can you describe the items?"
-            )
+            ans = yield Question("Can you describe the items?")
+            self.interview.forensic_evidence.items_description = ans
         
-        self.interview.forensic_evidence.wearing_same_clothes = self.get_yes_no(
-            "Are you wearing the same clothes from the assault?"
-        )
+        ans = yield Question("Are you wearing the same clothes from the assault?", type="yes_no")
+        self.interview.forensic_evidence.wearing_same_clothes = self._parse_yes_no(ans)
         
-        self.interview.forensic_evidence.wants_items_collected = self.get_yes_no(
-            "Would you like these items collected for evidence?"
-        )
-    
+        ans = yield Question("Would you like these items collected for evidence?", type="yes_no")
+        self.interview.forensic_evidence.wants_items_collected = self._parse_yes_no(ans)
+
     def treatment_questions(self):
-        print("\n💊 7. PROPHYLAXIS AND TREATMENT DISCUSSION")
-        print("-" * 60)
+        yield Question("\n💊 7. PROPHYLAXIS AND TREATMENT DISCUSSION\n" + "-" * 60 + "\n\nWe can provide preventive treatment for infections and pregnancy.", type="info")
         
-        print("\nWe can provide preventive treatment for infections and pregnancy.")
+        ans = yield Question("Are you willing to take medication to prevent sexually transmitted infections (STIs)?", type="yes_no")
+        self.interview.treatment.accepts_sti_prophylaxis = self._parse_yes_no(ans)
         
-        self.interview.treatment.accepts_sti_prophylaxis = self.get_yes_no(
-            "Are you willing to take medication to prevent sexually transmitted infections (STIs)?"
-        )
+        ans = yield Question("Would you like emergency contraception (if applicable)?", type="yes_no")
+        self.interview.treatment.wants_emergency_contraception = self._parse_yes_no(ans)
         
-        self.interview.treatment.wants_emergency_contraception = self.get_yes_no(
-            "Would you like emergency contraception (if applicable)?"
-        )
+        ans = yield Question("Have you had a recent HIV test?", type="yes_no")
+        self.interview.treatment.recent_hiv_test = self._parse_yes_no(ans)
         
-        self.interview.treatment.recent_hiv_test = self.get_yes_no(
-            "Have you had a recent HIV test?"
-        )
+        ans = yield Question("Would you like to have an HIV test now?", type="yes_no")
+        self.interview.treatment.wants_hiv_test = self._parse_yes_no(ans)
         
-        self.interview.treatment.wants_hiv_test = self.get_yes_no(
-            "Would you like to have an HIV test now?"
-        )
-        
-        self.interview.treatment.medication_concerns = self.get_response(
-            "Do you have any concerns about medications or treatment options?"
-        )
-    
+        ans = yield Question("Do you have any concerns about medications or treatment options?")
+        self.interview.treatment.medication_concerns = ans
+
     def psychological_questions(self):
-        print("\n🧠 8. EMOTIONAL AND PSYCHOLOGICAL ASSESSMENT")
-        print("-" * 60)
+        yield Question("\n🧠 8. EMOTIONAL AND PSYCHOLOGICAL ASSESSMENT\n" + "-" * 60, type="info")
         
-        self.interview.psychological.current_emotional_state = self.get_response(
-            "How are you feeling emotionally right now?"
-        )
+        ans = yield Question("How are you feeling emotionally right now?")
+        self.interview.psychological.current_emotional_state = ans
         
-        self.interview.psychological.has_trusted_support = self.get_yes_no(
-            "Do you have someone you trust to talk to about this?"
-        )
+        ans = yield Question("Do you have someone you trust to talk to about this?", type="yes_no")
+        self.interview.psychological.has_trusted_support = self._parse_yes_no(ans)
         
         if self.interview.psychological.has_trusted_support == YesNoUnsure.YES:
-            self.interview.psychological.support_person_details = self.get_response(
-                "Who is your support person?"
-            )
+            ans = yield Question("Who is your support person?")
+            self.interview.psychological.support_person_details = ans
         
-        self.interview.psychological.previous_trauma = self.get_yes_no(
-            "Have you ever experienced anything like this before?"
-        )
+        ans = yield Question("Have you ever experienced anything like this before?", type="yes_no")
+        self.interview.psychological.previous_trauma = self._parse_yes_no(ans)
         
-        self.interview.psychological.feels_safe_going_home = self.get_yes_no(
-            "Do you feel safe going home today?"
-        )
+        ans = yield Question("Do you feel safe going home today?", type="yes_no")
+        self.interview.psychological.feels_safe_going_home = self._parse_yes_no(ans)
         
-        self.interview.psychological.wants_counselor = self.get_yes_no(
-            "Would you like to speak with a counselor or advocate?"
-        )
-    
+        ans = yield Question("Would you like to speak with a counselor or advocate?", type="yes_no")
+        self.interview.psychological.wants_counselor = self._parse_yes_no(ans)
+
     def legal_questions(self):
-        print("\n📄 9. LEGAL AND FOLLOW-UP QUESTIONS")
-        print("-" * 60)
+        yield Question("\n📄 9. LEGAL AND FOLLOW-UP QUESTIONS\n" + "-" * 60, type="info")
         
-        self.interview.legal_followup.reported_to_police = self.get_yes_no(
-            "Have you already reported this assault to the police?"
-        )
+        ans = yield Question("Have you already reported this assault to the police?", type="yes_no")
+        self.interview.legal_followup.reported_to_police = self._parse_yes_no(ans)
         
-        self.interview.legal_followup.wants_reporting_explanation = self.get_yes_no(
-            "Would you like me to explain how reporting works?"
-        )
+        ans = yield Question("Would you like me to explain how reporting works?", type="yes_no")
+        self.interview.legal_followup.wants_reporting_explanation = self._parse_yes_no(ans)
         
         if self.interview.legal_followup.wants_reporting_explanation == YesNoUnsure.YES:
-            print("\n[Provide explanation of reporting process]")
-            input("Press Enter when explanation is complete...")
+            reporting_text = (
+                "\nThere are different ways to report what happened, and you have choices:\n\n"
+                "1. Forensic Medical Report (Non-Reporting): In many areas, you can have a forensic exam and have the evidence stored (for a certain period) without immediately reporting to the police. This gives you time to decide.\n"
+                "2. Police Report: You can choose to report to law enforcement. They will begin an investigation, and the evidence collected during this exam will be used in that process.\n"
+                "3. Anonymous/Jane Doe Report: Some jurisdictions allow for reporting without providing your name initially.\n\n"
+                "Regardless of your choice, you are entitled to medical care. Choosing not to report today does not mean you cannot report later, though evidence is best collected as soon as possible.\n"
+                "\nPress Enter when you are ready to continue..."
+            )
+            yield Question(reporting_text, type="info")
         
-        self.interview.legal_followup.wants_evidence_collected = self.get_yes_no(
-            "Do you want forensic evidence collected even if you're undecided about reporting?"
-        )
+        ans = yield Question("Do you want forensic evidence collected even if you're undecided about reporting?", type="yes_no")
+        self.interview.legal_followup.wants_evidence_collected = self._parse_yes_no(ans)
         
-        self.interview.legal_followup.contact_for_followup = self.get_yes_no(
-            "Can we contact you for follow-up medical results?"
-        )
+        ans = yield Question("Can we contact you for follow-up medical results?", type="yes_no")
+        self.interview.legal_followup.contact_for_followup = self._parse_yes_no(ans)
         
         if self.interview.legal_followup.contact_for_followup == YesNoUnsure.YES:
-            self.interview.legal_followup.contact_information = self.get_response(
-                "What is the best way to contact you? (phone/email)", allow_decline=False
-            )
+            ans = yield Question("What is the best way to contact you? (phone/email)", allow_skip=False)
+            self.interview.legal_followup.contact_information = ans
         
-        self.interview.legal_followup.needs_transportation = self.get_yes_no(
-            "Do you need help with transportation tonight?"
-        )
+        ans = yield Question("Do you need help with transportation tonight?", type="yes_no")
+        self.interview.legal_followup.needs_transportation = self._parse_yes_no(ans)
         
-        self.interview.legal_followup.needs_safe_housing = self.get_yes_no(
-            "Do you need help with safe housing tonight?"
-        )
-    
+        ans = yield Question("Do you need help with safe housing tonight?", type="yes_no")
+        self.interview.legal_followup.needs_safe_housing = self._parse_yes_no(ans)
+
     def closure_questions(self):
-        print("\n🩹 10. CLOSURE AND SUPPORT")
-        print("-" * 60)
+        yield Question("\n🩹 10. CLOSURE AND SUPPORT\n" + "-" * 60, type="info")
         
-        self.interview.closure.additional_questions = self.get_response(
-            "Do you have any questions or concerns before we finish?"
-        )
+        ans = yield Question("Do you have any questions or concerns before we finish?")
+        self.interview.closure.additional_questions = ans
         
-        self.interview.closure.wants_next_steps_review = self.get_yes_no(
-            "Would you like me to review your next steps (medical, legal, counseling)?"
-        )
+        ans = yield Question("Would you like me to review your next steps (medical, legal, counseling)?", type="yes_no")
+        self.interview.closure.wants_next_steps_review = self._parse_yes_no(ans)
         
         if self.interview.closure.wants_next_steps_review == YesNoUnsure.YES:
-            print("\n[Review next steps with patient]")
-            input("Press Enter when review is complete...")
+            review_text = (
+                "\nLet's review the next steps for your care:\n\n"
+                "1. Medical Follow-up: We recommend seeing your primary care provider or a clinic in 1-2 weeks to follow up on any injuries or medications.\n"
+                "2. STI Testing: Some tests may need to be repeated in a few weeks or months.\n"
+                "3. Support Services: We have provided contact information for local advocacy groups and counseling services. They can help with the emotional impact and guide you through the next steps.\n"
+                "4. Evidence: If evidence was collected, it will be handled according to legal protocols.\n"
+                "5. Safety: Please ensure you have a safe place to go today. If you don't feel safe, we can help you find emergency housing.\n\n"
+                "Do you have any questions about these steps?\n"
+                "\nPress Enter when review is complete..."
+            )
+            yield Question(review_text, type="info")
         
-        self.interview.closure.wants_resources_explained = self.get_yes_no(
-            "I have resources and hotlines you can contact for help. Would you like me to explain them?"
-        )
+        ans = yield Question("I have resources and hotlines you can contact for help. Would you like me to explain them?", type="yes_no")
+        self.interview.closure.wants_resources_explained = self._parse_yes_no(ans)
         
         if self.interview.closure.wants_resources_explained == YesNoUnsure.YES:
-            print("\n📞 IMPORTANT RESOURCES:")
-            print("• National Sexual Assault Hotline: 1-800-656-HOPE (4673)")
-            print("• Crisis Text Line: Text HOME to 741741")
-            print("• RAINN Online Chat: www.rainn.org")
-            print("• National Domestic Violence Hotline: 1-800-799-7233")
-            input("\nPress Enter to continue...")
-    
-    def conduct_interview(self):
-        """Run the complete interview process"""
-        self.display_header()
-        
-        interviewer = input("Enter interviewer name: ").strip()
-        self.interview.interviewer_name = interviewer
-        
-        patient_id = input("Enter patient identifier (anonymous): ").strip()
-        self.interview.patient_id = patient_id
-        
-        for section_name, section_func in self.sections:
-            print(f"\n{'='*60}")
-            result = section_func()
-            
-            # Check if consent was declined
-            if section_name == "Consent and Introduction" and result is False:
-                print("\n⚠️  Exam cannot proceed without consent.")
-                return None
-            
-            cont = input("\nContinue to next section? (yes/no): ").strip().lower()
-            if cont not in ['y', 'yes', '']:
-                print("\nInterview paused. Patient needs break.")
-                break
-        
-        print("\n" + "="*60)
-        print("✅ INTERVIEW COMPLETE")
-        print("="*60)
-        
-        return self.interview
-    
-    def save_interview(self, filename: str = "interview_record.json"):
-        """Save interview to JSON file"""
-        save_model_response(self.interview, filename)
-        print(f"\n💾 Interview saved to {filename}")
-
-
-def cli():
-    """Main entry point"""
-    chatbot = SANEInterviewChatbot()
-    
-    try:
-        interview = chatbot.conduct_interview()
-        
-        if interview:
-            save = input("\nWould you like to save this interview record? (yes/no): ").strip().lower()
-            if save in ['y', 'yes']:
-                filename = input("Enter filename (default: interview_record.json): ").strip()
-                if not filename:
-                    filename = "interview_record.json"
-                chatbot.save_interview(filename)
-                print("\n✅ Interview record saved successfully.")
-            
-            print("\n🙏 Thank you for your courage and trust.")
-            print("Remember: This was not your fault.")
-            print("Support is available 24/7.")
-    
-    except KeyboardInterrupt:
-        print("\n\n⚠️  Interview interrupted by user.")
-        print("Patient safety is priority. Provide immediate support.")
-    except Exception as e:
-        print(f"\n❌ Error occurred: {e}")
-        print("Ensure patient safety and wellbeing first.")
-
-
-if __name__ == "__main__":
-    cli()
+            yield Question("\n📞 IMPORTANT RESOURCES:\n• National Sexual Assault Hotline: 1-800-656-HOPE (4673)\n• Crisis Text Line: Text HOME to 741741\n• RAINN Online Chat: www.rainn.org\n• National Domestic Violence Hotline: 1-800-799-7233\nPress Enter to continue...", type="info")

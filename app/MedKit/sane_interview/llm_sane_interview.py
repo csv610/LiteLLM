@@ -24,9 +24,9 @@ QUICK START:
 
     Use programmatically:
 
-        from llm_sane_interview import LLMAssistedSANEChatbot
+        from llm_sane_interview import LLMAssistedSANEInterviewer
 
-        chatbot = LLMAssistedSANEChatbot(use_llm_assist=True, local_model=True)
+        chatbot = LLMAssistedSANEInterviewer(use_llm_assist=True, local_model=True)
         interview = chatbot.conduct_interview()
         chatbot.save_interview("interview_record.json")
 
@@ -51,22 +51,10 @@ KEY FEATURES:
     - JSON export for medical records and law enforcement coordination
 """
 
-try:
-    from medkit.mental_health.sane_interview import (
-        SANEInterview, SANEInterviewChatbot,
-        YesNoUnsure, SexualContactType
-    )
-except ImportError:
-    try:
-        from .sane_interview import (
-            SANEInterview, SANEInterviewChatbot,
-            YesNoUnsure, SexualContactType
-        )
-    except ImportError:
-        from sane_interview import (
-            SANEInterview, SANEInterviewChatbot,
-            YesNoUnsure, SexualContactType
-        )
+from sane_interview_models import (
+    SANEInterview, YesNoUnsure, SexualContactType
+)
+from sane_interview_chatbot import SANEInterviewer
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -102,7 +90,7 @@ class InterviewContext(BaseModel):
     nurse_notes: Optional[str] = None
 
 
-class LLMAssistedSANEChatbot(SANEInterviewChatbot):
+class LLMAssistedSANEInterviewer(SANEInterviewer):
     """
     Enhanced SANE chatbot with LLM assistance for question suggestions.
     
@@ -113,8 +101,8 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
     - Nurse can ignore any/all suggestions
     """
     
-    def __init__(self, use_llm_assist: bool = True, local_model: bool = True):
-        super().__init__()
+    def __init__(self, use_llm_assist: bool = True, local_model: bool = True, io_handler: Optional[Any] = None):
+        super().__init__(io_handler=io_handler)
         self.use_llm_assist = use_llm_assist
         self.local_model = local_model  # If False, warns about privacy
         self.questions_asked = []
@@ -123,10 +111,10 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
         self.nurse_notes = {}
         
         if use_llm_assist and not local_model:
-            print("\n⚠️  WARNING: Using external LLM API")
-            print("   Patient data will be anonymized before sending")
-            print("   Consider using local model for maximum privacy")
-            input("\n   Press Enter to acknowledge and continue...")
+            self.io.display("\n⚠️  WARNING: Using external LLM API")
+            self.io.display("   Patient data will be anonymized before sending")
+            self.io.display("   Consider using local model for maximum privacy")
+            self.io.wait_for_user("   Press Enter to acknowledge and continue...")
     
     def get_response_with_llm_assist(
         self, 
@@ -139,11 +127,11 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
         Enhanced version that can provide LLM suggestions after initial response
         """
         # Ask the standard question first
-        print(f"\n{question}")
+        self.io.display(f"\n{question}")
         if allow_decline:
-            print("(Type 'skip' to decline answering)")
+            self.io.display("(Type 'skip' to decline answering)")
         
-        response = input("Response: ").strip()
+        response = self.io.ask("Response: ").strip()
         
         # Record the question asked
         self.questions_asked.append(question)
@@ -324,10 +312,10 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
             return  # No suggestions, continue normally
         
         # Display suggestions to nurse
-        print("\n" + "─" * 70)
-        print("🤖 AI ASSISTANT - SUGGESTED FOLLOW-UP QUESTIONS")
-        print("─" * 70)
-        print("Review these suggestions and decide what to ask (if anything):\n")
+        self.io.display("\n" + "─" * 70)
+        self.io.display("🤖 AI ASSISTANT - SUGGESTED FOLLOW-UP QUESTIONS")
+        self.io.display("─" * 70)
+        self.io.display("Review these suggestions and decide what to ask (if anything):\n")
         
         for i, suggestion in enumerate(suggestions, 1):
             priority_emoji = {
@@ -337,39 +325,39 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
                 "low": "ℹ️"
             }.get(suggestion.priority, "💡")
             
-            print(f"{priority_emoji} Suggestion {i} [{suggestion.priority.upper()} priority]:")
-            print(f"   Q: {suggestion.question}")
-            print(f"   Why: {suggestion.rationale}")
+            self.io.display(f"{priority_emoji} Suggestion {i} [{suggestion.priority.upper()} priority]:")
+            self.io.display(f"   Q: {suggestion.question}")
+            self.io.display(f"   Why: {suggestion.rationale}")
             
             if suggestion.medical_relevance:
-                print("   🏥 Medical relevance: Yes")
+                self.io.display("   🏥 Medical relevance: Yes")
             if suggestion.forensic_relevance:
-                print("   🔬 Forensic relevance: Yes")
-            print()
+                self.io.display("   🔬 Forensic relevance: Yes")
+            self.io.display("")
         
-        print("─" * 70)
-        print("Options:")
-        print("  [1-9]  Ask that numbered question")
-        print("  [m]    Make note for later")
-        print("  [s]    Skip all suggestions")
-        print("  [c]    Create custom follow-up question")
-        print("─" * 70)
+        self.io.display("─" * 70)
+        self.io.display("Options:")
+        self.io.display("  [1-9]  Ask that numbered question")
+        self.io.display("  [m]    Make note for later")
+        self.io.display("  [s]    Skip all suggestions")
+        self.io.display("  [c]    Create custom follow-up question")
+        self.io.display("─" * 70)
         
-        choice = input("Your choice: ").strip().lower()
+        choice = self.io.ask("Your choice: ").strip().lower()
         
         if choice == 's':
             self.llm_suggestions_rejected += len(suggestions)
-            print("✓ Continuing without additional questions\n")
+            self.io.display("✓ Continuing without additional questions\n")
             return
         
         elif choice == 'm':
-            note = input("Enter note: ").strip()
+            note = self.io.ask("Enter note: ").strip()
             self.nurse_notes[section] = self.nurse_notes.get(section, "") + f"\n{note}"
-            print("✓ Note saved\n")
+            self.io.display("✓ Note saved\n")
             return
         
         elif choice == 'c':
-            custom_q = input("Enter your custom question: ").strip()
+            custom_q = self.io.ask("Enter your custom question: ").strip()
             if custom_q:
                 self._ask_custom_followup(custom_q, section)
             return
@@ -381,27 +369,27 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
                 selected = suggestions[idx]
                 
                 # Ask the suggested question
-                print(f"\n{selected.question}")
-                print("(Type 'skip' to decline answering)")
-                followup_response = input("Response: ").strip()
+                self.io.display(f"\n{selected.question}")
+                self.io.display("(Type 'skip' to decline answering)")
+                followup_response = self.io.ask("Response: ").strip()
                 
                 # Store the follow-up response
                 self._store_followup_response(section, selected.question, followup_response)
                 
-                print("✓ Response recorded\n")
+                self.io.display("✓ Response recorded\n")
             else:
-                print("Invalid selection\n")
+                self.io.display("Invalid selection\n")
         else:
-            print("Invalid choice, continuing...\n")
+            self.io.display("Invalid choice, continuing...\n")
     
     def _ask_custom_followup(self, question: str, section: str):
         """Nurse asks their own custom follow-up question"""
-        print(f"\n{question}")
-        print("(Type 'skip' to decline answering)")
-        response = input("Response: ").strip()
+        self.io.display(f"\n{question}")
+        self.io.display("(Type 'skip' to decline answering)")
+        response = self.io.ask("Response: ").strip()
         
         self._store_followup_response(section, question, response)
-        print("✓ Response recorded\n")
+        self.io.display("✓ Response recorded\n")
     
     def _store_followup_response(self, section: str, question: str, response: str):
         """Store follow-up Q&A in additional notes"""
@@ -412,12 +400,12 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
     # Override the original question methods to use LLM assistance
     
     def incident_questions(self):
-        print("\n⚕️ 3. INCIDENT HISTORY")
-        print("-" * 60)
-        print("Remember: You may decline to answer any question.\n")
+        self.io.display("\n⚕️ 3. INCIDENT HISTORY")
+        self.io.display("-" * 60)
+        self.io.display("Remember: You may decline to answer any question.\n")
         
-        print("I need to ask you some questions about what happened.")
-        print("Take your time, and use your own words.")
+        self.io.display("I need to ask you some questions about what happened.")
+        self.io.display("Take your time, and use your own words.")
         self.interview.incident_history.narrative = self.get_response_with_llm_assist(
             "Can you tell me, in your own words, what happened?",
             section="incident_history"
@@ -495,8 +483,8 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
             )
     
     def injury_questions(self):
-        print("\n👁️ 5. INJURY AND PAIN ASSESSMENT")
-        print("-" * 60)
+        self.io.display("\n👁️ 5. INJURY AND PAIN ASSESSMENT")
+        self.io.display("-" * 60)
         
         self.interview.injury_assessment.has_pain = self.get_yes_no(
             "Do you have any pain right now?"
@@ -545,9 +533,9 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
         )
     
     def sexual_contact_questions(self):
-        print("\n🧬 4. SEXUAL CONTACT DETAILS")
-        print("-" * 60)
-        print("These questions help us collect appropriate forensic evidence.\n")
+        self.io.display("\n🧬 4. SEXUAL CONTACT DETAILS")
+        self.io.display("-" * 60)
+        self.io.display("These questions help us collect appropriate forensic evidence.\n")
         
         contact_response = self.get_response_with_llm_assist(
             "What type(s) of sexual contact occurred? (vaginal, oral, anal, digital, other)",
@@ -619,8 +607,8 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
         )
     
     def psychological_questions(self):
-        print("\n🧠 8. EMOTIONAL AND PSYCHOLOGICAL ASSESSMENT")
-        print("-" * 60)
+        self.io.display("\n🧠 8. EMOTIONAL AND PSYCHOLOGICAL ASSESSMENT")
+        self.io.display("-" * 60)
         
         self.interview.psychological.current_emotional_state = self.get_response_with_llm_assist(
             "How are you feeling emotionally right now?",
@@ -650,28 +638,31 @@ class LLMAssistedSANEChatbot(SANEInterviewChatbot):
     
     def display_statistics(self):
         """Display LLM assistance statistics at end of interview"""
-        print("\n" + "="*70)
-        print("📊 LLM ASSISTANCE STATISTICS")
-        print("="*70)
-        print(f"Total suggestions made: {self.llm_suggestions_accepted + self.llm_suggestions_rejected}")
-        print(f"Suggestions accepted: {self.llm_suggestions_accepted}")
-        print(f"Suggestions rejected: {self.llm_suggestions_rejected}")
+        self.io.display("\n" + "="*70)
+        self.io.display("📊 LLM ASSISTANCE STATISTICS")
+        self.io.display("="*70)
+        self.io.display(f"Total suggestions made: {self.llm_suggestions_accepted + self.llm_suggestions_rejected}")
+        self.io.display(f"Suggestions accepted: {self.llm_suggestions_accepted}")
+        self.io.display(f"Suggestions rejected: {self.llm_suggestions_rejected}")
         
         if (self.llm_suggestions_accepted + self.llm_suggestions_rejected) > 0:
             acceptance_rate = (self.llm_suggestions_accepted / 
                              (self.llm_suggestions_accepted + self.llm_suggestions_rejected) * 100)
-            print(f"Acceptance rate: {acceptance_rate:.1f}%")
+            self.io.display(f"Acceptance rate: {acceptance_rate:.1f}%")
         
-        print("="*70 + "\n")
+        self.io.display("="*70 + "\n")
 
 
 def cli():
     """Main entry point with LLM assistance option"""
-    print("="*70)
-    print("🩺 SANE INTERVIEW SYSTEM - LLM-ASSISTED VERSION")
-    print("="*70)
+    from sane_interview_chatbot import ConsoleInterviewIO
+    io = ConsoleInterviewIO()
     
-    use_llm = input("\nEnable AI-powered question suggestions? (yes/no): ").strip().lower()
+    io.display("="*70)
+    io.display("🩺 SANE INTERVIEW SYSTEM - LLM-ASSISTED VERSION")
+    io.display("="*70)
+    
+    use_llm = io.ask("\nEnable AI-powered question suggestions? (yes/no): ").strip().lower()
     use_llm_bool = use_llm in ['y', 'yes']
     
     if use_llm_bool:
@@ -683,7 +674,7 @@ def cli():
     else:
         print("\n✓ LLM assistance disabled - using standard protocol\n")
     
-    chatbot = LLMAssistedSANEChatbot(use_llm_assist=use_llm_bool, local_model=True)
+    chatbot = LLMAssistedSANEInterviewer(use_llm_assist=use_llm_bool, local_model=True)
     
     try:
         interview = chatbot.conduct_interview()
