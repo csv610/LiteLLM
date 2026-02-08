@@ -10,9 +10,6 @@ import sys
 import os
 from pathlib import Path
 
-# Add the project root to Python path
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 from app.MedKit.recognizers.medical_specialty.medical_specialty_models import MedicalSpecialtyIdentifierModel, ModelOutput
 from app.MedKit.recognizers.medical_specialty.medical_specialty_prompts import PromptBuilder, MedicalSpecialtyIdentifierInput

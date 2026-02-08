@@ -9,12 +9,9 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add the project root to Python path for imports
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 from lite.config import ModelConfig
-from .medical_supplement_recognizer import MedicalSupplementIdentifier
+from medical_supplement_identifier import MedicalSupplementIdentifier
 
 
 def create_parser():
@@ -71,9 +68,9 @@ def main():
         
         # Perform identification
         result = identifier.identify(args.name)
+
+        print(result)
         
-        # Output JSON result
-        print(result.model_dump_json(indent=2))
         
     except KeyboardInterrupt:
         print("\nOperation cancelled by user", file=sys.stderr)

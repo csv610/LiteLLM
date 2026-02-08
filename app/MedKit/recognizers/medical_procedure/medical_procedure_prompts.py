@@ -50,7 +50,7 @@ If a procedure is experimental, highly specialized, obsolete, or not well-known,
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(config: MedicalProcedureIdentifierInput) -> str:
+    def create_user_prompt(procedure_name:str) -> str:
         """
         Create the user prompt for medical procedure identification.
 
@@ -60,4 +60,4 @@ Always provide accurate, evidence-based information."""
         Returns:
             str: User prompt
         """
-        return f"Identify the medical procedure '{config.procedure_name}' and determine if it is well-known in the healthcare community. Provide details on its type, indications, and clinical significance."
+        return f"Identify the medical procedure '{procedure_name}' and determine if it is well-known in the healthcare community. Provide details on its type, indications, and clinical significance."

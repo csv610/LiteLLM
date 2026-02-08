@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import AbbreviationIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, AbbreviationIdentifierInput
+from medical_abbreviation_models import AbbreviationIdentifierModel, ModelOutput
+from medical_abbreviation_prompts import PromptBuilder, AbbreviationIdentifierInput
 
 class MedicalAbbreviationIdentifier:
     def __init__(self, model_config: ModelConfig):

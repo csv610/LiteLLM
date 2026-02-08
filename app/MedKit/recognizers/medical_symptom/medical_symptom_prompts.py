@@ -50,7 +50,7 @@ If a symptom is extremely vague, highly specialized, or not well-known, clearly 
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(config: MedicalSymptomIdentifierInput) -> str:
+    def create_user_prompt(symptom_name) -> str:
         """
         Create the user prompt for medical symptom identification.
 
@@ -60,4 +60,4 @@ Always provide accurate, evidence-based information."""
         Returns:
             str: User prompt
         """
-        return f"Identify the medical symptom '{config.symptom_name}' and determine if it is well-known in the healthcare community. Provide details on its associated conditions, severity indicators, and clinical manifestation."
+        return f"Identify the medical symptom '{symptom_name}' and determine if it is well-known in the healthcare community. Provide details on its associated conditions, severity indicators, and clinical manifestation."

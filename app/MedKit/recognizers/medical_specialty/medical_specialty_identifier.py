@@ -1,15 +1,14 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import MedicalDeviceIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, MedicalDeviceIdentifierInput
+from medical_specialty_models import  ModelOutput
+from medical_specialty_prompts import PromptBuilder
 
-class MedicalDeviceIdentifier:
+class MedicalSpecialtyIdentifier:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
     def identify(self, name: str, structured: bool = True) -> ModelOutput:
         return self.client.generate_text(model_input=ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=PromptBuilder.create_user_prompt(MedicalDeviceIdentifierInput(name)),
-            response_format=MedicalDeviceIdentifierModel if structured else None,
+            user_prompt=PromptBuilder.create_user_prompt(name)
         ))

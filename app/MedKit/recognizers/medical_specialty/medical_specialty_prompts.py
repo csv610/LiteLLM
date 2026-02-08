@@ -50,7 +50,7 @@ If a specialty is highly niche, experimental, or not well-known, clearly state t
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(config: MedicalSpecialtyIdentifierInput) -> str:
+    def create_user_prompt(name) -> str:
         """
         Create the user prompt for medical specialty identification.
 
@@ -60,4 +60,4 @@ Always provide accurate, evidence-based information."""
         Returns:
             str: User prompt
         """
-        return f"Identify the medical specialty '{config.specialty_name}' and determine if it is well-known in the healthcare community. Provide details on the organs treated, common procedures, and its clinical scope."
+        return f"Identify the medical specialty '{name}' and determine if it is well-known in the healthcare community. Provide details on the organs treated, common procedures, and its clinical scope."

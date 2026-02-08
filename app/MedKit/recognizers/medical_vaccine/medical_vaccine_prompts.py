@@ -50,7 +50,7 @@ If a vaccine is experimental, developmental, or not well-known, clearly state th
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(config: VaccineIdentifierInput) -> str:
+    def create_user_prompt(vaccine_name) -> str:
         """
         Create the user prompt for vaccine identification.
 
@@ -60,4 +60,4 @@ Always provide accurate, evidence-based information."""
         Returns:
             str: User prompt
         """
-        return f"Identify the vaccine '{config.vaccine_name}' and determine if it is well-known. Provide details on target diseases, vaccine type, and its standard schedule."
+        return f"Identify the vaccine '{vaccine_name}' and determine if it is well-known. Provide details on target diseases, vaccine type, and its standard schedule."

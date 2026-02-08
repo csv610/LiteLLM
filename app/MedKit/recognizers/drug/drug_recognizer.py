@@ -13,8 +13,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .drug_recognizer_model import DrugIdentifierModel, ModelOutput
-from .drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
+from drug_recognizer_model import DrugIdentifierModel, ModelOutput
+from drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
 
 logger = logging.getLogger(__name__)
 

@@ -14,14 +14,14 @@ Anal Fistulotomy
 Anal Surgery for Hemorrhoids
 Ankle Arthrocentesis
 Ankle Block
-Ankle-Brachial Index (ABI) Measurement
+Ankle-Brachial Index Measurement
 Anterior Cervical Discectomy
 Anterior Epistaxis Nasal Pack
 Antibiotic Prophylactic Regimens for Endocarditis
 Antiepileptic Drugs
 Antiretroviral Therapy for HIV Infection
-Antrectomy (Distal Gastrectomy)
-Aortic Bifemoral (Aortobifemoral) Bypass
+Antrectomy
+Aortic Bifemoral Bypass
 Appendectomy
 Arterial Blood Sampling for Arterial Blood Gas Analysis
 Arterial Line Placement
@@ -46,10 +46,10 @@ Bone Marrow Aspiration and Biopsy
 Bone Scan
 Botulinum Toxin
 Botulinum Toxin in Pain Management
-Brachytherapy (Radioactive Seed Implantation Therapy) in Prostate Cancer
+Brachytherapy in Prostate Cancer
 Brain Magnetic Resonance Imaging
 Breast Biopsy With Needle Localization
-Breast Cancer Lymphoscintigraphy (Sentinel Lymph Node Mapping)
+Breast Cancer Lymphoscintigraphy 
 Breast Ultrasonography
 Breath Sound Assessment
 Breech Delivery
@@ -63,19 +63,19 @@ Capsule Endoscopy
 Cardiac Catheterization of Left Heart
 Cardiac Resynchronization Therapy
 Cardiac Tamponade
-Cardiopulmonary Resuscitation (CPR)
+Cardiopulmonary Resuscitation 
 Cardioverter-Defibrillator Implantation
 Carotid Artery Stenting
 Carotid Endarterectomy
 Catheter Ablation
 Central Venous Access Via External Jugular Vein
-Central Venous Access via Infraclavicular (Subclavian/Subclavicular) Approach to Subclavian Vein
+Central Venous Access via Infraclavicular Approach to Subclavian Vein
 Central Venous Access via Posterior Approach to Internal Jugular Vein
 Central Venous Access via Tunneled Anterior Approach to Internal Jugular Vein
 Central Venous Access via Tunneled Catheter
 Cerumen Impaction Removal
 Cervical Cerclage
-Cervical Cytology (Pap Smear)
+Cervical Cytology
 Cesarean Delivery
 Cesarean Hysterectomy
 Chalazion Procedures
@@ -102,7 +102,7 @@ Coronary CT Angiography
 Craniotomy
 Cricopharyngeal Myotomy
 Cricothyroidotomy
-Cricothyroidotomy (Cricothyrotomy)
+Cricothyroidotomy 
 Cryotherapy
 Cystocele Repair
 Cystography
@@ -139,23 +139,24 @@ Electromyography and Nerve Conduction Studies
 Electrosurgery
 Emergency Bedside Thoracotomy
 Emergency Escharotomy
-EMG Evaluation of the Motor Unit - Electrophysiologic Biopsy
+Electrophysiologic Biopsy
 End-Tidal Capnography
 Endobronchial Ultrasound
-Endoscopic Mucosal Resection (EMR) and Endoscopic Submucosal Dissection (ESD)
-Endoscopic Retrograde Cholangiopancreatography (ERCP)
+Endoscopic Mucosal Resection 
+Endoscopic Submucosal Dissection 
+Endoscopic Retrograde Cholangiopancreatography 
 Enteroenterostomy
 Epidural Nerve Block
 Epidural Steroid Injections
 Episiotomy and Repair
 Esophageal Manometry
 Esophagogastric Devascularization
-Esophagogastroduodenoscopy (EGD)
+Esophagogastroduodenoscopy 
 Estrogen Therapy
 Evaluation of Gestation
 Examination of Low Back Pain
 Expander-Implant Breast Reconstruction
-Exploratory (Diagnostic) Laparoscopy
+Laparoscopy
 Exploratory Laparotomy
 Extensor Tendon Repair
 External Beam Radiotherapy in Prostate Cancer
@@ -166,12 +167,12 @@ Extracorporeal Shockwave Lithotripsy
 Fasciocutaneous Flaps
 Fasciotomy
 Femoral Central Venous Access
-Femorofemoral (Femoral-Femoral) Bypass
+Femorofemoral  Bypass
 Fingertip Amputation Repair
-Focused Assessment With Sonography in Trauma (FAST)
+Focused Assessment With Sonography in Trauma 
 Forehead Flaps
 Four-Point Restraint
-Fractional Flow Reserve (FFR) Measurement
+Fractional Flow Reserve Measurement
 Functional Endoscopic Sinus Surgery
 Gastrojejunostomy
 Gastrostomy Tube Replacement
@@ -184,7 +185,9 @@ Hallux Valgus Osteotomy
 Heart Sounds
 Heel Sticks
 Hemodialysis Fistulas and Thrombosis
-Hemorrhoidectomy, Hemorrhoidopexy, and Hemorrhoid Artery Ligation
+Hemorrhoidectomy
+Hemorrhoidopexy 
+Hemorrhoid Artery Ligation
 Hepaticojejunostomy
 Hernia Reduction
 History and Mental Status Examination
@@ -208,7 +211,7 @@ Injectable Bulking Agents for Incontinence
 Interscalene Nerve Block
 Intestinal Anastomosis
 Intra-aortic Balloon Counterpulsation
-Intracranial Pressure (ICP) Monitors
+Intracranial Pressure Monitors
 Intracranial Pressure Monitoring
 Intraosseous Access
 Intrauterine Device Extraction
@@ -218,8 +221,8 @@ Intravenous Cannulation
 Intravenous Immunoglobulin
 Intravenous Insulin Therapy
 Intravenous-to-Oral Switch Therapy
-Intravitreal Injection for Wet (Exudative) Age-Related Macular Degeneration (AMD)
-Joint Aspiration (Arthrocentesis)
+Intravitreal Injection for Wet Age-Related Macular Degeneration 
+Joint Aspiration 
 Kidneys, Ureters, and Bladder (KUB) Imaging
 Knee Arthrocentesis
 Knee Injection
@@ -254,7 +257,7 @@ Liposuction Techniques
 Local and Regional Anesthesia
 Longitudinal Pancreaticojejunostomy (Puestow Procedure)
 Loop Colostomy
-Loop Electrosurgical Excision Procedure (LEEP)
+Loop Electrosurgical Excision Procedure 
 Lower Eyelid Reconstruction
 Lower-Extremity Amputations
 Lumbar Discectomy
@@ -352,7 +355,7 @@ Peripheral Nerve Stimulator - Train of Four Monitoring
 Peritoneal Dialysis Catheter Insertion
 Permanent Pacemaker Insertion
 Petrosal Sinus Sampling
-Phacoemulsification With Intraocular Lens (IOL) Implantation
+Phacoemulsification With Intraocular Lens Implantation
 Pharmacologic Stress Testing
 Phimosis, Adult Circumcision, and Buried Penis
 Phlebotomy
@@ -379,7 +382,7 @@ Pulmonary Examination
 Pulmonary Function Testing
 Pyeloplasty
 Pyloroplasty
-Pylorus-Preserving Pancreaticoduodenectomy (PPPD)
+Pylorus-Preserving Pancreaticoduodenectomy
 Radial Nerve Block
 Radical and Simple Trachelectomy
 Radical Cystectomy
@@ -477,15 +480,15 @@ Thyroidectomy
 Tilt-Table Testing
 Toe Amputation
 Tonsillectomy
-Total Knee Arthroplasty (TKA)
-Total Mesorectal Excision (TME)
+Total Knee Arthroplasty 
+Total Mesorectal Excision 
 Trabeculectomy
 Tracheostomy
 Tracheostomy Tube Change
 Transbronchial Biopsy
 Transcutaneous Cardiac Pacing
 Transhiatal Esophagectomy
-Transjugular Intrahepatic Portosystemic Shunt (TIPS)
+Transjugular Intrahepatic Portosystemic Shunt
 Transmetatarsal Amputation
 Transperitoneal Laparoscopic Radical Nephrectomy
 Transrectal Ultrasonography of the Prostate
@@ -531,7 +534,7 @@ Ventriculoatrial Shunt Placement
 Ventriculoperitoneal Shunt Tap
 Vestibuloocular Reflex Testing
 Video Laryngoscopy and Fiberoptic-Assisted Tracheal Intubation
-Video-Assisted Thoracoscopic Surgery (VATS)
+Video-Assisted Thoracoscopic Surgery 
 Visual Field Testing
 Volume Resuscitation
 Vulvar Biopsy

@@ -10,13 +10,7 @@ import os
 import random
 from pathlib import Path
 
-# Add the project root to Python path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from app.MedKit.recognizers.medical_vaccine.medical_vaccine_models import MedicalVaccineIdentifierModel, ModelOutput
-from app.MedKit.recognizers.medical_vaccine.medical_vaccine_prompts import PromptBuilder, MedicalVaccineIdentifierInput
-from app.MedKit.recognizers.medical_vaccine.medical_vaccine_recognizer import MedicalVaccineIdentifier
+from medical_vaccine_recognizer import MedicalVaccineIdentifier
 from lite.config import ModelConfig
 
 

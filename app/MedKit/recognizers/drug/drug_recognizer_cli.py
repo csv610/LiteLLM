@@ -1,6 +1,6 @@
 import argparse
 from lite.config import ModelConfig
-from .drug_recognizer import DrugIdentifier
+from drug_recognizer import DrugIdentifier
 
 def main():
     parser = argparse.ArgumentParser()

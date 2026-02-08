@@ -50,7 +50,7 @@ If a supplement is experimental, highly niche, or not well-known, clearly state 
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(config: SupplementIdentifierInput) -> str:
+    def create_user_prompt(name) -> str:
         """
         Create the user prompt for supplement identification.
 
@@ -60,4 +60,4 @@ Always provide accurate, evidence-based information."""
         Returns:
             str: User prompt
         """
-        return f"Identify the dietary supplement or nutrient '{config.supplement_name}' and determine if it is well-known. Provide details on active ingredients, common uses, and regulatory standing."
+        return f"Identify the dietary supplement or nutrient '{name}' and determine if it is well-known. Provide details on active ingredients, common uses, and regulatory standing."

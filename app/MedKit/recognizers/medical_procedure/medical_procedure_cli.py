@@ -9,13 +9,9 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add the project root to Python path for imports
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 from lite.config import ModelConfig
-from .medical_procedure_recognizer import MedicalProcedureIdentifier
-
+from medical_procedure_identifier import MedicalProcedureIdentifier
 
 def create_parser():
     """Create and configure argument parser."""

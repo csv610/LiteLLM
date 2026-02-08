@@ -46,20 +46,8 @@ def main():
         if result is None:
             logger.error("✗ Failed to identify medical anatomy.")
             return 1
-        
-        # Output result
-        print(result.model_dump_json(indent=2))
-        logger.info("✓ Medical anatomy identification completed successfully.")
-        
-        # Save to file if output directory specified
-        if args.output_dir:
-            output_dir = Path(args.output_dir)
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            output_file = output_dir / f"{args.name.lower().replace(' ', '_')}_anatomy.json"
-            with open(output_file, 'w') as f:
-                f.write(result.model_dump_json(indent=2))
-            logger.info(f"✓ Result saved to: {output_file}")
+
+        print(result)
         
         return 0
         

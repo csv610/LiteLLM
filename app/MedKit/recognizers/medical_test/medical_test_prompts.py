@@ -50,7 +50,7 @@ If a test is experimental, highly obscure, or not well-known, clearly state that
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(config: MedicalTestIdentifierInput) -> str:
+    def create_user_prompt(test_name) -> str:
         """
         Create the user prompt for medical test identification.
 
@@ -60,4 +60,4 @@ Always provide accurate, evidence-based information."""
         Returns:
             str: User prompt
         """
-        return f"Identify the medical test '{config.test_name}' and determine if it is well-known in the healthcare community. Provide details on its type, purpose, and clinical utility."
+        return f"Identify the medical test '{test_name}' and determine if it is well-known in the healthcare community. Provide details on its type, purpose, and clinical utility."

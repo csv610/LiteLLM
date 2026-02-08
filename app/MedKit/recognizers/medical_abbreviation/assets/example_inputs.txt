@@ -2,15 +2,6 @@
 
 ## Common Medical Abbreviations
 cpr
-cpr
-cpr
-cpr
-cpr
-cpr
-cpr
-cpr
-cpr
-cpr
 
 ## Vital Signs Abbreviations
 hr

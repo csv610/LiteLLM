@@ -35,6 +35,7 @@ Atrial fibrillation
 Attention deficit hyperactivity disorder (ADHD)
 Autism
 Back problems
+B-cell malignancy
 Bacterial vaginosis
 Becker muscular dystrophy
 Benign prostate enlargement
@@ -244,9 +245,11 @@ Lung cancer
 Lupus
 Lyme disease
 Lymphoedema
-Lymphogranuloma venereum (LGV)
+Lymphoma
+Lymphogranuloma venereum 
 Malaria
 Malnutrition
+Mantle cell lymphoma
 Managing genital symptoms
 Measles
 Mechanical neck pain
@@ -261,12 +264,12 @@ Migraine
 Minor head injury
 Miscarriage
 Molar pregnancy
-Motor neurone disease (MND)
+Motor neurone disease 
 Mouth cancer
 Mouth ulcer
 Myeloma
-Multiple sclerosis (MS)
-Multiple system atrophy (MSA)
+Multiple sclerosis 
+Multiple system atrophy 
 Mumps
 Munchausen’s syndrome
 Muscular dystrophy

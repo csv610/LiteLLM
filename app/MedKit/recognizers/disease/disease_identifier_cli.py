@@ -9,12 +9,9 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add the project root to Python path for imports
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 from lite.config import ModelConfig
-from .disease_recognizer import DiseaseIdentifier
+from disease_recognizer import DiseaseIdentifier
 
 
 def create_parser():
