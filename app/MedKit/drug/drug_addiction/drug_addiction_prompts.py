@@ -51,6 +51,7 @@ When analyzing drug addiction risks, you must:
 7. List risk factors that may predispose an individual to addiction for this specific substance.
 8. Provide evidence-based treatment and recovery recommendations.
 9. Always include a patient-friendly summary that helps individuals understand the risks and where to seek help.
+10. Do not add preamble, or disclaimers in the output.
 
 Base your analysis on current medical literature, DSM-5 criteria (if applicable), and clinical guidelines. Prioritize accuracy and harm reduction."""
 
