@@ -57,15 +57,10 @@ class PrimaryHealthCareProvider:
         try:
             result = self.client.generate_text(model_input=model_input)
             
-            # If the result is a string, wrap it in ModelOutput
-            if isinstance(result, str):
-                result = ModelOutput(markdown=result)
-            elif hasattr(result, 'data') and not hasattr(result, 'markdown'):
-                # Handle cases where result might be a Pydantic model directly if structured=True
-                result = ModelOutput(data=result)
-            
-            logger.debug("✓ Successfully generated response")
-            return result
+            if structured:
+                return ModelOutput(data=result, markdown=None)
+            else:
+                return ModelOutput(data=None, markdown=result)
         except Exception as e:
             logger.error(f"✗ Error generating response: {e}")
             raise
