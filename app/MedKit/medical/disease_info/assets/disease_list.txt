@@ -5,7 +5,7 @@ Acute cholecystitis
 Acute lymphoblastic leukaemia
 Acute myeloid leukaemia
 Acute pancreatitis
-Acute respiratory infection (ARI)
+Acute respiratory infection 
 Addison’s disease
 Adenomyosis
 Alcohol-related liver disease
@@ -20,7 +20,7 @@ Ankle sprain
 Ankle avulsion fracture
 Ankylosing spondylitis
 Anorexia nervosa
-Anxiety disorders in children and young people
+Anxiety disorders
 Aplastic anaemia
 Appendicitis
 Arterial thrombosis
@@ -32,7 +32,7 @@ Ataxia
 Atopic eczema
 Atretic Cephalocele
 Atrial fibrillation
-Attention deficit hyperactivity disorder (ADHD)
+Attention deficit hyperactivity disorder 
 Autism
 Back problems
 B-cell malignancy
@@ -40,16 +40,16 @@ Bacterial vaginosis
 Becker muscular dystrophy
 Benign prostate enlargement
 Bile duct cancer (cholangiocarcinoma)
-Binge eating disorder (BED)
+Binge eating disorder 
 Bipolar disorder
 Bladder cancer
-Blood poisoning (sepsis)
+Blood poisoning 
 Bone cancer
-Bottom shuffling in young children
+Bottom shuffling
 Bowel cancer
 Bowel incontinence
 Bowel polyps
-Bow legs and knock knees in children and young people
+Bow legs 
 Brain stem death
 Brain tumours
 Breast cancer (female)
@@ -91,12 +91,11 @@ Common cold
 Complications of type 1 diabetes
 Concussion
 Congenital heart disease
-Congenital muscular dystrophy (CMD)
+Congenital muscular dystrophy
 Conjunctivitis
 Constipation
 Coronary heart disease
-Coronavirus (COVID-19)
-Coronavirus (COVID-19): Longer-term effects (long COVID)
+Coronavirus
 Costochondritis
 Cough
 Crohn’s disease
@@ -139,12 +138,12 @@ Emery-Dreifuss muscular dystrophy
 Empyema necessitans
 Endometriosis
 Epilepsy
-Erectile dysfunction (impotence)
-Escherichia coli (E. coli) O157
+Erectile dysfunction 
+Escherichia coli 
 Ewing sarcoma
 Excessive sweating (hyperhidrosis)
 Eye cancer
-Facioscapulohumeral muscular dystrophy (FSHD)
+Facioscapulohumeral muscular dystrophy 
 Farting
 Febrile seizures
 Feeling of something in your throat (Globus)
@@ -152,7 +151,7 @@ Fever in adults
 Fever in children
 Fibroids
 Fibromyalgia
-Flat feet in children and young people
+Flat feet 
 Flu
 Foetal alcohol syndrome
 Food allergy
@@ -160,15 +159,15 @@ Food poisoning
 Fragility fracture of the hip
 Frozen shoulder
 Functional Dyspepsia
-Functional neurological disorder (FND)
+Functional neurological disorder 
 Fungal nail infection
 Gallbladder cancer
 Gallstones
 Ganglion cyst
 Ganglion cysts in children and young people
 Gastroenteritis
-Gastro-oesophageal reflux disease (GORD)
-Generalised anxiety disorder (GAD)
+Gastro-oesophageal reflux disease 
+Generalised anxiety disorder
 Genital herpes
 Genital symptoms
 Genital warts
@@ -179,7 +178,7 @@ Gout
 Granulomatosis
 Greater trochanteric pain syndrome
 Gum disease
-Haemorrhoids (piles)
+Haemorrhoids 
 Hand, foot and mouth disease
 Hay fever
 Head and neck cancer
@@ -196,29 +195,27 @@ Hepatitis A
 Hepatitis B
 Hepatitis C
 Hiatus hernia
-High blood pressure (hypertension)
+High blood pressure
 High cholesterol
-Hip problems in children and young people
 HIV
 Hives
 Hodgkin lymphoma
 Huntington’s disease
 Hydrocephalus
-Hyperglycaemia (high blood sugar)
-Hypoglycaemia (low blood sugar)
-Hypothermia (low body temperature)
+Hyperglycaemia 
+Hypoglycaemia 
+Hypothermia 
 Idiopathic pulmonary fibrosis
-If your child has cold or flu symptoms
 Impetigo
 Indigestion
 Ingrown toenail
 Infertility
-Inflammatory bowel disease (IBD)
+Inflammatory bowel disease 
 Inherited heart conditions
 Insomnia
 Intoeing (pigeon toe) in children and young people
 Iron deficiency anaemia
-Irritable bowel syndrome (IBS)
+Irritable bowel syndrome 
 Itching
 Itchy bottom
 Joint hypermobility
@@ -226,9 +223,10 @@ Kaposi’s sarcoma
 Kidney cancer
 Kidney infection
 Kidney stones
+Knock knees 
 Labyrinthitis
 Lactose intolerance
-Laryngeal (larynx) cancer
+Laryngeal cancer
 Laryngitis
 Late miscarriage
 Leg cramps
@@ -238,9 +236,8 @@ Limb girdle muscular dystrophy
 Lipoedema
 Liver cancer
 Liver disease
-Long-term effects of COVID-19
 Loss of libido
-Low blood pressure (hypotension)
+Low blood pressure
 Lung cancer
 Lupus
 Lyme disease
@@ -275,21 +272,21 @@ Munchausen’s syndrome
 Muscular dystrophy
 Myalgic encephalomyelitis (ME) or chronic fatigue syndrome (CFS)
 Myasthenia gravis
-Mycoplasma genitalium (Mgen)
+Mycoplasma genitalium 
 Myotonic dystrophy
 Nasal and sinus cancer
 Nasopharyngeal cancer
 Neck injury
 Neck problems
 Neuroendocrine tumours
-Non-alcoholic fatty liver disease (NAFLD)
+Non-alcoholic fatty liver disease 
 Non-Hodgkin lymphoma
 Norovirus
 Nosebleed
 Obesity
-Obsessive compulsive disorder (OCD)
+Obsessive compulsive disorder
 Obstructive sleep apnoea
-Oculopharyngeal muscular dystrophy (OPMD)
+Oculopharyngeal muscular dystrophy 
 Oesophageal cancer
 Oral thrush in adults
 Osteogenesis Imperfecta
@@ -324,18 +321,18 @@ Pleurisy
 Pneumonia
 Polio
 Polyangiitis
-Polycystic ovary syndrome (PCOS)
+Polycystic ovary syndrome
 Polymyalgia rheumatica
 Post-concussion syndrome
 Post-polio syndrome
 Popliteal cysts in children and young people
 Positional talipes in children and young people
-Post-traumatic stress disorder (PTSD)
-Postural orthostatic tachycardia syndrome (PoTS)
+Post-traumatic stress disorder
+Postural orthostatic tachycardia syndrome 
 Postnatal depression
 Pregnancy and baby
 Pressure ulcers
-Progressive supranuclear palsy (PSP)
+Progressive supranuclear palsy
 Prostate cancer
 Psoriasis
 Psoriatic arthritis
@@ -352,7 +349,7 @@ Reactive arthritis
 Recovering from a cardiac arrest
 Recurrent miscarriage
 Restless legs syndrome
-Respiratory syncytial virus (RSV)
+Respiratory syncytial virus 
 Rheumatoid arthritis
 Ringworm and other fungal infections
 Rosacea
@@ -361,7 +358,7 @@ Scarlet fever
 Schizophrenia
 Sciatica
 About scoliosis
-Seasonal affective disorder (SAD)
+Seasonal affective disorder 
 Sepsis
 Septic shock
 Severe head injury
@@ -371,12 +368,12 @@ Shortness of breath
 Sickle cell disease
 Sinusitis
 Sjogren’s syndrome
-Skin cancer (melanoma)
+Skin cancer 
 Skin cancer
-Skin light sensitivity (photosensitivity)
+Skin light sensitivity 
 Skin rashes in children
 Slapped cheek syndrome
-Slipped upper femoral epiphysis (SUFE) in children and young people
+Slipped upper femoral epiphysis 
 Snapping hip in children and young people
 Social anxiety disorder
 Soft tissue sarcomas
@@ -392,8 +389,8 @@ Streptococcus A (strep A)
 Stress, anxiety and low mood
 Stroke
 Subacromial pain syndrome
-Sudden arrhythmic death syndrome (SADS)
-Sudden infant death syndrome (SIDS)
+Sudden arrhythmic death syndrome
+Sudden infant death syndrome 
 Suicide
 Sunbed and tanning safety
 Sunburn
@@ -416,22 +413,21 @@ Tonsillitis
 Tooth decay
 Toothache
 Tourette’s syndrome
-Traction apophysitis of the hip in children and young people
-Transient ischaemic attack (TIA)
+Traction apophysitis of the hip
+Transient ischaemic attack
 Transverse myelitis
 Trichomonas infection
 Trigeminal neuralgia
-Trigger thumb or trigger finger in children and young people
-Tuberculosis (TB)
+Trigger thumb or trigger finger
+Tuberculosis 
 Type 1 diabetes
 Type 2 diabetes
 Ulcerative colitis
 Underactive thyroid
 Urinary incontinence
 Urinary incontinence in women
-Urinary tract infection (UTI)
-Urinary tract infection (UTI) in children
-Urticaria (hives)
+Urinary tract infection 
+Urticaria 
 Vaginal cancer
 Vaginal discharge
 Varicose eczema
@@ -447,7 +443,7 @@ Warts and verrucas
 Whiplash
 Whooping cough
 Wolff-Parkinson-White syndrome
-Womb (uterus) cancer
+Womb  cancer
 Wrist fracture
 Yellow fever
 Zika virus
