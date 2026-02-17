@@ -4,8 +4,9 @@ from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
+from lite.lite_client import LiteClient
 
-from medical_flashcard import MedicalFlashcardGenerator
+from medical_flashcard import MedicalLabelExtractor, MedicalTermExplainer
 
 logger = logging.getLogger(__name__)
 
@@ -13,13 +14,13 @@ logger = logging.getLogger(__name__)
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Generate medical flashcard reports from images.",
+        description="Explain medical labels extracted from images.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     # Primary positional argument: Image path
     parser.add_argument(
         "image",
-        help="Path to an image of the medical flashcard."
+        help="Path to an image containing medical labels."
     )
     parser.add_argument(
         "pos_model",
@@ -37,6 +38,14 @@ def get_user_arguments() -> argparse.Namespace:
         "-m", "--model",
         default="ollama/gemma3:27b-cloud",
         help="Model to use for generation (flag)."
+    )
+    parser.add_argument(
+        "-m1", "--extractor-model",
+        help="Model to use for extraction (defaults to --model if not specified)."
+    )
+    parser.add_argument(
+        "-m2", "--explainer-model",
+        help="Model to use for explanation (defaults to --model if not specified)."
     )
     parser.add_argument(
         "--quick",
@@ -78,29 +87,44 @@ def create_medical_flashcard_report(args) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.2)
-        generator = MedicalFlashcardGenerator(model_config)
+        # Determine which model to use as default
+        default_model = args.pos_model if args.pos_model else args.model
         
+        model = args.extractor_model if args.extractor_model else default_model
+        model_config = ModelConfig(model=model, temperature=0.5)
+        extractor = MedicalLabelExtractor(model_config)
+
+        # In this workflow, the user ONLY provides an image.
+        # We first extract terms and then explain them.
+        logger.info(f"Processing image: {args.image}")
+        terms = extractor.extract_terms(args.image)
+
+        for idx, term in enumerate(terms):
+            print(idx+1, term)
+
+        return 0
+        
+        if not terms:
+            logger.error("✗ No medical terms could be extracted from the image.")
+            return 1
+
+
+        # Initialize the explainer with the specified or default model
+        explainer_model_name = args.explainer_model if args.explainer_model else default_model
+        explainer_config = ModelConfig(model=explainer_model_name, temperature=0.2)
+        explainer = MedicalTermExplainer(explainer_config)
+
         # Determine if structured output should be used
         use_structured = args.structured and not args.quick
         
-        # In this workflow, the user ONLY provides an image.
-        # We first extract terms and then explain them via generate_text.
-        logger.info(f"Processing image: {args.image}")
-        results = generator.generate_text(
-            image_path=args.image, 
-            structured=use_structured
-        )
-        
-        if not results:
-            logger.error("✗ No medical terms could be extracted or processed from the image.")
-            return 1
+        logger.info(f"Generating explanations for {len(terms)} terms...")
+        results = explainer.explain_terms(terms, structured=use_structured)
         
         for term, flashcard_info in results:
             logger.info(f"Saving report for: {term}")
-            generator.save(flashcard_info, output_dir, term=term)
+            explainer.save(flashcard_info, output_dir, term=term)
 
-        logger.debug("Medical flashcard processing completed successfully")
+        logger.info("✓ Medical flashcard processing completed successfully")
         return 0
     except Exception as e:
         logger.error(f"✗ Medical flashcard processing failed: {e}")

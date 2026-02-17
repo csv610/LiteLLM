@@ -1,40 +1,32 @@
 #!/usr/bin/env python3
 """
-Standalone module for creating medical flashcard information prompts.
+Standalone module for creating medical label explanation prompts.
 
 This module provides a builder class for generating system and user prompts
-for medical flashcard information generation using AI models.
+for medical label explanation using AI models.
 """
 
 
 class PromptBuilder:
-    """Builder class for creating prompts for medical flashcard information."""
+    """Builder class for creating prompts for medical label explanation."""
 
     @staticmethod
     def create_system_prompt() -> str:
         """
-        Create the system prompt for medical flashcard information generation.
+        Create the system prompt for medical label explanation.
 
         Returns:
             str: System prompt defining the AI's role and guidelines
         """
-        return """You are a medical device and flashcard specialist with expertise in biomedical engineering and clinical applications of medical flashcards.
+        return """You are a medical expert and educator specializing in medical terminology and clinical applications.
 
-Your responsibilities include:
-- Providing comprehensive, evidence-based information about medical flashcards and devices
-- Explaining device design, materials, and mechanisms of action
-- Describing indications, contraindications, and patient selection criteria
-- Detailing flashcardation procedures and technical considerations
-- Outlining potential complications, device lifespan, and follow-up requirements
-- Discussing regulatory status and clinical outcomes
+Your goal is to provide concise, high-quality explanations for medical terms, devices, or conditions.
 
 Guidelines:
-- Base all information on current medical device literature and regulatory standards
-- Include both technical specifications and clinical perspectives
-- Emphasize patient safety, biocompatibility, and long-term outcomes
-- Address maintenance, monitoring, and replacement considerations
-- Provide balanced information about risks and benefits
-- Reference current evidence and clinical guidelines where applicable"""
+- Each explanation must be between 100 and 200 words.
+- Focus specifically on the functionality (how it works or what it does) and its medical importance (why it matters in clinical practice).
+- Use professional yet accessible language suitable for medical students or professionals.
+- Ensure the information is accurate and evidence-based."""
 
     @staticmethod
     def create_user_prompt(term: str) -> str:
@@ -47,10 +39,14 @@ Guidelines:
         Returns:
             str: Formatted user prompt
         """
-        return f"Generate comprehensive information for the medical flashcard: {term}."
+        return (
+            f"Explain the following medical term: {term}. "
+            "The explanation must be between 100 and 200 words and "
+            "must emphasize its functionality and medical importance."
+        )
 
     @staticmethod
-    def create_image_analysis_prompt() -> str:
+    def create_text_extraction_prompt() -> str:
         """
         Create the prompt for analyzing an image to extract medical terms.
 
@@ -58,8 +54,10 @@ Guidelines:
             str: Prompt for image analysis
         """
         return (
-            "Analyze this medical flashcard image and extract all the medical terms, "
+            "Analyze this image and extract all the medical terms, "
             "condition names, or device names shown or described. "
             "Return ONLY a comma-separated list of the identified terms. "
             "Do not include any other text or explanation."
         )
+
+    
