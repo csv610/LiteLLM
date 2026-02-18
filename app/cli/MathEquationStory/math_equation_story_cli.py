@@ -7,8 +7,8 @@ Uses Gemini API to make complex mathematics intuitive and memorable through comp
 
 import argparse
 
-from mathematical_equation_story_models import MathematicalEquationStory
-from mathematical_equation_story_generator import MathEquationStoryGenerator
+from math_equation_story_models import MathematicalEquationStory
+from math_equation_story_generator import MathEquationStoryGenerator
 
 
 # ============================================================================
@@ -80,7 +80,7 @@ def display_story(story: MathematicalEquationStory):
 if __name__ == "__main__":
     # Set up argument parser
     parser = argparse.ArgumentParser(
-        prog="mathematical_equation_story.py",
+        prog="math_equation_story_cli.py",
         description="Generate engaging, narrative-driven explanations of mathematical equations in the style of science journalism.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
