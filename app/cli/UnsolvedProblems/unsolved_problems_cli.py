@@ -6,69 +6,24 @@ import os
 import re
 from pathlib import Path
 from typing import Optional
-from pydantic import BaseModel, Field, ValidationError
 
 # Add parent directory to path to import lite module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+#sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from lite import LiteClient, ModelConfig
+from lite import LiteClient, ModelConfig, configure_logging
 from lite.config import ModelInput
-from logging_util import setup_logging
 
-logger = setup_logging(str(Path(__file__).parent / "logs" / "unsolved.log"))
+from unsolved_problems_models import UnsolvedProblem, UnsolvedProblemsResponse
+from unsolved_problems_prompts import PromptBuilder
+from unsolved_problems_explorer import UnsolvedProblemsExplorer
 
-# ==============================================================================
-# Pydantic Models
-# ==============================================================================
-
-class UnsolvedProblem(BaseModel):
-    """Represents an unsolved problem in a given field."""
-    title: str = Field(..., description="The name or title of the unsolved problem")
-    description: str = Field(..., description="Brief description of the problem and why it's important")
-    field: str = Field(..., description="The specific field or subfield the problem belongs to")
-    difficulty: str = Field(..., description="Estimated difficulty level (Elementary, Moderate, or Advanced)")
-    first_posed: Optional[str] = Field(None, description="When or by whom the problem was first posed, if known")
-    prize_money: Optional[str] = Field(None, description="Any prize money associated with solving this problem, if applicable")
-    significance: str = Field(..., description="Why solving this problem would be significant for the field")
-    current_status: str = Field(..., description="The best known results or current status as of today")
-
-
-class UnsolvedProblemsResponse(BaseModel):
-    """Response containing a list of unsolved problems."""
-    topic: str = Field(..., description="The topic for which unsolved problems are listed")
-    problems: list[UnsolvedProblem]
+configure_logging(log_file=str(Path(__file__).parent / "logs" / "unsolved.log"))
+logger = logging.getLogger(__name__)
 
 
 # ==============================================================================
 # Core Functions
 # ==============================================================================
-
-def create_user_prompt(topic: str, num_problems: int) -> str:
-    """
-    Create the prompt for fetching unsolved problems in a given topic.
-
-    Args:
-        topic: The topic to find unsolved problems for
-        num_problems: Number of unsolved problems to retrieve
-
-    Returns:
-        Formatted prompt string for the LLM
-    """
-    return f"""Provide a list of {num_problems} famous unsolved problems in {topic}.
-
-For each problem, provide:
-1. Title: The name of the problem
-2. Description: A brief, clear explanation of what the problem is and why it matters
-3. Field: The specific field or subfield it belongs to
-4. Difficulty: Estimated difficulty level (Elementary, Moderate, or Advanced)
-5. First Posed: When or by whom the problem was first posed (if known)
-6. Prize Money: Any prize money associated with solving it (if applicable)
-7. Significance: Why solving this problem would be significant for the field
-8. Current Status: The best known results or current status as of today (describe recent progress, partial solutions, or approaches)
-
-Focus on well-known, legitimate unsolved problems in {topic}. Use objective language and avoid speculation.
-Ensure the problems are academically recognized and well-documented."""
-
 
 def _handle_api_error(error: Exception) -> None:
     """
@@ -107,7 +62,7 @@ def fetch_unsolved_problems(
     Args:
         topic: The topic to find unsolved problems for
         num_problems: Number of unsolved problems to retrieve
-        model: LLM model to use (defaults to environment variable or gemini/gemini-2.5-flash)
+        model: LLM model to use (defaults to environment variable or ollama/gemma3)
 
     Returns:
         List of UnsolvedProblem instances
@@ -116,47 +71,11 @@ def fetch_unsolved_problems(
         ValueError: If API response is invalid or model response doesn't match schema
         RuntimeError: If API call fails or required credentials are missing
     """
-    if model is None:
-        model = os.getenv("UNSOLVED_MODEL", "ollama/gemma3")
-
-    if not re.match(r'^[a-zA-Z0-9\-\./_]+$', model):
-        raise ValueError(f"Invalid model name: {model}. Only alphanumeric characters, hyphens, slashes, dots, and underscores are allowed.")
-
-    if num_problems < 1 or num_problems > 50:
-        raise ValueError(f"Number of problems must be between 1 and 50, got {num_problems}")
-
-    logger.info(f"Fetching {num_problems} unsolved problems in {topic} using model: {model}")
-
-    try:
-        # Create ModelConfig and LiteClient
-        model_config = ModelConfig(model=model, temperature=0.2)
-        client = LiteClient(model_config=model_config)
-
-        # Create ModelInput with prompt and response format
-        model_input = ModelInput(
-            user_prompt=create_user_prompt(topic, num_problems),
-            response_format=UnsolvedProblemsResponse
-        )
-
-        # Generate text using LiteClient
-        response_content = client.generate_text(model_input=model_input)
-
-        # Parse the response
-        if isinstance(response_content, str):
-            response = UnsolvedProblemsResponse.model_validate_json(response_content)
-        elif isinstance(response_content, UnsolvedProblemsResponse):
-            response = response_content
-        else:
-            raise ValueError(f"Unexpected response type: {type(response_content)}")
-
-        if not response.problems or len(response.problems) == 0:
-            raise ValueError("No unsolved problems returned in response")
-
-        logger.info(f"Successfully fetched {len(response.problems)} unsolved problem(s)")
-        return response.problems
-
-    except Exception as e:
-        _handle_api_error(e)
+    # Initialize explorer with specified model
+    explorer = UnsolvedProblemsExplorer(model=model)
+    
+    # Fetch problems using the explorer
+    return explorer.fetch_problems(topic, num_problems)
 
 
 # ==============================================================================
@@ -231,7 +150,7 @@ Examples:
   python unsolved.py -t "Mathematics" -n 10
   python unsolved.py --topic "Physics" --num-problems 5
   python unsolved.py -t "Computer Science" -n 8 -m claude-3-opus
-  UNSOLVED_MODEL=gpt-4 python unsolved.py -t "Biology" -n 10
+  DEFAULT_LLM_MODEL=gpt-4 python unsolved.py -t "Biology" -n 10
         """
     )
 
@@ -255,7 +174,7 @@ Examples:
         "-m",
         default=None,
         dest="model",
-        help="LLM model to use (default: $UNSOLVED_MODEL or ollama/gemma3)"
+        help="LLM model to use (default: $DEFAULT_LLM_MODEL or ollama/gemma3)"
     )
 
     return parser
@@ -280,9 +199,13 @@ def main() -> int:
             logger.error("No unsolved problems returned from API")
             return 1
 
+        # Ensure outputs directory exists
+        outputs_dir = Path(__file__).parent / "outputs"
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+
         # Generate automatic filename: unsolved_{topic}_{count}.json
         safe_topic = re.sub(r'[^a-zA-Z0-9_-]', '_', args.topic.lower())
-        output_filename = f"unsolved_{safe_topic}_{args.num_problems}.json"
+        output_filename = outputs_dir / f"unsolved_{safe_topic}_{args.num_problems}.json"
 
         data_to_save = {
             "topic": args.topic,
@@ -291,8 +214,8 @@ def main() -> int:
             "problems": [problem.model_dump() for problem in problems]
         }
 
-        with open(output_filename, 'w') as f:
-            json.dump(data_to_save, f, indent=4)
+        with open(output_filename, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save, f, indent=4, ensure_ascii=False)
 
         os.chmod(output_filename, 0o600)
 

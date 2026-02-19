@@ -4,37 +4,15 @@ import argparse
 from pathlib import Path
 from tqdm import tqdm
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.logging_config import configure_logging
 
 from periodic_table_models import (
     PhysicalCharacteristics, AtomicDimensions, ChemicalCharacteristics,
     IsotopeInfo, ElementInfo, ElementResponse
 )
-
-
-# List of all 118 elements by atomic number
-ALL_ELEMENTS = [
-    "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen",
-    "Fluorine", "Neon", "Sodium", "Magnesium", "Aluminum", "Silicon", "Phosphorus", "Sulfur",
-    "Chlorine", "Argon", "Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium",
-    "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium",
-    "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium",
-    "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", 
-    "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium",
-    "Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", 
-    "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", 
-    "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", 
-    "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", 
-    "Francium", "Radium", "Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", 
-    "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", 
-    "Mendelevium", "Nobelium", "Lawrencium", "Rutherfordium", "Dubnium", "Seaborgium", 
-    "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium",
-    "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"
-]
+from periodic_table_element import PeriodicTableElement, ALL_ELEMENTS
 
 def arguments_parser():
     """Parse command-line arguments for the element info CLI."""
@@ -67,26 +45,18 @@ def arguments_parser():
     return parser.parse_args()
 
 
-def fetch_element_info(element: str, client: LiteClient) -> ElementInfo | None:
+def fetch_element_info(element: str, model_config: ModelConfig) -> ElementInfo | None:
     """Fetch information for a single element."""
-    try:
-        prompt = f"Provide detailed information about the periodic table element {element}."
-        model_input = ModelInput(user_prompt=prompt, response_format=ElementResponse)
-        response_content = client.generate_text(model_input=model_input)
-
-        if isinstance(response_content, ElementResponse):
-            return response_content.element
-        elif isinstance(response_content, str):
-            data = json.loads(response_content)
-            return ElementInfo(**data.get("element", {}))
-        return None
-    except Exception as e:
-        tqdm.write(f"Error fetching {element}: {str(e)}", file=sys.stderr)
-        return None
+    # Initialize element fetcher with model config
+    element_fetcher = PeriodicTableElement(model_config)
+    
+    # Fetch element information using the element fetcher
+    return element_fetcher.fetch_element_info(element)
 
 
 def element_info_cli():
     """Fetch information for periodic table elements."""
+    configure_logging()
     args = arguments_parser()
 
     # Create output directory if it doesn't exist
@@ -94,7 +64,6 @@ def element_info_cli():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     model_config = ModelConfig(model=args.model, temperature=args.temperature)
-    client = LiteClient(model_config=model_config)
 
     # Fetch specific element or all elements
     if args.element:
@@ -104,7 +73,7 @@ def element_info_cli():
             print(f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
             sys.exit(1)
 
-        element_info = fetch_element_info(element, client)
+        element_info = fetch_element_info(element, model_config)
 
         if element_info:
             output = {"element": element_info.model_dump()}
@@ -121,7 +90,7 @@ def element_info_cli():
         failed_elements = []
 
         for element in tqdm(ALL_ELEMENTS, desc="Fetching elements", unit="element"):
-            element_info = fetch_element_info(element, client)
+            element_info = fetch_element_info(element, model_config)
 
             if element_info:
                 # Save individual element file

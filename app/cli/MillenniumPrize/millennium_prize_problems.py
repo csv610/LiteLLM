@@ -6,7 +6,6 @@ import os
 import re
 from pathlib import Path
 from typing import Optional
-from pydantic import BaseModel, Field
 
 # Add parent directory to path to import lite module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,28 +14,10 @@ from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 from logging_util import setup_logging
 
+from millennium_prize_models import MillenniumProblem, MillenniumProblemsResponse
+from millennium_prize_prompts import PromptBuilder
+
 logger = setup_logging(str(Path(__file__).parent / "logs" / "millennium.log"))
-
-# ==============================================================================
-# Pydantic Models
-# ==============================================================================
-
-class MillenniumProblem(BaseModel):
-    """Represents a Millennium Prize Problem."""
-    title: str = Field(..., description="The official name of the problem")
-    description: str = Field(..., description="Detailed explanation of the problem")
-    field: str = Field(..., description="The mathematical or physics field the problem belongs to")
-    status: str = Field(..., description="Current status (Unsolved or Solved)")
-    solver: Optional[str] = Field(None, description="Name of solver if problem has been solved")
-    year_solved: Optional[int] = Field(None, description="Year the problem was solved")
-    significance: str = Field(..., description="Why this problem is important and its implications")
-    current_progress: str = Field(..., description="Recent progress, approaches, or partial results")
-
-
-class MillenniumProblemsResponse(BaseModel):
-    """Response containing a list of Millennium Prize Problems."""
-    total_problems: int = Field(..., description="Total number of Millennium Prize Problems")
-    problems: list[MillenniumProblem]
 
 
 # ==============================================================================
@@ -206,21 +187,9 @@ def main() -> int:
                 model_config = ModelConfig(model=args.model, temperature=0.3)
                 client = LiteClient(model_config=model_config)
 
-                prompt = f"""Explain the following Millennium Prize Problem in detail:
-
-Title: {problem.title}
-Description: {problem.description}
-Field: {problem.field}
-Status: {problem.status}
-Significance: {problem.significance}
-Current Progress: {problem.current_progress}
-
-Provide a comprehensive explanation including:
-1. What the problem asks
-2. Why it matters
-3. Current status
-4. Key historical figures involved
-5. Any recent progress or notable attempts"""
+                # Create prompt using PromptBuilder
+                prompt_data = PromptBuilder.create_complete_prompt_data(problem)
+                prompt = prompt_data["prompt"]
 
                 model_input = ModelInput(
                     user_prompt=prompt
