@@ -10,6 +10,7 @@ import json
 import argparse
 from pathlib import Path
 
+from lite.config import ModelConfig
 from article_reviewer import ArticleReviewer
 
 def cli(article_text, model_name=None, output_filename=None, input_filename=None):
@@ -18,14 +19,15 @@ def cli(article_text, model_name=None, output_filename=None, input_filename=None
     Args:
         article_text (str): The full text of the article to review
         model_name (str): The model to use for review
-                         Default: 'gemini/gemini-2.5-flash'
+                         Default: 'ollama/gemma3'
         output_filename (str): Optional output filename for the review
         input_filename (str): The input filename to use as base for output filename
     """
     if model_name is None:
-        model_name = "gemini/gemini-2.5-flash"
+        model_name = "ollama/gemma3"
 
-    reviewer = ArticleReviewer(model_name=model_name)
+    model_config = ModelConfig(model=model_name, temperature=0.3)
+    reviewer = ArticleReviewer(model_config=model_config)
     review = reviewer.review(article_text)
     output_file = reviewer.save_review(review, output_filename=output_filename, input_filename=input_filename)
     reviewer.print_review(review)
@@ -52,7 +54,7 @@ Examples:
     parser.add_argument(
         "-m", "--model",
         default=None,
-        help="Model to use for review (default: 'gemini/gemini-2.5-flash')"
+        help="Model to use for review (default: 'ollama/gemma3')"
     )
     parser.add_argument(
         "-o", "--output",

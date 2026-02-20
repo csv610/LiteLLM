@@ -21,14 +21,18 @@ from article_reviewer_prompts import PromptBuilder
 class ArticleReviewer:
     """A comprehensive tool for reviewing articles with detailed feedback."""
 
-    def __init__(self, model_name: str = "gemini/gemini-2.5-flash"):
-        """Initialize the ArticleReviewer with a specified model.
+    def __init__(self, model_config: ModelConfig = None):
+        """Initialize the ArticleReviewer with a specified model configuration.
 
         Args:
-            model_name: The model to use for review (default: 'gemini/gemini-2.5-flash')
+            model_config: The configuration for the model. 
+                         If None, defaults to 'ollama/gemma3' with temperature 0.3.
         """
-        self.model_name = model_name
-        self.model_config = ModelConfig(model=model_name, temperature=0.3)
+        if model_config is None:
+            model_config = ModelConfig(model="ollama/gemma3", temperature=0.3)
+            
+        self.model_config = model_config
+        self.model_name = model_config.model
         self.client = LiteClient(model_config=self.model_config)
 
     def review(self, article_text: str) -> ArticleReviewModel:
