@@ -1,5 +1,5 @@
 """
-mathematical_equation_story_models.py - Pydantic models for mathematical equation stories
+math_equation_story_models.py - Pydantic models for mathematical equation stories
 
 Defines data models for generating and storing narrative-driven explanations
 of mathematical equations with supporting materials.

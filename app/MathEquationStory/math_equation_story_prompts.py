@@ -1,5 +1,5 @@
 """
-mathematical_equation_story_prompts.py - Prompt builder for mathematical equation stories
+math_equation_story_prompts.py - Prompt builder for mathematical equation stories
 
 Provides comprehensive prompt building functionality for generating narrative-driven
 explanations of mathematical equations in the style of science journalism.

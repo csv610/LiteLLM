@@ -1,5 +1,5 @@
 """
-mathematical_equation_story_generator.py - Generator class for mathematical equation stories
+math_equation_story_generator.py - Generator class for mathematical equation stories
 
 Provides the main generation logic for creating narrative-driven explanations
 of mathematical equations using LiteLLM models.

@@ -59,7 +59,7 @@ WIKIPEDIA_EQUATIONS = [
         r"a^2 + b^2 = c^2",
         "Geometry",
         "Fundamental relationship in Euclidean geometry between sides of right triangle",
-        WikipediaImportance.HIGHEST
+        WikipediaImportance.HIGHEST,
         "570-495 BCE",
         "Pythagoras"
     ),
