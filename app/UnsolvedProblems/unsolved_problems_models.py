@@ -21,7 +21,7 @@ class UnsolvedProblem(BaseModel):
     current_status: str = Field(..., description="The best known results or current status as of today")
 
 
-class UnsolvedProblemsResponse(BaseModel):
+class UnsolvedProblemsModel(BaseModel):
     """Response containing a list of unsolved problems."""
     topic: str = Field(..., description="The topic for which unsolved problems are listed")
     problems: List[UnsolvedProblem]

@@ -25,31 +25,6 @@ logger = logging.getLogger(__name__)
 # Core Functions
 # ==============================================================================
 
-def _handle_api_error(error: Exception) -> None:
-    """
-    Handle and translate API errors to meaningful exceptions.
-
-    Args:
-        error: Exception raised during API call
-
-    Raises:
-        RuntimeError: With appropriate error message
-    """
-    error_str = str(error).lower()
-
-    if "401" in str(error) or "authentication" in error_str:
-        logger.error("Authentication failed: Check your API credentials")
-        raise RuntimeError("API authentication failed. Check LITELLM_API_KEY or model-specific credentials.")
-    elif "429" in str(error):
-        logger.error("Rate limit exceeded")
-        raise RuntimeError("API rate limit exceeded. Please try again later.")
-    elif "404" in str(error):
-        logger.error("Model not found")
-        raise RuntimeError("Model not found or not available.")
-    else:
-        logger.error(f"Unexpected error: {error}")
-        raise RuntimeError(f"Failed to fetch unsolved problems: {error}")
-
 
 def fetch_unsolved_problems(
     topic: str,
@@ -71,69 +46,15 @@ def fetch_unsolved_problems(
         ValueError: If API response is invalid or model response doesn't match schema
         RuntimeError: If API call fails or required credentials are missing
     """
-    # Initialize explorer with specified model
-    explorer = UnsolvedProblemsExplorer(model=model)
+    # Create model configuration
+    model_name = model or os.getenv("DEFAULT_LLM_MODEL", "ollama/gemma3")
+    model_config = ModelConfig(model=model_name, temperature=0.2)
     
-    # Fetch problems using the explorer
-    return explorer.fetch_problems(topic, num_problems)
-
-
-# ==============================================================================
-# Validation Functions
-# ==============================================================================
-
-def validate_num_problems(num_str: str) -> int:
-    """
-    Validate and convert number of problems string to integer.
-
-    Args:
-        num_str: Number of problems as string
-
-    Returns:
-        Number of problems as integer
-
-    Raises:
-        argparse.ArgumentTypeError: If number is invalid
-    """
-    try:
-        num = int(num_str)
-        if num < 1:
-            raise argparse.ArgumentTypeError(
-                f"Number of problems must be at least 1, got {num}"
-            )
-        if num > 50:
-            raise argparse.ArgumentTypeError(
-                f"Number of problems cannot exceed 50, got {num}"
-            )
-        return num
-    except ValueError:
-        raise argparse.ArgumentTypeError(
-            f"Number of problems must be a valid integer, got '{num_str}'"
-        )
-
-
-def validate_topic(topic_str: str) -> str:
-    """
-    Validate and normalize topic name.
-
-    Args:
-        topic_str: Topic name
-
-    Returns:
-        Normalized topic name
-
-    Raises:
-        argparse.ArgumentTypeError: If topic is invalid
-    """
-    if not topic_str or len(topic_str) < 2:
-        raise argparse.ArgumentTypeError(
-            "Topic must be at least 2 characters long"
-        )
-    if len(topic_str) > 100:
-        raise argparse.ArgumentTypeError(
-            "Topic must not exceed 100 characters"
-        )
-    return topic_str.strip()
+    # Initialize explorer with model configuration
+    explorer = UnsolvedProblemsExplorer(model_config=model_config)
+    
+    # Fetch problems using explorer
+    return explorer.generate_text(topic, num_problems)
 
 
 # ==============================================================================
@@ -157,7 +78,7 @@ Examples:
     parser.add_argument(
         "-t",
         required=True,
-        type=validate_topic,
+        type=str,
         dest="topic",
         help="Topic to find unsolved problems for (e.g., 'Mathematics', 'Physics', 'Chemistry')"
     )
@@ -165,7 +86,7 @@ Examples:
     parser.add_argument(
         "-n",
         required=True,
-        type=validate_num_problems,
+        type=int,
         dest="num_problems",
         help="Number of unsolved problems to retrieve (1-50)"
     )
