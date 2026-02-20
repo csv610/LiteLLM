@@ -6,29 +6,20 @@ using LiteClient (ollama/gemma3) for current and comprehensive information
 """
 
 import sys
-import argparse
 import logging
 import json
 import re
 from pathlib import Path
 from typing import Dict, Optional
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from tqdm import tqdm
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite import logging_config
 from hilbert_problems_models import HilbertProblem, ProblemStatus
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("hilbert_problems.log"),
-        logging.StreamHandler()
-    ]
-)
+logging_config.configure_logging(str(Path(__file__).parent / "logs" / "hilbert_problems.log"))
 logger = logging.getLogger(__name__)
 
 
@@ -363,74 +354,3 @@ class HilbertProblemsGuide:
                 print(f"   {num:2d}. {problem.title}")
 
         print("\n" + "=" * 90 + "\n")
-
-
-def argument_parser() -> argparse.ArgumentParser:
-    """
-    Create and configure the argument parser for the Hilbert problems guide.
-
-    Returns:
-        Configured ArgumentParser instance
-    """
-    parser = argparse.ArgumentParser(
-        description="Hilbert's 23 Problems Reference Guide - Dynamically fetches comprehensive documentation",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python hilbert_problems.py                              # Show all problems summary
-  python hilbert_problems.py -p 1                         # Show details of problem 1
-  python hilbert_problems.py -p 8 -m ollama/gemma3       # Show problem 8 using specific model
-  python hilbert_problems.py -m ollama/mistral           # Show all problems with custom model
-        """
-    )
-
-    parser.add_argument(
-        "-p", "--problem",
-        type=int,
-        help="Problem number (1-23) to display details. If not specified, shows summary of all problems"
-    )
-
-    parser.add_argument(
-        "-m", "--model",
-        default="ollama/gemma3",
-        help="Model to use for fetching problem information (default: ollama/gemma3)"
-    )
-
-    return parser
-
-
-def main():
-    """Main entry point for the Hilbert problems reference guide."""
-    parser = argument_parser()
-    args = parser.parse_args()
-
-    try:
-        # Initialize the guide with specified model
-        config = ModelConfig(model=args.model, temperature=0.3)
-        guide = HilbertProblemsGuide(config)
-
-        # Display specific problem or summary
-        if args.problem:
-            if args.problem < 1 or args.problem > 23:
-                print(f"\n❌ Invalid problem number: {args.problem}")
-                print("Please specify a number between 1 and 23\n")
-                return
-
-            print(f"\n🔄 Fetching Problem {args.problem}...")
-            problem = guide.get_problem(args.problem)
-            HilbertProblemsGuide.display_problem(problem)
-        else:
-            guide.display_summary()
-
-    except KeyboardInterrupt:
-        print("\n\n⚠️  Operation cancelled by user")
-        sys.exit(0)
-
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        print(f"\n❌ Unexpected error: {str(e)}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
