@@ -32,6 +32,12 @@ class FAQInput:
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
+        # Clean input strings
+        if isinstance(self.input_source, str):
+            self.input_source = self.input_source.strip()
+        if isinstance(self.difficulty, str):
+            self.difficulty = self.difficulty.lower().strip()
+            
         self._validate()
 
     def _validate(self) -> None:
@@ -42,8 +48,12 @@ class FAQInput:
             ValueError: If any parameter is invalid
         """
         # Validate input_source
-        if not self.input_source or len(self.input_source) < 1:
-            raise ValueError("Input source (topic or filename) must be provided")
+        if not self.input_source:
+            raise ValueError("Input source (topic or filename) cannot be empty")
+
+        if not os.path.exists(self.input_source):
+            if len(self.input_source) < 2 or len(self.input_source) > 100:
+                raise ValueError("Topic must be 2-100 characters (or provide valid file path)")
 
         # Validate num_faqs
         if self.num_faqs < 1 or self.num_faqs > 100:
@@ -187,9 +197,25 @@ class FAQGenerator:
             logger.error(f"Critical failure in generate_text: {e}", exc_info=True)
             raise
 
-    def save_to_file(self, faqs: list[FAQ], faq_input: FAQInput) -> str:
+
+# ==============================================================================
+# Persistence Class
+# ==============================================================================
+
+class DataExporter:
+    """Handles the persistence of generated FAQs to the filesystem."""
+
+    @staticmethod
+    def export_to_json(faqs: list[FAQ], faq_input: FAQInput) -> str:
         """
-        Save FAQs with path sanitization.
+        Save FAQs to a JSON file with path sanitization.
+
+        Args:
+            faqs: List of generated FAQ objects
+            faq_input: Input configuration used for generation
+
+        Returns:
+            Path to the saved file as a string
         """
         # Sanitize filename
         safe_source = re.sub(r'[^a-zA-Z0-9_-]', '_', Path(faq_input.input_source).name.lower())

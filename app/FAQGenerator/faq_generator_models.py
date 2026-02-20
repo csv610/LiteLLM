@@ -19,7 +19,7 @@ class FAQ(BaseModel):
     difficulty: DifficultyLevel = Field(..., description="Difficulty level (simple, medium, hard, research)")
 
 
-class FAQResponse(BaseModel):
+class FAQModel(BaseModel):
     """Response containing a list of FAQs."""
     topic: str = Field(..., description="The topic for which FAQs are provided")
     difficulty: DifficultyLevel = Field(..., description="Difficulty level (simple, medium, hard, research)")

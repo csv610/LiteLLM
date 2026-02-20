@@ -14,87 +14,11 @@ from pathlib import Path
 
 from lite import ModelConfig
 from lite.logging_config import configure_logging
-from faq_generator import FAQGenerator, FAQInput
+from faq_generator import FAQGenerator, FAQInput, DataExporter
 from faq_generator_models import VALID_DIFFICULTIES
 
 # Global logger for the application
 logger = logging.getLogger(__name__)
-
-
-def validate_num_faqs(num_str: str) -> int:
-    """
-    Validate number of FAQs is in valid range.
-
-    Args:
-        num_str: Number as string
-
-    Returns:
-        Validated integer
-
-    Raises:
-        argparse.ArgumentTypeError: If invalid
-    """
-    try:
-        num = int(num_str)
-    except ValueError:
-        raise argparse.ArgumentTypeError(f"Must be an integer, got '{num_str}'")
-
-    if num < 1 or num > 100:
-        raise argparse.ArgumentTypeError(
-            f"Must be between 1-100, got {num}"
-        )
-    return num
-
-
-def validate_input_source(source_str: str) -> str:
-    """
-    Validate input source (file path or topic string).
-
-    Args:
-        source_str: Input source to validate
-
-    Returns:
-        Validated input source
-
-    Raises:
-        argparse.ArgumentTypeError: If invalid
-    """
-    if not source_str or not source_str.strip():
-        raise argparse.ArgumentTypeError("Input source cannot be empty")
-
-    source_str = source_str.strip()
-
-    # If file exists, accept it
-    if os.path.exists(source_str):
-        return source_str
-
-    # Otherwise validate as topic string
-    if len(source_str) < 2 or len(source_str) > 100:
-        raise argparse.ArgumentTypeError(
-            "Topic must be 2-100 characters (or provide valid file path)"
-        )
-    return source_str
-
-
-def validate_difficulty(difficulty_str: str) -> str:
-    """
-    Validate difficulty level.
-
-    Args:
-        difficulty_str: Difficulty level
-
-    Returns:
-        Normalized difficulty level
-
-    Raises:
-        argparse.ArgumentTypeError: If invalid
-    """
-    difficulty = difficulty_str.lower().strip()
-    if difficulty not in VALID_DIFFICULTIES:
-        raise argparse.ArgumentTypeError(
-            f"Must be: {', '.join(VALID_DIFFICULTIES)}, got '{difficulty_str}'"
-        )
-    return difficulty
 
 
 def arguments_parser() -> argparse.ArgumentParser:
@@ -120,7 +44,6 @@ Examples:
         "-i",
         "--input",
         required=True,
-        type=validate_input_source,
         dest="input_source",
         help="Input source: topic string (2-100 chars) or path to content file (txt, md, etc). "
              "If a file path exists, file is processed; otherwise treated as topic string"
@@ -130,7 +53,7 @@ Examples:
         "-n",
         "--num-faqs",
         default=5,
-        type=validate_num_faqs,
+        type=int,
         dest="num_faqs",
         help="Number of FAQs to generate (1-100). Determines how many question-answer pairs to create"
     )
@@ -140,7 +63,6 @@ Examples:
         "--difficulty",
         required=False,
         default="medium",
-        type=validate_difficulty,
         dest="difficulty",
         choices=VALID_DIFFICULTIES,
         help="Difficulty level: simple (beginner-friendly), medium (intermediate, practical), "
@@ -219,8 +141,8 @@ def main() -> int:
             logger.error("No FAQs returned from API")
             return 1
 
-        # Save to file
-        output_file = generator.save_to_file(faqs, faq_input)
+        # Save to file using DataExporter
+        output_file = DataExporter.export_to_json(faqs, faq_input)
 
         print(f"FAQ generation complete. Saved to {output_file}")
         return 0

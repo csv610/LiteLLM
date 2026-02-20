@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 from lite import ModelConfig
-from faq_generator import FAQGenerator, FAQInput
+from faq_generator import FAQGenerator, FAQInput, DataExporter
 from faq_generator_models import FAQ, FAQResponse
 
 class TestFAQGenerator(unittest.TestCase):
@@ -68,18 +68,15 @@ class TestFAQGenerator(unittest.TestCase):
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
-    @patch('faq_generator.LiteClient')
-    def test_save_to_file_sanitization(self, MockLiteClient):
-        generator = FAQGenerator(self.model_config)
+    def test_data_exporter_sanitization(self):
         faqs = [FAQ(question="Test valid question?", answer="Test valid answer.", difficulty="medium")]
         
         with tempfile.TemporaryDirectory() as tmpdir:
             # We use a path that exists for input_source to avoid resolution errors, 
             # but we'll check how the filename is constructed.
-            input_file = os.path.join(tmpdir, "dangerous/../../secret.txt")
             bad_input = FAQInput(input_source="secret.txt", num_faqs=1, difficulty="medium", output_dir=tmpdir)
             
-            output_path = generator.save_to_file(faqs, bad_input)
+            output_path = DataExporter.export_to_json(faqs, bad_input)
             
             self.assertTrue(os.path.exists(output_path))
             filename = os.path.basename(output_path)
@@ -87,10 +84,33 @@ class TestFAQGenerator(unittest.TestCase):
             self.assertNotIn("..", filename)
 
     def test_config_validation(self):
+        # Empty input
         with self.assertRaises(ValueError):
             FAQInput(input_source="", num_faqs=5, difficulty="medium")
+        
+        # Invalid num_faqs
         with self.assertRaises(ValueError):
             FAQInput(input_source="AI", num_faqs=0, difficulty="medium")
+        with self.assertRaises(ValueError):
+            FAQInput(input_source="AI", num_faqs=101, difficulty="medium")
+            
+        # Invalid difficulty
+        with self.assertRaises(ValueError):
+            FAQInput(input_source="AI", num_faqs=5, difficulty="expert")
+
+        # Topic too short
+        with self.assertRaisesRegex(ValueError, "Topic must be 2-100 characters"):
+            FAQInput(input_source="A", num_faqs=5, difficulty="medium")
+            
+        # Topic too long
+        with self.assertRaisesRegex(ValueError, "Topic must be 2-100 characters"):
+            FAQInput(input_source="A" * 101, num_faqs=5, difficulty="medium")
+
+        # String stripping check
+        faq_input = FAQInput(input_source="  Artificial Intelligence  ", num_faqs=5, difficulty="  HARD  ")
+        self.assertEqual(faq_input.input_source, "Artificial Intelligence")
+        self.assertEqual(faq_input.difficulty, "hard")
+
 
 if __name__ == '__main__':
     unittest.main()
