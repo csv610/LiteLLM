@@ -1,100 +1,85 @@
 # Unsolved Problems Explorer
 
-A professional command-line interface (CLI) and library for discovering and documenting famous unsolved problems across various academic disciplines. This tool leverages Large Language Models (LLMs) to provide structured, detailed information about open challenges in fields like Mathematics, Physics, Computer Science, and more.
+A professional CLI tool and library designed to fetch, analyze, and document famous unsolved problems in various academic and scientific fields using Large Language Models (LLMs).
 
 ## Overview
 
-The Unsolved Problems Explorer uses the `lite` LLM client to query sophisticated models for a specified number of unsolved problems within a given topic. It returns structured data including the problem's significance, historical context, prize money, and current research status.
+The Unsolved Problems Explorer leverages advanced LLMs to provide structured, academically grounded information about open questions in fields such as Mathematics, Physics, Computer Science, and more. It utilizes a robust Pydantic-based data model to ensure consistency, accuracy, and ease of integration with other tools.
 
 ## Key Features
 
-- **Topic-Based Exploration**: Fetch unsolved problems for any academic or scientific topic.
-- **Structured Data**: Outputs detailed information using Pydantic models for consistency and type safety.
-- **LLM Integration**: Flexible model selection (defaults to `ollama/gemma3` or via `DEFAULT_LLM_MODEL` environment variable).
-- **Automated Output Management**: Results are automatically saved as JSON files in a dedicated `outputs/` directory.
-- **Unicode Support**: Full support for mathematical symbols and non-ASCII characters (e.g., Kähler, Poincaré).
-- **Robust Validation**: Input validation for topics and problem counts to ensure high-quality results.
+- **Structured Data Extraction**: Returns detailed information including problem title, description, field, difficulty, historical context, prize money, significance, and current status.
+- **CLI Interface**: A user-friendly command-line interface for quick generation of reports.
+- **Extensible Explorer Class**: A modular `UnsolvedProblemsExplorer` class that can be integrated into larger Python applications.
+- **Schema Validation**: Rigorous validation of LLM responses against Pydantic models to ensure data integrity.
+- **Automatic Documentation**: Automatically generates and saves reports in JSON format with organized naming conventions.
 
 ## Project Structure
 
-- `unsolved_problems_cli.py`: The main entry point for the command-line interface.
-- `unsolved_problems_explorer.py`: Core logic for interacting with LLM providers and managing requests.
-- `unsolved_problems_models.py`: Data schemas (Pydantic) for `UnsolvedProblem` and `UnsolvedProblemsResponse`.
-- `unsolved_problems_prompts.py`: Template logic for constructing high-quality LLM prompts.
-- `outputs/`: Directory where generated JSON reports are stored.
-- `logs/`: Application logs for debugging and auditing.
+- `unsolved_problems_cli.py`: Command-line interface and entry point.
+- `unsolved_problems_explorer.py`: Core logic for interacting with LLM clients and managing data flow.
+- `unsolved_problems_models.py`: Pydantic models defining the structure of problems and responses.
+- `unsolved_problems_prompts.py`: Specialized prompt engineering for generating high-quality academic content.
+- `outputs/`: Directory containing generated JSON reports.
+- `logs/`: Application logs for debugging and monitoring.
+
+## Prerequisites
+
+- Python 3.10+
+- Access to an LLM provider (e.g., Ollama, OpenAI, Anthropic) via the `lite` integration library.
+- Environment variable `DEFAULT_LLM_MODEL` (optional, defaults to `ollama/gemma3`).
 
 ## Installation
 
-Ensure you have Python 3.10+ installed.
+Ensure the `lite` package is available in your Python environment. Install dependencies:
 
-1. Clone the repository.
-2. Ensure the `lite` library is installed or available in your Python path.
-3. Install the required dependencies:
-   ```bash
-   pip install pydantic
-   ```
-4. Set your preferred model (optional):
-   ```bash
-   export DEFAULT_LLM_MODEL="ollama/gemma3"
-   ```
+```bash
+pip install pydantic
+```
 
 ## Usage
 
-### Command Line Interface
+### CLI
 
-Run the CLI using `python unsolved_problems_cli.py` with the following arguments:
+To fetch unsolved problems via the command line:
 
 ```bash
-python unsolved_problems_cli.py -t <TOPIC> -n <NUMBER_OF_PROBLEMS> [-m <MODEL>]
+python unsolved_problems_cli.py -t "Mathematics" -n 5
 ```
 
-#### Examples:
+**Arguments:**
+- `-t`, `--topic`: The academic topic (e.g., "Physics", "Number Theory").
+- `-n`, `--num-problems`: Number of problems to retrieve (1-50).
+- `-m`, `--model`: (Optional) Specific LLM model to use.
 
-- **Mathematics**: Fetch 10 unsolved problems in Mathematics:
-  ```bash
-  python unsolved_problems_cli.py -t "Mathematics" -n 10
-  ```
+### Programmatic Usage
 
-- **Physics**: Fetch 5 unsolved problems using a specific model:
-  ```bash
-  python unsolved_problems_cli.py -t "Quantum Mechanics" -n 5 -m "claude-3-opus"
-  ```
+```python
+from unsolved_problems_explorer import UnsolvedProblemsExplorer
 
-### Output
+explorer = UnsolvedProblemsExplorer(model="ollama/gemma3")
+problems = explorer.fetch_problems(topic="Cryptography", num_problems=3)
 
-Generated files are stored in the `outputs/` directory with a naming convention: `unsolved_<topic>_<count>.json`.
-
-Example JSON structure:
-```json
-{
-    "topic": "Algebraic Topology",
-    "num_problems": 1,
-    "problems_retrieved": 1,
-    "problems": [
-        {
-            "title": "The Hodge Decomposition Conjecture",
-            "description": "...",
-            "field": "Algebraic Topology, Complex Geometry",
-            "difficulty": "Advanced",
-            "first_posed": "...",
-            "prize_money": "None",
-            "significance": "...",
-            "current_status": "..."
-        }
-    ]
-}
+for problem in problems:
+    print(f"Title: {problem.title}")
+    print(f"Status: {problem.current_status}")
 ```
 
-## Configuration
+## Data Model
 
-- **Environment Variables**:
-    - `DEFAULT_LLM_MODEL`: Defines the default LLM model to use if not specified via CLI.
-- **Logging**: 
-    - The application uses `lite.logging_config` to manage logging.
-    - Detailed execution logs are automatically stored in `logs/unsolved.log`.
-    - Console output is suppressed by default to maintain a clean CLI experience.
+Each problem is captured with the following attributes:
+
+| Field | Description |
+| :--- | :--- |
+| `title` | The name or title of the problem. |
+| `description` | Clear explanation of the problem and its importance. |
+| `field` | The specific academic subfield. |
+| `difficulty` | Estimated level (Elementary, Moderate, Advanced). |
+| `first_posed` | Historical context or proposer. |
+| `prize_money` | Associated rewards, if any. |
+| `significance` | Impact of a potential solution. |
+| `current_status` | Latest known results and research progress. |
 
 ## License
 
-[Specify License Here, e.g., MIT]
+This project is intended for educational and research purposes.
