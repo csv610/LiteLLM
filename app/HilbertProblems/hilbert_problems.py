@@ -37,6 +37,8 @@ class HilbertProblemsGuide:
         self.client = LiteClient(self.config)
         self.cache: Dict[int, HilbertProblem] = {}
         self.output_file = self._get_output_file()
+        self.outputs_dir = Path.cwd() / "outputs"
+        self.outputs_dir.mkdir(parents=True, exist_ok=True)
         self._load_from_file()
 
     def _get_output_file(self) -> Path:
@@ -142,7 +144,7 @@ class HilbertProblemsGuide:
             return None
 
     def _save_to_file(self) -> None:
-        """Save all cached problems to the markdown file."""
+        """Save all cached problems to the markdown file and separate files."""
         try:
             md_content = "# Hilbert's 23 Problems\n\n"
 
@@ -155,28 +157,35 @@ class HilbertProblemsGuide:
                 }
                 emoji = status_emoji.get(problem.status, "")
 
-                md_content += f"## Problem {problem.number}: {problem.title} {emoji}\n\n"
-                md_content += f"**Status**: {problem.status.value.capitalize()}\n"
+                problem_md = f"## Problem {problem.number}: {problem.title} {emoji}\n\n"
+                problem_md += f"**Status**: {problem.status.value.capitalize()}\n"
 
                 if problem.solved_by:
-                    md_content += f"**Solved by**: {problem.solved_by}\n"
+                    problem_md += f"**Solved by**: {problem.solved_by}\n"
                 if problem.solution_year:
-                    md_content += f"**Year**: {problem.solution_year}\n"
+                    problem_md += f"**Year**: {problem.solution_year}\n"
 
-                md_content += f"\n### Description\n\n{problem.description}\n\n"
+                problem_md += f"\n### Description\n\n{problem.description}\n\n"
 
-                md_content += f"### Solution Method\n\n{problem.solution_method}\n\n"
+                problem_md += f"### Solution Method\n\n{problem.solution_method}\n\n"
 
-                md_content += "### Related Fields\n\n"
+                problem_md += "### Related Fields\n\n"
                 for field in problem.related_fields:
-                    md_content += f"- {field}\n"
+                    problem_md += f"- {field}\n"
 
-                md_content += f"\n### Notes\n\n{problem.notes}\n\n"
+                problem_md += f"\n### Notes\n\n{problem.notes}\n\n"
+                
+                # Save individual problem file
+                problem_file = self.outputs_dir / f"hilbert_problem_{problem.number}.md"
+                with open(problem_file, "w") as f:
+                    f.write(problem_md)
+                
+                md_content += problem_md
                 md_content += "---\n\n"
 
             with open(self.output_file, "w") as f:
                 f.write(md_content)
-            logger.info(f"Saved {len(self.cache)} problems to {self.output_file.name}")
+            logger.info(f"Saved {len(self.cache)} problems to {self.output_file.name} and individual files in {self.outputs_dir}")
         except Exception as e:
             logger.error(f"Failed to save to file: {str(e)}")
 
