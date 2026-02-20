@@ -5,8 +5,7 @@ Provides comprehensive prompt building functionality for generating narrative-dr
 explanations of mathematical equations in the style of science journalism.
 """
 
-from mathematical_equation_story_models import MathematicalEquationStory
-
+from math_equation_story_models import MathematicalEquationStory
 
 class PromptBuilder:
     """Builder class for creating prompts for mathematical equation story generation."""

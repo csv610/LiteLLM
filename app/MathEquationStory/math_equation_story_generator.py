@@ -8,8 +8,8 @@ of mathematical equations using LiteLLM models.
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-from mathematical_equation_story_models import MathematicalEquationStory
-from mathematical_equation_story_prompts import PromptBuilder
+from math_equation_story_models import MathematicalEquationStory
+from math_equation_story_prompts import PromptBuilder
 
 
 class MathEquationStoryGenerator:
@@ -26,7 +26,7 @@ class MathEquationStoryGenerator:
         self.model_config = ModelConfig(model=model_name, temperature=temperature)
         self.client = LiteClient(model_config=self.model_config)
     
-    def generate_story(self, equation_name: str) -> MathematicalEquationStory:
+    def generate_text(self, equation_name: str) -> MathematicalEquationStory:
         """Generate a narrative-driven explanation of a mathematical equation.
 
         This function creates a detailed prompt that instructs the AI model to

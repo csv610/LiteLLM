@@ -38,7 +38,7 @@ def generate_equation_story(equation_name: str, model_name: str) -> Mathematical
     generator = MathEquationStoryGenerator(model_name=model_name)
     
     # Generate the story
-    return generator.generate_story(equation_name)
+    return generator.generate_text(equation_name)
 
 
 # ============================================================================
@@ -73,12 +73,7 @@ def display_story(story: MathematicalEquationStory):
         print(f"{i}. {question}\n")
 
 
-# ============================================================================
-# MAIN
-# ============================================================================
-
-if __name__ == "__main__":
-    # Set up argument parser
+def main():
     parser = argparse.ArgumentParser(
         prog="math_equation_story_cli.py",
         description="Generate engaging, narrative-driven explanations of mathematical equations in the style of science journalism.",
@@ -133,3 +128,6 @@ Output:
     print("\n" + "=" * 80)
     print("\nStory generated successfully.")
     print("=" * 80)
+
+if __name__ == "__main__":
+   main()
