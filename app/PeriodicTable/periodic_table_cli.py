@@ -22,7 +22,13 @@ def arguments_parser():
     parser.add_argument(
         "-e", "--element",
         type=str,
-        help="Specific element name to fetch (e.g., 'Hydrogen', 'Gold')"
+        default="Hydrogen",
+        help="Specific element name to fetch (default: 'Hydrogen')"
+    )
+    parser.add_argument(
+        "-a", "--all",
+        action="store_true",
+        help="Fetch all elements (takes a long time)"
     )
     parser.add_argument(
         "-m", "--model",
@@ -66,25 +72,7 @@ def element_info_cli():
     model_config = ModelConfig(model=args.model, temperature=args.temperature)
 
     # Fetch specific element or all elements
-    if args.element:
-        # Fetch specific element
-        element = args.element.capitalize()
-        if element not in ALL_ELEMENTS:
-            print(f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
-            sys.exit(1)
-
-        element_info = fetch_element_info(element, model_config)
-
-        if element_info:
-            output = {"element": element_info.model_dump()}
-            output_file = output_dir / f"{element}.json"
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(output, f, indent=2, ensure_ascii=False)
-            print(f"Saved to {output_file}", file=sys.stderr)
-        else:
-            print(f"Failed to fetch {element}", file=sys.stderr)
-            sys.exit(1)
-    else:
+    if args.all:
         # Fetch all elements
         all_elements_data = []
         failed_elements = []
@@ -113,6 +101,24 @@ def element_info_cli():
         if failed_elements:
             print(f"Failed: {len(failed_elements)} elements", file=sys.stderr)
             print(f"Failed elements: {', '.join(failed_elements)}", file=sys.stderr)
+    else:
+        # Fetch specific element
+        element = args.element.capitalize()
+        if element not in ALL_ELEMENTS:
+            print(f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
+            sys.exit(1)
+
+        element_info = fetch_element_info(element, model_config)
+
+        if element_info:
+            output = {"element": element_info.model_dump()}
+            output_file = output_dir / f"{element}.json"
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(output, f, indent=2, ensure_ascii=False)
+            print(f"Saved to {output_file}", file=sys.stderr)
+        else:
+            print(f"Failed to fetch {element}", file=sys.stderr)
+            sys.exit(1)
 
 
 if __name__ == "__main__":
