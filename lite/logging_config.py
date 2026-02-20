@@ -4,7 +4,7 @@ import logging
 import sys
 
 
-def configure_logging(
+def logging_config(
     log_file: str = "litellm.log",
     level: int = logging.INFO,
     enable_console: bool = False,

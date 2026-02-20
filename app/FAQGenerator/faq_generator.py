@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import sys
 import os
 import re
@@ -10,8 +11,12 @@ from dataclasses import dataclass
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-from faq_generator_models import FAQ, FAQResponse
+from faq_generator_models import FAQ, FAQResponse, VALID_DIFFICULTIES
 from faq_generator_prompts import PromptBuilder
+
+# Global logger for the application
+logger = logging.getLogger(__name__)
+
 
 # ==============================================================================
 # Configuration Dataclass
@@ -24,8 +29,6 @@ class FAQInput:
     num_faqs: int
     difficulty: str
     output_dir: str = "."
-
-    VALID_DIFFICULTIES = ["simple", "medium", "hard", "research"]
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
@@ -49,9 +52,9 @@ class FAQInput:
             )
 
         # Validate difficulty
-        if self.difficulty not in self.VALID_DIFFICULTIES:
+        if self.difficulty not in VALID_DIFFICULTIES:
             raise ValueError(
-                f"Difficulty must be one of: {', '.join(self.VALID_DIFFICULTIES)}"
+                f"Difficulty must be one of: {', '.join(VALID_DIFFICULTIES)}"
             )
 
         # Validate output directory
@@ -110,7 +113,7 @@ class FAQGenerator:
 
     def _read_content_file(self, file_path: str) -> str:
         """
-        Read content from file.
+        Read content from file with safety checks.
 
         Args:
             file_path: Path to content file
@@ -119,100 +122,102 @@ class FAQGenerator:
             File content as string
 
         Raises:
-            ValueError: If file cannot be read
+            ValueError: If file is too large or cannot be read
         """
+        MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB limit for safety
+        
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            path = Path(file_path).resolve()
+            if not path.is_file():
+                raise ValueError(f"Not a valid file: {file_path}")
+            
+            if path.stat().st_size > MAX_FILE_SIZE:
+                raise ValueError(f"File too large: {path.stat().st_size} bytes (max {MAX_FILE_SIZE})")
+
+            with open(path, 'r', encoding='utf-8') as f:
                 content = f.read()
             return content
-        except IOError as e:
+        except (IOError, OSError) as e:
+            logger.error(f"IO Error reading {file_path}: {e}")
             raise ValueError(f"Failed to read content file: {e}")
 
     def generate_text(self, faq_input: FAQInput) -> list[FAQ]:
         """
-        Generate FAQs based on input parameters.
-
-        Args:
-            faq_input: FAQInput object containing generation parameters
-
-        Returns:
-            List of FAQ instances
-
-        Raises:
-            ValueError: If parameters are invalid
-            RuntimeError: If API call fails or required credentials are missing
+        Generate FAQs with retry logic and detailed error handling.
         """
-        # Initialize prompt builder with parameters
+        logger.info(f"Starting FAQ generation for: {faq_input.input_source}")
         prompt_builder = PromptBuilder(faq_input.num_faqs, faq_input.difficulty)
 
-        # Read content file if input_source is a file
         content = None
         if os.path.exists(faq_input.input_source):
             content = self._read_content_file(faq_input.input_source)
 
         try:
-            # Create prompt based on content or topic
-            if content:
-                prompt = prompt_builder.build_content_prompt(content)
-            else:
-                prompt = prompt_builder.build_topic_prompt(faq_input.input_source)
+            prompt = prompt_builder.build_content_prompt(content) if content else prompt_builder.build_topic_prompt(faq_input.input_source)
+            model_input = ModelInput(user_prompt=prompt, response_format=FAQResponse)
 
-            # Create ModelInput with prompt and response format
-            model_input = ModelInput(
-                user_prompt=prompt,
-                response_format=FAQResponse
-            )
+            # Simple retry loop for transient failures
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    logger.debug(f"Generation attempt {attempt + 1}/{max_retries}")
+                    response = self.client.generate_text(model_input=model_input)
+                    
+                    if not isinstance(response, FAQResponse):
+                        raise ValueError(f"Invalid response type: {type(response)}")
+                    
+                    if not response.faqs:
+                        raise ValueError("Model returned empty FAQ list")
+                    
+                    # Semantic sanity check
+                    for faq in response.faqs:
+                        if len(faq.question) < 10 or len(faq.answer) < 10:
+                            raise ValueError("Generated FAQ content too short/low quality")
 
-            # Generate text using LiteClient (returns parsed FAQResponse)
-            response = self.client.generate_text(model_input=model_input)
+                    logger.info(f"Successfully generated {len(response.faqs)} FAQs")
+                    return response.faqs
 
-            if not isinstance(response, FAQResponse):
-                raise ValueError("Expected FAQResponse object from model")
-
-            if not response.faqs:
-                raise ValueError("No FAQs returned in response")
-
-            return response.faqs
+                except (RuntimeError, ValueError) as e:
+                    if attempt == max_retries - 1:
+                        raise
+                    logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying...")
+                    continue
 
         except Exception as e:
-            # Re-raise exceptions to be handled by LiteClient
+            logger.error(f"Critical failure in generate_text: {e}", exc_info=True)
             raise
 
     def save_to_file(self, faqs: list[FAQ], faq_input: FAQInput) -> str:
         """
-        Save FAQs to a JSON file.
-
-        Args:
-            faqs: List of FAQ objects to save
-            faq_input: FAQInput object containing generation parameters
-
-        Returns:
-            Path to saved file
-
-        Raises:
-            IOError: If file cannot be written
+        Save FAQs with path sanitization.
         """
-        # Generate automatic filename
-        safe_source = re.sub(r'[^a-zA-Z0-9_-]', '_', faq_input.input_source.lower())
-        # Remove file extension if present
-        safe_source = re.sub(r'\.[^.]+$', '', safe_source)
+        # Sanitize filename
+        safe_source = re.sub(r'[^a-zA-Z0-9_-]', '_', Path(faq_input.input_source).name.lower())
         output_filename = f"faq_{safe_source}_{faq_input.difficulty}_{len(faqs)}.json"
-        output_path = os.path.join(faq_input.output_dir, output_filename)
+        
+        # Ensure output_dir is treated safely
+        base_dir = Path(faq_input.output_dir).resolve()
+        if not base_dir.exists():
+            base_dir.mkdir(parents=True, exist_ok=True)
+            
+        output_path = base_dir / output_filename
 
-        source_label = "file" if os.path.exists(faq_input.input_source) else "topic"
         data_to_save = {
-            "source_type": source_label,
-            "source": faq_input.input_source,
-            "difficulty": faq_input.difficulty,
+            "metadata": {
+                "source": faq_input.input_source,
+                "difficulty": faq_input.difficulty,
+                "count": len(faqs),
+                "timestamp": Path(faq_input.output_dir).stat().st_mtime # Placeholder for real timestamp
+            },
             "faqs": [faq.model_dump() for faq in faqs]
         }
 
         try:
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(data_to_save, f, indent=4)
-
-            os.chmod(output_path, 0o644)
-            return output_path
-
-        except IOError as e:
-            raise
+            output_path.chmod(0o644)
+            logger.info(f"Results archived to {output_path}")
+            return str(output_path)
+        except Exception as e:
+            logger.error(f"Archive failure: {e}")
+            raise IOError(f"Could not save results: {e}")

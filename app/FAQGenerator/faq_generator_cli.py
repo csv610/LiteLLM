@@ -12,17 +12,13 @@ import sys
 import os
 from pathlib import Path
 
-# Add project root to sys.path to use local 'lite' package
-# Use absolute path to ensure correct resolution
-root_path = Path(__file__).resolve().parent.parent.parent
-if str(root_path) not in sys.path:
-    sys.path.insert(0, str(root_path))
-
 from lite import ModelConfig
+from lite.logging_config import configure_logging
 from faq_generator import FAQGenerator, FAQInput
+from faq_generator_models import VALID_DIFFICULTIES
 
 # Global logger for the application
-logger = None
+logger = logging.getLogger(__name__)
 
 
 def validate_num_faqs(num_str: str) -> int:
@@ -93,18 +89,16 @@ def validate_difficulty(difficulty_str: str) -> str:
     Raises:
         argparse.ArgumentTypeError: If invalid
     """
-    valid_difficulties = ["simple", "medium", "hard", "research"]
     difficulty = difficulty_str.lower().strip()
-    if difficulty not in valid_difficulties:
+    if difficulty not in VALID_DIFFICULTIES:
         raise argparse.ArgumentTypeError(
-            f"Must be: {', '.join(valid_difficulties)}, got '{difficulty_str}'"
+            f"Must be: {', '.join(VALID_DIFFICULTIES)}, got '{difficulty_str}'"
         )
     return difficulty
 
 
 def arguments_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
-    valid_difficulties = ["simple", "medium", "hard", "research"]
     
     parser = argparse.ArgumentParser(
         description="Generate frequently asked questions on a given topic or from content",
@@ -148,7 +142,7 @@ Examples:
         default="medium",
         type=validate_difficulty,
         dest="difficulty",
-        choices=valid_difficulties,
+        choices=VALID_DIFFICULTIES,
         help="Difficulty level: simple (beginner-friendly), medium (intermediate, practical), "
              "hard (advanced, specialized knowledge), research (cutting-edge, open problems). "
              "Default: medium"
@@ -198,8 +192,7 @@ def main() -> int:
 
     try:
         # Initialize global logger
-        from logging_util import setup_logging
-        logger = setup_logging(str(Path(__file__).parent / "logs" / "faq_generator.log"))
+        configure_logging(log_file=str(Path(__file__).parent / "logs" / "faq_generator.log"))
         
         # Create ModelConfig
         model_config = ModelConfig(model=args.model, temperature=args.temperature)
@@ -234,15 +227,19 @@ def main() -> int:
 
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
+        if logger: logger.error(f"ValueError: {e}")
         return 1
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
+        if logger: logger.error(f"RuntimeError: {e}")
         return 1
     except IOError as e:
         print(f"Error: {e}", file=sys.stderr)
+        if logger: logger.error(f"IOError: {e}")
         return 1
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
+        if logger: logger.error(f"Unexpected error: {e}", exc_info=True)
         return 1
 
 

@@ -3,18 +3,28 @@ import logging
 import json
 import sys
 import os
-import os
+from pathlib import Path
 from typing import Optional
 
 # Add project root directory to path to import lite module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from lite.config import ModelConfig
-from lite import logging_config
+# from lite import logging_config
 from nobel_prize_models import PrizeWinner
 from nobel_prize_explorer import NobelPrizeWinnerInfo
 
-logger = logging_config.setup_logging(str(Path(__file__).parent / "logs" / "nobel_prize_info.log"))
+# logger = logging_config.setup_logging(str(Path(__file__).parent / "logs" / "nobel_prize_info.log"))
+
+# Setup standard logging
+log_dir = Path(__file__).parent / "logs"
+log_dir.mkdir(exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename=str(log_dir / "nobel_prize_info.log")
+)
+logger = logging.getLogger(__name__)
 
 # ==============================================================================
 # Core Functions

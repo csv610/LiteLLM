@@ -10,11 +10,7 @@ import json
 import argparse
 from pathlib import Path
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from article_reviewer import ArticleReviewer
-
 
 def cli(article_text, model_name=None, output_filename=None, input_filename=None):
     """Review an article and provide detailed feedback on deletions, modifications, and insertions.
