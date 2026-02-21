@@ -16,11 +16,11 @@ from typing import Set
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from logging_util import setup_logging
+from lite.logging_config import configure_logging
 
 # Configure logging
 log_file = Path(__file__).parent / "logs" / "medical_dictionary.log"
-logger = setup_logging(str(log_file))
+logger = configure_logging(str(log_file))
 
 
 # Default regex patterns for cleaning conversational text (can be customized via DictConfig)

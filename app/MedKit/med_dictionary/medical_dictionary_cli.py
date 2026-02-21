@@ -3,7 +3,8 @@ from pathlib import Path
 
 # Add parent directories to path for imports
 
-from logging_util import setup_logging
+from lite.logging_config import configure_logging
+
 from lite.config import ModelConfig
 from dictionary_builder import (
     DictionaryBuilder,
@@ -12,7 +13,7 @@ from dictionary_builder import (
 
 # Configure logging
 log_file = Path(__file__).parent / "logs" / "medical_dictionary.log"
-logger = setup_logging(str(log_file))
+logger = configure_logging(str(log_file))
 
 
 # ============================================================================
@@ -80,7 +81,7 @@ def build_med_dict(input_data: str, model: str):
         print(f"Error: {e}")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Fetch medical dictionary definitions using AI",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -97,3 +98,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     build_med_dict(args.input, args.model)
+
+if __name__ == "__main__":
+   main()
