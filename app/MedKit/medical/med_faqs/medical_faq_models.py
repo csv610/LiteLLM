@@ -7,8 +7,10 @@ provider-focused FAQ content with structured guidance on medical topics.
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
+from lite.config import ModelOutput
 
-class FAQItemModel(BaseModel):
+
+class FAQItem(BaseModel):
     """Single FAQ question-answer pair."""
     question: str = Field(description="The frequently asked question")
     answer: str = Field(description="Comprehensive answer to the question")
@@ -64,7 +66,3 @@ class MedicalFAQModel(BaseModel):
     patient_faq: PatientFAQModel = Field(description="Patient-friendly FAQ section")
     provider_faq: Optional[ProviderFAQModel] = Field(default=None, description="Optional provider-focused FAQ section")
 
-
-class ModelOutput(BaseModel):
-    data: Optional[MedicalFAQModel] = None
-    markdown: Optional[str] = None

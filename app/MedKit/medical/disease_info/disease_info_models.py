@@ -7,6 +7,8 @@ disease information across multiple dimensions.
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
+from lite.config import ModelOutput
+
 
 class RiskFactorsModel(BaseModel):
     """
@@ -121,7 +123,5 @@ class DiseaseInfoModel(BaseModel):
 
 
 
-class ModelOutput(BaseModel):
-    data: Optional[DiseaseInfoModel] = None
-    markdown: Optional[str] = None
+    living_with: DiseaseLivingWithModel = Field(description="Information for patients.")
 

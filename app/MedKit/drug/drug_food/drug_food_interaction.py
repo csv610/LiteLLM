@@ -26,21 +26,19 @@ class DrugFoodInteraction:
     def __init__(self, model_config: ModelConfig):
         """Initialize the drug-food interaction analyzer."""
         self.client = LiteClient(model_config)
-        self.config = None  # Store the configuration for later use in save
+        self.user_input = None  # Store the configuration for later use in save
         logger.debug(f"Initialized DrugFoodInteraction")
 
-    def generate_text(self, config: DrugFoodInput, structured: bool = False) -> ModelOutput:
+    def generate_text(self, user_input: DrugFoodInput, structured: bool = False) -> ModelOutput:
         """Analyzes how food and beverages interact with a medicine."""
         # Store the configuration for later use in save
-        self.config = config
+        self.user_input = user_input
         logger.debug(f"Starting drug-food interaction analysis")
         logger.debug(f"Medicine: {config.medicine_name}")
 
         # Create user prompt with context
-        user_prompt = PromptBuilder.create_user_prompt(config)
+        user_prompt = PromptBuilder.create_user_prompt(user_input)
         system_prompt = PromptBuilder.create_system_prompt()
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
 
         response_format = None
         if structured:
@@ -76,6 +74,6 @@ class DrugFoodInteraction:
             raise ValueError("No configuration available. Call generate_text first.")
         
         # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.config.medicine_name.lower().replace(' ', '_')}_food_interaction"
+        base_filename = f"{self.user_input.medicine_name.lower().replace(' ', '_')}_food_interaction"
         
         return save_model_response(result, output_dir / base_filename)

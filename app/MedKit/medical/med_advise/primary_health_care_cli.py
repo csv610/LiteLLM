@@ -51,16 +51,13 @@ def get_user_arguments() -> argparse.Namespace:
 def main():
     args = get_user_arguments()
 
-    # Ensure logs directory exists
-    log_dir = Path(__file__).parent / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file=str(log_dir / "primary_health_care.log"),
+        log_file="primary_health_care.log",
         verbosity=args.verbosity,
         enable_console=True
     )
+
 
     logger.info("="*80)
     logger.info("PRIMARY HEALTH CARE PROVIDER - Starting")

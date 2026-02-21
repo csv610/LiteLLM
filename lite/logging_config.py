@@ -35,13 +35,26 @@ def configure_logging(
     import os
     from pathlib import Path
     
+    # Determine the log path
     log_path = Path(log_file)
-    if len(log_path.parts) == 1:
-        log_path = Path("logs") / log_path
-        log_file = str(log_path)
+    
+    # If it's just a filename or a path that doesn't look absolute,
+    # put it in the root 'logs' directory
+    if not log_path.is_absolute():
+        # Get project root (assumed to be parent of 'lite' directory)
+        project_root = Path(__file__).parent.parent
+        
+        # If the path already starts with 'logs/', just make it absolute to root
+        if log_path.parts[0] == "logs":
+            log_path = project_root / log_path
+        else:
+            log_path = project_root / "logs" / log_path
+            
+    log_file = str(log_path)
     
     # Create logs directory if it doesn't exist
     log_path.parent.mkdir(parents=True, exist_ok=True)
+
 
     # Remove all existing handlers from the root logger
     root_logger = logging.getLogger()

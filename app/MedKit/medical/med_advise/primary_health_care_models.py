@@ -7,6 +7,8 @@ a primary health care provider to a patient.
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
+from lite.config import ModelOutput
+
 
 class PrimaryCareResponseModel(BaseModel):
     """
@@ -20,6 +22,4 @@ class PrimaryCareResponseModel(BaseModel):
     next_steps: List[str] = Field(description="Recommended next steps or questions for a follow-up appointment")
 
 
-class ModelOutput(BaseModel):
-    data: Optional[PrimaryCareResponseModel] = None
-    markdown: Optional[str] = None
+    next_steps: List[str] = Field(description="Recommended next steps or questions for a follow-up appointment")

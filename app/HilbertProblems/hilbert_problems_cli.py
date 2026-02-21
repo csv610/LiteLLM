@@ -15,7 +15,7 @@ from lite import logging_config
 from hilbert_problems import HilbertProblemsGuide
 
 # Global logger for application
-logger = None
+logger = logging.getLogger(__name__)
 
 def argument_parser() -> argparse.ArgumentParser:
     """
@@ -52,20 +52,16 @@ Examples:
 
 
 def main():
-    """Main entry point for Hilbert problems reference guide."""
-    global logger
-    
     parser = argument_parser()
     args = parser.parse_args()
 
     try:
         # Initialize global logger
         logging_config.configure_logging(str(Path(__file__).parent / "logs" / "hilbert_problems_cli.log"))
-        logger = logging.getLogger(__name__)
         
         # Initialize guide with specified model
-        config = ModelConfig(model=args.model, temperature=0.3)
-        guide = HilbertProblemsGuide(config)
+        model_config = ModelConfig(model=args.model, temperature=0.3)
+        guide = HilbertProblemsGuide(model_config)
 
         # Display specific problem or summary
         if args.problem:
@@ -75,7 +71,7 @@ def main():
                 return
 
             print(f"\n🔄 Fetching Problem {args.problem}...")
-            problem = guide.get_problem(args.problem)
+            problem = guide.generate_text(args.problem)
             HilbertProblemsGuide.display_problem(problem)
         else:
             guide.display_summary()

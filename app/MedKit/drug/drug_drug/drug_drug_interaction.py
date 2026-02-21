@@ -27,19 +27,19 @@ class DrugDrugInteractionGenerator:
         """Initialize the generator."""
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
-        self.config = None  # Store the configuration for later use in save
+        self.user_input = None  # Store the configuration for later use in save
         logger.debug(f"Initialized DrugDrugInteractionGenerator")
 
-    def generate_text(self, config: DrugDrugInput, structured: bool = False) -> ModelOutput:
+    def generate_text(self, user_input: DrugDrugInput, structured: bool = False) -> ModelOutput:
         """Generate drug-drug interaction analysis."""
         # Store the configuration for later use in save
-        self.config = config
+        self.user_inout = user_input
         logger.debug(f"Starting drug-drug interaction analysis")
-        logger.debug(f"Drug 1: {config.medicine1}")
-        logger.debug(f"Drug 2: {config.medicine2}")
+        logger.debug(f"Drug 1: {user_input.medicine1}")
+        logger.debug(f"Drug 2: {user_input.medicine2}")
 
         # Create user prompt with context
-        user_prompt = DrugDrugPromptBuilder.create_user_prompt(config)
+        user_prompt = DrugDrugPromptBuilder.create_user_prompt(user_input)
         system_prompt = DrugDrugPromptBuilder.create_system_prompt()
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
@@ -69,10 +69,10 @@ class DrugDrugInteractionGenerator:
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the drug-drug interaction information to a file."""
-        if self.config is None:
+        if self.user_input is None:
             raise ValueError("No configuration available. Call generate_text first.")
         
         # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.config.medicine1.lower().replace(' ', '_')}_{self.config.medicine2.lower().replace(' ', '_')}_interaction"
+        base_filename = f"{self.user_input.medicine1.lower().replace(' ', '_')}_{self.user_input.medicine2.lower().replace(' ', '_')}_interaction"
         
         return save_model_response(result, output_dir / base_filename)

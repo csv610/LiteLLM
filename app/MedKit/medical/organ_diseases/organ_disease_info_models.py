@@ -5,7 +5,9 @@ This module contains all Pydantic data models for organizing and validating
 disease information across multiple dimensions.
 """
 from pydantic import BaseModel, Field
-from typing import Optional, List, Union
+from typing import Optional, List
+
+from lite.config import ModelOutput
 
 
 class RiskFactorsModel(BaseModel):
@@ -127,9 +129,5 @@ class OrganDiseasesModel(BaseModel):
     organ: str = Field(description="The name of the organ.")
     common_diseases: List[str] = Field(description="List of common diseases associated with the organ.")
     rare_diseases: List[str] = Field(description="List of rare diseases associated with the organ.")
-
-
-class ModelOutput(BaseModel):
-    data: Optional[Union[DiseaseInfoModel, OrganDiseasesModel]] = None
-    markdown: Optional[str] = None
+    educational_points: List[str] = Field(description="Key educational points for patients")
 

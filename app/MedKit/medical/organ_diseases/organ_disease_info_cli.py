@@ -54,7 +54,7 @@ def create_disease_info_report(args) -> int:
     """Generate disease information report."""
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file=str(Path(__file__).parent / "logs" / "disease_info.log"),
+        log_file="organ_disease.log",
         verbosity=args.verbosity,
         enable_console=True
     )

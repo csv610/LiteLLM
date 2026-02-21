@@ -59,10 +59,11 @@ def create_medical_faq_report(args) -> int:
     """Generate medical FAQ report."""
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file=str(Path(__file__).parent / "logs" / "medical_faq.log"),
+        log_file="medical_faq.log",
         verbosity=args.verbosity,
         enable_console=True
     )
+
     logger.debug(f"CLI Arguments:")
     logger.debug(f"  Topic: {args.topic}")
     logger.debug(f"  Output Dir: {args.output_dir}")

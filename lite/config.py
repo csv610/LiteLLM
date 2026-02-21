@@ -60,3 +60,10 @@ class MCQInput:
     options: Union[List[str], Dict[str, str]]
     context: Optional[str] = None
     image_paths: Optional[List[str]] = None
+
+
+class ModelOutput(BaseModel):
+    """Standardized output structure for all medical providers."""
+    data: Optional[Any] = None
+    markdown: Optional[str] = None
+

@@ -13,7 +13,6 @@ from drug_disease_interaction_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
-
 def parse_prompt_style(style_str: str) -> PromptStyle:
     """Parse prompt style string to PromptStyle enum."""
     style_mapping = {
@@ -136,7 +135,7 @@ def create_drug_disease_interaction_report(args) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        config = DrugDiseaseInput(
+        user_input = DrugDiseaseInput(
             medicine_name=args.medicine_name,
             condition_name=args.condition_name,
             condition_severity=args.severity,
@@ -149,7 +148,7 @@ def create_drug_disease_interaction_report(args) -> int:
 
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugDiseaseInteraction(model_config)
-        result = analyzer.generate_text(config, structured=args.structured)
+        result = analyzer.generate_text(user_input, structured=args.structured)
         
         if result is None:
             logger.error("✗ Failed to analyze drug-disease interaction.")
@@ -169,7 +168,9 @@ def create_drug_disease_interaction_report(args) -> int:
         logger.exception("Full exception details:")
         return 1
 
-
-if __name__ == "__main__":
+def main():
     args = get_user_arguments()
     create_drug_disease_interaction_report(args)
+
+if __name__ == "__main__":
+   main()

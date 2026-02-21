@@ -109,7 +109,7 @@ def create_drug_drug_interaction_report(args) -> int:
         generator = DrugDrugInteractionGenerator(model_config)
         
         # Create input configuration
-        input_config = DrugDrugInput(
+        user_input = DrugDrugInput(
             medicine1=args.medicine1,
             medicine2=args.medicine2,
             age=args.age,
@@ -119,7 +119,7 @@ def create_drug_drug_interaction_report(args) -> int:
             prompt_style=PromptStyle(args.style)
         )
         
-        result = generator.generate_text(config=input_config, structured=args.structured)
+        result = generator.generate_text(config=user_input, structured=args.structured)
 
         if result is None:
             logger.error("✗ Failed to generate drug-drug interaction information.")

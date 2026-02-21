@@ -14,7 +14,7 @@ class ProblemStatus(str, Enum):
     PARTIALLY_SOLVED = "partially_solved"
 
 
-class HilbertProblem(BaseModel):
+class HilbertProblemModel(BaseModel):
     """Structured data for a Hilbert problem."""
     number: int = Field(description="Problem number (1-23)")
     title: str = Field(description="Title of the problem")

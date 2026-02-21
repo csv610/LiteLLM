@@ -47,20 +47,20 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        config = DrugAddictionInput(
+        user_input = DrugAddictionInput(
             medicine_name=args.medicine_name,
             usage_duration=args.duration,
             prompt_style=args.prompt_style,
         )
         
         # Validate the input
-        config.validate()
+        user_input.validate()
 
         logger.info(f"Configuration created successfully")
 
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugAddiction(model_config)
-        result = analyzer.generate_text(config, structured=args.structured)
+        result = analyzer.generate_text(user_input, structured=args.structured)
         
         if result is None:
             logger.error("✗ Failed to generate drug addiction analysis.")

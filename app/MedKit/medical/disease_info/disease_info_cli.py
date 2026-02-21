@@ -53,10 +53,11 @@ def create_disease_info_report(args) -> int:
     """Generate disease information report."""
     # Apply verbosity level using centralized logging configuration
     configure_logging(
-        log_file=str(Path(__file__).parent / "logs" / "disease_info.log"),
+        log_file="disease_info.log",
         verbosity=args.verbosity,
         enable_console=True
     )
+
     logger.debug(f"CLI Arguments:")
     logger.debug(f"  Disease: {args.disease}")
     logger.debug(f"  Output Dir: {args.output_dir}")

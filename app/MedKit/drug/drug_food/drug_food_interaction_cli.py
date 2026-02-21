@@ -51,7 +51,7 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        config = DrugFoodInput(
+        user_input = DrugFoodInput(
             medicine_name=args.medicine_name,
             diet_type=args.diet_type,
             medical_conditions=args.conditions,
@@ -61,13 +61,13 @@ def main() -> int:
         )
         
         # Validate the input
-        config.validate()
+        user_input.validate()
 
         logger.info(f"Configuration created successfully")
 
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugFoodInteraction(model_config)
-        result = analyzer.generate_text(config, structured=args.structured)
+        result = analyzer.generate_text(user_input, structured=args.structured)
         
         if result is None:
             logger.error("✗ Failed to generate drug-food interaction information.")

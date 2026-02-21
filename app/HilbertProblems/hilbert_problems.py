@@ -16,7 +16,8 @@ from tqdm import tqdm
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from hilbert_problems_models import HilbertProblem, ProblemStatus
+from hilbert_problems_models import HilbertProblemModel
+from hilbert_problems_prompts import PromptBuilder
 
 # Setup logging
 logging_config.configure_logging(str(Path(__file__).parent / "logs" / "hilbert_problems.log"))
@@ -35,175 +36,8 @@ class HilbertProblemsGuide:
         """
         self.config = config or ModelConfig(model="ollama/gemma3", temperature=0.3)
         self.client = LiteClient(self.config)
-        self.cache: Dict[int, HilbertProblem] = {}
-        self.output_file = self._get_output_file()
-        self.outputs_dir = Path.cwd() / "outputs"
-        self.outputs_dir.mkdir(parents=True, exist_ok=True)
-        self._load_from_file()
 
-    def _get_output_file(self) -> Path:
-        """
-        Get the output file path based on the model name.
-
-        Returns:
-            Path to the output markdown file
-        """
-        model_name = self.config.model.replace("/", "_")
-        return Path.cwd() / f"hilbert_problems_{model_name}.md"
-
-    def _load_from_file(self) -> None:
-        """Load existing problems from the markdown file into cache."""
-        if not self.output_file.exists():
-            return
-
-        try:
-            with open(self.output_file, "r") as f:
-                content = f.read()
-
-            # Split by problem blocks (## Problem N:)
-            matches = list(re.finditer(r'^## Problem (\d+):', content, flags=re.MULTILINE))
-
-            for i, match in enumerate(matches):
-                problem_num = int(match.group(1))
-                start = match.end()
-                end = matches[i + 1].start() if i + 1 < len(matches) else len(content)
-                block = content[start:end]
-
-                try:
-                    problem_data = self._parse_problem_block(block, problem_num)
-                    if problem_data:
-                        self.cache[problem_num] = HilbertProblem(**problem_data)
-                except Exception as e:
-                    logger.warning(f"Failed to parse problem {problem_num}: {str(e)}")
-
-            logger.info(f"Loaded {len(self.cache)} problems from {self.output_file.name}")
-        except Exception as e:
-            logger.warning(f"Failed to load from file: {str(e)}")
-
-    @staticmethod
-    def _parse_problem_block(block: str, problem_num: int) -> Optional[Dict]:
-        """
-        Parse a markdown problem block into a dictionary.
-
-        Args:
-            block: A markdown block for one problem
-            problem_num: The problem number
-
-        Returns:
-            Dictionary with problem data or None if parsing fails
-        """
-        try:
-            lines = block.strip().split('\n')
-            data = {'number': problem_num}
-
-            # Extract title from first line (after Problem N:)
-            first_line = lines[0].strip()
-            data['title'] = first_line.split('**Status**')[0].strip()
-
-            current_section = None
-            section_content = []
-
-            for line in lines:
-                # Check for section headers
-                if line.startswith('### '):
-                    if current_section and section_content:
-                        data[current_section] = '\n'.join(section_content).strip()
-                    current_section = line.replace('### ', '').strip().lower()
-                    section_content = []
-                elif line.startswith('**'):
-                    # Parse metadata like **Status**: Solved
-                    if '**' in line:
-                        parts = line.split('**')
-                        if len(parts) >= 3:
-                            key = parts[1].lower()
-                            value = parts[2].lstrip(':').strip()
-                            if key == 'status':
-                                # Extract status from "Solved ✅" or "Unsolved ❓"
-                                status_val = value.split()[0].lower()
-                                data['status'] = status_val
-                            elif key == 'solved by':
-                                data['solved_by'] = value
-                            elif key == 'year':
-                                data['solution_year'] = int(value) if value.isdigit() else None
-                elif line.startswith('- ') and current_section == 'related fields':
-                    # Handle list items for related fields
-                    section_content.append(line.lstrip('- ').strip())
-                elif line.strip() and not line.startswith('#') and not line.startswith('---'):
-                    section_content.append(line)
-
-            # Save last section
-            if current_section and section_content:
-                if current_section == 'related fields':
-                    data[current_section] = [item.strip() for item in section_content if item.strip()]
-                else:
-                    data[current_section] = '\n'.join(section_content).strip()
-
-            return data
-        except Exception as e:
-            logger.warning(f"Error parsing problem block: {str(e)}")
-            return None
-
-    def _save_to_file(self) -> None:
-        """Save all cached problems to the markdown file and separate files."""
-        try:
-            md_content = "# Hilbert's 23 Problems\n\n"
-
-            for num in sorted(self.cache.keys()):
-                problem = self.cache[num]
-                status_emoji = {
-                    ProblemStatus.SOLVED: "✅",
-                    ProblemStatus.UNSOLVED: "❓",
-                    ProblemStatus.PARTIALLY_SOLVED: "⚠️"
-                }
-                emoji = status_emoji.get(problem.status, "")
-
-                problem_md = f"## Problem {problem.number}: {problem.title} {emoji}\n\n"
-                problem_md += f"**Status**: {problem.status.value.capitalize()}\n"
-
-                if problem.solved_by:
-                    problem_md += f"**Solved by**: {problem.solved_by}\n"
-                if problem.solution_year:
-                    problem_md += f"**Year**: {problem.solution_year}\n"
-
-                problem_md += f"\n### Description\n\n{problem.description}\n\n"
-
-                problem_md += f"### Solution Method\n\n{problem.solution_method}\n\n"
-
-                problem_md += "### Related Fields\n\n"
-                for field in problem.related_fields:
-                    problem_md += f"- {field}\n"
-
-                problem_md += f"\n### Notes\n\n{problem.notes}\n\n"
-                
-                # Save individual problem file
-                problem_file = self.outputs_dir / f"hilbert_problem_{problem.number}.md"
-                with open(problem_file, "w") as f:
-                    f.write(problem_md)
-                
-                md_content += problem_md
-                md_content += "---\n\n"
-
-            with open(self.output_file, "w") as f:
-                f.write(md_content)
-            logger.info(f"Saved {len(self.cache)} problems to {self.output_file.name} and individual files in {self.outputs_dir}")
-        except Exception as e:
-            logger.error(f"Failed to save to file: {str(e)}")
-
-    @staticmethod
-    def _validate_problem_number(problem_number: int) -> None:
-        """
-        Validate that problem number is between 1 and 23.
-
-        Args:
-            problem_number: Problem number to validate
-
-        Raises:
-            ValueError: If problem_number is not between 1 and 23
-        """
-        if problem_number < 1 or problem_number > 23:
-            raise ValueError(f"Problem number must be between 1 and 23, got {problem_number}")
-
-    def get_problem(self, problem_number: int) -> Optional[HilbertProblem]:
+    def generate_text(self, problem_number: int) -> HilbertProblemModel:
         """
         Fetch a specific Hilbert problem from cache or API.
 
@@ -216,43 +50,25 @@ class HilbertProblemsGuide:
         Raises:
             ValueError: If problem_number is not between 1 and 23
         """
-        self._validate_problem_number(problem_number)
-
-        if problem_number in self.cache:
-            logger.info(f"Using cached problem {problem_number}")
-            return self.cache[problem_number]
-
         try:
             logger.info(f"Fetching Hilbert problem {problem_number} from API")
 
-            prompt = f"""
-            Provide comprehensive information about Hilbert's Problem #{problem_number}.
-            Include:
-            - Title
-            - Mathematical description
-            - Current status (solved/unsolved/partially solved)
-            - Who solved it and when
-            - Detailed solution method/explanation
-            - Related mathematical fields (as a list)
-            - Important notes
-
-            Return the response with these exact field names: number, title, description, status,
-            solved_by, solution_year, solution_method, related_fields, notes
-            """
+            # Build prompts using PromptBuilder
+            system_prompt = PromptBuilder.get_system_prompt()
+            user_prompt = PromptBuilder.get_user_prompt(problem_number)
 
             model_input = ModelInput(
-                user_prompt=prompt,
-                response_format=HilbertProblem
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_format=HilbertProblemModel
             )
 
-            problem = self.client.generate_text(model_input)
+            problem = self.client.generate(model_input)
 
-            if isinstance(problem, HilbertProblem):
+            if isinstance(problem, HilbertProblemModel):
                 # Ensure number field is set correctly
                 if problem.number != problem_number:
                     problem.number = problem_number
-                self.cache[problem_number] = problem
-                self._save_to_file()
                 logger.info(f"Successfully fetched problem {problem_number}: {problem.title}")
                 return problem
             else:
@@ -263,103 +79,42 @@ class HilbertProblemsGuide:
             logger.error(f"Error fetching problem {problem_number}: {str(e)}")
             return None
 
-    def get_all_problems(self) -> Dict[int, HilbertProblem]:
+    def save_to_file(self, problem: HilbertProblemModel, output_dir: str) -> str:
         """
-        Fetch all 23 Hilbert problems from the API.
-
-        Returns:
-            Dictionary mapping problem numbers to HilbertProblem instances
-        """
-        all_problems = {}
-        for problem_num in tqdm(range(1, 24), desc="Fetching Hilbert Problems"):
-            problem = self.get_problem(problem_num)
-            if problem:
-                all_problems[problem_num] = problem
-
-        logger.info(f"Fetched {len(all_problems)} Hilbert problems")
-        return all_problems
-
-    @staticmethod
-    def display_problem(problem: Optional[HilbertProblem]) -> None:
-        """
-        Display a Hilbert problem in formatted terminal output.
-
+        Save a Hilbert problem to a JSON file.
+        
         Args:
-            problem: HilbertProblem instance to display
+            problem: HilbertProblemModel instance to save
+            output_dir: Directory path where to save the file
+            
+        Returns:
+            Path to the saved file
+            
+        Raises:
+            ValueError: If output_dir is invalid
+            OSError: If file cannot be written
         """
-        if not problem:
-            print("\n❌ Problem not found")
-            return
+        try:
+            # Create output directory if it doesn't exist
+            output_path = Path(output_dir)
+            output_path.mkdir(parents=True, exist_ok=True)
+            
+            # Generate filename
+            filename = f"hilbert_problem_{problem.number:02d}_{problem.title.replace(' ', '_').replace('/', '_').replace(':', '_')}.json"
+            file_path = output_path / filename
+            
+            # Convert model to dictionary and save
+            problem_dict = problem.model_dump()
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(problem_dict, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Saved Hilbert problem {problem.number} to {file_path}")
+            return str(file_path)
+            
+        except Exception as e:
+            logger.error(f"Error saving problem {problem.number}: {str(e)}")
+            raise
 
-        status_emoji = {
-            ProblemStatus.SOLVED: "✅",
-            ProblemStatus.UNSOLVED: "❓",
-            ProblemStatus.PARTIALLY_SOLVED: "⚠️"
-        }
-
-        print("\n" + "=" * 90)
-        print(f"Problem {problem.number}: {problem.title} {status_emoji[problem.status]}")
-        print("=" * 90)
-
-        print(f"\n📝 DESCRIPTION:")
-        print("-" * 90)
-        print(problem.description)
-
-        print(f"\n📊 STATUS: {problem.status.value.upper()}")
-        if problem.solved_by:
-            print(f"   Solved by: {problem.solved_by}")
-        if problem.solution_year:
-            print(f"   Year: {problem.solution_year}")
-
-        print(f"\n🔬 SOLUTION METHOD:")
-        print("-" * 90)
-        print(problem.solution_method.strip())
-
-        print(f"\n🏷️  RELATED FIELDS:")
-        print("-" * 90)
-        for field in problem.related_fields:
-            print(f"   • {field}")
-
-        print(f"\n💡 NOTES:")
-        print("-" * 90)
-        print(problem.notes)
-
-        print("\n" + "=" * 90 + "\n")
-
-    def display_summary(self) -> None:
-        """Display a summary of all Hilbert problems with their status."""
-        all_problems = self.get_all_problems()
-
-        if not all_problems:
-            print("\n⚠️  Could not fetch problems. Please check your API configuration.\n")
-            return
-
-        solved = sum(1 for p in all_problems.values() if p.status == ProblemStatus.SOLVED)
-        unsolved = sum(1 for p in all_problems.values() if p.status == ProblemStatus.UNSOLVED)
-        partial = sum(1 for p in all_problems.values() if p.status == ProblemStatus.PARTIALLY_SOLVED)
-
-        print("\n" + "=" * 90)
-        print("HILBERT'S 23 PROBLEMS - SUMMARY")
-        print("=" * 90)
-
-        print(f"\n📊 OVERALL STATUS:")
-        print(f"   ✅ Solved:           {solved}/23")
-        print(f"   ❓ Unsolved:         {unsolved}/23")
-        print(f"   ⚠️  Partially Solved: {partial}/23")
-
-        print(f"\n✅ SOLVED PROBLEMS:")
-        for num, problem in sorted(all_problems.items()):
-            if problem.status == ProblemStatus.SOLVED:
-                print(f"   {num:2d}. {problem.title}")
-
-        print(f"\n❓ UNSOLVED PROBLEMS:")
-        for num, problem in sorted(all_problems.items()):
-            if problem.status == ProblemStatus.UNSOLVED:
-                print(f"   {num:2d}. {problem.title}")
-
-        print(f"\n⚠️  PARTIALLY SOLVED PROBLEMS:")
-        for num, problem in sorted(all_problems.items()):
-            if problem.status == ProblemStatus.PARTIALLY_SOLVED:
-                print(f"   {num:2d}. {problem.title}")
-
-        print("\n" + "=" * 90 + "\n")
+    
+    
