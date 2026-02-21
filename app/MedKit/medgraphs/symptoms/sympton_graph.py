@@ -1,4 +1,4 @@
-from core import SymptomTripletExtractor, SymptomGraphBuilder, GraphVisualizer
+from .core import SymptomTripletExtractor, SymptomGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner

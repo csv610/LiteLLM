@@ -1,4 +1,4 @@
-from core import SurgeryTripletExtractor, SurgeryGraphBuilder, GraphVisualizer
+from .core import SurgeryTripletExtractor, SurgeryGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner

@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import MedicalCodingIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, MedicalCodingInput
+from .medical_coding_models import MedicalCodingIdentifierModel, ModelOutput
+from .medical_coding_prompts import PromptBuilder, MedicalCodingInput
 
 class MedicalCodingIdentifier:
     def __init__(self, model_config: ModelConfig):

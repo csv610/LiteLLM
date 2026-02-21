@@ -11,8 +11,8 @@ import random
 from pathlib import Path
 
 
-from medical_procedure_models import MedicalProcedureIdentifierModel, ModelOutput
-from medical_procedure_prompts import PromptBuilder, MedicalProcedureIdentifierInput
+from .medical_procedure_models import MedicalProcedureIdentifierModel, ModelOutput
+from .medical_procedure_prompts import PromptBuilder, MedicalProcedureIdentifierInput
 from lite.config import ModelConfig
 
 

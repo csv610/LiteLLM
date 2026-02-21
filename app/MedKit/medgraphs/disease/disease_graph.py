@@ -1,4 +1,4 @@
-from core import DiseaseTripletExtractor, DiseaseGraphBuilder, GraphVisualizer
+from .core import DiseaseTripletExtractor, DiseaseGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Main Runner

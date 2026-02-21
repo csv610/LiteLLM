@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from medical_procedure_models import MedicalProcedureIdentifierModel, ModelOutput
-from medical_procedure_prompts import PromptBuilder
+from .medical_procedure_models import MedicalProcedureIdentifierModel, ModelOutput
+from .medical_procedure_prompts import PromptBuilder
 
 class MedicalProcedureIdentifier:
     def __init__(self, model_config: ModelConfig):

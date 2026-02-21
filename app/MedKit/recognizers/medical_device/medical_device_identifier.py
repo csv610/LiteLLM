@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from medical_device_models import MedicalDeviceIdentifierModel, ModelOutput
-from medical_device_prompts import PromptBuilder, MedicalDeviceIdentifierInput
+from .medical_device_models import MedicalDeviceIdentifierModel, ModelOutput
+from .medical_device_prompts import PromptBuilder, MedicalDeviceIdentifierInput
 
 class MedicalDeviceIdentifier:
     def __init__(self, model_config: ModelConfig):

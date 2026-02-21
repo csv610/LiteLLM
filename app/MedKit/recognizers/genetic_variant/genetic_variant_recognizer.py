@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import GeneticVariantIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, GeneticVariantInput
+from .genetic_variant_models import GeneticVariantIdentifierModel, ModelOutput
+from .genetic_variant_prompts import PromptBuilder, GeneticVariantInput
 
 class GeneticVariantIdentifier:
     def __init__(self, model_config: ModelConfig):

@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import LabUnitIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, LabUnitInput
+from .lab_unit_models import LabUnitIdentifierModel, ModelOutput
+from .lab_unit_prompts import PromptBuilder, LabUnitInput
 
 class LabUnitIdentifier:
     def __init__(self, model_config: ModelConfig):

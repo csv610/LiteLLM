@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .models import ImagingFindingIdentifierModel, ModelOutput
-from .prompts import PromptBuilder, ImagingFindingInput
+from .imaging_finding_models import ImagingFindingIdentifierModel, ModelOutput
+from .imaging_finding_prompts import PromptBuilder, ImagingFindingInput
 
 class ImagingFindingIdentifier:
     def __init__(self, model_config: ModelConfig):

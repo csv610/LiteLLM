@@ -1,7 +1,7 @@
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from medical_vaccine_models import VaccineIdentifierModel, ModelOutput
-from medical_vaccine_prompts import PromptBuilder
+from .medical_vaccine_models import VaccineIdentifierModel, ModelOutput
+from .medical_vaccine_prompts import PromptBuilder
 
 class MedicalVaccineIdentifier:
     def __init__(self, model_config: ModelConfig):

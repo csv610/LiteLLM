@@ -1,4 +1,4 @@
-from core import GeneticsTripletExtractor, GeneticsGraphBuilder, GraphVisualizer
+from .core import GeneticsTripletExtractor, GeneticsGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner

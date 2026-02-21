@@ -2,7 +2,7 @@ import logging
 import re
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
-from med_speciality_roles_prompts import PromptBuilder
+from .med_speciality_roles_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

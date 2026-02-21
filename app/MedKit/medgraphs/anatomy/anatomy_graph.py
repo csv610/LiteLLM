@@ -1,5 +1,5 @@
 
-from core import AnatomyTripletExtractor, AnatomyGraphBuilder, GraphVisualizer
+from .core import AnatomyTripletExtractor, AnatomyGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner
