@@ -65,6 +65,9 @@ def create_medical_test_device_report(args):
     except Exception as e:
         logger.error(f"Critical error during CLI execution: {e}", exc_info=True)
 
-if __name__ == "__main__":
+def main():
     args = get_user_arguments()
     create_medical_test_device_report(args)
+
+if __name__ == "__main__":
+   main()
