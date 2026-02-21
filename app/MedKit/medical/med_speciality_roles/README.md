@@ -47,7 +47,7 @@ Run the tool from the command line using `med_speciality_roles_cli.py`.
 Get roles for a specific specialist:
 
 ```bash
-python med_speciality_roles_cli.py -s "Cardiologist"
+python med_speciality_roles_cli.py -i "Cardiologist"
 ```
 
 ### Specifying a Model
@@ -55,7 +55,7 @@ python med_speciality_roles_cli.py -s "Cardiologist"
 Use a specific model (e.g., `gpt-3.5-turbo` instead of the default `ollama/gemma3`):
 
 ```bash
-python med_speciality_roles_cli.py -s "Neurologist" -m "gpt-3.5-turbo"
+python med_speciality_roles_cli.py -i "Neurologist" -m "gpt-3.5-turbo"
 ```
 
 ### Adjusting Verbosity
@@ -63,14 +63,14 @@ python med_speciality_roles_cli.py -s "Neurologist" -m "gpt-3.5-turbo"
 Increase logging output for debugging:
 
 ```bash
-python med_speciality_roles_cli.py -s "Pediatrician" -v 4
+python med_speciality_roles_cli.py -i "Pediatrician" -v 4
 ```
 
 ### Arguments
 
 | Argument | Short | Description | Default |
 | :--- | :--- | :--- | :--- |
-| `--speciality` | `-s` | **Required.** The medical speciality to query (e.g., 'Cardiologist'). | N/A |
+| `--speciality` | `-i` (legacy: `-s`) | **Required.** The medical speciality to query (e.g., 'Cardiologist'). | N/A |
 | `--model` | `-m` | The LLM model to use for generation. | `ollama/gemma3` |
 | `--verbosity` | `-v` | Logging level (0=CRITICAL, ..., 3=INFO, 4=DEBUG). | `2` (WARNING) |
 

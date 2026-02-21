@@ -20,7 +20,7 @@ def get_user_arguments() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "-s", "--speciality",
+        "-i", "-s", "--speciality",
         required=True,
         help="The medical speciality to query (e.g., 'Cardiologist')."
     )
