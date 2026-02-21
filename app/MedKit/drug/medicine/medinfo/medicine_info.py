@@ -8,8 +8,9 @@ import logging
 from pathlib import Path
 from typing import Union
 
+from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from lite.llm_client import LiteClient
+from lite.utils import save_model_response
 
 from medicine_info_models import MedicineInfoModel, ModelOutput
 from medicine_info_prompts import PromptBuilder
@@ -51,7 +52,6 @@ class MedicineInfoGenerator:
         self.logger.debug(f"✓ Successfully fetched info for {medicine_name}")
         return result
 
-    def save(self, result: ModelOutput, str], output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Save the generated information to a file."""
-        from lite.utils import save_model_response
         return save_model_response(result, output_path)

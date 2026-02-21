@@ -4,10 +4,7 @@ This module contains the PromptBuilder class for generating consistent prompts
 for medicine information generation.
 """
 
-from utils.cli_base import BasePromptBuilder
-
-
-class PromptBuilder(BasePromptBuilder):
+class PromptBuilder():
     """Builder class for creating prompts for medicine information generation.
 
     Inherits from BasePromptBuilder and implements the abstract methods
