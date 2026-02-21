@@ -39,7 +39,7 @@ def create_medical_test_info_report(args) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.7)
+        model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalTestInfoGenerator(model_config)
         
         result = generator.generate_text(args.test, structured=args.structured)

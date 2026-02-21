@@ -283,10 +283,10 @@ python medical_test_devices_cli.py -i "MRI Scanner" -s
 **Unstructured Output Processing:**
 ```python
 from pathlib import Path
-from medical_test_devices import MedicalTestDeviceGenerator
+from medical_test_devices import MedicalTestDeviceGuide
 
 # Generate unstructured output
-generator = MedicalTestDeviceGenerator()
+generator = MedicalTestDeviceGuide()
 result = generator.generate_text("Ultrasound Machine", structured=False)
 
 # Process as plain text
@@ -309,10 +309,10 @@ if 'BASIC INFORMATION' in sections:
 **Structured Output Processing:**
 ```python
 from pathlib import Path
-from medical_test_devices import MedicalTestDeviceGenerator
+from medical_test_devices import MedicalTestDeviceGuide
 
 # Generate structured output
-generator = MedicalTestDeviceGenerator()
+generator = MedicalTestDeviceGuide()
 result = generator.generate_text("Ultrasound Machine", structured=True)
 
 # Access data with type safety
@@ -413,11 +413,11 @@ medical_devices/
 
 ```python
 from lite.config import ModelConfig
-from medical_test_devices import MedicalTestDeviceGenerator
+from medical_test_devices import MedicalTestDeviceGuide
 
 # Configure the generator
 model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-generator = MedicalTestDeviceGenerator(model_config)
+generator = MedicalTestDeviceGuide(model_config)
 
 # Generate device information
 result = generator.generate_text("ECG Machine", structured=True)
@@ -441,7 +441,7 @@ model_config = ModelConfig(
 )
 
 # Use with the generator
-generator = MedicalTestDeviceGenerator(model_config)
+generator = MedicalTestDeviceGuide(model_config)
 ```
 
 ### Available Configuration Options

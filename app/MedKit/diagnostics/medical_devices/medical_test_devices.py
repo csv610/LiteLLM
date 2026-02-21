@@ -2,7 +2,7 @@
 """
 Medical Test Devices Analysis module.
 
-This module provides the core MedicalTestDeviceGenerator class for generating
+This module provides the core MedicalTestDeviceGuide class for generating
 comprehensive information for medical test devices using LiteClient.
 """
 
@@ -20,7 +20,7 @@ from medical_test_devices_prompts import PromptBuilder
 logger = logging.getLogger(__name__)
 
 
-class MedicalTestDeviceGenerator:
+class MedicalTestDeviceGuide:
     """Generate comprehensive information for medical test devices."""
 
     def __init__(self, model_config: ModelConfig):
@@ -32,7 +32,7 @@ class MedicalTestDeviceGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.device_name = None  # Store the device name for later use in save
-        logger.info(f"Initialized MedicalTestDeviceGenerator using model: {model_config.model}")
+        logger.info(f"Initialized MedicalTestDeviceGuide using model: {model_config.model}")
 
     def generate_text(self, device_name: str, structured: bool = False) -> ModelOutput:
         """

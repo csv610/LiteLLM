@@ -6,7 +6,7 @@ from pathlib import Path
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from medical_test_devices import MedicalTestDeviceGenerator
+from medical_test_devices import MedicalTestDeviceGuide
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ def create_medical_test_device_report(args):
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
-        generator = MedicalTestDeviceGenerator(model_config)
+        generator = MedicalTestDeviceGuide(model_config)
 
         # Generate the device information (expensive operation)
         result = generator.generate_text(args.test_device, structured=args.structured)
