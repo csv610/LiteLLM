@@ -4,8 +4,10 @@ Find alternative medicines with similar active ingredients, therapeutic classes,
 mechanisms of action. Provides detailed comparisons to help identify suitable substitutes.
 """
 
+import argparse
 import logging
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 

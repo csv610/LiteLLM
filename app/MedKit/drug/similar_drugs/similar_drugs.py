@@ -8,12 +8,12 @@ from pathlib import Path
 from typing import Optional, Union
 
 from lite.config import ModelConfig
-from lite.llm_client import LiteClient
+from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
 from lite.config import ModelInput
 
-from .similar_drugs_models import SimilarMedicinesResult
-from .similar_drugs_prompts import PromptBuilder
+from similar_drugs_models import SimilarMedicinesResult
+from similar_drugs_prompts import PromptBuilder
 
 
 class SimilarDrugs:
