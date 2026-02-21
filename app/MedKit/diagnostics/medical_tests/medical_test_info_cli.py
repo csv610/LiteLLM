@@ -15,7 +15,10 @@ logger = logging.getLogger(__name__)
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Generate comprehensive medical test information.")
-    parser.add_argument("-i", "--test", type=str, required=True, help="The name of the medical test to generate information for.")
+    parser.add_argument("-i", "--test", type=str, required=True, help="medical test name.")
+
+# Common user arguments... 
+
     parser.add_argument("-d", "--output-dir", default="outputs", help="Directory for output files (default: outputs).")
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use for generation (default: ollama/gemma3).")
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).")

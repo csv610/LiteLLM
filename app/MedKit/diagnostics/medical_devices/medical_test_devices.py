@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
-from .medical_test_devices_prompts import PromptBuilder
+from medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
+from medical_test_devices_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class MedicalTestDeviceGuide:
         logger.info(f"Generating {mode} medical device information for: '{device_name}'")
 
         system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.build_user_prompt(device_name)
+        user_prompt = PromptBuilder.create_user_prompt(device_name)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
 

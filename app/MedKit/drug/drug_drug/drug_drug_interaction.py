@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .drug_drug_interaction_models import DrugInteractionModel, ModelOutput
-from .drug_drug_interaction_prompts import DrugDrugPromptBuilder, DrugDrugInput
+from drug_drug_interaction_models import DrugInteractionModel, ModelOutput
+from drug_drug_interaction_prompts import DrugDrugPromptBuilder, DrugDrugInput
 
 logger = logging.getLogger(__name__)
 

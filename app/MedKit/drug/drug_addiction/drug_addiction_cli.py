@@ -21,9 +21,12 @@ def get_user_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
-    parser.add_argument("medicine_name", type=str, help="Name of the medicine or substance to analyze")
+    parser.add_argument("medicine_name", type=str, help="Name of the medicine/substance")
+
     parser.add_argument("--duration", "-d", type=str, default=None, help="Duration of use")
     parser.add_argument("--prompt-style", "-p", type=str, choices=["detailed", "concise", "balanced"], default="detailed", help="Prompt style")
+
+# Common Arguments 
     parser.add_argument("--verbosity", "-v", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level")
     parser.add_argument("--model", "-m", type=str, default="ollama/gemma3", help="Model ID")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")

@@ -20,6 +20,9 @@ def get_user_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description="Generate comprehensive information for a medical device.")
     parser.add_argument("-i", "--test-device", "--test_device", type=str, required=True, help="The name of the medical test device to generate information for.")
+
+# These are common arguments..
+
     parser.add_argument("-d", "--output-dir", type=str, default="outputs", help="The directory to save output files. Default: outputs.")
     parser.add_argument("-m", "--model", type=str, default="ollama/gemma3", help="Model to use for generation (default: ollama/gemma3).")
     parser.add_argument("-v", "--verbosity", type=int, default=2, help="Logging verbosity level (0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG). Default: 2.")

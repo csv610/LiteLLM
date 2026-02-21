@@ -35,7 +35,7 @@ When generating medical device information, you must:
 Your responses should be comprehensive yet concise, suitable for healthcare professionals, biomedical engineers, and procurement specialists. Maintain a professional, objective tone and base all information on established medical device standards and clinical evidence."""
 
     @staticmethod
-    def build_user_prompt(device_name: str) -> str:
+    def create_user_prompt(device_name: str) -> str:
         """
         Build the prompt for generating comprehensive medical device information.
 
