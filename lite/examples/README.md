@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains complete, runnable Python scripts demonstrating how to use the LiteLLM Toolkit for various tasks.
+This directory contains complete, runnable Python scripts demonstrating how to use LiteKit for various tasks.
 
 ## Getting Started
 
