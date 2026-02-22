@@ -1,5 +1,8 @@
 # Lite
 
+![CI](https://github.com/csv610/lite/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/github/license/csv610/lite)
+
 A lightweight, opinionated wrapper around [LiteLLM](https://github.com/BerriAI/litellm) for robust LLM interactions, structured output, vision processing, and "LLM-as-a-judge" evaluation.
 
 ## Features
