@@ -62,6 +62,16 @@ class MCQInput:
     image_paths: Optional[List[str]] = None
 
 
+@dataclass
+class UserInput:
+    """Standardized input for model response evaluation."""
+
+    model_response: str
+    user_prompt: Optional[str] = None
+    ground_truth: Optional[str] = None
+    context: Optional[str] = None
+
+
 class ModelOutput(BaseModel):
     """Standardized output structure for all medical providers."""
     data: Optional[Any] = None

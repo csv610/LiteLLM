@@ -7,6 +7,7 @@ from .config import ModelConfig
 from .image_utils import ImageUtils
 from .logging_config import configure_logging
 from .utils import save_model_response
+from .lite_evaluator import ModelEvaluator, EvaluationResult
 
 __all__ = [
     "LiteClient",
@@ -14,4 +15,6 @@ __all__ = [
     "ImageUtils",
     "configure_logging",
     "save_model_response",
+    "ModelEvaluator",
+    "EvaluationResult",
 ]
