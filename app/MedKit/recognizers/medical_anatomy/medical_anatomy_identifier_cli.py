@@ -14,7 +14,6 @@ def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Identify medical anatomy terms and structures.")
     parser.add_argument("name", type=str, help="Medical anatomy term to identify.")
-    parser.add_argument("-d", "--output-dir", type=str, default="outputs", help="Directory for output files (default: outputs).")
     parser.add_argument("-m", "--model", type=str, default="ollama/gemma3", help="Model to use for generation (default: ollama/gemma3).")
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).")
     parser.add_argument("-s", "--structured", action="store_true", default=False, help="Use structured output (Pydantic model) for the response.")
@@ -49,12 +48,10 @@ def main():
 
         print(result)
         
-        return 0
-        
     except Exception as e:
         logger.error(f"✗ Error during medical anatomy identification: {str(e)}")
         return 1
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
