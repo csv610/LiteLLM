@@ -6,10 +6,8 @@ Encapsulates functionality for building and managing dictionary definitions usin
 import json
 import logging
 import os
-import re
-from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Set, List, Optional
+from typing import List, Optional
 from tqdm import tqdm
 
 from lite.lite_client import LiteClient
@@ -83,21 +81,6 @@ class DictionaryBuilder:
                 logger.error(f"Failed to load definitions: {e}")
         return []
 
-    @staticmethod
-    def merge_dictionaries(main_dict: List[dict], temp_dict: List[dict]) -> List[dict]:
-        """Merge temporary dictionary into main dictionary without sorting.
-        
-        Args:
-            main_dict: Main dictionary list
-            temp_dict: Temporary dictionary list to merge
-            
-        Returns:
-            Merged dictionary list (unsorted)
-        """
-        # Simply extend the main dictionary with temporary items
-        main_dict.extend(temp_dict)
-        return main_dict
-
     def save(self) -> bool:
         """Save definitions to JSON file."""
         try:
@@ -139,17 +122,14 @@ class DictionaryBuilder:
 
         for term in tqdm(new_terms, desc="Processing"):
             try:
-                raw_response = self.client.generate_text(ModelInput(
+                raw_response = self.client.generate(ModelInput(
                     user_prompt=self.prompt_builder.build_user_prompt(term),
                     system_prompt=self.prompt_builder.build_system_prompt()
                 ))
                 
                 if raw_response and raw_response.strip():
+                    # Create definition and dump to temp file immediately
                     new_definition = {"term": term, "definition": raw_response.strip()}
-                    temp_definitions.append(new_definition)
-                    self.existing_terms.add(term.lower())
-                    
-                    # Dump key:value in the temporary file immediately (JSON Lines)
                     with open(temp_output_file, 'a', encoding='utf-8') as f:
                         json.dump(new_definition, f, ensure_ascii=False)
                         f.write('\n')
@@ -161,8 +141,7 @@ class DictionaryBuilder:
         
         # Merge temporary definitions with main definitions once complete
         if temp_definitions:
-            self.definitions = DictionaryBuilder.merge_dictionaries(self.definitions, temp_definitions)
-            self.definitions = sorted(self.definitions, key=lambda x: x.get("term", "").lower())
+            self.definitions.extend(temp_definitions)
             if self.save():
                 print(f"Merged {len(temp_definitions)} new terms into the main dictionary.")
             else:

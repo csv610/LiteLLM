@@ -36,5 +36,4 @@ print("Ingredients:")
 for ing in recipe.ingredients:
     print(f"  - {ing.name}: {ing.amount} {ing.unit}")
 
-print("
-Example complete!")
+print("Example complete!")

@@ -10,8 +10,7 @@ client = LiteClient(ModelConfig(model="gemini/gemini-2.5-flash"))
 print("--- Text Completion ---")
 text_input = ModelInput(user_prompt="Explain what a Large Language Model is in one sentence.")
 response = client.generate_text(text_input)
-print(f"Response: {response}
-")
+print(f"Response: {response}")
 
 # 3. Vision analysis (Image understanding)
 # Note: Provide a valid image path or URL
