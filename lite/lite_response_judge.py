@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from lite_client import LiteClient
-from config import ModelConfig, ModelInput
+from .lite_client import LiteClient
+from .config import ModelConfig, ModelInput
 
 logger = logging.getLogger(__name__)
 

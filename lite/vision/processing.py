@@ -186,7 +186,7 @@ def remove_exif(image_path: str) -> Image.Image:
     with Image.open(image_path) as img:
         img = _convert_to_rgb(img)
         clean_image = Image.new(img.mode, img.size)
-        clean_image.putdata(img.getdata())
+        clean_image.putdata(list(img.getdata()))
         return clean_image
 
 def resize_to_max_size(
@@ -220,3 +220,8 @@ def resize_to_max_size(
             scaled_img.save(output, format=target_format, quality=min_quality, optimize=True)
             if output.tell() <= max_bytes: return scaled_img
         raise ValueError("Cannot compress image to fit within limit.")
+
+def crop(image_path: str, left: int, top: int, right: int, bottom: int) -> Image.Image:
+    """Crop a rectangular region from an image."""
+    with Image.open(image_path) as img:
+        return img.crop((left, top, right, bottom))

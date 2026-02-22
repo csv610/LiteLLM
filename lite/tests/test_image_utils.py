@@ -1,6 +1,6 @@
 import pytest
 from PIL import Image
-from lite.image_utils import _is_url, _convert_to_rgb
+from lite.vision.core import _is_url, _convert_to_rgb
 
 def test_is_url():
     assert _is_url("http://example.com/image.jpg") is True

@@ -16,7 +16,8 @@ from .core import (
     MIN_IMAGE_DIMENSION, 
     _is_url, 
     _download_from_url, 
-    _convert_to_rgb
+    _convert_to_rgb,
+    _validate_file_exists
 )
 from .validation import is_valid_image, is_valid_dimensions, is_valid_size
 

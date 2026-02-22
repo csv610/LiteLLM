@@ -28,6 +28,11 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest"]
 
+[project.scripts]
+lite-chat = "lite.lite_chat:cli"
+lite-mcq = "lite.lite_mcq_client:main"
+lite-judge = "lite.lite_response_judge:main"
+
 [project.urls]
 "Homepage" = "https://github.com/csv610/lite"
 "Bug Tracker" = "https://github.com/csv610/lite/issues"
