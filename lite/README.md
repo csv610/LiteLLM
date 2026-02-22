@@ -1,9 +1,11 @@
-# Lite
+# LiteLLM Toolkit
 
 ![CI](https://github.com/csv610/lite/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/csv610/lite)
 
-**Lite** is a powerful, user-friendly Python toolkit for interacting with Large Language Models (LLMs). Built on top of [LiteLLM](https://github.com/BerriAI/litellm), it simplifies vision processing, structured data extraction, and model evaluation.
+> **Disclaimer**: This is an unofficial, community-driven toolkit. It is built *on top of* the excellent [LiteLLM](https://github.com/BerriAI/litellm) library by BerriAI, but is not affiliated with the official project.
+
+**LiteLLM Toolkit** (package name: `lite`) is a powerful, user-friendly Python wrapper designed to make LiteLLM even easier to use for specific workflows like vision processing, structured data extraction, and model evaluation.
 
 ---
 

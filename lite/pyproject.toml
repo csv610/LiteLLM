@@ -3,12 +3,12 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lite"
+name = "litellm-toolkit"
 version = "0.1.0"
 authors = [
   { name="Chaman Singh Verma", email="csv610@gmail.com" },
 ]
-description = "A lightweight wrapper for LLM interactions and evaluation."
+description = "An unofficial, opinionated toolkit for LiteLLM (BerriAI) with vision and evaluation support."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
