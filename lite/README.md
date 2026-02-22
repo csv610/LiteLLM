@@ -50,7 +50,7 @@ lite-judge -r "Paris is the capital of France" -g "Paris" -p "What is the capita
 
 ## 📦 Developer API
 
-Use Lite as a library in your own Python projects.
+Use Lite as a library in your own Python projects. Check out the [examples/](examples/) directory for complete runnable scripts.
 
 ### Text & Vision Completion
 ```python
