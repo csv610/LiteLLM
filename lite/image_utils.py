@@ -8,11 +8,9 @@ from pathlib import Path
 from typing import Optional, List, Tuple, Literal, Dict, Union
 from urllib.parse import urlparse
 from PIL import Image
-from PIL.Image import Exif
 import io
 import cv2
 import numpy as np
-from datetime import datetime
 import random
 
 from .config import IMAGE_MIME_TYPE
@@ -387,7 +385,7 @@ class ImageUtils:
                 with Image.open(path) as img:
                     width, height = img.size
                 logger.error(f"Image dimensions too small: {image_path} ({width}x{height})")
-            except:
+            except Exception:
                 pass
             raise ValueError(f"Image must be at least {MIN_IMAGE_DIMENSION}x{MIN_IMAGE_DIMENSION} pixels: {image_path}")
 

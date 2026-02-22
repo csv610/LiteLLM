@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lite"
+version = "0.1.0"
+authors = [
+  { name="Chaman Singh Verma", email="csv610@gmail.com" },
+]
+description = "A lightweight wrapper for LLM interactions and evaluation."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "litellm",
+    "pydantic>=2.0.0",
+    "Pillow",
+    "opencv-python",
+    "numpy",
+    "lmdb",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+"Homepage" = "https://github.com/csv610/lite"
+"Bug Tracker" = "https://github.com/csv610/lite/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lite*"]

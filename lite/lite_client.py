@@ -3,10 +3,10 @@
 import logging
 from typing import Any, Dict, List, Optional, Union
 
-from litellm import completion, APIError
+from litellm import completion
 from pydantic import BaseModel
 
-from .config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
+from .config import ModelConfig, ModelInput
 from .image_utils import ImageUtils
 
 logger = logging.getLogger(__name__)

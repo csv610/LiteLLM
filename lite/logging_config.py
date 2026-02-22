@@ -32,7 +32,6 @@ def configure_logging(
         level = verbosity_levels.get(verbosity, logging.WARNING)
 
     # Ensure log file is in a 'logs' directory if no directory is specified
-    import os
     from pathlib import Path
     
     # Determine the log path

@@ -90,11 +90,6 @@ class EvaluationModel(BaseModel):
         description="Specific, actionable suggestions for improving the response.",
     )
 
-    score: float = Field(..., ge=0.0, le=1.0)
-    is_correct: bool
-    reasoning: str
-    feedback: Optional[str] = None
-
 
 class PromptBuilder:
     """Constructs prompts for LLM-based evaluation."""
@@ -103,47 +98,23 @@ class PromptBuilder:
         "You are an impartial, expert evaluator assessing the quality and correctness "
         "of a Model Response. You must evaluate ONLY using the provided sections: "
         "User Prompt (if present), Model Response, Ground Truth (if present), and Context (if present). "
-        "Do not introduce external knowledge. If Ground Truth is provided, treat it as authoritative. "
-        "
-
-"
-        "EVALUATION PRINCIPLES:
-"
-        "1. Accuracy (highest priority): Penalize factual errors, contradictions, and hallucinations.
-"
-        "2. Completeness: Ensure all parts of the User Prompt are addressed.
-"
-        "3. Relevance: Irrelevant or fabricated details reduce score.
-"
-        "4. Clarity: Structure matters, but correctness outweighs style.
-"
-        "
-"
-        "SCORING CALIBRATION (0.0–1.0):
-"
-        "1.0 = Fully correct and complete.
-"
-        "0.8–0.9 = Minor omissions but fundamentally correct.
-"
-        "0.5–0.7 = Partially correct with meaningful gaps.
-"
-        "0.2–0.4 = Major errors or missing key elements.
-"
-        "0.0–0.1 = Fundamentally incorrect or fabricated.
-"
-        "Use partial credit appropriately. Do not inflate scores for fluent but incorrect answers.
-"
-        "
-"
+        "Do not introduce external knowledge. If Ground Truth is provided, treat it as authoritative.\n\n"
+        "EVALUATION PRINCIPLES:\n"
+        "1. Accuracy (highest priority): Penalize factual errors, contradictions, and hallucinations.\n"
+        "2. Completeness: Ensure all parts of the User Prompt are addressed.\n"
+        "3. Relevance: Irrelevant or fabricated details reduce score.\n"
+        "4. Clarity: Structure matters, but correctness outweighs style.\n\n"
+        "SCORING CALIBRATION (0.0–1.0):\n"
+        "1.0 = Fully correct and complete.\n"
+        "0.8–0.9 = Minor omissions but fundamentally correct.\n"
+        "0.5–0.7 = Partially correct with meaningful gaps.\n"
+        "0.2–0.4 = Major errors or missing key elements.\n"
+        "0.0–0.1 = Fundamentally incorrect or fabricated.\n"
+        "Use partial credit appropriately. Do not inflate scores for fluent but incorrect answers.\n\n"
         "Semantic equivalence is acceptable if meaning matches Ground Truth. "
-        "Additional correct information is allowed unless it introduces errors.
-"
-        "
-"
+        "Additional correct information is allowed unless it introduces errors.\n\n"
         "Return ONLY a JSON object with: score (0.0–1.0), is_correct (boolean), "
         "reasoning (concise explanation), and optional feedback (actionable improvements)."
-    ), is_correct (boolean), reasoning (concise explanation), "
-        "and optional feedback (actionable improvements)."
     )
 
     @staticmethod
@@ -156,25 +127,19 @@ class PromptBuilder:
         sections = []
 
         if user_input.user_prompt:
-            sections.append(f"### User Prompt:
-{user_input.user_prompt}")
+            sections.append(f"### User Prompt:\n{user_input.user_prompt}")
 
-        sections.append(f"### Model Response:
-{user_input.model_response}")
+        sections.append(f"### Model Response:\n{user_input.model_response}")
 
         if user_input.ground_truth:
-            sections.append(f"### Ground Truth:
-{user_input.ground_truth}")
+            sections.append(f"### Ground Truth:\n{user_input.ground_truth}")
 
         if user_input.context:
-            sections.append(f"### Context:
-{user_input.context}")
+            sections.append(f"### Context:\n{user_input.context}")
 
         sections.append("Evaluate the Model Response using all provided sections.")
 
-        return "
-
-".join(sections)
+        return "\n\n".join(sections)
 
 
 class ResponseJudge:
@@ -229,7 +194,8 @@ def main():
 
     args = parser.parse_args()
 
-    judge = ResponseJudge(model=args.model)
+    model_config = ModelConfig(model=args.model)
+    judge = ResponseJudge(model_config=model_config)
 
     user_input = UserInput(
         model_response=args.response,
@@ -243,11 +209,17 @@ def main():
         print("\n" + "=" * 60)
         print("EVALUATION RESULT")
         print("=" * 60)
-        print(f"Score:      {result.score:.2f}")
-        print(f"Correct:    {result.is_correct}")
-        print(f"Reasoning:  {result.reasoning}")
+        print(f"Overall Score: {result.overall_score:.2f}")
+        print(f"Is Correct:    {result.is_correct}")
+        print(f"Reasoning:     {result.reasoning}")
         if result.feedback:
-            print(f"Feedback:   {result.feedback}")
+            print(f"Feedback:      {result.feedback}")
+        
+        print("\nCriteria Scores:")
+        print(f"  Accuracy:     {result.criteria.accuracy:.2f}")
+        print(f"  Completeness: {result.criteria.completeness:.2f}")
+        print(f"  Relevance:    {result.criteria.relevance:.2f}")
+        print(f"  Clarity:      {result.criteria.clarity:.2f}")
         print("=" * 60 + "\n")
 
     except Exception as e:

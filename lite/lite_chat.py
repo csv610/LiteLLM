@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from litellm import completion, APIError
+from litellm import completion
 
 from lite import __version__
 from lite.config import ModelConfig, ChatConfig, ModelInput, DEFAULT_TEMPERATURE
@@ -199,7 +199,7 @@ class LiteChat:
             filename = f"conversation_{timestamp}.md"
             self.conversation_file = os.path.join(self.save_dir, filename)
             with open(self.conversation_file, "w") as f:
-                f.write(f"# Conversation\n\n")
+                f.write("# Conversation\n\n")
                 f.write(f"*Started at: {timestamp}*\n\n")
             self._file_initialized = True
 

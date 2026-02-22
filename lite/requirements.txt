@@ -1,0 +1,6 @@
+litellm
+pydantic>=2.0.0
+Pillow
+opencv-python
+numpy
+lmdb

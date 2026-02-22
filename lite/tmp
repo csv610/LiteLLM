@@ -1,0 +1,11 @@
+
+@dataclass
+class UserInput:
+    """Standardized input for model response evaluation."""
+
+    model_response: str
+    user_prompt: Optional[str] = None
+    ground_truth: Optional[str] = None
+    context: Optional[str] = None
+
+
