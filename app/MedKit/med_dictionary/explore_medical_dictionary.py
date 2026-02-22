@@ -158,7 +158,7 @@ def display_prefix_matches(prefix: str, matches: List[str]) -> None:
     print()
 
 
-def main(json_file: str, keys_pattern: str | None = None) -> None:
+def search_dictionary(json_file: str, keys_pattern: str | None = None) -> None:
     """
     Main function for exploring medical dictionary.
 
@@ -228,7 +228,7 @@ def main(json_file: str, keys_pattern: str | None = None) -> None:
             print(f"Error: {e}")
 
 
-def cli():
+def main():
     """Command-line interface."""
     parser = argparse.ArgumentParser(
         description="Explore medical dictionary with fuzzy matching for misspelled terms",
@@ -248,8 +248,8 @@ def cli():
     )
 
     args = parser.parse_args()
-    main(args.dictionary, keys_pattern=args.keys)
+    search_dictionary(args.dictionary, keys_pattern=args.keys)
 
 
 if __name__ == "__main__":
-    cli()
+    main()
