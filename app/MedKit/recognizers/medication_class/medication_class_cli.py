@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 from lite.config import ModelConfig
-from .medication_class_recognizer import MedicationClassIdentifier
+from medication_class_recognizer import MedicationClassIdentifier
 
 
 def create_parser():

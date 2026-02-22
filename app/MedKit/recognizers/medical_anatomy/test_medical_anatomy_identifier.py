@@ -11,9 +11,9 @@ import random
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_anatomy.medical_anatomy_models import MedicalAnatomyIdentifierModel, ModelOutput
-from app.MedKit.recognizers.medical_anatomy.medical_anatomy_prompts import PromptBuilder, MedicalAnatomyIdentifierInput
-from app.MedKit.recognizers.medical_anatomy.medical_anatomy_recognizer import MedicalAnatomyIdentifier
+from medical_anatomy_identifier_models import MedicalAnatomyIdentifierModel, ModelOutput, MedicalAnatomyIdentificationModel
+from medical_anatomy_identifier_prompts import PromptBuilder, MedicalAnatomyIdentifierInput
+from medical_anatomy_identifier import MedicalAnatomyIdentifier
 from lite.config import ModelConfig
 
 
@@ -67,25 +67,26 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = MedicalAnatomyIdentifierModel(
-        name=example,
+    identification = MedicalAnatomyIdentificationModel(
+        structure_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        system="Cardiovascular",
+        location="Thorax",
+        clinical_significance="Essential for systemic circulation"
     )
-    print("✓ IdentificationModel instantiated successfully")
+    print("✓ MedicalAnatomyIdentificationModel instantiated successfully")
     
     # Validate identifier model structure
     identifier_model = MedicalAnatomyIdentifierModel(
         identification=identification,
-        summary="Left Ventricle is a recognized medical anatomy in medical literature",
+        summary=f"{example} is a recognized medical anatomy in medical literature",
         data_available=True
     )
-    print("✓ IdentifierModel instantiated successfully")
+    print("✓ MedicalAnatomyIdentifierModel instantiated successfully")
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.structure_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -116,8 +117,8 @@ def test_identifier_validation():
     
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = MedicalAnatomyIdentifierInput(example)
+        example = "   "
+        test_input = MedicalAnatomyIdentifierInput(example)
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +138,7 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = MedicalAnatomyIdentifierInput(example)
+        test_input = MedicalAnatomyIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

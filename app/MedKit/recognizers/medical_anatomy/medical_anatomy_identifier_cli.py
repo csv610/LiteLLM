@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def get_user_arguments() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Identify medical anatomy terms and structures.")
-    parser.add_argument("-i", "--name", type=str, required=True, help="Medical anatomy term to identify.")
+    parser.add_argument("name", type=str, help="Medical anatomy term to identify.")
     parser.add_argument("-d", "--output-dir", type=str, default="outputs", help="Directory for output files (default: outputs).")
     parser.add_argument("-m", "--model", type=str, default="ollama/gemma3", help="Model to use for generation (default: ollama/gemma3).")
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).")

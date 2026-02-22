@@ -7,7 +7,8 @@ def main():
     parser.add_argument("name")
     args = parser.parse_args()
     
-    identifier = DrugIdentifier(ModelConfig(model="ollama/gemma3"))
+    model_config = ModelConfig(model="ollama/gemma3")
+    identifier = DrugIdentifier(model_config)
     result = identifier.identify_drug(args.name)
     print(result.model_dump_json(indent=2))
 

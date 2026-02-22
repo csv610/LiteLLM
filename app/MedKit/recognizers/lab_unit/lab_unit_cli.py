@@ -58,13 +58,13 @@ def main():
     
     try:
         # Create model configuration
-        config = ModelConfig(
+        model_config = ModelConfig(
             model=args.model,
             temperature=args.temperature
         )
         
         # Initialize identifier
-        identifier = LabUnitIdentifier(config)
+        identifier = LabUnitIdentifier(model_config)
         
         # Perform identification
         result = identifier.identify(args.name)

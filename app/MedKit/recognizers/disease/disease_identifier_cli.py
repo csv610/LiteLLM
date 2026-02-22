@@ -9,10 +9,8 @@ import argparse
 import sys
 from pathlib import Path
 
-
 from lite.config import ModelConfig
 from disease_recognizer import DiseaseIdentifier
-
 
 def create_parser():
     """Create and configure argument parser."""
@@ -58,13 +56,13 @@ def main():
     
     try:
         # Create model configuration
-        config = ModelConfig(
+        model_config = ModelConfig(
             model=args.model,
             temperature=args.temperature
         )
         
         # Initialize identifier
-        identifier = DiseaseIdentifier(config)
+        identifier = DiseaseIdentifier(model_config)
         
         # Perform identification
         result = identifier.identify(args.name)
