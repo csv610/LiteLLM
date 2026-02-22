@@ -83,7 +83,7 @@ def build_med_dict(input_data: str, model: str):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Fetch medical dictionary definitions using AI",
+        description="Build medical dictionary definitions LLM",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
