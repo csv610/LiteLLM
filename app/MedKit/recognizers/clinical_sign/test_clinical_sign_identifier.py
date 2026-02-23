@@ -11,9 +11,9 @@ import random
 from pathlib import Path
 
 
-from app.MedKit.recognizers.clinical_sign.clinical_sign_models import ClinicalSignIdentifierModel, ModelOutput
-from app.MedKit.recognizers.clinical_sign.clinical_sign_prompts import PromptBuilder, ClinicalSignIdentifierInput
-from app.MedKit.recognizers.clinical_sign.clinical_sign_recognizer import ClinicalSignIdentifier
+from clinical_sign.clinical_sign_models import ClinicalSignIdentifierModel, ModelOutput
+from clinical_sign.clinical_sign_prompts import PromptBuilder, ClinicalSignIdentifierInput
+from clinical_sign.clinical_sign_recognizer import ClinicalSignIdentifier
 from lite.config import ModelConfig
 
 
