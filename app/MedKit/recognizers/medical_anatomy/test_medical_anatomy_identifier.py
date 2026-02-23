@@ -11,7 +11,7 @@ import random
 from pathlib import Path
 
 
-from medical_anatomy_identifier_models import MedicalAnatomyIdentifierModel, ModelOutput, MedicalAnatomyIdentificationModel
+from medical_anatomy_identifier_models import MedicalAnatomyIdentifierModel, MedicalAnatomyIdentificationModel, ModelOutput, MedicalAnatomyIdentificationModel
 from medical_anatomy_identifier_prompts import PromptBuilder, MedicalAnatomyIdentifierInput
 from medical_anatomy_identifier import MedicalAnatomyIdentifier
 from lite.config import ModelConfig
@@ -68,7 +68,7 @@ def test_models():
     # Validate identification model structure
     example = read_random_example_from_assets()
     identification = MedicalAnatomyIdentificationModel(
-        structure_name=example,
+        structure_anatomy_name=example,
         is_well_known=True,
         system="Cardiovascular",
         location="Thorax",
@@ -136,10 +136,9 @@ def test_method_name_consistency():
     assert callable(getattr(identifier, 'identify')), "identify should be callable"
     
     # Validate method signature
-    try:
-        example = read_random_example_from_assets()
-        test_input = MedicalAnatomyIdentifierInput(example)
-        print("✓ identify method has correct signature")
+        try:
+            example = read_random_example_from_assets()
+            print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")
 

@@ -11,9 +11,9 @@ import os
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_symptom.medical_symptom_models import MedicalSymptomIdentifierModel, ModelOutput
+from app.MedKit.recognizers.medical_symptom.medical_symptom_models import MedicalSymptomIdentifierModel, MedicalSymptomIdentificationModel, ModelOutput
 from app.MedKit.recognizers.medical_symptom.medical_symptom_prompts import PromptBuilder, MedicalSymptomIdentifierInput
-from app.MedKit.recognizers.medical_symptom.medical_symptom_recognizer import MedicalSymptomIdentifier
+from app.MedKit.recognizers.medical_symptom.medical_symptom_identifier import MedicalSymptomIdentifier
 from lite.config import ModelConfig
 
 
@@ -46,15 +46,15 @@ def test_medical_symptom_models():
     """Test the Pydantic models."""
     print("\nTesting Medical Symptom Models...")
     
-    # Test SymptomIdentificationModel
-    identification = MedicalSymptomIdentifierModel(
+    # Test MedicalSymptomIdentificationModel
+    identification = MedicalSymptomIdentificationModel(
         symptom_name="chest_pain",
         is_well_known=True,
-        common_causes=["heart_attack", "angina", "muscle_strain", "anxiety"],
-        urgency_level="high",
-        medical_significance="Chest pain can indicate serious cardiac conditions requiring immediate attention"
+        associated_conditions=["heart_attack", "angina", "muscle_strain", "anxiety"],
+        severity_indicators="Sudden onset, radiation to left arm or jaw",
+        clinical_description="Chest pain can indicate serious cardiac conditions requiring immediate attention"
     )
-    print("✓ SymptomIdentificationModel created successfully")
+    print("✓ MedicalSymptomIdentificationModel created successfully")
     
     # Test MedicalSymptomIdentifierModel
     symptom_model = MedicalSymptomIdentifierModel(
@@ -66,7 +66,7 @@ def test_medical_symptom_models():
     
     # Test ModelOutput
     model_output = ModelOutput(data=symptom_model)
-    assert model_output.data.symptom_name == "chest_pain"
+    assert model_output.data.identification.symptom_name == "chest_pain"
     print("✓ ModelOutput created successfully")
 
 

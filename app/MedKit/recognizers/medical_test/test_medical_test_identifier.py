@@ -11,9 +11,9 @@ import os
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_test.medical_test_models import MedicalTestIdentifierModel, ModelOutput
+from app.MedKit.recognizers.medical_test.medical_test_models import MedicalTestIdentifierModel, MedicalTestIdentificationModel, ModelOutput
 from app.MedKit.recognizers.medical_test.medical_test_prompts import PromptBuilder, MedicalTestIdentifierInput
-from app.MedKit.recognizers.medical_test.medical_test_recognizer import MedicalTestIdentifier
+from app.MedKit.recognizers.medical_test.medical_test_identifier import MedicalTestIdentifier
 from lite.config import ModelConfig
 
 
@@ -47,12 +47,12 @@ def test_medical_test_models():
     print("\nTesting Medical Test Models...")
     
     # Test TestIdentificationModel
-    identification = MedicalTestIdentifierModel(
+    identification = MedicalTestIdentificationModel(
         test_name="complete_blood_count",
         is_well_known=True,
-        test_category="blood_test",
-        common_usage="routine_health_screening",
-        medical_significance="Provides comprehensive information about blood cells and overall health"
+        test_type="blood_test",
+        purpose="routine_health_screening",
+        clinical_utility="Provides comprehensive information about blood cells and overall health"
     )
     print("✓ TestIdentificationModel created successfully")
     
@@ -66,7 +66,7 @@ def test_medical_test_models():
     
     # Test ModelOutput
     model_output = ModelOutput(data=test_model)
-    assert model_output.data.test_name == "complete_blood_count"
+    assert model_output.data.identification.test_name == "complete_blood_count"
     print("✓ ModelOutput created successfully")
 
 

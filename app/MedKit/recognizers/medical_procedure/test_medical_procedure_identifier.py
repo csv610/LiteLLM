@@ -11,8 +11,9 @@ import random
 from pathlib import Path
 
 
-from .medical_procedure_models import MedicalProcedureIdentifierModel, ModelOutput
-from .medical_procedure_prompts import PromptBuilder, MedicalProcedureIdentifierInput
+from app.MedKit.recognizers.medical_procedure.medical_procedure_models import MedicalProcedureIdentifierModel, MedicalProcedureIdentificationModel, ModelOutput
+from app.MedKit.recognizers.medical_procedure.medical_procedure_prompts import PromptBuilder, MedicalProcedureIdentifierInput
+from app.MedKit.recognizers.medical_procedure.medical_procedure_identifier import MedicalProcedureIdentifier
 from lite.config import ModelConfig
 
 
@@ -66,11 +67,12 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = MedicalProcedureIdentifierModel(
-        name=example,
+    identification = MedicalProcedureIdentificationModel(
+        procedure_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        procedure_type="surgical",
+        indications=["appendicitis"],
+        clinical_significance="Common surgical procedure for abdominal conditions"
     )
     print("✓ IdentificationModel instantiated successfully")
     
@@ -84,7 +86,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.procedure_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -112,11 +114,10 @@ def test_identifier_validation():
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = MedicalProcedureIdentifierInput(example)
+        test_input = MedicalProcedureIdentifierInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -136,7 +137,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = MedicalProcedureIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

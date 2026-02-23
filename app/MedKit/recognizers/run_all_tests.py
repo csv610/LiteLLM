@@ -13,12 +13,21 @@ from pathlib import Path
 
 def run_test_script(test_script_path):
     """Run a single test script and return the result."""
+    # Add project root to PYTHONPATH
+    project_root = str(Path(__file__).parent.parent.parent.parent.absolute())
+    env = os.environ.copy()
+    if 'PYTHONPATH' in env:
+        env['PYTHONPATH'] = f"{project_root}:{env['PYTHONPATH']}"
+    else:
+        env['PYTHONPATH'] = project_root
+        
     try:
         result = subprocess.run(
             [sys.executable, str(test_script_path)],
             capture_output=True,
             text=True,
-            timeout=30  # 30 second timeout per test
+            timeout=30,  # 30 second timeout per test
+            env=env
         )
         
         return {
@@ -66,7 +75,7 @@ def main():
         "medical_device",
         "medical_condition",
         "medical_coding",
-        "medical_abbreviation",
+        "med_abbreviation",
         "imaging_finding",
         "genetic_variant",
         "lab_unit",
@@ -80,7 +89,12 @@ def main():
     
     for module in modules:
         module_dir = recognizers_dir / module
-        test_script = module_dir / f"test_{module}_identifier.py"
+        
+        # Special case for med_abbreviation
+        if module == "med_abbreviation":
+            test_script = module_dir / "test_medical_abbreviation_identifier.py"
+        else:
+            test_script = module_dir / f"test_{module}_identifier.py"
         
         print(f"\n{'='*60}")
         print(f"TESTING MODULE: {module.upper()}")

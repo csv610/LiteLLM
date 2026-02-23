@@ -11,8 +11,8 @@ import random
 from pathlib import Path
 
 
-from app.MedKit.recognizers.lab_unit.lab_unit_models import LabUnitIdentifierModel, ModelOutput
-from app.MedKit.recognizers.lab_unit.lab_unit_prompts import PromptBuilder, LabUnitIdentifierInput
+from app.MedKit.recognizers.lab_unit.lab_unit_models import LabUnitIdentifierModel, LabUnitIdentificationModel, ModelOutput
+from app.MedKit.recognizers.lab_unit.lab_unit_prompts import PromptBuilder, LabUnitInput
 from app.MedKit.recognizers.lab_unit.lab_unit_recognizer import LabUnitIdentifier
 from lite.config import ModelConfig
 
@@ -47,7 +47,7 @@ def test_prompt_builder():
     
     # Validate user prompt generation
     example = read_random_example_from_assets()
-    test_input = LabUnitIdentifierInput(example)
+    test_input = LabUnitInput(example)
     user_prompt = PromptBuilder.create_user_prompt(test_input)
     assert isinstance(user_prompt, str)
     assert example in user_prompt
@@ -55,7 +55,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = LabUnitIdentifierInput("")
+        empty_input = LabUnitInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -67,11 +67,11 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = LabUnitIdentifierModel(
-        name=example,
+    identification = LabUnitIdentificationModel(
+        unit_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        category="concentration",
+        common_tests=["glucose_screening", "metabolic_panel"]
     )
     print("✓ IdentificationModel instantiated successfully")
     
@@ -85,7 +85,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.unit_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -109,15 +109,14 @@ def test_identifier_validation():
     
     # Validate empty input handling
     try:
-        test_input = LabUnitIdentifierInput("")
+        test_input = LabUnitInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = LabUnitIdentifierInput(example)
+        test_input = LabUnitInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +136,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = LabUnitIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

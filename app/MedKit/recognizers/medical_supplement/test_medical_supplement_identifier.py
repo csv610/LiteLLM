@@ -11,9 +11,9 @@ import os
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_supplement.medical_supplement_models import SupplementIdentifierModel, ModelOutput
+from app.MedKit.recognizers.medical_supplement.medical_supplement_models import SupplementIdentifierModel, SupplementIdentificationModel, ModelOutput
 from app.MedKit.recognizers.medical_supplement.medical_supplement_prompts import PromptBuilder, SupplementIdentifierInput
-from app.MedKit.recognizers.medical_supplement.medical_supplement_recognizer import MedicalSupplementIdentifier
+from app.MedKit.recognizers.medical_supplement.medical_supplement_identifier import MedicalSupplementIdentifier
 from lite.config import ModelConfig
 
 
@@ -47,12 +47,12 @@ def test_medical_supplement_models():
     print("\nTesting Medical Supplement Models...")
     
     # Test SupplementIdentificationModel
-    identification = SupplementIdentifierModel(
+    identification = SupplementIdentificationModel(
         supplement_name="vitamin_d",
         is_well_known=True,
-        supplement_category="vitamin",
+        primary_nutrients=["cholecalciferol"],
         common_uses=["bone_health", "immune_support", "calcium_absorption"],
-        medical_significance="Essential for calcium metabolism and bone health, deficiency common in many populations"
+        regulatory_standing="FDA regulated as a dietary supplement"
     )
     print("✓ SupplementIdentificationModel created successfully")
     
@@ -66,7 +66,7 @@ def test_medical_supplement_models():
     
     # Test ModelOutput
     model_output = ModelOutput(data=supplement_model)
-    assert model_output.data.supplement_name == "vitamin_d"
+    assert model_output.data.identification.supplement_name == "vitamin_d"
     print("✓ ModelOutput created successfully")
 
 

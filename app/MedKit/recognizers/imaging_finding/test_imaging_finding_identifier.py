@@ -11,8 +11,8 @@ import random
 from pathlib import Path
 
 
-from app.MedKit.recognizers.imaging_finding.imaging_finding_models import ImagingFindingIdentifierModel, ModelOutput
-from app.MedKit.recognizers.imaging_finding.imaging_finding_prompts import PromptBuilder, ImagingFindingIdentifierInput
+from app.MedKit.recognizers.imaging_finding.imaging_finding_models import ImagingFindingIdentifierModel, ImagingFindingIdentificationModel, ModelOutput
+from app.MedKit.recognizers.imaging_finding.imaging_finding_prompts import PromptBuilder, ImagingFindingInput
 from app.MedKit.recognizers.imaging_finding.imaging_finding_recognizer import ImagingFindingIdentifier
 from lite.config import ModelConfig
 
@@ -47,7 +47,7 @@ def test_prompt_builder():
     
     # Validate user prompt generation
     example = read_random_example_from_assets()
-    test_input = ImagingFindingIdentifierInput(example)
+    test_input = ImagingFindingInput(example)
     user_prompt = PromptBuilder.create_user_prompt(test_input)
     assert isinstance(user_prompt, str)
     assert example in user_prompt
@@ -55,7 +55,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = ImagingFindingIdentifierInput("")
+        empty_input = ImagingFindingInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -67,11 +67,11 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = ImagingFindingIdentifierModel(
-        name=example,
+    identification = ImagingFindingIdentificationModel(
+        finding_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        modalities=["CT", "chest_x_ray"],
+        differential_diagnosis=["infection", "malignancy", "inflammation"]
     )
     print("✓ IdentificationModel instantiated successfully")
     
@@ -85,7 +85,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.finding_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -109,15 +109,14 @@ def test_identifier_validation():
     
     # Validate empty input handling
     try:
-        test_input = ImagingFindingIdentifierInput("")
+        test_input = ImagingFindingInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = ImagingFindingIdentifierInput(example)
+        test_input = ImagingFindingInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +136,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = ImagingFindingIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

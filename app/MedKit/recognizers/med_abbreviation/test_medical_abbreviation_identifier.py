@@ -11,9 +11,9 @@ import random
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_abbreviation.medical_abbreviation_models import MedicalAbbreviationIdentifierModel, ModelOutput
-from app.MedKit.recognizers.medical_abbreviation.medical_abbreviation_prompts import PromptBuilder, MedicalAbbreviationIdentifierInput
-from app.MedKit.recognizers.medical_abbreviation.medical_abbreviation_recognizer import MedicalAbbreviationIdentifier
+from app.MedKit.recognizers.med_abbreviation.medical_abbreviation_models import AbbreviationIdentifierModel, AbbreviationIdentificationModel, ModelOutput
+from app.MedKit.recognizers.med_abbreviation.medical_abbreviation_prompts import PromptBuilder, AbbreviationIdentifierInput
+from app.MedKit.recognizers.med_abbreviation.medical_abbreviation_recognizer import MedicalAbbreviationIdentifier
 from lite.config import ModelConfig
 
 
@@ -47,7 +47,7 @@ def test_prompt_builder():
     
     # Validate user prompt generation
     example = read_random_example_from_assets()
-    test_input = MedicalAbbreviationIdentifierInput(example)
+    test_input = AbbreviationIdentifierInput(example)
     user_prompt = PromptBuilder.create_user_prompt(test_input)
     assert isinstance(user_prompt, str)
     assert example in user_prompt
@@ -55,7 +55,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = MedicalAbbreviationIdentifierInput("")
+        empty_input = AbbreviationIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -67,16 +67,17 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = MedicalAbbreviationIdentifierModel(
-        name=example,
+    identification = AbbreviationIdentificationModel(
+        abbreviation=example,
+        full_form="Cardiopulmonary Resuscitation",
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        context_of_use="emergency_medicine",
+        clinical_meaning="Emergency procedure for life support when heart and breathing stop"
     )
     print("✓ IdentificationModel instantiated successfully")
     
     # Validate identifier model structure
-    identifier_model = MedicalAbbreviationIdentifierModel(
+    identifier_model = AbbreviationIdentifierModel(
         identification=identification,
         summary="Cpr is a recognized medical abbreviation in medical literature",
         data_available=True
@@ -85,7 +86,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.abbreviation == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -109,15 +110,14 @@ def test_identifier_validation():
     
     # Validate empty input handling
     try:
-        test_input = MedicalAbbreviationIdentifierInput("")
+        test_input = AbbreviationIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = MedicalAbbreviationIdentifierInput(example)
+        test_input = AbbreviationIdentifierInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +137,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = MedicalAbbreviationIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

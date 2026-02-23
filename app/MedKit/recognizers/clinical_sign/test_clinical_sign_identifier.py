@@ -11,9 +11,9 @@ import random
 from pathlib import Path
 
 
-from clinical_sign.clinical_sign_models import ClinicalSignIdentifierModel, ModelOutput
-from clinical_sign.clinical_sign_prompts import PromptBuilder, ClinicalSignIdentifierInput
-from clinical_sign.clinical_sign_recognizer import ClinicalSignIdentifier
+from app.MedKit.recognizers.clinical_sign.clinical_sign_models import ClinicalSignIdentifierModel, ClinicalSignIdentificationModel, ModelOutput
+from app.MedKit.recognizers.clinical_sign.clinical_sign_prompts import PromptBuilder, ClinicalSignInput
+from app.MedKit.recognizers.clinical_sign.clinical_sign_recognizer import ClinicalSignIdentifier
 from lite.config import ModelConfig
 
 
@@ -47,7 +47,7 @@ def test_prompt_builder():
     
     # Validate user prompt generation
     example = read_random_example_from_assets()
-    test_input = ClinicalSignIdentifierInput(example)
+    test_input = ClinicalSignInput(example)
     user_prompt = PromptBuilder.create_user_prompt(test_input)
     assert isinstance(user_prompt, str)
     assert example in user_prompt
@@ -55,7 +55,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = ClinicalSignIdentifierInput("")
+        empty_input = ClinicalSignInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -67,11 +67,11 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = ClinicalSignIdentifierModel(
-        name=example,
+    identification = ClinicalSignIdentificationModel(
+        sign_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        examination_method="Stroking the lateral sole of the foot with a blunt object",
+        clinical_significance="Indicates upper motor neuron lesion when dorsiflexion of great toe occurs"
     )
     print("✓ IdentificationModel instantiated successfully")
     
@@ -85,7 +85,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.sign_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -109,15 +109,14 @@ def test_identifier_validation():
     
     # Validate empty input handling
     try:
-        test_input = ClinicalSignIdentifierInput("")
+        test_input = ClinicalSignInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = ClinicalSignIdentifierInput(example)
+        test_input = ClinicalSignInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +136,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = ClinicalSignIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

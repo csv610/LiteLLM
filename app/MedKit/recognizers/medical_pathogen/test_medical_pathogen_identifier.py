@@ -11,9 +11,9 @@ import random
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_pathogen.medical_pathogen_models import MedicalPathogenIdentifierModel, ModelOutput
-from app.MedKit.recognizers.medical_pathogen.medical_pathogen_prompts import PromptBuilder, MedicalPathogenIdentifierInput
-from app.MedKit.recognizers.medical_pathogen.medical_pathogen_recognizer import MedicalPathogenIdentifier
+from app.MedKit.recognizers.medical_pathogen.medical_pathogen_models import PathogenIdentifierModel, PathogenIdentificationModel, ModelOutput
+from app.MedKit.recognizers.medical_pathogen.medical_pathogen_prompts import PromptBuilder, PathogenIdentifierInput
+from app.MedKit.recognizers.medical_pathogen.medical_pathogen_identifier import MedicalPathogenIdentifier
 from lite.config import ModelConfig
 
 
@@ -47,7 +47,7 @@ def test_prompt_builder():
     
     # Validate user prompt generation
     example = read_random_example_from_assets()
-    test_input = MedicalPathogenIdentifierInput(example)
+    test_input = PathogenIdentifierInput(example)
     user_prompt = PromptBuilder.create_user_prompt(test_input)
     assert isinstance(user_prompt, str)
     assert example in user_prompt
@@ -55,7 +55,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = MedicalPathogenIdentifierInput("")
+        empty_input = PathogenIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -67,16 +67,17 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = MedicalPathogenIdentifierModel(
-        name=example,
+    identification = PathogenIdentificationModel(
+        pathogen_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        pathogen_type="bacterium",
+        associated_infections=["skin_infections", "sepsis"],
+        clinical_significance="Common pathogenic bacterium causing nosocomial infections"
     )
     print("✓ IdentificationModel instantiated successfully")
     
     # Validate identifier model structure
-    identifier_model = MedicalPathogenIdentifierModel(
+    identifier_model = PathogenIdentifierModel(
         identification=identification,
         summary="Staphylococcus Aureus is a recognized medical pathogen in medical literature",
         data_available=True
@@ -85,7 +86,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.pathogen_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -109,15 +110,14 @@ def test_identifier_validation():
     
     # Validate empty input handling
     try:
-        test_input = MedicalPathogenIdentifierInput("")
+        test_input = PathogenIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = MedicalPathogenIdentifierInput(example)
+        test_input = PathogenIdentifierInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +137,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = MedicalPathogenIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

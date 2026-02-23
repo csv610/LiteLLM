@@ -10,7 +10,9 @@ import os
 import random
 from pathlib import Path
 
-from medical_vaccine_recognizer import MedicalVaccineIdentifier
+from app.MedKit.recognizers.medical_vaccine.medical_vaccine_models import VaccineIdentifierModel, VaccineIdentificationModel, ModelOutput
+from app.MedKit.recognizers.medical_vaccine.medical_vaccine_prompts import PromptBuilder, VaccineIdentifierInput
+from app.MedKit.recognizers.medical_vaccine.medical_vaccine_identifier import MedicalVaccineIdentifier
 from lite.config import ModelConfig
 
 
@@ -44,7 +46,7 @@ def test_prompt_builder():
     
     # Validate user prompt generation
     example = read_random_example_from_assets()
-    test_input = MedicalVaccineIdentifierInput(example)
+    test_input = VaccineIdentifierInput(example)
     user_prompt = PromptBuilder.create_user_prompt(test_input)
     assert isinstance(user_prompt, str)
     assert example in user_prompt
@@ -52,7 +54,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = MedicalVaccineIdentifierInput("")
+        empty_input = VaccineIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -64,16 +66,17 @@ def test_models():
     
     # Validate identification model structure
     example = read_random_example_from_assets()
-    identification = MedicalVaccineIdentifierModel(
-        name=example,
+    identification = VaccineIdentificationModel(
+        vaccine_name=example,
         is_well_known=True,
-        recognition_confidence="high",
-        medical_literature_reference="Recognized in major medical databases"
+        target_diseases=["influenza"],
+        vaccine_type="inactivated",
+        standard_schedule="annual"
     )
     print("✓ IdentificationModel instantiated successfully")
     
     # Validate identifier model structure
-    identifier_model = MedicalVaccineIdentifierModel(
+    identifier_model = VaccineIdentifierModel(
         identification=identification,
         summary="Influenza Vaccine is a recognized medical vaccine in medical literature",
         data_available=True
@@ -82,7 +85,7 @@ def test_models():
     
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
-    assert model_output.data.name == example
+    assert model_output.data.identification.vaccine_name == example
     print("✓ ModelOutput instantiated successfully")
 
 
@@ -106,15 +109,14 @@ def test_identifier_validation():
     
     # Validate empty input handling
     try:
-        test_input = MedicalVaccineIdentifierInput("")
+        test_input = VaccineIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
-    
+
     # Validate whitespace-only input handling
     try:
-        example = read_random_example_from_assets()
-    test_input = MedicalVaccineIdentifierInput(example)
+        test_input = VaccineIdentifierInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -134,7 +136,6 @@ def test_method_name_consistency():
     # Validate method signature
     try:
         example = read_random_example_from_assets()
-    test_input = MedicalVaccineIdentifierInput(example)
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from lite.config import ModelConfig
-from recognizer_factory import RecognizerFactory
+from .recognizer_factory import RecognizerFactory
 
 def create_parser():
     # Force registration by listing available

@@ -11,9 +11,9 @@ import os
 from pathlib import Path
 
 
-from app.MedKit.recognizers.medical_specialty.medical_specialty_models import MedicalSpecialtyIdentifierModel, ModelOutput
+from app.MedKit.recognizers.medical_specialty.medical_specialty_models import MedicalSpecialtyIdentifierModel, MedicalSpecialtyIdentificationModel, ModelOutput
 from app.MedKit.recognizers.medical_specialty.medical_specialty_prompts import PromptBuilder, MedicalSpecialtyIdentifierInput
-from app.MedKit.recognizers.medical_specialty.medical_specialty_recognizer import MedicalSpecialtyIdentifier
+from app.MedKit.recognizers.medical_specialty.medical_specialty_identifier import MedicalSpecialtyIdentifier
 from lite.config import ModelConfig
 
 
@@ -47,12 +47,12 @@ def test_medical_specialty_models():
     print("\nTesting Medical Specialty Models...")
     
     # Test SpecialtyIdentificationModel
-    identification = MedicalSpecialtyIdentifierModel(
+    identification = MedicalSpecialtyIdentificationModel(
         specialty_name="cardiology",
         is_well_known=True,
-        specialty_focus="heart and circulatory system disorders",
+        organs_treated=["heart", "blood_vessels"],
         common_procedures=["echocardiogram", "cardiac_catheterization", "stress_test"],
-        medical_significance="Essential specialty for managing cardiovascular diseases, leading cause of death globally"
+        clinical_scope="Essential specialty for managing cardiovascular diseases, leading cause of death globally"
     )
     print("✓ SpecialtyIdentificationModel created successfully")
     
@@ -66,7 +66,7 @@ def test_medical_specialty_models():
     
     # Test ModelOutput
     model_output = ModelOutput(data=specialty_model)
-    assert model_output.data.specialty_name == "cardiology"
+    assert model_output.data.identification.specialty_name == "cardiology"
     print("✓ ModelOutput created successfully")
 
 
