@@ -4,7 +4,7 @@
 
 **IMPORTANT**: This document constitutes a legally and ethically binding agreement between the user ("User") and the providers of this medical AI software ("Provider"). By using this Genetic Variant Identifier module, the User explicitly agrees to all terms, conditions, limitations, and responsibilities outlined in this contract.
 
-**Effective Date**: 1770109902.9461284
+**Effective Date**: 1771825587.7259483
 **Risk Classification**: HIGH-RISK MEDICAL AI SYSTEM
 **Regulatory Compliance**: This software is classified as a medical device/software and may be subject to healthcare regulations.
 

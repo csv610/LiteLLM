@@ -35,6 +35,33 @@ MODULE_CONFIGS = {
             "may_fail": ["babsinki sign", "unknown test", "my made up sign", "vague symptom"]
         }
     },
+    "drug": {
+        "name": "Drug Identifier",
+        "description": "Identifies whether a given name is a recognized pharmaceutical drug in medical literature",
+        "purpose": "Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs",
+        "capabilities": [
+            "Recognizes generic and brand name medications",
+            "Identifies FDA-approved and international drugs",
+            "Validates pharmacological terminology",
+            "Provides confidence levels for recognition"
+        ],
+        "limitations": [
+            "Cannot provide dosage or administration instructions",
+            "Does not offer drug interaction warnings",
+            "Cannot assess clinical appropriateness",
+            "Limited to documented drugs in training data"
+        ],
+        "failure_conditions": [
+            "Very new or experimental drugs",
+            "Herbal remedies not classified as drugs",
+            "Street names or non-standard slang",
+            "Incorrectly spelled or highly ambiguous names"
+        ],
+        "examples": {
+            "will_work": ["Aspirin", "Lisinopril", "Metformin", "Advil"],
+            "may_fail": ["new experimental compound", "homeopathic remedy", "slang drug name", "vague chemical description"]
+        }
+    },
     "disease": {
         "name": "Disease Identifier",
         "description": "Identifies whether a given name is a recognized disease in medical literature",
@@ -143,7 +170,7 @@ MODULE_CONFIGS = {
             "may_fail": ["rare unit", "non-standard format", "research measurement", "incorrect abbreviation"]
         }
     },
-    "medical_abbreviation": {
+    "med_abbreviation": {
         "name": "Medical Abbreviation Identifier",
         "description": "Identifies whether a given name is a recognized medical abbreviation in medical literature",
         "purpose": "Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs",
@@ -330,6 +357,33 @@ MODULE_CONFIGS = {
         "examples": {
             "will_work": ["cardiology", "neurology", "pediatrics", "anesthesiology"],
             "may_fail": ["new specialty", "country-specific", "research field", "non-standard name"]
+        }
+    },
+    "medical_anatomy": {
+        "name": "Medical Anatomy Identifier",
+        "description": "Identifies whether a given name is a recognized anatomical structure in medical literature",
+        "purpose": "Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs",
+        "capabilities": [
+            "Recognizes human organs, tissues, and structures",
+            "Identifies musculoskeletal and nervous system components",
+            "Validates anatomical terminology",
+            "Provides confidence levels for recognition"
+        ],
+        "limitations": [
+            "Cannot provide functional details",
+            "Does not offer surgical guidance",
+            "Cannot assess anatomical variants",
+            "Limited to standard anatomy in training data"
+        ],
+        "failure_conditions": [
+            "Rare or specialized anatomical structures",
+            "Functional or physiological states",
+            "Non-human anatomy",
+            "Colloquial or non-standard names"
+        ],
+        "examples": {
+            "will_work": ["Heart", "Biceps Brachii", "Vagus Nerve", "Femur"],
+            "may_fail": ["rare variant", "physiological state", "animal anatomy", "vague body part"]
         }
     },
     "medical_supplement": {

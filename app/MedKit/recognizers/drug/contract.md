@@ -1,8 +1,8 @@
-# Laboratory Unit Identifier - Legal and Ethical Binding Contract
+# Drug Identifier - Legal and Ethical Binding Contract
 
 ## LEGAL NOTICE AND BINDING AGREEMENT
 
-**IMPORTANT**: This document constitutes a legally and ethically binding agreement between the user ("User") and the providers of this medical AI software ("Provider"). By using this Laboratory Unit Identifier module, the User explicitly agrees to all terms, conditions, limitations, and responsibilities outlined in this contract.
+**IMPORTANT**: This document constitutes a legally and ethically binding agreement between the user ("User") and the providers of this medical AI software ("Provider"). By using this Drug Identifier module, the User explicitly agrees to all terms, conditions, limitations, and responsibilities outlined in this contract.
 
 **Effective Date**: 1771825587.7259483
 **Risk Classification**: HIGH-RISK MEDICAL AI SYSTEM
@@ -14,9 +14,9 @@
 
 **1.1 Provider**: The developers, maintainers, and distributors of this medical AI software.
 
-**1.2 User**: Any individual, healthcare professional, or organization that uses this Laboratory Unit Identifier module.
+**1.2 User**: Any individual, healthcare professional, or organization that uses this Drug Identifier module.
 
-**1.3 Medical AI System**: This Laboratory Unit Identifier module designed for medical terminology identification.
+**1.3 Medical AI System**: This Drug Identifier module designed for medical terminology identification.
 
 **1.4 Medical Decision**: Any clinical judgment, diagnosis, treatment decision, or patient care action.
 
@@ -24,7 +24,7 @@
 
 ## 2. OVERVIEW AND PURPOSE
 
-**2.1 Description**: Identifies whether a given name is a recognized laboratory unit in medical literature
+**2.1 Description**: Identifies whether a given name is a recognized pharmaceutical drug in medical literature
 
 **2.2 Primary Purpose**: Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs
 
@@ -45,24 +45,24 @@
 
 ### 3.1 What This Module CAN Correctly Do:
 
-- Recognizes standard laboratory units
-- Identifies SI-compliant measurements
-- Validates common lab terminology
+- Recognizes generic and brand name medications
+- Identifies FDA-approved and international drugs
+- Validates pharmacological terminology
 - Provides confidence levels for recognition
 
 ### 3.2 What This Module CANNOT Do:
 
-- Cannot provide reference ranges
-- Does not offer unit conversions
-- Cannot assess clinical significance
-- Limited to documented units in training data
+- Cannot provide dosage or administration instructions
+- Does not offer drug interaction warnings
+- Cannot assess clinical appropriateness
+- Limited to documented drugs in training data
 
 ### 3.3 Failure Conditions - When This Module MAY FAIL:
 
-- Specialized or rare lab units
-- Non-standard abbreviations
-- Research-only measurements
-- Incorrectly formatted units
+- Very new or experimental drugs
+- Herbal remedies not classified as drugs
+- Street names or non-standard slang
+- Incorrectly spelled or highly ambiguous names
 
 ---
 
@@ -187,17 +187,17 @@ The User must maintain:
 
 ### 8.1 Will Work Correctly:
 
-- mg/dL
-- cells/μL
-- mmol/L
-- U/L
+- Aspirin
+- Lisinopril
+- Metformin
+- Advil
 
 ### 8.2 May Fail - User Verification Required:
 
-- rare unit
-- non-standard format
-- research measurement
-- incorrect abbreviation
+- new experimental compound
+- homeopathic remedy
+- slang drug name
+- vague chemical description
 
 ### 8.3 User Action Requirements:
 
@@ -275,14 +275,6 @@ Both parties agree to:
 
 **A**: Verify the term through authoritative medical sources like textbooks, medical databases, or consult healthcare professionals.
 
-### Q6: Does this provide normal lab values?
-
-**A**: No. This only identifies if a laboratory unit is recognized. It does not provide reference ranges or interpret lab results.
-
-### Q7: Can this convert between units?
-
-**A**: No. This module only identifies units but does not perform conversions or calculations.
-
 
 ---
 
@@ -290,7 +282,7 @@ Both parties agree to:
 
 ### 12.1 Electronic Agreement:
 
-By using this Laboratory Unit Identifier module, the User electronically signs this agreement and acknowledges:
+By using this Drug Identifier module, the User electronically signs this agreement and acknowledges:
 
 - **I have read and understand this entire contract**
 - **I agree to all terms, conditions, and limitations**
@@ -337,7 +329,7 @@ Healthcare professionals acknowledge that:
 
 **THIS IS A LEGALLY AND ETHICALLY BINDING AGREEMENT**
 
-By using this Laboratory Unit Identifier module, you acknowledge that:
+By using this Drug Identifier module, you acknowledge that:
 - Medical AI carries inherent risks and limitations
 - This software is not a substitute for professional medical judgment
 - You are legally responsible for your use of this software

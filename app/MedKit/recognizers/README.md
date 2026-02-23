@@ -13,6 +13,7 @@ The Medical Entity Recognizers module is designed to provide high-fidelity ident
 *   **Unified CLI**: A single command-line interface (`medical_recognizer_cli.py`) to interact with all supported medical entity types.
 *   **Structured Output**: Support for both descriptive Markdown and structured JSON output using Pydantic models.
 *   **Dynamic Discovery**: A factory-based registry (`RecognizerFactory`) allows for lazy loading and easy instantiation of recognizers by type name.
+*   **Contract-Driven Design**: Each module includes a `contract.md` file specifying capabilities, limitations, and failure conditions to ensure safe and predictable AI behavior.
 *   **Professional Package Structure**: Built using robust relative imports, making it suitable for both standalone CLI use and as an installable library.
 
 ## Architecture
@@ -22,6 +23,7 @@ The system follows a Research-Strategy-Execution lifecycle pattern, supported by
 1.  **`BaseRecognizer`**: An abstract base class that centralizes `LiteClient` initialization and common generation logic. It provides a protected `_generate()` method to handle LLM calls.
 2.  **`RecognizerFactory`**: A centralized registry that manages the discovery and instantiation of recognizer implementations. It handles dynamic imports to prevent circular dependencies.
 3.  **Specialized Recognizers**: Domain-specific implementations (e.g., `DrugIdentifier`, `DiseaseIdentifier`) that define only their unique prompts and data models.
+4.  **Module Contracts**: Machine-generated and human-readable `contract.md` files for each recognizer, outlining ethical and technical boundaries.
 
 ## Supported Entity Types
 
@@ -34,6 +36,14 @@ The framework currently supports the following 19 categories:
 | **Anatomical** | `anatomy`, `genetic` |
 | **Operational** | `procedure`, `test`, `lab_unit`, `device`, `pathogen` |
 | **Knowledge** | `specialty`, `coding` (ICD/CPT), `abbreviation` |
+
+## Contract Specifications
+
+To ensure reliability and transparency, the framework uses a contract-driven approach. Each recognizer has an associated `contract.md` file (generated via `generate_contracts.py`) that covers:
+*   **Capabilities**: What the module is specifically designed to identify.
+*   **Limitations**: Known boundaries and what the module cannot do.
+*   **Failure Conditions**: Scenarios where the model might hallucinate or fail.
+*   **Legal & Ethical Binding**: Guidelines for responsible use in medical contexts.
 
 ## Usage
 
@@ -50,6 +60,15 @@ python medical_recognizer_cli.py disease "Pneumonia" --structured
 
 # Specify a different model and temperature
 python medical_recognizer_cli.py anatomy "Biceps Brachii" --model ollama/gemma3 --temperature 0.1
+```
+
+### Comprehensive Testing
+
+The framework includes a centralized test runner to verify all recognizers simultaneously without requiring mock libraries.
+
+```bash
+# Run all module tests
+python run_all_tests.py
 ```
 
 ### Programmatic Usage
@@ -85,6 +104,8 @@ To add a new entity type while maintaining the "No Boilerplate" standard:
 3.  Define prompts in `my_entity_prompts.py`.
 4.  Implement a class in `my_entity_identifier.py` that inherits from `BaseRecognizer`.
 5.  Register the new class string in `RecognizerFactory._initialize_registry()`.
+6.  Update `generate_contracts.py` with the new module's configuration and run it.
+7.  Add a test script (e.g., `test_my_entity_identifier.py`) and verify with `run_all_tests.py`.
 
 ## Requirements
 

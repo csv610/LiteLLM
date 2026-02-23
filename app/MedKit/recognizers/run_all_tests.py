@@ -64,10 +64,12 @@ def main():
     
     # List of modules to test
     modules = [
+        "drug",
         "disease",
         "medical_symptom", 
         "medical_test",
         "medical_specialty",
+        "medical_anatomy",
         "medical_supplement",
         "medical_vaccine",
         "medical_procedure",

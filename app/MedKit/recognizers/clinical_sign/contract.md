@@ -4,9 +4,9 @@
 
 **IMPORTANT**: This document constitutes a legally and ethically binding agreement between the user ("User") and the providers of this medical AI software ("Provider"). By using this Clinical Sign Identifier module, the User explicitly agrees to all terms, conditions, limitations, and responsibilities outlined in this contract.
 
-**Effective Date**: Current Date
+**Effective Date**: 1771825587.7259483
 **Risk Classification**: HIGH-RISK MEDICAL AI SYSTEM
-**Regulatory Compliance**: This software is classified as a medical information system and may be subject to healthcare regulations.
+**Regulatory Compliance**: This software is classified as a medical device/software and may be subject to healthcare regulations.
 
 ---
 
@@ -16,7 +16,7 @@
 
 **1.2 User**: Any individual, healthcare professional, or organization that uses this Clinical Sign Identifier module.
 
-**1.3 Medical AI System**: This Clinical Sign Identifier module designed for medical information and reference.
+**1.3 Medical AI System**: This Clinical Sign Identifier module designed for medical terminology identification.
 
 **1.4 Medical Decision**: Any clinical judgment, diagnosis, treatment decision, or patient care action.
 
@@ -28,9 +28,9 @@
 
 **2.2 Primary Purpose**: Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs
 
-**2.3 Classification**: This module is classified as a **MEDICAL INFORMATION AND REFERENCE TOOL** only.
+**2.3 Classification**: This module is classified as a **PRELIMINARY IDENTIFICATION TOOL** only.
 
-**2.4 Intended Use**: Quick reference for medical information to support healthcare professional knowledge.
+**2.4 Intended Use**: Quick filtering of medical terminology to reduce computational costs and minimize AI hallucinations.
 
 **2.5 EXCLUDED USES**: This module is NOT intended for:
 - Clinical diagnosis or medical decision-making
@@ -38,7 +38,6 @@
 - Emergency medical situations
 - Substitute for professional medical judgment
 - Legal or regulatory medical determinations
-- Patient-specific medical advice
 
 ---
 
@@ -100,8 +99,8 @@ By using this module, the User acknowledges and agrees that:
 ### 5.1 User Ethical Responsibilities:
 
 The User MUST:
-- Use this module only as a medical information reference
-- Verify all medical information through authoritative medical sources
+- Use this module only as a preliminary identification tool
+- Verify all medical terminology through authoritative medical sources
 - Consult qualified healthcare professionals for all medical decisions
 - Never use this software for emergency medical situations
 - Report any misuse or adverse outcomes to appropriate authorities
@@ -151,7 +150,7 @@ The User acknowledges and accepts:
 - All risks associated with using medical AI software
 - Responsibility for verifying all medical information
 - Full liability for medical decisions made
-- The reference nature of AI-based medical tools
+- The experimental nature of AI-based medical tools
 
 ---
 
@@ -184,38 +183,104 @@ The User must maintain:
 
 ---
 
-## 8. USER FREQUENTLY ASKED QUESTIONS (FAQs)
+## 8. EXAMPLES AND EXPECTATIONS
+
+### 8.1 Will Work Correctly:
+
+- Babinski sign
+- Kernig sign
+- McMurray test
+- Phalen test
+
+### 8.2 May Fail - User Verification Required:
+
+- babsinki sign
+- unknown test
+- my made up sign
+- vague symptom
+
+### 8.3 User Action Requirements:
+
+When results are uncertain or critical:
+- STOP using the software for medical decisions
+- VERIFY through authoritative medical sources
+- CONSULT qualified healthcare professionals
+- DOCUMENT verification process
+
+---
+
+## 9. TERM AND TERMINATION
+
+### 9.1 Term:
+
+This agreement remains in effect as long as the User uses this software.
+
+### 9.2 Termination:
+
+The Provider may terminate this agreement if:
+- The User violates these terms and conditions
+- The software is used for prohibited purposes
+- Regulatory requirements necessitate termination
+- Public safety concerns arise
+
+### 9.3 Survival:
+
+Obligations related to liability, confidentiality, and regulatory compliance survive termination.
+
+---
+
+## 10. DISPUTE RESOLUTION
+
+### 10.1 Governing Law:
+
+This agreement shall be governed by applicable medical device and healthcare regulations.
+
+### 10.2 Dispute Resolution:
+
+Disputes shall be resolved through:
+- Good faith negotiation between parties
+- Mediation by qualified medical legal experts
+- Arbitration as required by medical device regulations
+- Court proceedings only as last resort
+
+### 10.3 Regulatory Reporting:
+
+Both parties agree to:
+- Report adverse events to appropriate authorities
+- Comply with medical device reporting requirements
+- Cooperate with regulatory investigations
+- Maintain required documentation
+
+---
+
+## 11. USER FREQUENTLY ASKED QUESTIONS (FAQs)
 
 ### Q1: What does this module actually do?
 
-**A**: This module provides medical information and reference material for clinical sign identifier. It's designed as a quick reference tool, not for making medical decisions.
+**A**: This module quickly tells you if a medical term is recognized in medical literature. It's like a fast check before using more expensive AI tools.
 
 ### Q2: Can I use this for medical diagnosis?
 
-**A**: No. This module only provides general medical information for reference. It cannot diagnose conditions, provide treatment recommendations, or replace professional medical judgment.
+**A**: No. This module only identifies if a term is recognized - it does not provide diagnosis, treatment, or medical advice. Always consult healthcare professionals.
 
-### Q3: How accurate is the medical information?
+### Q3: How accurate is this module?
 
-**A**: The module provides information based on documented medical sources but is not 100% accurate for clinical use. Always verify critical information through authoritative medical sources and consult healthcare professionals.
+**A**: The module provides confidence levels but is not 100% accurate. It may fail with new, rare, or non-standard terms. Always verify important information.
 
-### Q4: When might this module provide incorrect information?
+### Q4: When might this module give wrong answers?
 
-**A**: This module may fail with new medical developments, rare conditions, specialized procedures, or when patient-specific factors are involved. Check the failure conditions in the contract.
+**A**: This module may fail with very new terms, rare conditions, non-standard names, or experimental procedures. Check the failure conditions above.
 
-### Q5: Should I use this for emergency medical situations?
+### Q5: What should I do if I'm not sure about the result?
 
-**A**: No. For any medical emergency, contact emergency services immediately. This module is not designed for emergency situations and cannot provide urgent medical care.
-
-### Q6: What should I do if I'm not sure about the information?
-
-**A**: Verify the information through authoritative medical sources like textbooks, medical databases, or consult qualified healthcare professionals. Do not rely solely on this software for important medical decisions.
+**A**: Verify the term through authoritative medical sources like textbooks, medical databases, or consult healthcare professionals.
 
 
 ---
 
-## 9. SIGNATURE AND ACKNOWLEDGMENT
+## 12. SIGNATURE AND ACKNOWLEDGMENT
 
-### 9.1 Electronic Agreement:
+### 12.1 Electronic Agreement:
 
 By using this Clinical Sign Identifier module, the User electronically signs this agreement and acknowledges:
 
@@ -227,11 +292,11 @@ By using this Clinical Sign Identifier module, the User electronically signs thi
 - **I accept full responsibility for my use of this software**
 - **I understand the risks and limitations outlined herein**
 
-### 9.2 Binding Effect:
+### 12.2 Binding Effect:
 
 This electronic agreement is legally binding and enforceable. The User's continued use of this software constitutes acceptance of all terms and conditions.
 
-### 9.3 Professional Acknowledgment:
+### 12.3 Professional Acknowledgment:
 
 Healthcare professionals acknowledge that:
 - Use of this software must comply with professional standards
@@ -241,7 +306,26 @@ Healthcare professionals acknowledge that:
 
 ---
 
-## 10. FINAL ACKNOWLEDGMENT
+## 13. CONTACT AND REPORTING
+
+### 13.1 Technical Support:
+- Report technical issues through project channels
+- Document software behavior and error conditions
+- Provide detailed information about failures
+
+### 13.2 Medical Safety Reporting:
+- Report adverse events to appropriate medical authorities
+- Follow institutional incident reporting procedures
+- Document patient safety concerns appropriately
+
+### 13.3 Regulatory Compliance:
+- Report regulatory violations or concerns
+- Cooperate with medical device regulatory requirements
+- Maintain compliance documentation
+
+---
+
+## 14. FINAL ACKNOWLEDGMENT
 
 **THIS IS A LEGALLY AND ETHICALLY BINDING AGREEMENT**
 
