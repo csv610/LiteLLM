@@ -76,12 +76,12 @@ saved_path = generator.save(test_info, Path("outputs/"))  # Directory, not file 
 ## Command Line Interface
 
 ```bash
-python medical_test_info_cli.py -i "test name" [-d "output_directory"]
+python medical_test_info_cli.py "test name" [-d "output_directory"]
 ```
 
 ### Arguments
 
-- `-i, --test` (required): The name of the medical test to generate information for
+- `test` (required): The name of the medical test to generate information for, or a path to a file containing a list of tests (one per line).
 - `-d, --output-dir` (optional): Directory for output files (default: outputs)
 - `-m, --model` (optional): Model to use for generation (default: ollama/gemma3)
 - `-v, --verbosity` (optional): Logging verbosity level 0-4 (default: 2)

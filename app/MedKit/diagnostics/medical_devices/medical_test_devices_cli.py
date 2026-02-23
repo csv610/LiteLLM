@@ -2,6 +2,7 @@ import argparse
 import logging
 
 from pathlib import Path
+from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
@@ -19,7 +20,7 @@ def get_user_arguments() -> argparse.Namespace:
         argparse.Namespace: Parsed arguments.
     """
     parser = argparse.ArgumentParser(description="Generate comprehensive information for a medical device.")
-    parser.add_argument("-i", "--test-device", "--test_device", type=str, required=True, help="The name of the medical test device to generate information for.")
+    parser.add_argument("test_device", type=str, help="The name of the medical test device OR a file path containing device names (one per line).")
 
 # These are common arguments..
 
@@ -49,21 +50,46 @@ def create_medical_test_device_report(args):
         enable_console=True
     )
 
-    # Determine output directory and base filename FIRST (fail-fast validation)
+    # Determine output directory
     output_dir = Path(args.output_dir)
-    base_filename = f"{args.test_device.lower().replace(' ', '_')}"
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Determine devices to process
+    test_device_input = args.test_device
+    devices = []
+    
+    if Path(test_device_input).is_file():
+        logger.info(f"Reading device list from file: {test_device_input}")
+        with open(test_device_input, 'r') as f:
+            devices = [line.strip() for line in f if line.strip()]
+    else:
+        devices = [test_device_input]
+
+    if not devices:
+        logger.warning("No devices found to process.")
+        return
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalTestDeviceGuide(model_config)
 
-        # Generate the device information (expensive operation)
-        result = generator.generate_text(args.test_device, structured=args.structured)
-        
-        # Save results
-        saved_path = generator.save(result, output_dir)
-        logger.info(f"✓ Medical test device information saved to: {saved_path}")
+        # Process devices one by one with tqdm
+        for device in tqdm(devices, desc="Generating reports", unit="device"):
+            try:
+                # Generate the device information (expensive operation)
+                result = generator.generate_text(device, structured=args.structured)
+                
+                # Determine output file path
+                safe_name = device.lower().replace(' ', '_').replace('/', '_')
+                extension = ".json" if args.structured else ".md"
+                output_file = output_dir / f"{safe_name}{extension}"
+                
+                # Save results
+                saved_path = generator.save(result, output_file)
+                logger.info(f"✓ Medical test device information for '{device}' saved to: {saved_path}")
+            except Exception as e:
+                logger.error(f"Error processing device '{device}': {e}")
+                continue
         
     except Exception as e:
         logger.error(f"Critical error during CLI execution: {e}", exc_info=True)

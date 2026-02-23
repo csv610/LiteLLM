@@ -26,6 +26,7 @@ This tool is designed for:
 ### Prerequisites
 - Python 3.8+
 - MedKit dependencies installed
+- `tqdm` for progress bars
 - Ollama running with Gemma3 model (or configured alternative)
 - Access to the MedKit client and configuration
 
@@ -45,23 +46,26 @@ Generate information for a medical device with a single command:
 
 ```bash
 # Basic usage - saves to default output directory
-python medical_test_devices_cli.py -i "Ultrasound Machine"
+python medical_test_devices_cli.py "Ultrasound Machine"
+
+# Batch usage - process multiple devices from a file
+python medical_test_devices_cli.py devices.txt
 
 # Specify custom output directory
-python medical_test_devices_cli.py -i "CT Scanner" -d ./medical_equipment/
+python medical_test_devices_cli.py "CT Scanner" -d ./medical_equipment/
 
 # Use structured output with Pydantic model
-python medical_test_devices_cli.py -i "MRI Scanner" -s
+python medical_test_devices_cli.py "MRI Scanner" -s
 
 # Specify model and verbosity
-python medical_test_devices_cli.py -i "X-Ray Machine" -m ollama/gemma3 -v 3
+python medical_test_devices_cli.py "X-Ray Machine" -m ollama/gemma3 -v 3
 ```
 
 ### Command-Line Arguments
 
 | Argument | Short | Long | Description | Default |
 |----------|-------|------|-------------|---------|
-| **Test Device** | `-i` | `--test-device`, `--test_device` | Medical test device name (required) | - |
+| **Test Device** | - | - | Medical test device name OR file containing names (required positional) | - |
 | **Output Directory** | `-d` | `--output-dir` | Directory for output files | `outputs/` |
 | **Model** | `-m` | `--model` | LLM model to use | `ollama/gemma3` |
 | **Verbosity** | `-v` | `--verbosity` | Logging level (0-4) | `2` |
@@ -71,21 +75,24 @@ python medical_test_devices_cli.py -i "X-Ray Machine" -m ollama/gemma3 -v 3
 
 ```bash
 # Generate basic device information
-python medical_test_devices_cli.py --test-device "ECG Machine"
+python medical_test_devices_cli.py "ECG Machine"
+
+# Batch process devices from a file
+python medical_test_devices_cli.py assets/device_list.txt
 
 # With custom output directory and structured output
-python medical_test_devices_cli.py -i "Blood Pressure Monitor" -d ./reports/ -s
+python medical_test_devices_cli.py "Blood Pressure Monitor" -d ./reports/ -s
 
 # Full configuration
 python medical_test_devices_cli.py \
-  --test-device "Patient Monitor" \
+  "Patient Monitor" \
   --output-dir ./medical_devices/ \
   --model ollama/gemma3 \
   --verbosity 3 \
   --structured
 
 # Quick usage with short arguments
-python medical_test_devices_cli.py -i "Ultrasound Probe" -d results/ -s
+python medical_test_devices_cli.py "Ultrasound Probe" -d results/ -s
 ```
 
 ### Output Structure
@@ -136,7 +143,7 @@ The tool provides two output modes to serve different use cases:
 
 ```bash
 # Generate unstructured text output
-python medical_test_devices_cli.py -i "MRI Scanner"
+python medical_test_devices_cli.py "MRI Scanner"
 ```
 
 **Output Format**: Natural language text with clear sections
@@ -196,7 +203,7 @@ Patient Safety:
 
 ```bash
 # Generate structured JSON output
-python medical_test_devices_cli.py -i "MRI Scanner" -s
+python medical_test_devices_cli.py "MRI Scanner" -s
 ```
 
 **Output Format**: Validated JSON with structured schema
@@ -366,7 +373,7 @@ except Exception as e:
 
 ```bash
 # Use different models
-python medical_test_devices_cli.py -i "CT Scanner" -m ollama/llama2
+python medical_test_devices_cli.py "CT Scanner" -m ollama/llama2
 
 # Adjust temperature (in code, not CLI)
 # Modify the ModelConfig in the CLI file
@@ -378,19 +385,19 @@ Control logging output with verbosity levels:
 
 ```bash
 # Critical errors only
-python medical_test_devices_cli.py -i "Device" -v 0
+python medical_test_devices_cli.py "Device" -v 0
 
 # Errors only
-python medical_test_devices_cli.py -i "Device" -v 1
+python medical_test_devices_cli.py "Device" -v 1
 
 # Warnings (default)
-python medical_test_devices_cli.py -i "Device" -v 2
+python medical_test_devices_cli.py "Device" -v 2
 
 # Info messages
-python medical_test_devices_cli.py -i "Device" -v 3
+python medical_test_devices_cli.py "Device" -v 3
 
 # Debug messages
-python medical_test_devices_cli.py -i "Device" -v 4
+python medical_test_devices_cli.py "Device" -v 4
 ```
 
 ## Project Structure
@@ -457,16 +464,16 @@ Command-line arguments are handled through argparse:
 
 ```bash
 # Model selection
-python medical_test_devices_cli.py -i "MRI Scanner" -m "gpt-4"
+python medical_test_devices_cli.py "MRI Scanner" -m "gpt-4"
 
 # Verbosity control
-python medical_test_devices_cli.py -i "MRI Scanner" -v 3
+python medical_test_devices_cli.py "MRI Scanner" -v 3
 
 # Output directory
-python medical_test_devices_cli.py -i "MRI Scanner" -d "./custom_output/"
+python medical_test_devices_cli.py "MRI Scanner" -d "./custom_output/"
 
 # Structured output
-python medical_test_devices_cli.py -i "MRI Scanner" -s
+python medical_test_devices_cli.py "MRI Scanner" -s
 ```
 
 ## Device Categories Supported
@@ -518,16 +525,16 @@ The tool can generate information for various medical device categories:
 The CLI provides comprehensive error handling:
 
 ```bash
-# Invalid device name
-python medical_test_devices_cli.py -i ""
+# Invalid device name (empty positional)
+python medical_test_devices_cli.py ""
 # Error: Test device name cannot be empty
 
 # Permission issues
-python medical_test_devices_cli.py -i "Device" -d /protected/
+python medical_test_devices_cli.py "Device" -d /protected/
 # Error: Permission denied creating directory
 
 # Model unavailable
-python medical_test_devices_cli.py -i "Device" -m invalid/model
+python medical_test_devices_cli.py "Device" -m invalid/model
 # Error: Model not available
 ```
 
@@ -565,7 +572,7 @@ python medical_test_devices_cli.py -i "Device" -m invalid/model
 Enable debug logging for troubleshooting:
 
 ```bash
-python medical_test_devices_cli.py -i "Test Device" -v 4
+python medical_test_devices_cli.py "Test Device" -v 4
 ```
 
 This provides detailed logging information including:
