@@ -72,11 +72,15 @@ def explain_medicine(medicine_name: str) -> str:
     return response["choices"][0]["message"]["content"]
 
 
-if __name__ == "__main__":
+def main():
     print("Please enter your medication (generic name only, e.g. acetaminophen) and I will explain it in simple terms,")
     user_input = input("> ").strip()
 
     if user_input:
         result = explain_medicine(user_input)
         print("\n" + result)
+
+
+if __name__ == "__main__":
+    main()
 

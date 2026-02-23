@@ -402,6 +402,10 @@ Thank you for trusting us with your mental health journey. 🫂
 
 def cli():
     """Main entry point."""
+    # Add the current directory to sys.path to support relative imports
+    import sys
+    from pathlib import Path
+    sys.path.append(str(Path(__file__).parent))
 
     parser = argparse.ArgumentParser(
         description="MedKit Mental Health Assessment Chat",

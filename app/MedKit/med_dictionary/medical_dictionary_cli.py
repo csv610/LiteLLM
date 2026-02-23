@@ -11,6 +11,9 @@ configure_logging(str(log_file))
 logger = logging.getLogger(__name__)
 
 def main():
+    # Add the current directory to sys.path to support relative imports
+    sys.path.append(str(Path(__file__).parent))
+
     parser = argparse.ArgumentParser(description="Build medical dictionary definitions with LLM.")
     parser.add_argument("input", help="Medical term, or path to JSON/text file containing terms")
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="The model to use (default: ollama/gemma3)")

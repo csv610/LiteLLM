@@ -13,7 +13,7 @@ from tqdm import tqdm
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
-from prompt_builder import PromptBuilder
+from medical_dictionary_prompts import MedicalDictionaryPromptBuilder
 
 # Logging setup
 log_file = Path(__file__).parent / "logs" / "medical_dictionary.log"
@@ -63,7 +63,7 @@ class DictionaryBuilder:
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
-        self.prompt_builder = PromptBuilder()
+        self.prompt_builder = MedicalDictionaryPromptBuilder()
         
         # Set default values since DictConfig is no longer used
         safe_model = model_config.model.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_').replace('<', '_').replace('>', '_').replace('|', '_')
@@ -122,7 +122,7 @@ class DictionaryBuilder:
 
         for term in tqdm(new_terms, desc="Processing"):
             try:
-                raw_response = self.client.generate(ModelInput(
+                raw_response = self.client.generate_text(ModelInput(
                     user_prompt=self.prompt_builder.build_user_prompt(term),
                     system_prompt=self.prompt_builder.build_system_prompt()
                 ))
@@ -130,6 +130,7 @@ class DictionaryBuilder:
                 if raw_response and raw_response.strip():
                     # Create definition and dump to temp file immediately
                     new_definition = {"term": term, "definition": raw_response.strip()}
+                    temp_definitions.append(new_definition)
                     with open(temp_output_file, 'a', encoding='utf-8') as f:
                         json.dump(new_definition, f, ensure_ascii=False)
                         f.write('\n')

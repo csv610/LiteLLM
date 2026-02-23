@@ -30,19 +30,31 @@ A comprehensive medical information toolkit providing command-line access to dis
 
 ## Quick Start
 
-### **Medical Recognition Tools**
+### **Professional CLI Installation (Recommended)**
+Transform MedKit into a suite of system-wide commands:
+
+```bash
+# 1. Clone the repository and enter the directory
+cd /path/to/MedKit
+
+# 2. Install in editable mode
+pip install -e .
+
+# 3. Use the new commands from anywhere!
+medkit-medical anatomy "heart"
+medkit-mental
+medkit-recognizer drug "Aspirin"
+```
+
+### **Legacy Script Usage**
+You can still run individual scripts directly:
+
 ```bash
 # Disease identification
-python app/MedKit/recognizers/disease/disease_identifier_cli.py "diabetes mellitus"
+python recognizers/disease/disease_identifier_cli.py "diabetes mellitus"
 
 # Symptom recognition
-python app/MedKit/recognizers/medical_symptom/medical_symptom_cli.py "chest pain"
-
-# Clinical sign identification
-python app/MedKit/recognizers/clinical_sign/clinical_sign_cli.py "babinski sign"
-
-# Drug identification
-python app/MedKit/recognizers/medication_class/medication_class_cli.py "beta blockers"
+python recognizers/medical_symptom/medical_symptom_cli.py "chest pain"
 ```
 
 ### **Drug Interaction Tools**
@@ -97,6 +109,7 @@ python app/MedKit/medical/med_specialty/med_specialty_cli.py "cardiology"
 
 ```
 MedKit/
+├── scripts/                       # Internal development and maintenance utilities
 ├── drug/                          # Drug-related information systems
 │   ├── medicine/                  # Medicine information and details
 │   ├── drug_drug/                 # Drug-drug interaction checker
@@ -221,14 +234,14 @@ MedKit is organized into six major module categories:
 # 1. Clone the repository
 cd /path/to/MedKit
 
-# 2. Install dependencies
-pip install -r requirements.txt
+# 2. Install dependencies & CLI tools
+pip install -e .
 
-# 3. Run a simple command
-python -m medkit drug medicine -i "aspirin"
+# 3. Run a professional command
+medkit-medical anatomy "heart"
 
-# 4. View help
-python -m medkit --help
+# 4. Or use legacy python calls
+python medical/medical_cli.py anatomy "heart"
 ```
 
 For detailed setup instructions, see [GETTING_STARTED.md](./GETTING_STARTED.md).
@@ -412,6 +425,6 @@ Future enhancements planned:
 
 ---
 
-**Last Updated**: January 25, 2026
-**Version**: 1.0
+**Last Updated**: February 23, 2026
+**Version**: 1.1 (Professional CLI Edition)
 **Status**: Active Development

@@ -1,5 +1,5 @@
-class PromptBuilder:
-    """Class to manage and build prompts for the medical dictionary."""
+class MedicalDictionaryPromptBuilder:
+    """Class to manage and build prompts for the medical dictionary definitions."""
 
     def __init__(self):
         self.system_prompt = (
@@ -32,10 +32,10 @@ class PromptBuilder:
             "Output only the definition text and nothing else."
         )
 
-    def build_system_prompt(self) -> str:
+    def create_system_prompt(self) -> str:
         """Returns the system prompt."""
         return self.system_prompt
 
-    def build_user_prompt(self, term: str) -> str:
+    def create_user_prompt(self, term: str) -> str:
         """Returns the formatted user prompt for a specific term."""
         return self.user_prompt_template.format(term=term)

@@ -4,6 +4,10 @@ from lite.utils import save_model_response
 
 def cli():
     """Main entry point for SANE Interview System"""
+    import sys
+    from pathlib import Path
+    sys.path.append(str(Path(__file__).parent))
+
     print("="*60)
     print("🩺 SANE INTERVIEW SYSTEM")
     print("Sexual Assault Nurse Examiner - Trauma-Informed Interview")

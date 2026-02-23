@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medkit-tools"
+version = "0.1.0"
+description = "Professional medical information and reference tools"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "requests",
+    "tqdm",
+    "litellm",
+    "pydantic",
+    "google-genai",
+    "typing-extensions",
+]
+
+[project.scripts]
+medkit-medical = "medical.medical_cli:main"
+medkit-sane = "sane_interview.sane_interview_cli:cli"
+medkit-recognizer = "recognizers.medical_recognizer_cli:main"
+medkit-dictionary = "med_dictionary.medical_dictionary_cli:main"
+medkit-codes = "med_codes.get_icd11:main"
+medkit-mental = "mental_health.mental_health_chat_app:cli"
+medkit-drug = "drug.medicine_explainer:main"
+
+[tool.setuptools]
+packages = ["medical", "drug", "mental_health", "recognizers", "sane_interview", "med_dictionary", "med_codes", "diagnostics", "medgraphs", "phyexams", "utils"]
