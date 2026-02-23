@@ -25,6 +25,7 @@ medkit-dictionary = "med_dictionary.medical_dictionary_cli:main"
 medkit-codes = "med_codes.get_icd11:main"
 medkit-mental = "mental_health.mental_health_chat_app:cli"
 medkit-drug = "drug.medicine_explainer:main"
+medkit-agent = "medkit_agent.orchestrator:main"
 
 [tool.setuptools]
-packages = ["medical", "drug", "mental_health", "recognizers", "sane_interview", "med_dictionary", "med_codes", "diagnostics", "medgraphs", "phyexams", "utils"]
+packages = ["medical", "drug", "mental_health", "recognizers", "sane_interview", "med_dictionary", "med_codes", "diagnostics", "medgraphs", "phyexams", "utils", "medkit_agent"]

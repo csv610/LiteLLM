@@ -25,8 +25,32 @@ Once installed, you can use the following commands from anywhere in your termina
 | `medkit-codes` | ICD-11 Medical Code Fetcher | `med_codes/get_icd11.py` |
 | `medkit-mental` | Mental Health Assessment Chat | `mental_health/mental_health_chat_app.py` |
 | `medkit-drug` | Medicine & Interaction Explainer | `drug/medicine_explainer.py` |
+| `medkit-agent` | Autonomous Medical Orchestrator Agent | `medkit_agent/orchestrator.py` |
 
-## Usage Examples
+## The MedKit Orchestrator Agent
+
+The `medkit-agent` is an autonomous reasoning layer that can coordinate multiple MedKit tools to solve complex clinical queries. It uses a **ReAct (Reason + Act)** reasoning loop to determine which tools are needed and in what order.
+
+### Agent Examples
+
+**Complex Query Analysis:**
+```bash
+medkit-agent "My patient has Type 2 Diabetes, is taking Metformin, and now has a strange rash. What should I check?"
+```
+The agent will:
+1.  Reason: "I need to check Metformin side effects."
+2.  Action: Call `get_medicine_info` for Metformin.
+3.  Reason: "I should identify if a rash is a known dermatological sign of diabetes."
+4.  Action: Call `identify_medical_entity` for "rash" as a symptom.
+5.  Synthesis: Provide a unified professional response.
+
+**Interactive Mode:**
+```bash
+medkit-agent
+```
+Starts a chat session with the orchestrator.
+
+## Internal Utilities
 
 ### Anatomy Info
 ```bash
