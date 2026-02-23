@@ -29,6 +29,32 @@ A robust suite of deterministic tools covering:
 
 ---
 
+## 🎯 Clinical Stakeholder Utility
+
+MedKit provides specialized value across the healthcare ecosystem:
+
+### 👤 Patients (Health Empowerment)
+*   **Medicine Explainer:** Translate complex pharmacological data into compassionate, plain-language summaries (`medkit-drug`).
+*   **Self-Screening:** Private, trauma-informed access to mental health assessments and preliminary medical info.
+*   **Safety Verification:** Cross-check potential drug and food interactions from a patient-centered perspective.
+
+### 🩺 Doctors (Decision Support)
+*   **Agentic Reasoning:** Use `medkit-agent` as a reasoning partner for complex cases involving co-morbidities and multiple medications.
+*   **Rapid Identification:** Instant recognition of rare clinical signs, pathogens, and imaging findings during diagnostic workflows.
+*   **Trauma-Informed Frameworks:** Utilize standardized SANE interview protocols for forensic and compassionate care.
+
+### 🧪 Researchers (Data & Discovery)
+*   **Entity Extraction:** Scale medical entity recognition across massive clinical datasets using standardized recognizers.
+*   **Codified Metadata:** Automate ICD-11 coding and terminology mapping for research papers and clinical trials.
+*   **Synthetic Modeling:** Generate standardized case reports for teaching and algorithm training.
+
+### 💊 Pharmacists (Pharmacovigilance)
+*   **Safety Intersections:** Deep analysis of drug-drug, drug-disease, and drug-food contraindications.
+*   **Mechanism Insights:** Rapid retrieval of medicine indications and side-effect profiles.
+*   **Terminology Mapping:** Resolve medical abbreviations and standardized drug classes instantly.
+
+---
+
 ## 🚀 Professional Quick Start
 
 ### 1. Installation
