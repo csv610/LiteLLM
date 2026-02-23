@@ -1,15 +1,16 @@
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-from medication_class_models import MedicationClassIdentifierModel, ModelOutput
-from medication_class_prompts import PromptBuilder, MedicationClassIdentifierInput
+from ..base_recognizer import BaseRecognizer
+from .medication_class_models import MedicationClassIdentifierModel, ModelOutput
+from .medication_class_prompts import PromptBuilder, MedicationClassIdentifierInput
 
-class MedicationClassIdentifier:
-    def __init__(self, model_config: ModelConfig):
-        self.client = LiteClient(model_config)
-
-    def identify(self, name: str, structured: bool = True) -> ModelOutput:
-        return self.client.generate_text(model_input=ModelInput(
+class MedicationClassIdentifier(BaseRecognizer):
+    def identify(self, name: str, structured: bool = False) -> ModelOutput:
+        response = self._generate(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=PromptBuilder.create_user_prompt(MedicationClassIdentifierInput(name)),
             response_format=MedicationClassIdentifierModel if structured else None,
-        ))
+        )
+        
+        if structured:
+            return ModelOutput(data=response)
+        else:
+            return ModelOutput(markdown=response)

@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 from lite.config import ModelConfig
-from .imaging_finding_recognizer import ImagingFindingIdentifier
+from imaging_finding_recognizer import ImagingFindingIdentifier
 
 
 def create_parser():

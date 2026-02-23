@@ -1,15 +1,16 @@
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from ..base_recognizer import BaseRecognizer
 from .medical_device_models import MedicalDeviceIdentifierModel, ModelOutput
 from .medical_device_prompts import PromptBuilder, MedicalDeviceIdentifierInput
 
-class MedicalDeviceIdentifier:
-    def __init__(self, model_config: ModelConfig):
-        self.client = LiteClient(model_config)
-
-    def identify(self, name: str, structured: bool = True) -> ModelOutput:
-        return self.client.generate_text(model_input=ModelInput(
+class MedicalDeviceIdentifier(BaseRecognizer):
+    def identify(self, name: str, structured: bool = False) -> ModelOutput:
+        response = self._generate(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=PromptBuilder.create_user_prompt(MedicalDeviceIdentifierInput(name)),
             response_format=MedicalDeviceIdentifierModel if structured else None,
-        ))
+        )
+        
+        if structured:
+            return ModelOutput(data=response)
+        else:
+            return ModelOutput(markdown=response)

@@ -67,7 +67,7 @@ def main():
         identifier = MedicalConditionIdentifier(config)
         
         # Perform identification
-        result = identifier.identify(args.name, structured=True)
+        result = identifier.identify(args.name, structured=False)
         
         # Output JSON result
         print(result.model_dump_json(indent=2))

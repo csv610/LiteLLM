@@ -67,8 +67,7 @@ def main():
         # Perform identification
         result = identifier.identify(args.name)
         
-        # Output JSON result
-        print(result.model_dump_json(indent=2))
+        print(result)
         
     except KeyboardInterrupt:
         print("\nOperation cancelled by user", file=sys.stderr)

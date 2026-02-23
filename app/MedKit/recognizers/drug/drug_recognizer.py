@@ -7,11 +7,11 @@ is well-known in the industry.
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from pydantic import BaseModel
 from lite.utils import save_model_response
+from ..base_recognizer import BaseRecognizer
 
 from .drug_recognizer_model import DrugIdentifierModel, ModelOutput
 from .drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
@@ -19,60 +19,46 @@ from .drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
 logger = logging.getLogger(__name__)
 
 
-class DrugIdentifier:
+class DrugIdentifier(BaseRecognizer):
     """Identifies drugs and their industry recognition status."""
     
-    def __init__(self, model_config: ModelConfig):
-        self.model_config = model_config
-        self.client = LiteClient(model_config)
-        self.config = None
-        logger.debug(f"Initialized DrugIdentifier")
-
-    def identify_drug(self, drug_name: str, structured: bool = True) -> ModelOutput:
+    def identify(self, name: str, structured: bool = False) -> ModelOutput:
         """
         Identifies if a drug is well-known in the industry.
 
         Args:
-            drug_name: Name of the drug to identify
+            name: Name of the drug to identify
             structured: Whether to use structured output
 
         Returns:
             ModelOutput: The identification result
         """
-        config = DrugIdentifierInput(drug_name=drug_name)
+        config = DrugIdentifierInput(drug_name=name)
         self.config = config
         
-        logger.debug(f"Starting drug identification for: {drug_name}")
+        logger.debug(f"Starting drug identification for: {name}")
 
-        user_prompt = PromptBuilder.create_user_prompt(config)
-        response_format = None
-        if structured:
-            response_format = DrugIdentifierModel
-
-        model_input = ModelInput(
+        response = self._generate(
             system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=user_prompt,
-            response_format=response_format,
+            user_prompt=PromptBuilder.create_user_prompt(config),
+            response_format=DrugIdentifierModel if structured else None,
         )
         
-        result = self._ask_llm(model_input)
+        logger.debug(f"✓ Successfully identified drug: {name}")
         
-        logger.debug(f"✓ Successfully identified drug: {drug_name}")
-        return result
+        if structured:
+            return ModelOutput(data=response)
+        else:
+            return ModelOutput(markdown=response)
 
-    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
-        """Helper to call LiteClient with error handling."""
-        logger.debug("Calling LiteClient...")
-        try:
-            return self.client.generate_text(model_input=model_input)
-        except Exception as e:
-            logger.error(f"✗ Error during LLM analysis: {e}")
-            raise
+    def identify_drug(self, drug_name: str, structured: bool = False) -> ModelOutput:
+        """Legacy method for backward compatibility."""
+        return self.identify(drug_name, structured)
             
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the drug identification analysis to a file."""
-        if self.config is None:
-            raise ValueError("No configuration information available. Call identify_drug first.")
+        if not hasattr(self, 'config') or self.config is None:
+            raise ValueError("No configuration information available. Call identify first.")
         
         drug_safe = self.config.drug_name.lower().replace(' ', '_')
         base_filename = f"{drug_safe}_identification"

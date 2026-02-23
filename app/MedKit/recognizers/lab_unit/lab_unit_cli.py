@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 from lite.config import ModelConfig
-from .lab_unit_recognizer import LabUnitIdentifier
+from lab_unit_recognizer import LabUnitIdentifier
 
 
 def create_parser():

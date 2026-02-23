@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 from lite.config import ModelConfig
-from .medical_coding_recognizer import MedicalCodingIdentifier
+from medical_coding_recognizer import MedicalCodingIdentifier
 
 
 def create_parser():

@@ -7,7 +7,7 @@ class DrugIdentifier:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
 
-    def identify_drug(self, name: str, structured: bool = True) -> ModelOutput:
+    def identify_drug(self, name: str, structured: bool = False) -> ModelOutput:
         return self.client.generate_text(model_input=ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=PromptBuilder.create_user_prompt(DrugIdentifierInput(name)),

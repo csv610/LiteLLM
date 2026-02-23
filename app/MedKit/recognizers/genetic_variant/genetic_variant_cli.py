@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 from lite.config import ModelConfig
-from .genetic_variant_recognizer import GeneticVariantIdentifier
+from genetic_variant_recognizer import GeneticVariantIdentifier
 
 
 def create_parser():
