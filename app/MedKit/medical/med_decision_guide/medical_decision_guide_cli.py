@@ -1,116 +1,51 @@
-"""Module docstring - Medical Decision Guide Generator.
-
-Generate medical decision trees for symptom assessment using structured data models
-and the LiteClient with schema-aware prompting for clinical decision support.
-"""
+"""Medical Decision Guide Generator CLI."""
 
 import argparse
 import logging
-import sys
 from pathlib import Path
+from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-
-from medical_decision_guide import MedicalDecisionGuideGenerator
+from .medical_decision_guide import MedicalDecisionGuideGenerator
 
 logger = logging.getLogger(__name__)
 
-
 def get_user_arguments() -> argparse.Namespace:
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate medical decision trees for symptom assessment.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument(
-        "-i", "--symptom",
-        required=True,
-        help="The name of the symptom to generate a decision tree for."
-    )
-    parser.add_argument(
-        "-o", "--output",
-        help="Path to save the output JSON file."
-    )
-    parser.add_argument(
-        "-d", "--output-dir",
-        default="outputs",
-        help="Directory for output files (default: outputs)."
-    )
-    parser.add_argument(
-        "-m", "--model",
-        default="ollama/gemma3",
-        help="Model to use for generation (default: ollama/gemma3)."
-    )
-    parser.add_argument(
-        "-v", "--verbosity",
-        type=int,
-        default=2,
-        choices=[0, 1, 2, 3, 4],
-        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
-    )
-    parser.add_argument(
-        "-s", "--structured",
-        action="store_true",
-        default=False,
-        help="Use structured output (Pydantic model) for the response."
-    )
-
+    parser = argparse.ArgumentParser(description="Generate medical decision trees for symptom assessment.")
+    parser.add_argument("symptom", help="Symptom name or file path containing symptoms.")
+    parser.add_argument("-d", "--output-dir", default="outputs", help="Output directory.")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
+    parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")
+    parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
     return parser.parse_args()
-
-
-def create_medical_decision_guide_report(args) -> int:
-
-    # Apply verbosity level using centralized logging configuration
-    configure_logging(
-        log_file=str(Path(__file__).parent / "logs" / "medical_decision_guide.log"),
-        verbosity=args.verbosity,
-        enable_console=True
-    )
-
-    logger.info("="*80)
-    logger.info("MEDICAL DECISION GUIDE CLI - Starting")
-    logger.info("="*80)
-
-    logger.debug(f"CLI Arguments:")
-    logger.debug(f"  Symptom: {args.symptom}")
-    logger.debug(f"  Output Dir: {args.output_dir}")
-    logger.debug(f"  Output File: {args.output if args.output else 'Default'}")
-    logger.debug(f"  Verbosity: {args.verbosity}")
-
-    # Ensure output directory exists
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Generate decision guide
-    try:
-        model_config = ModelConfig(model=args.model, temperature=0.2)
-        generator = MedicalDecisionGuideGenerator(model_config)
-        guide = generator.generate_text(symptom=args.symptom, structured=args.structured)
-
-        if guide is None:
-            logger.error("✗ Failed to generate decision guide.")
-            sys.exit(1)
-
-        # Save if output path is specified
-        if args.output:
-            generator.save(guide, Path(args.output))
-        else:
-            # Save to default location
-            default_path = output_dir / f"{args.symptom.lower().replace(' ', '_')}_decision_tree.json"
-            generator.save(guide, default_path)
-
-        logger.debug("✓ Decision guide generation completed successfully")
-        return 0
-    except Exception as e:
-        logger.error(f"✗ Decision guide generation failed: {e}")
-        logger.exception("Full exception details:")
-        sys.exit(1)
-
 
 def main():
     args = get_user_arguments()
-    create_medical_decision_guide_report(args)
+    configure_logging(log_file="medical_decision_guide.log", verbosity=args.verbosity, enable_console=True)
+    
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    input_path = Path(args.symptom)
+    items = [line.strip() for line in open(input_path)] if input_path.is_file() else [args.symptom]
+    
+    try:
+        model_config = ModelConfig(model=args.model, temperature=0.2)
+        generator = MedicalDecisionGuideGenerator(model_config)
+        
+        for item in tqdm(items, desc="Generating"):
+            result = generator.generate_text(symptom=item, structured=args.structured)
+            if result:
+                path = output_dir / f"{item.lower().replace(' ', '_')}_decision.json"
+                generator.save(result, path)
+            
+        logger.info("✓ Completed successfully")
+    except Exception as e:
+        logger.error(f"✗ Failed: {e}")
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

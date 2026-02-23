@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from medical_flashcard_models import MedicalLabelInfoModel, ModelOutput
-from medical_flashcard_prompts import PromptBuilder
+from .medical_flashcard_models import MedicalLabelInfoModel, ModelOutput
+from .medical_flashcard_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

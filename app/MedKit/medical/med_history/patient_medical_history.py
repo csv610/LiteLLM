@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from patient_medical_history_models import PatientMedicalHistoryModel, ModelOutput
-from patient_medical_history_prompts import PromptBuilder, MedicalHistoryInput
+from .patient_medical_history_models import PatientMedicalHistoryModel, ModelOutput
+from .patient_medical_history_prompts import PromptBuilder, MedicalHistoryInput
 
 logger = logging.getLogger(__name__)
 

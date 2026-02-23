@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from medical_implant_models import MedicalImplantInfoModel, ModelOutput
-from medical_implant_prompts import PromptBuilder
+from .medical_implant_models import MedicalImplantInfoModel, ModelOutput
+from .medical_implant_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

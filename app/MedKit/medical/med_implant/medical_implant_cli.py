@@ -1,99 +1,49 @@
+"""Medical Implant Information Generator CLI."""
+
 import argparse
 import logging
 from pathlib import Path
+from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-
-from medical_implant import MedicalImplantGenerator
+from .medical_implant import MedicalImplantGenerator
 
 logger = logging.getLogger(__name__)
 
-
 def get_user_arguments() -> argparse.Namespace:
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate comprehensive medical implant information.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument(
-        "-i", "--implant",
-        required=True,
-        help="The name of the medical implant to generate information for."
-    )
-    parser.add_argument(
-        "-d", "--output-dir",
-        default="outputs",
-        help="Directory for output files (default: outputs)."
-    )
-    parser.add_argument(
-        "-m", "--model",
-        default="ollama/gemma3",
-        help="Model to use for generation (default: ollama/gemma3)."
-    )
-    parser.add_argument(
-        "--quick",
-        action="store_true",
-        help="Use quick mode (no Pydantic model for response formatting)."
-    )
-    parser.add_argument(
-        "-v", "--verbosity",
-        type=int,
-        default=2,
-        choices=[0, 1, 2, 3, 4],
-        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
-    )
-    parser.add_argument(
-        "-s", "--structured",
-        action="store_true",
-        default=False,
-        help="Use structured output (Pydantic model) for the response."
-    )
-
+    parser = argparse.ArgumentParser(description="Generate comprehensive medical implant information.")
+    parser.add_argument("implant", help="Implant name or file path containing names.")
+    parser.add_argument("-d", "--output-dir", default="outputs", help="Output directory.")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
+    parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")
+    parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
     return parser.parse_args()
 
-
-def create_medical_implant_report(args) -> int:
-
-    # Apply verbosity level using centralized logging configuration
-    configure_logging(
-        log_file=str(Path(__file__).parent / "logs" / "medical_implant.log"),
-        verbosity=args.verbosity,
-        enable_console=True
-    )
-    logger.debug(f"  Implant: {args.implant}")
-
-    # Ensure output directory exists
+def main():
+    args = get_user_arguments()
+    configure_logging(log_file="medical_implant.log", verbosity=args.verbosity, enable_console=True)
+    
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    input_path = Path(args.implant)
+    items = [line.strip() for line in open(input_path)] if input_path.is_file() else [args.implant]
+    
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = MedicalImplantGenerator(model_config)
         
-        # Determine if structured output should be used
-        use_structured = args.structured and not args.quick
-        
-        implant_info = generator.generate_text(implant=args.implant, structured=use_structured)
-
-        if implant_info is None:
-            logger.error("✗ Failed to generate implant information.")
-            return 1
-
-        # Save result to output directory
-        generator.save(implant_info, output_dir)
-
-        logger.debug("Implant information generation completed successfully")
-        return 0
+        for item in tqdm(items, desc="Generating"):
+            result = generator.generate_text(implant=item, structured=args.structured)
+            if result: generator.save(result, output_dir)
+            
+        logger.info("✓ Completed successfully")
     except Exception as e:
-        logger.error(f"✗ Implant information generation failed: {e}")
-        logger.exception("Full exception details:")
+        logger.error(f"✗ Failed: {e}")
         return 1
-
-
-def main():
-    args = get_user_arguments()
-    create_medical_implant_report(args)
+    return 0
 
 if __name__ == "__main__":
-   main()
+    import sys
+    sys.exit(main())

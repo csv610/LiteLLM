@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from herbal_info_models import HerbalInfoModel, ModelOutput
-from herbal_info_prompts import PromptBuilder
+from .herbal_info_models import HerbalInfoModel, ModelOutput
+from .herbal_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

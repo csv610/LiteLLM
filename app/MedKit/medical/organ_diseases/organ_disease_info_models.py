@@ -1,133 +1,79 @@
 """
-disease_info_models.py - Pydantic Models for Disease Information
-
-This module contains all Pydantic data models for organizing and validating
-disease information across multiple dimensions.
+organ_disease_info_models.py - Pydantic Models for Organ-specific Disease Information
 """
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
-from lite.config import ModelOutput
-
-
 class RiskFactorsModel(BaseModel):
-    """
-    Risk factors associated with developing a disease.
-    """
-    modifiable: List[str] = Field(description="Risk factors that can be changed (e.g., smoking, diet, exercise).")
-    non_modifiable: List[str] = Field(description="Risk factors that cannot be changed (e.g., age, genetics, family history).")
+    modifiable: List[str] = Field(description="Risk factors that can be changed.")
+    non_modifiable: List[str] = Field(description="Risk factors that cannot be changed.")
     environmental: List[str] = Field(description="Environmental or occupational risk factors.")
 
-
 class DiagnosticCriteriaModel(BaseModel):
-    """
-    Diagnostic criteria for a disease.
-    """
     symptoms: List[str] = Field(description="Key symptoms and clinical signs.")
     physical_exam: List[str] = Field(description="Physical examination findings.")
-    laboratory_tests: List[str] = Field(description="Recommended laboratory tests (e.g., blood tests, urine tests).")
-    imaging_studies: List[str] = Field(description="Recommended imaging studies (e.g., X-ray, CT scan, MRI).")
-
+    laboratory_tests: List[str] = Field(description="Recommended laboratory tests.")
+    imaging_studies: List[str] = Field(description="Recommended imaging studies.")
 
 class DiseaseIdentityModel(BaseModel):
-    """
-    Basic identifying information about a disease.
-    """
     name: str = Field(description="The common name of the disease.")
     icd_10_code: Optional[str] = Field(description="ICD-10 code for the disease.")
-    synonyms: List[str] = Field(description="Alternative names or synonyms for the disease.")
-
+    synonyms: List[str] = Field(description="Alternative names or synonyms.")
 
 class DiseaseBackgroundModel(BaseModel):
-    """
-    Background information on the disease, including definition and pathophysiology.
-    """
-    definition: str = Field(description="A concise definition of the disease.")
-    pathophysiology: str = Field(description="The underlying physiological process of the disease.")
-    etiology: str = Field(description="The cause or origin of the disease.")
-
+    definition: str = Field(description="A concise definition.")
+    pathophysiology: str = Field(description="The underlying physiological process.")
+    etiology: str = Field(description="The cause or origin.")
 
 class DiseaseEpidemiologyModel(BaseModel):
-    """
-    Epidemiological information about the disease.
-    """
-    prevalence: str = Field(description="The proportion of a population found to have the disease.")
-    incidence: str = Field(description="The number of new cases of the disease during a certain period.")
-    risk_factors: RiskFactorsModel = Field(description="Factors that increase the risk of developing the disease.")
-
+    prevalence: str = Field(description="The proportion found to have the disease.")
+    incidence: str = Field(description="The number of new cases.")
+    risk_factors: RiskFactorsModel = Field(description="Factors that increase the risk.")
 
 class DiseaseClinicalPresentationModel(BaseModel):
-    """
-    How the disease presents in a clinical setting.
-    """
-    symptoms: List[str] = Field(description="Common symptoms experienced by patients.")
-    signs: List[str] = Field(description="Objective medical signs observed by a clinician.")
-    natural_history: str = Field(description="The progression of the disease without treatment.")
-
+    symptoms: List[str] = Field(description="Common symptoms.")
+    signs: List[str] = Field(description="Objective medical signs.")
+    natural_history: str = Field(description="The progression without treatment.")
 
 class DiseaseDiagnosisModel(BaseModel):
-    """
-    How the disease is diagnosed.
-    """
-    diagnostic_criteria: DiagnosticCriteriaModel = Field(description="Criteria used to establish a diagnosis.")
+    diagnostic_criteria: DiagnosticCriteriaModel = Field(description="Criteria used for diagnosis.")
     differential_diagnosis: List[str] = Field(description="Other diseases with similar presentations.")
 
-
 class DiseaseManagementModel(BaseModel):
-    """
-    How the disease is managed and treated.
-    """
-    treatment_options: List[str] = Field(description="Available treatment options (e.g., medications, therapies).")
-    prevention: List[str] = Field(description="Strategies for preventing the disease.")
-    prognosis: str = Field(description="The likely course and outcome of the disease.")
-
+    treatment_options: List[str] = Field(description="Available treatment options.")
+    prevention: List[str] = Field(description="Strategies for prevention.")
+    prognosis: str = Field(description="The likely course and outcome.")
 
 class DiseaseResearchModel(BaseModel):
-    """
-    Current research and advancements related to the disease.
-    """
     current_research: str = Field(description="Overview of current research areas.")
-    recent_advancements: str = Field(description="Recent breakthroughs in diagnosis or treatment.")
-
+    recent_advancements: str = Field(description="Recent breakthroughs.")
 
 class DiseaseSpecialPopulationsModel(BaseModel):
-    """
-    Considerations for special patient populations.
-    """
     pediatric: str = Field(description="Considerations for children.")
     geriatric: str = Field(description="Considerations for older adults.")
-    pregnancy: str = Field(description="Considerations during pregnancy and lactation.")
-
+    pregnancy: str = Field(description="Considerations during pregnancy.")
 
 class DiseaseLivingWithModel(BaseModel):
-    """
-    Information for patients living with the disease.
-    """
-    quality_of_life: str = Field(description="Impact on quality of life and daily activities.")
-    support_resources: List[str] = Field(description="Patient support groups and resources.")
-
+    quality_of_life: str = Field(description="Impact on quality of life.")
+    support_resources: List[str] = Field(description="Support groups and resources.")
 
 class DiseaseInfoModel(BaseModel):
-    """
-    Comprehensive, evidence-based information about a specific disease.
-    """
-    identity: DiseaseIdentityModel = Field(description="Basic identifying information.")
-    background: DiseaseBackgroundModel = Field(description="Background and pathophysiology.")
-    epidemiology: DiseaseEpidemiologyModel = Field(description="Epidemiological data.")
-    clinical_presentation: DiseaseClinicalPresentationModel = Field(description="Clinical presentation.")
-    diagnosis: DiseaseDiagnosisModel = Field(description="Diagnostic criteria and methods.")
-    management: DiseaseManagementModel = Field(description="Treatment and management strategies.")
-    research: DiseaseResearchModel = Field(description="Current research and advancements.")
-    special_populations: DiseaseSpecialPopulationsModel = Field(description="Considerations for special populations.")
-    living_with: DiseaseLivingWithModel = Field(description="Information for patients.")
-
+    identity: DiseaseIdentityModel
+    background: DiseaseBackgroundModel
+    epidemiology: DiseaseEpidemiologyModel
+    clinical_presentation: DiseaseClinicalPresentationModel
+    diagnosis: DiseaseDiagnosisModel
+    management: DiseaseManagementModel
+    research: DiseaseResearchModel
+    special_populations: DiseaseSpecialPopulationsModel
+    living_with: DiseaseLivingWithModel
 
 class OrganDiseasesModel(BaseModel):
-    """
-    List of common and rare diseases associated with an organ.
-    """
     organ: str = Field(description="The name of the organ.")
-    common_diseases: List[str] = Field(description="List of common diseases associated with the organ.")
-    rare_diseases: List[str] = Field(description="List of rare diseases associated with the organ.")
-    educational_points: List[str] = Field(description="Key educational points for patients")
+    common_diseases: List[str] = Field(description="Common diseases associated.")
+    rare_diseases: List[str] = Field(description="Rare diseases associated.")
+    educational_points: List[str] = Field(description="Key educational points.")
 
+class ModelOutput(BaseModel):
+    data: Optional[OrganDiseasesModel] = None
+    markdown: Optional[str] = None

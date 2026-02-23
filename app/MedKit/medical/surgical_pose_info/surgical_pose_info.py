@@ -6,12 +6,11 @@ This module contains the core logic for generating comprehensive surgical positi
 import logging
 from pathlib import Path
 
-from lite.config import ModelConfig
-from lite.llm_client import LiteClient
-from lite.models import ModelInput, ModelOutput
+from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .surgical_pose_info_models import SurgicalPoseInfoModel
+from .surgical_pose_info_models import SurgicalPoseInfoModel, ModelOutput
 from .surgical_pose_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)

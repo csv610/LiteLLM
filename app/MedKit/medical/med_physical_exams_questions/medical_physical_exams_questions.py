@@ -11,7 +11,7 @@ from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 from utils.output_formatter import print_result
 
-from medical_physical_exams_questions_models import ExamQuestions
+from .medical_physical_exams_questions_models import ExamQuestions
 
 EXAMS_WITH_REPRODUCTIVE_RELEVANCE = {
     "Skin Exam", "Eye Exam", "Gynecological Exam", "Obstetric Exam",

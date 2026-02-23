@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from organ_disease_info_models import DiseaseInfoModel, OrganDiseasesModel, ModelOutput
-from organ_disease_info_prompts import PromptBuilder
+from .organ_disease_info_models import DiseaseInfoModel, OrganDiseasesModel, ModelOutput
+from .organ_disease_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

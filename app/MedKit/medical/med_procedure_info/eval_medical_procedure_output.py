@@ -16,8 +16,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from eval_medical_procedure_models import MedicalProcedureEvaluationModel, ModelOutput
-from eval_medical_procedure_prompts import PromptBuilder
+from .eval_medical_procedure_models import MedicalProcedureEvaluationModel, ModelOutput
+from .eval_medical_procedure_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

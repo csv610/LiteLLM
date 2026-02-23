@@ -4,6 +4,7 @@ import argparse
 import logging
 from pathlib import Path
 import sys
+from tqdm import tqdm
 
 # Ensure we can import from the current directory
 sys.path.append(str(Path(__file__).parent))
@@ -11,7 +12,7 @@ sys.path.append(str(Path(__file__).parent))
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from eval_medical_procedure_output import MedicalProcedureEvaluator
+from .eval_medical_procedure_output import MedicalProcedureEvaluator
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +24,8 @@ def get_user_arguments() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "-f", "--file", 
-        required=True, 
-        help="Path to the file containing the medical procedure information to evaluate."
+        "file", 
+        help="Path to the file containing the medical procedure information to evaluate, or a file path containing paths."
     )
     parser.add_argument(
         "-d", "--output-dir",
@@ -63,29 +63,41 @@ def evaluate_medical_procedure_report(args) -> int:
         enable_console=True
     )
 
-    logger.debug(f"Evaluating file: {args.file}")
-
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Handle input - check if it's a file or direct term
+    input_path = Path(args.file)
+    if input_path.is_file():
+        # Check if it's a markdown or text file which IS the target, OR a file list
+        if input_path.suffix in ['.md', '.txt', '.json']:
+             input_files = [str(input_path)]
+        else:
+            with open(input_path, 'r', encoding='utf-8') as f:
+                input_files = [line.strip() for line in f if line.strip()]
+        logger.debug(f"Read {len(input_files)} files to evaluate from: {input_path}")
+    else:
+        input_files = [args.file]
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.1) # Low temp for evaluation
         evaluator = MedicalProcedureEvaluator(model_config=model_config)
         
-        result = evaluator.generate_text(
-            file_path=args.file
-        )
+        for file_path in tqdm(input_files, desc="Evaluating procedure reports"):
+            result = evaluator.generate_text(
+                file_path=file_path
+            )
 
-        if result is None:
-            logger.error("✗ Failed to evaluate procedure information.")
-            return 1
+            if result is None:
+                logger.error(f"✗ Failed to evaluate procedure information for: {file_path}")
+                continue
 
-        # Save result to output directory
-        saved_path = evaluator.save(result, output_dir)
-        logger.info(f"Evaluation report saved to: {saved_path}")
+            # Save result to output directory
+            saved_path = evaluator.save(result, output_dir)
+            logger.info(f"Evaluation report saved to: {saved_path}")
 
-        logger.debug("✓ Procedure evaluation completed successfully")
+        logger.debug("✓ Procedure evaluations completed successfully")
         return 0
     except Exception as e:
         logger.error(f"✗ Procedure evaluation failed: {e}")

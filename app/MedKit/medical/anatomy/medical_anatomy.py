@@ -15,8 +15,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from medical_anatomy_models import MedicalAnatomyModel, ModelOutput
-from medical_anatomy_prompts import PromptBuilder
+from .medical_anatomy_models import MedicalAnatomyModel, ModelOutput
+from .medical_anatomy_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

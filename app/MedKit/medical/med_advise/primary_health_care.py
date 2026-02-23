@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from primary_health_care_models import PrimaryCareResponseModel, ModelOutput
-from primary_health_care_prompts import PromptBuilder
+from .primary_health_care_models import PrimaryCareResponseModel, ModelOutput
+from .primary_health_care_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

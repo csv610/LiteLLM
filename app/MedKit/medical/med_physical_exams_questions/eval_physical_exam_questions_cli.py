@@ -4,6 +4,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional, Union
+from tqdm import tqdm
 
 
 
@@ -13,7 +14,7 @@ from lite.config import ModelConfig, ModelInput
 from utils.output_formatter import print_result
 from lite.logging_config import configure_logging
 
-from eval_physical_exam_questions_models import QualityEvaluation
+from .eval_physical_exam_questions_models import QualityEvaluation
 
 logger = logging.getLogger(__name__)
 
@@ -216,17 +217,16 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "-i", "--input",
-        required=True,
-        help="Input JSON file from medical exam generator"
+        "input",
+        help="Input JSON file or a file path containing JSON file paths to evaluate"
     )
     parser.add_argument(
         "-o", "--output",
-        help="Output evaluation report file"
+        help="Output evaluation report file (only for single input)"
     )
     parser.add_argument(
         "-j", "--json-output",
-        help="Output evaluation results as JSON"
+        help="Output evaluation results as JSON (only for single input)"
     )
     parser.add_argument(
         "-m", "--model",
@@ -259,38 +259,60 @@ def main() -> int:
     logger.info("EVAL PHYSICAL EXAM QUESTIONS CLI - Starting")
     logger.info("="*80)
 
-    logger.debug(f"CLI Arguments:")
-    logger.debug(f"  Input file: {args.input}")
-    logger.debug(f"  Report output: {args.output if args.output else 'None'}")
-    logger.debug(f"  JSON output: {args.json_output if args.json_output else 'None'}")
-    logger.debug(f"  Verbosity: {args.verbosity}")
-    logger.debug(f"  Structured output: {args.structured}")
-
     # Ensure output directory exists (default outputs dir)
     Path("outputs").mkdir(parents=True, exist_ok=True)
+
+    # Handle input - check if it's a file or direct term
+    input_path = Path(args.input)
+    # If it's a file, it could be a single JSON or a list of JSONs
+    if input_path.is_file():
+        if input_path.suffix == '.json':
+            input_files = [str(input_path)]
+        else:
+            with open(input_path, 'r', encoding='utf-8') as f:
+                input_files = [line.strip() for line in f if line.strip()]
+        logger.debug(f"Read {len(input_files)} files to evaluate from: {input_path}")
+    else:
+        input_files = [args.input]
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         evaluator = PhysicalExamEvaluator(model_config)
-        evaluation = evaluator.generate_text(args.input, structured=args.structured)
+        
+        for input_file in tqdm(input_files, desc="Evaluating exam questions"):
+            evaluation = evaluator.generate_text(input_file, structured=args.structured)
 
-        print_result(evaluation, title="Physical Exam Questions Evaluation")
+            if len(input_files) == 1:
+                print_result(evaluation, title="Physical Exam Questions Evaluation")
 
-        report = generate_evaluation_report(evaluation, args.output)
-        print(report)
-
-        if args.json_output:
-            Path(args.json_output).parent.mkdir(parents=True, exist_ok=True)
-            output_json_path = args.json_output
-            if isinstance(evaluation, str) and output_json_path.endswith(".json"):
-                 output_json_path = output_json_path.replace(".json", ".md")
+            # Report output
+            if args.output and len(input_files) == 1:
+                report_path = args.output
+            else:
+                report_path = f"outputs/{Path(input_file).stem}_evaluation.md"
             
-            with open(output_json_path, 'w') as f:
-                if isinstance(evaluation, str):
-                    f.write(evaluation)
-                else:
-                    json.dump(evaluation.model_dump(), f, indent=2)
-            logger.info(f"✓ Results saved to {output_json_path}")
+            report = generate_evaluation_report(evaluation, report_path)
+            if len(input_files) == 1:
+                print(report)
+
+            # JSON output
+            json_out = None
+            if args.json_output and len(input_files) == 1:
+                json_out = args.json_output
+            else:
+                json_out = f"outputs/{Path(input_file).stem}_evaluation.json"
+
+            if json_out:
+                Path(json_out).parent.mkdir(parents=True, exist_ok=True)
+                if isinstance(evaluation, str) and json_out.endswith(".json"):
+                     json_out = json_out.replace(".json", ".md")
+                
+                with open(json_out, 'w') as f:
+                    if isinstance(evaluation, str):
+                        f.write(evaluation)
+                    else:
+                        json.dump(evaluation.model_dump(), f, indent=2)
+                logger.info(f"✓ Results saved to {json_out}")
 
         logger.debug("✓ Evaluation completed successfully")
         return 0
