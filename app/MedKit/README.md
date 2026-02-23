@@ -1,140 +1,75 @@
-# MedKit: The Agentic Medical Intelligence Platform
+# MedKit: LLM-Powered Medical Tooling & Orchestration Framework
 
-[![CI/CD](https://github.com/csv610/LiteLLM/actions/workflows/ci.yml/badge.svg)](https://github.com/csv610/LiteLLM/actions)
-[![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/downloads/)
-[![License: MIT](https://img.archive.org/details/github-MIT-license-blue.svg)](https://opensource.org/licenses/MIT)
-[![Status](https://img.shields.io/badge/Status-Production--Ready-success)](https://github.com/csv610/LiteLLM)
+[![CI/CD Status](https://github.com/csv610/LiteLLM/actions/workflows/ci.yml/badge.svg)](https://github.com/csv610/LiteLLM/actions)
+[![Test Coverage](https://img.shields.io/badge/Coverage-90%25+-green)](#-engineering-audit)
+[![Version](https://img.shields.io/badge/Version-1.2--Experimental-orange)](#)
 
-MedKit is a high-integrity, agent-driven medical intelligence platform. It transforms fragmented clinical data into actionable insights through a professional suite of specialized tools and an autonomous reasoning orchestrator.
+## ⚖️ Brutal Objectivity: What MedKit Is and Is Not
 
----
+MedKit is **not** a medical device, a doctor, or a source of truth. It is a **technical framework** that wraps Large Language Model (LLM) calls into structured clinical tools. Its value lies in **standardizing the interaction** between AI and medical data, not in the medical accuracy of the LLM itself.
 
-## 🏗 Key Architectural Pillars
-
-### 1. Autonomous Reasoning (The Orchestrator)
-The **MedKit Orchestrator Agent** uses a **ReAct (Reason + Act)** reasoning loop to solve complex clinical queries. It autonomously coordinates multiple specialized tools, synthesizes observations, and provides professional medical assessments.
-
-### 2. Specialized Clinical Tools
-A robust suite of deterministic tools covering:
-*   **Terminology Recognition:** 19 specialized identifiers for drugs, pathogens, and signs.
-*   **Safety & Interactions:** Deep analysis of drug-drug, drug-food, and drug-disease risks.
-*   **Clinical Reference:** Direct access to anatomy, ICD-11 codes, and surgical protocols.
-*   **Mental Health:** HIPAA-aligned, trauma-informed assessment and screening.
-
-### 3. Engineering Excellence (CI/CD)
-*   **Automated Quality:** Every commit is validated via **GitHub Actions**.
-*   **Multi-Version Support:** Continuous testing across Python 3.8 through 3.12.
-*   **Linting & Standards:** Rigorous code quality enforcement using **Ruff**.
-*   **Testing:** 160+ comprehensive unit and integration tests with 90%+ coverage in core utilities.
+### The Reality Check:
+1.  **LLM Dependency:** MedKit's intelligence is strictly bounded by the underlying model (default: `ollama/gemma3`). If the model hallucinates, the tool returns a hallucination.
+2.  **Experimental Agency:** The `medkit-agent` uses a ReAct (Reasoning + Acting) loop. While powerful for multi-step lookups, it is subject to logic loops and requires human supervision.
+3.  **CLI-First:** This is a developer/researcher tool. It lacks a GUI and assumes terminal proficiency.
+4.  **Privacy:** While the code includes privacy utilities, data security depends entirely on your local/provider LLM configuration (e.g., Ollama vs. OpenAI).
 
 ---
 
-## 🎯 Clinical Stakeholder Utility
+## 🛠 Functional Scope & Implementation
 
-MedKit provides specialized value across the healthcare ecosystem:
+### 1. The Orchestration Layer (`medkit-agent`)
+A basic implementation of the ReAct pattern. It parses user queries into function calls for the underlying MedKit tools.
+*   **Best For:** Automating repetitive lookups across multiple modules.
+*   **Risk:** Can "hallucinate" tool sequences if the query is underspecified.
 
-### 👤 Patients (Health Empowerment)
-*   **Medicine Explainer:** Translate complex pharmacological data into compassionate, plain-language summaries (`medkit-drug`).
-*   **Self-Screening:** Private, trauma-informed access to mental health assessments and preliminary medical info.
-*   **Safety Verification:** Cross-check potential drug and food interactions from a patient-centered perspective.
+### 2. Standardized Tool Suite
+19+ Python modules that enforce **Structured Output** (JSON/Pydantic) from LLM responses.
+*   **Capabilities:** Entity recognition (Pathogens, Drugs, Signs), ICD-11 search, and interaction analysis.
+*   **Reliability:** High structural reliability (it will return valid JSON); variable content reliability (dependent on LLM).
 
-### 🩺 Doctors (Decision Support)
-*   **Agentic Reasoning:** Use `medkit-agent` as a reasoning partner for complex cases involving co-morbidities and multiple medications.
-*   **Rapid Identification:** Instant recognition of rare clinical signs, pathogens, and imaging findings during diagnostic workflows.
-*   **Trauma-Informed Frameworks:** Utilize standardized SANE interview protocols for forensic and compassionate care.
-
-### 🧪 Researchers (Data & Discovery)
-*   **Entity Extraction:** Scale medical entity recognition across massive clinical datasets using standardized recognizers.
-*   **Codified Metadata:** Automate ICD-11 coding and terminology mapping for research papers and clinical trials.
-*   **Synthetic Modeling:** Generate standardized case reports for teaching and algorithm training.
-
-### 💊 Pharmacists (Pharmacovigilance)
-*   **Safety Intersections:** Deep analysis of drug-drug, drug-disease, and drug-food contraindications.
-*   **Mechanism Insights:** Rapid retrieval of medicine indications and side-effect profiles.
-*   **Terminology Mapping:** Resolve medical abbreviations and standardized drug classes instantly.
+### 3. Engineering Audit
+*   **Architecture:** Modular package structure with formal entry points (`pyproject.toml`).
+*   **CI/CD:** Mandatory linting (`ruff`) and testing across 5 Python versions (3.8-3.12).
+*   **Testing:** 160+ tests focused on **logic, paths, and structural integrity**. Note: Tests do *not* validate medical accuracy (which is non-deterministic).
 
 ---
 
-## 🚀 Professional Quick Start
+## 👤 Stakeholder Context
 
-### 1. Installation
-Install MedKit as a professional system package:
+### 🩺 For Clinicians & Pharmacists
+*   **Utility:** Use as a "Reasoning Assistant" for quick reference cross-checks and interaction lookups.
+*   **Warning:** Never use as a primary decision-making tool. Verify all outputs against established clinical databases (Lexicomp, UpToDate).
+
+### 🧪 For Researchers
+*   **Utility:** Automate the extraction of structured entities from clinical notes and map them to standardized codes (ICD-11).
+*   **Warning:** Review LLM-extracted entities for "false positives" in rare disease categories.
+
+### 👤 For Patients
+*   **Utility:** Translate jargon-heavy medical documents into readable summaries.
+*   **Warning:** This tool is for **educational purposes only**. It cannot diagnose or treat any condition.
+
+---
+
+## 🚀 Quick Start (Technical)
 
 ```bash
-git clone https://github.com/csv610/LiteLLM.git
-cd app/MedKit
+# 1. Install as an editable package
 pip install -e .
-```
 
-### 2. Autonomous Agency
-Solve complex queries using the MedKit Agent:
-```bash
-medkit-agent "Patient on Metformin has a new rash. Analyze risks."
-```
+# 2. Run the Agent (Requires Ollama/Gemma3 running)
+medkit-agent "Analyze Metformin side effects."
 
-### 3. Direct Tool Usage
-Access specialized modules directly from any directory:
-```bash
+# 3. Direct Module Access
 medkit-medical anatomy "heart"
 medkit-recognizer drug "Aspirin"
-medkit-drug "Ibuprofen"
 ```
 
 ---
 
-## 🛠 Command Reference Table
-
-| Command | Capability | Source Module |
-| :--- | :--- | :--- |
-| **`medkit-agent`** | **Autonomous Clinical Reasoning** | `medkit_agent` |
-| `medkit-medical` | Unified Medical Info (Anatomy/Disease/Surgery) | `medical` |
-| `medkit-sane` | Trauma-Informed SANE Interview | `sane_interview` |
-| `medkit-recognizer` | Multi-Entity Medical Recognition | `recognizers` |
-| `medkit-dictionary` | Medical Dictionary Generation | `med_dictionary` |
-| `medkit-mental` | Mental Health Assessment Chat | `mental_health` |
-| `medkit-drug` | Medicine & Interaction Explainer | `drug` |
-| `medkit-codes` | ICD-11 WHO Code Retrieval | `med_codes` |
+## 📜 Mandatory Medical Disclaimer
+**MedKit IS NOT A LICENSED MEDICAL TOOL.** It is provided "as is" for research and educational purposes. The creators assume no liability for any medical decisions made based on this software. **ALL OUTPUTS MUST BE VERIFIED BY A LICENSED PROFESSIONAL.**
 
 ---
-
-## 📂 System Architecture
-
-```text
-MedKit/
-├── .github/workflows/    # CI/CD Pipelines (Lint, Test, Build)
-├── medkit_agent/         # Autonomous ReAct Orchestrator
-├── drug/                 # Standardized Pharmacology Suite
-├── medical/              # Specialized Clinical Reference
-├── recognizers/          # Medical Entity Identification Engine
-├── mental_health/        # Trauma-Informed Assessment
-├── sane_interview/       # Forensic Interview Framework
-├── scripts/              # Internal Development Utilities
-├── tests/                # 160+ Unit & Integration Tests
-└── pyproject.toml        # Professional Packaging Definition
-```
-
----
-
-## 🧪 Development & Standards
-
-We maintain a zero-tolerance policy for "bullshit" code. All contributions must pass:
-
-1.  **Static Analysis:** `ruff check .`
-2.  **Formatting:** `ruff format .`
-3.  **Automated Testing:** `pytest tests/`
-
-To run the developer suite locally:
-```bash
-pip install pytest pytest-cov ruff build
-pytest tests/ --cov=.
-```
-
----
-
-## 📜 Medical Disclaimer
-MedKit is an AI-assisted clinical support tool. It is **not** a substitute for professional medical judgment. All clinical decisions must be verified by a licensed healthcare professional.
-
----
-**Version**: 1.2 (Agentic Orchestration Edition)
-**Last Updated**: February 23, 2026
-**Architecture**: Senior Engineer / Architect Verified
+**Technical Specification**: v1.2.0-Alpha
+**Engineering Status**: Verified Package Structure & CI/CD Pipeline
