@@ -37,12 +37,13 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 | Command | The Solution |
 | :--- | :--- |
 | **`medkit-agent`** | **The Brain**: Orchestrates multiple tools to solve multi-step clinical queries. |
-| **`medkit-drug`** | **Safety**: Interaction checking, contraindications, and patient-friendly explanations. |
-| **`medkit-medical`**| **Knowledge**: 20+ specialized modules for anatomy, ethics, surgery, and triage. |
+| **`medkit-drug`** | **Safety**: 10 specialized modules for interactions, pharmacology, and patient education. |
+| **`medkit-medical`**| **Knowledge**: 24 specialized modules for anatomy, ethics, surgery, and triage. |
 | **`medkit-graph`** | **Insight**: Visualizes the logical causal links in dense medical text. |
 | **`medkit-privacy`**| **Compliance**: Automates HIPAA consent, audit logs, and PII scrubbing. |
 | **`medkit-exam`** | **Protocol**: Standardized head-to-toe physical examination checklists. |
 | **`medkit-article`**| **Evidence**: Searches PubMed and BioMCP for peer-reviewed research. |
+| **`medkit-diagnose`**| **Diagnostics**: Comprehensive information on medical laboratory tests and diagnostic devices. |
 
 > **📘 Exhaustive Reference**: For every subcommand, clinical safety boundary, and failure mode, see the [**Detailed CLI Reference**](./CLI_REFERENCE.md).
 

@@ -30,9 +30,9 @@ medkit-agent = "medkit_agent.orchestrator:main"
 medkit-media = "medical.med_media.med_media_cli:main"
 medkit-privacy = "medkit_privacy.privacy_cli:main"
 medkit-article = "medkit_article.article_cli:main"
-medkit-diagnostics = "diagnostics.diagnostics_cli:main"
+medkit-diagnose = "medkit_diagnose.diagnose_cli:main"
 medkit-exam = "phyexams.phyexams_cli:main"
 medkit-graph = "medkit_graph.graph_cli:main"
 
 [tool.setuptools]
-packages = ["medical", "drug", "mental_health", "recognizers", "sane_interview", "med_dictionary", "med_codes", "diagnostics", "phyexams", "medkit_agent", "medkit_privacy", "medkit_article", "medkit_graph"]
+packages = ["medical", "drug", "mental_health", "recognizers", "sane_interview", "med_dictionary", "med_codes", "medkit_diagnose", "phyexams", "medkit_agent", "medkit_privacy", "medkit_article", "medkit_graph"]

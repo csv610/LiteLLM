@@ -26,7 +26,7 @@ def handle_batch_input(input_val: str, desc: str):
     return [input_val]
 
 def main():
-    parser = argparse.ArgumentParser(description="MedKit Diagnostics CLI - Medical tests and devices information.")
+    parser = argparse.ArgumentParser(description="MedKit Diagnose CLI - Medical tests and devices information.")
     
     # Global arguments
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
@@ -34,7 +34,7 @@ def main():
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")
     parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
 
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Diagnostics subcommands")
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Diagnose subcommands")
 
     # 1. Medical Tests
     test_p = subparsers.add_parser("test", help="Get information about medical laboratory tests")
@@ -47,7 +47,7 @@ def main():
     args = parser.parse_args()
 
     # Logging config
-    configure_logging(log_file="medkit_diagnostics.log", verbosity=args.verbosity, enable_console=True)
+    configure_logging(log_file="medkit_diagnose.log", verbosity=args.verbosity, enable_console=True)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     

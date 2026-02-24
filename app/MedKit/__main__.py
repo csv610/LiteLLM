@@ -5,7 +5,7 @@ For CLI usage, use the registered medkit-* commands:
     medkit-agent       - Autonomous Medical Reasoning Agent
     medkit-medical     - General Medical Information & clinical tools
     medkit-drug        - Pharmacology & Drug Interactions
-    medkit-diagnostics - Medical Tests & Devices
+    medkit-diagnose    - Medical Tests & Devices
     medkit-recognizer  - Medical Entity Recognition (NER)
     medkit-codes       - ICD-11 Code Lookup
     medkit-article     - PubMed/Medical Article Search

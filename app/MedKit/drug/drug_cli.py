@@ -29,7 +29,7 @@ def display_module_list():
     categories = {
         "Drug Information": {
             "info": "Comprehensive drug monographs (MOA, dosing, side effects).",
-            "explain": "Please enter your medication (generic name only, e.g. acetaminophen) and I will explain it in simple terms.",
+            "explain": "Explain medicine (generic name only, e.g. acetaminophen) simple terms.",
             "addiction": "Drug addiction, withdrawal symptoms, and recovery info."
         },
         "Interactions & Safety": {

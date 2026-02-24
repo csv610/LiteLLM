@@ -87,15 +87,21 @@ You can override the default output path for any non-restricted command.
 ---
 
 ## 💊 `medkit-drug` (Pharmacology & Safety)
-**9 Specialized Subcommands for Medication Management**
+**10 Specialized Subcommands for Medication Management**
 
 *   **Global Arguments**:
     *   **`-s, --structured`**: Returns drug data in a machine-readable JSON format.
 
 ### `list`
-*   **Primary Usage**: Discoverability tool to see all 9 pharmacology subcommands categorized by their clinical purpose.
+*   **Primary Usage**: Discoverability tool to see all 10 pharmacology subcommands categorized by their clinical purpose.
 *   **Does**: Prints a clean, descriptive table of every available drug module.
 *   **Example**: `medkit-drug list`
+
+### `info`
+*   **Problem**: Clinicians need deeper monographs than simple definitions.
+*   **Usage**: Professional medication reference.
+*   **Does**: MOA, pharmacodynamics, and adult dosing guidelines.
+*   **Example**: `medkit-drug info "Lisinopril" --structured`
 
 ### `interact`
 *   **Problem**: Multidrug regimens increase life-threatening interaction risks.
@@ -103,17 +109,47 @@ You can override the default output path for any non-restricted command.
 *   **Does**: Identifies Major, Moderate, and Minor severity interactions.
 *   **Example**: `medkit-drug interact "Warfarin" "Aspirin" --structured`
 
+### `food`
+*   **Problem**: Many patients are unaware of dietary restrictions with medications.
+*   **Usage**: Checking for drug-food interactions.
+*   **Does**: Identifies potential absorption issues or metabolic interference.
+*   **Example**: `medkit-drug food "Sertraline" "Grapefruit" -s`
+
 ### `disease`
 *   **Problem**: Certain drugs are lethal if the patient has a secondary disease.
 *   **Usage**: Checking drug-disease safety.
 *   **Does**: Flags risks like Beta-blockers in Asthma patients.
 *   **Example**: `medkit-drug disease "Ibuprofen" "Kidney Disease" -s`
 
-### `info`
-*   **Problem**: Clinicians need deeper monographs than simple definitions.
-*   **Usage**: Professional medication reference.
-*   **Does**: MOA, pharmacokinetics, and standard adult dosing.
-*   **Example**: `medkit-drug info "Lisinopril" --structured`
+### `explain`
+*   **Problem**: Clinical terminology confuses patients, leading to non-adherence.
+*   **Usage**: Generating simple, compassionate medication explanations.
+*   **Does**: Uses plain language to explain what a drug is and how to take it.
+*   **Example**: `medkit-drug explain "Metformin"`
+
+### `addiction`
+*   **Problem**: Recovery requires clear info on withdrawal and support.
+*   **Usage**: Substance abuse and recovery reference.
+*   **Does**: Outlines symptoms, risks, and recovery pathways.
+*   **Example**: `medkit-drug addiction "Fentanyl" -s`
+
+### `similar`
+*   **Problem**: Allergies or shortages require finding therapeutic alternatives.
+*   **Usage**: Finding therapeutic substitutes.
+*   **Does**: Identifies medications in the same class or with similar utility.
+*   **Example**: `medkit-drug similar "Lisinopril" -s`
+
+### `compare`
+*   **Problem**: Choosing between two similar drugs for a specific patient profile.
+*   **Usage**: Side-by-side medication comparison.
+*   **Does**: Highlights differences in MOA, side effects, and cost.
+*   **Example**: `medkit-drug compare "Atorvastatin" "Rosuvastatin" -s`
+
+### `symptoms`
+*   **Problem**: Rapidly identifying drug classes for specific clinical presentations.
+*   **Usage**: Symptom-to-medication category mapping.
+*   **Does**: Suggests relevant drug classes for clinical symptoms.
+*   **Example**: `medkit-drug symptoms "Severe productive cough" -s`
 
 ---
 
@@ -158,7 +194,7 @@ You can override the default output path for any non-restricted command.
 
 ---
 
-## 🧪 `medkit-diagnostics` (Tests & Devices)
+## 🧪 `medkit-diagnose` (Tests & Devices)
 **Laboratory and Diagnostic Hardware Reference**
 
 *   **Global Arguments**:
@@ -166,7 +202,7 @@ You can override the default output path for any non-restricted command.
 
 ### `test`
 *   **Usage**: Understanding the clinical utility and normal ranges of lab tests.
-*   **Example**: `medkit-diagnostics test "HbA1c" -s`
+*   **Example**: `medkit-diagnose test "HbA1c" -s`
 
 ---
 

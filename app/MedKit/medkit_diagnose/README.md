@@ -24,15 +24,15 @@ Biopsy: Removing a small tissue sample for laboratory analysis.
 ## Module Structure
 
 ```
-diagnostics/
+medkit_diagnose/
 ├── medical_devices/        # Medical devices information
-│   ├── medical_devices_cli.py
-│   ├── medical_devices_models.py
+│   ├── medical_test_devices.py
+│   ├── medical_test_devices_models.py
 │   └── README.md
 │
 ├── medical_tests/          # Medical tests information
-│   ├── medical_tests_cli.py
-│   ├── medical_tests_models.py
+│   ├── medical_test_info.py
+│   ├── medical_test_info_models.py
 │   └── README.md
 │
 └── __init__.py
@@ -106,7 +106,7 @@ done
 
 ```python
 from lite.config import ModelConfig
-from diagnostics.medical_devices.medical_test_devices import MedicalTestDeviceGenerator
+from medkit_diagnose.medical_devices.medical_test_devices import MedicalTestDeviceGenerator
 
 model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
 generator = MedicalTestDeviceGenerator(model_config)
@@ -119,7 +119,7 @@ print(result)
 
 ```python
 from lite.config import ModelConfig
-from diagnostics.medical_tests.medical_test_info import MedicalTestInfoGenerator
+from medkit_diagnose.medical_tests.medical_test_info import MedicalTestInfoGenerator
 
 model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
 generator = MedicalTestInfoGenerator(model_config)
@@ -147,7 +147,7 @@ echo "Device information saved for $DEVICE"
 ```python
 # Build test reference library
 from lite.config import ModelConfig
-from diagnostics.medical_tests.medical_test_info import MedicalTestInfoGenerator
+from medkit_diagnose.medical_tests.medical_test_info import MedicalTestInfoGenerator
 from pathlib import Path
 
 tests = [
