@@ -33,9 +33,7 @@ def main():
             if args.json:
                 print(json.dumps(articles, indent=2))
             else:
-                print(f"
-📚 Found {len(articles)} articles for '{args.disease}':
-")
+                print(f"\n📚 Found {len(articles)} articles for '{args.disease}':\n")
                 for i, art in enumerate(articles, 1):
                     print(f"{i}. {art['title']}")
                     print(f"   Journal: {art['journal']} ({art['date']})")
@@ -49,9 +47,7 @@ def main():
                 return
             
             citations = searcher.get_article_citations()
-            print(f"
-📑 Citations for '{args.disease}':
-")
+            print(f"\n📑 Citations for '{args.disease}':\n")
             for cite in citations:
                 print(cite)
 
