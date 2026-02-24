@@ -122,8 +122,32 @@ Comprehensive tools for medication research, interaction checking, and safety an
 | `similar` | Find therapeutic alternatives | `medkit-drug similar "Ozempic"` |
 | `symptoms` | Reference drugs for symptoms | `medkit-drug symptoms "Migraine with aura"` |
 
-#### 3. Entity Recognition
-Extract structured data from unstructured clinical text.
+#### 3. Entity Recognition (`medkit-recognizer`)
+Extract and normalize structured medical data from unstructured clinical text using specialized identifiers.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `abbreviation` | Resolve medical abbreviations | `medkit-recognizer abbreviation "COPD"` |
+| `anatomy` | Identify anatomical structures | `medkit-recognizer anatomy "Mitral Valve"` |
+| `clinical_sign` | Identify clinical signs | `medkit-recognizer clinical_sign "Babinski reflex"` |
+| `coding` | Extract medical codes (ICD, CPT) | `medkit-recognizer coding "Type 2 Diabetes"` |
+| `condition` | General medical conditions | `medkit-recognizer condition "Atrial Fibrillation"` |
+| `device` | Identify medical devices | `medkit-recognizer device "Insulin Pump"` |
+| `disease` | Specific disease identification | `medkit-recognizer disease "Crohn's Disease"` |
+| `drug` | Pharmaceutical identification | `medkit-recognizer drug "Lisinopril"` |
+| `genetic` | Genetic variants and markers | `medkit-recognizer genetic "BRCA1 mutation"` |
+| `imaging` | Imaging findings (Radiology) | `medkit-recognizer imaging "Ground-glass opacity"` |
+| `lab_unit` | Standardize laboratory units | `medkit-recognizer lab_unit "mg/dL"` |
+| `med_class` | Identify medication classes | `medkit-recognizer med_class "Statins"` |
+| `pathogen` | Identify bacteria, viruses, fungi | `medkit-recognizer pathogen "Staphylococcus aureus"` |
+| `procedure` | Identify medical procedures | `medkit-recognizer procedure "Colonoscopy"` |
+| `specialty` | Identify medical specialties | `medkit-recognizer specialty "Pediatrics"` |
+| `supplement` | Identify dietary supplements | `medkit-recognizer supplement "Omega-3"` |
+| `symptom` | Identify medical symptoms | `medkit-recognizer symptom "Dyspnea"` |
+| `test` | Identify laboratory/diagnostic tests | `medkit-recognizer test "Hemoglobin A1c"` |
+| `vaccine` | Identify vaccines and biologics | `medkit-recognizer vaccine "MMR Vaccine"` |
+
+**Basic Usage:**
 ```bash
 medkit-recognizer disease "Patient presents with signs of acute bronchitis and mild fever."
 ```
