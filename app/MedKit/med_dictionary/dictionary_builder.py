@@ -123,8 +123,8 @@ class DictionaryBuilder:
         for term in tqdm(new_terms, desc="Processing"):
             try:
                 raw_response = self.client.generate_text(ModelInput(
-                    user_prompt=self.prompt_builder.build_user_prompt(term),
-                    system_prompt=self.prompt_builder.build_system_prompt()
+                    user_prompt=self.prompt_builder.create_user_prompt(term),
+                    system_prompt=self.prompt_builder.create_system_prompt()
                 ))
                 
                 if raw_response and raw_response.strip():
