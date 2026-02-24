@@ -32,11 +32,9 @@ def main():
         if args.command == "consent":
             accepted = manager.display_consent_form()
             if accepted:
-                print("
-✅ Consent accepted.")
+                print("\n✅ Consent accepted.")
             else:
-                print("
-❌ Consent declined.")
+                print("\n❌ Consent declined.")
 
         elif args.command == "audit":
             manager.log_audit_event(args.session, args.action, args.role, args.details)

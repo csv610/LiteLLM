@@ -11,13 +11,10 @@ def list_exams():
         "musculoskeletal_core", "musculoskeletal_mvp", "musculoskeletal", "neurological",
         "neurology_system", "nutrition_growth", "skin_hair_nails", "writing_ability"
     ]
-    print("
-📋 Available Physical Examination Protocols:
-")
+    print("\n📋 Available Physical Examination Protocols:\n")
     for exam in sorted(exams):
         print(f" - {exam.replace('_', ' ').title()}")
-    print("
-Usage: These protocols are currently available as data models for clinical assessment.")
+    print("\nUsage: These protocols are currently available as data models for clinical assessment.")
 
 def main():
     parser = argparse.ArgumentParser(description="MedKit Physical Examinations CLI")
