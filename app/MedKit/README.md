@@ -49,12 +49,32 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ### 🏥 `medkit-medical` Subcommands (24 Modules)
 
-| Category | Modules |
-| :--- | :--- |
-| **General Reference** | `anatomy`, `disease`, `organ`, `topic`, `herbal` |
-| **Clinical Support** | `advise`, `decision`, `facts`, `myth`, `refer`, `history`, `faq`, `implant` |
-| **Surgical Suite** | `surgery`, `pose`, `tool`, `tray` |
-| **Education & Ethics** | `ethics`, `case`, `quiz`, `flashcard`, `roles`, `procedure`, `eval-procedure` |
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`advise`** | Primary health care guidance and home management. |
+| 2 | **`anatomy`** | Body structures, innervation, and blood supply. |
+| 3 | **`case`** | Realistic synthetic patient case report generation. |
+| 4 | **`decision`** | Diagnostic logic trees and clinical decision support. |
+| 5 | **`disease`** | Etiology, symptoms, and treatment protocols. |
+| 6 | **`ethics`** | Structured pillar-based analysis of bioethical dilemmas. |
+| 7 | **`eval-procedure`** | Auditing and evaluating medical procedure documentation. |
+| 8 | **`facts`** | Evidence-based verification of medical statements. |
+| 9 | **`faq`** | Plain-language patient education materials. |
+| 10 | **`flashcard`** | Terminology extraction and explanation from labels. |
+| 11 | **`herbal`** | Evidence-based info on natural remedies and safety. |
+| 12 | **`history`** | Standardized history-taking and intake questions. |
+| 13 | **`implant`** | Detailed information on medical implants and prosthetics. |
+| 14 | **`myth`** | Scientific debunking of common medical misconceptions. |
+| 15 | **`organ`** | Organ-specific physiology and systemic disease roles. |
+| 16 | **`pose`** | Standard patient positioning and associated risks. |
+| 17 | **`procedure`** | Step-by-step educational breakdown of clinical procedures. |
+| 18 | **`quiz`** | MCQ assessment generation with distractors and rationales. |
+| 19 | **`refer`** | Identifying the correct specialty for clinical presentations. |
+| 20 | **`roles`** | Scope of practice and responsibilities for medical specialties. |
+| 21 | **`surgery`** | Exhaustive procedural monographs and recovery benchmarks. |
+| 22 | **`tool`** | Reference for surgical instruments and sterilization needs. |
+| 23 | **`topic`** | Synthesis of general medical subjects. |
+| 24 | **`tray`** | Standardized setup lists for surgical instrument trays. |
 
 > **📘 Exhaustive Reference**: For every subcommand, clinical safety boundary, and failure mode, see the [**Detailed CLI Reference**](./CLI_REFERENCE.md).
 

@@ -52,32 +52,32 @@ You can override the default output path for any non-restricted command.
 *   **Example**: `medkit-medical list`
 
 #### Subcommand Catalog
-| Subcommand | Clinical Domain | Primary Utility |
+| # | Subcommand | Primary Utility |
 | :--- | :--- | :--- |
-| **`anatomy`** | General Reference | Body structures, innervation, and blood supply. |
-| **`disease`** | General Reference | Etiology, symptoms, and treatment protocols. |
-| **`organ`** | General Reference | Organ-specific physiology and systemic disease roles. |
-| **`topic`** | General Reference | Synthesis of general medical subjects. |
-| **`herbal`** | General Reference | Evidence-based info on natural remedies and safety. |
-| **`advise`** | Clinical Support | Primary health care guidance and home management. |
-| **`decision`** | Clinical Support | Diagnostic logic trees and clinical decision support. |
-| **`facts`** | Clinical Support | Evidence-based verification of medical statements. |
-| **`myth`** | Clinical Support | Scientific debunking of common medical misconceptions. |
-| **`refer`** | Clinical Support | Identifying the correct specialty for clinical presentations. |
-| **`history`** | Clinical Support | Standardized history-taking and intake questions. |
-| **`faq`** | Clinical Support | Plain-language patient education materials. |
-| **`implant`** | Clinical Support | Detailed information on medical implants and prosthetics. |
-| **`surgery`** | Surgical Suite | Exhaustive procedural monographs and recovery benchmarks. |
-| **`pose`** | Surgical Suite | Standard patient positioning and associated risks. |
-| **`tool`** | Surgical Suite | Reference for surgical instruments and sterilization. |
-| **`tray`** | Surgical Suite | Standardized setup lists for surgical instrument trays. |
-| **`ethics`** | Education & Ethics | Structured pillar-based analysis of bioethical dilemmas. |
-| **`case`** | Education & Ethics | Realistic synthetic patient case report generation. |
-| **`quiz`** | Education & Ethics | MCQ assessment generation with distractors and rationales. |
-| **`flashcard`** | Education & Ethics | Terminology extraction and explanation from labels. |
-| **`roles`** | Education & Ethics | Scope of practice and responsibilities for specialties. |
-| **`procedure`** | Education & Ethics | Step-by-step educational breakdown of clinical procedures. |
-| **`eval-procedure`**| Education & Ethics | Auditing and evaluating medical procedure documentation. |
+| 1 | **`advise`** | Primary health care guidance and home management. |
+| 2 | **`anatomy`** | Body structures, innervation, and blood supply. |
+| 3 | **`case`** | Realistic synthetic patient case report generation. |
+| 4 | **`decision`** | Diagnostic logic trees and clinical decision support. |
+| 5 | **`disease`** | Etiology, symptoms, and treatment protocols. |
+| 6 | **`ethics`** | Structured pillar-based analysis of bioethical dilemmas. |
+| 7 | **`eval-procedure`** | Auditing and evaluating medical procedure documentation. |
+| 8 | **`facts`** | Evidence-based verification of medical statements. |
+| 9 | **`faq`** | Plain-language patient education materials. |
+| 10 | **`flashcard`** | Terminology extraction and explanation from labels. |
+| 11 | **`herbal`** | Evidence-based info on natural remedies and safety. |
+| 12 | **`history`** | Standardized history-taking and intake questions. |
+| 13 | **`implant`** | Detailed information on medical implants and prosthetics. |
+| 14 | **`myth`** | Scientific debunking of common medical misconceptions. |
+| 15 | **`organ`** | Organ-specific physiology and systemic disease roles. |
+| 16 | **`pose`** | Standard patient positioning and associated risks. |
+| 17 | **`procedure`** | Step-by-step educational breakdown of clinical procedures. |
+| 18 | **`quiz`** | MCQ assessment generation with distractors and rationales. |
+| 19 | **`refer`** | Identifying the correct specialty for clinical presentations. |
+| 20 | **`roles`** | Scope of practice and responsibilities for medical specialties. |
+| 21 | **`surgery`** | Exhaustive procedural monographs and recovery benchmarks. |
+| 22 | **`tool`** | Reference for surgical instruments and sterilization needs. |
+| 23 | **`topic`** | Synthesis of general medical subjects. |
+| 24 | **`tray`** | Standardized setup lists for surgical instrument trays. |
 
 ### `anatomy`
 *   **Problem**: Sourcing reliable anatomical data (innervation, blood supply) is slow.
