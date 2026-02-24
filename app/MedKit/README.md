@@ -79,6 +79,7 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | **Mental Health** | `medkit-mental` | Assessment Chatbot | `medkit-mental` (Interactive) |
 | **Forensics** | `medkit-sane` | SANE Interview Protocol | `medkit-sane start` |
 | **Dictionary** | `medkit-dictionary` | Terminology Builder | `medkit-dictionary build` |
+| **Privacy** | `medkit-privacy` | HIPAA Compliance & Data Protection | `medkit-privacy report` |
 
 ### Detailed Examples
 
@@ -134,7 +135,17 @@ Tools for finding, downloading, and analyzing medical visual content.
 | `summary` | Summarize educational medical media | `medkit-media summary "Laparoscopic cholecystectomy"` |
 | `videos` | Search for medical educational videos | `medkit-media videos "CPR technique"` |
 
-#### 4. Entity Recognition (`medkit-recognizer`)
+#### 4. Privacy & Compliance (`medkit-privacy`)
+Tools for HIPAA compliance, audit logging, and sensitive data protection.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `audit` | Log compliance events | `medkit-privacy audit --session "ID" --action "Login"` |
+| `consent` | Display HIPAA consent form | `medkit-privacy consent` |
+| `mask` | Scrub PII from clinical text | `medkit-privacy mask "Patient John Doe at 555-0199"` |
+| `report` | Generate compliance metrics | `medkit-privacy report` |
+
+#### 5. Entity Recognition (`medkit-recognizer`)
 Extract and normalize structured medical data from unstructured clinical text using specialized identifiers.
 
 | Subcommand | Description | Example |
