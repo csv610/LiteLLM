@@ -1,9 +1,8 @@
-import streamlit as st
+import logging
 from duckduckgo_search import DDGS
 import re
 
-# Configure Streamlit page
-st.set_page_config(page_title="DuckDuckGo Video Finder", layout="wide")
+logger = logging.getLogger(__name__)
 
 class DuckDuckVideos:
     def get_urls(self, query, max_results=10): 
@@ -22,7 +21,11 @@ class DuckDuckVideos:
                     if len(video_urls) >= max_results:
                         break
         except Exception as e:
-            st.error(f"Error during video search: {e}")
+            try:
+                import streamlit as st
+                st.error(f"Error during video search: {e}")
+            except (ImportError, RuntimeError):
+                logger.error(f"Error during video search: {e}")
         return self.sort_by_duration(video_urls)
 
     def _duration_to_seconds(self, duration_str):

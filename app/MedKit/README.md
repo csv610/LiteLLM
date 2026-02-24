@@ -73,6 +73,7 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | **Agent** | `medkit-agent` | Autonomous reasoning & tool coordination | `medkit-agent "Flu symptoms treatment"` |
 | **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
 | **Drugs** | `medkit-drug` | Pharmacology, Interactions & Safety | `medkit-drug info "Metformin"` |
+| **Media** | `medkit-media` | Medical Image/Video search, Captioning & Summary | `medkit-media images "Lupus rash"` |
 | **Recognition** | `medkit-recognizer` | Named Entity Recognition (NER) | `medkit-recognizer drug "Advil"` |
 | **Codes** | `medkit-codes` | ICD-11 Code Lookup | `medkit-codes search "Asthma"` |
 | **Mental Health** | `medkit-mental` | Assessment Chatbot | `medkit-mental` (Interactive) |
@@ -123,7 +124,17 @@ Comprehensive tools for medication research, interaction checking, and safety an
 | `similar` | Find therapeutic alternatives | `medkit-drug similar "Ozempic"` |
 | `symptoms` | Reference drugs for symptoms | `medkit-drug symptoms "Migraine with aura"` |
 
-#### 3. Entity Recognition (`medkit-recognizer`)
+#### 3. Media Analysis & Search (`medkit-media`)
+Tools for finding, downloading, and analyzing medical visual content.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `caption` | Generate clinical media captions | `medkit-media caption "Rheumatoid hand x-ray"` |
+| `images` | Download medical images | `medkit-media images "Psoriasis plaques"` |
+| `summary` | Summarize educational medical media | `medkit-media summary "Laparoscopic cholecystectomy"` |
+| `videos` | Search for medical educational videos | `medkit-media videos "CPR technique"` |
+
+#### 4. Entity Recognition (`medkit-recognizer`)
 Extract and normalize structured medical data from unstructured clinical text using specialized identifiers.
 
 | Subcommand | Description | Example |
