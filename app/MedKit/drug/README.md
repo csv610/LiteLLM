@@ -41,122 +41,69 @@ drug/
 
 ## Features
 
-### 1. Medicine Information
-Get information about medicines:
-- Names and aliases
-- Therapeutic uses
-- Dosage information
-- Side effects
-- Drug interactions
-- Precautions and warnings
+The `medkit-drug` CLI exposes the following subcommands:
 
-**Command**:
-```bash
-python -m medkit drug medicine --medicine <name>
-```
+| Subcommand | Purpose | Example |
+|---|---|---|
+| `list` | Show all available drug tools | `medkit-drug list` |
+| `info` | Comprehensive medicine information | `medkit-drug info "aspirin"` |
+| `interact` | Drug-drug interaction analysis | `medkit-drug interact "warfarin" "aspirin"` |
+| `food` | Drug-food interaction analysis | `medkit-drug food "metformin" "grapefruit"` |
+| `disease` | Drug-disease safety analysis | `medkit-drug disease "ibuprofen" "kidney disease"` |
+| `similar` | Find therapeutically similar medicines | `medkit-drug similar "aspirin"` |
+| `compare` | Side-by-side medicine comparison | `medkit-drug compare "ibuprofen" "naproxen"` |
+| `symptoms` | Suggest drug categories by symptom context | `medkit-drug symptoms "persistent dry cough"` |
+| `addiction` | Addiction and withdrawal information | `medkit-drug addiction "opioids"` |
+| `explain` | Patient-friendly medicine explanation | `medkit-drug explain "acetaminophen"` |
 
-### 2. Drug-Drug Interactions
-Check interactions between two medications:
-- Severity level (mild, moderate, severe)
-- Mechanism of interaction
-- Clinical significance
-- Management recommendations
+Global flags are available for all subcommands:
 
-**Command**:
-```bash
-python -m medkit drug drug_drug --drug1 <drug1> --drug2 <drug2>
-```
-
-### 3. Drug-Food Interactions
-Check how medicines interact with food:
-- Foods to avoid
-- Timing considerations
-- Nutritional impacts
-- Management strategies
-
-**Command**:
-```bash
-python -m medkit drug drug_food --drug <drug> --food <food>
-```
-
-### 4. Drug-Disease Information
-Understand how medicines relate to diseases:
-- Appropriateness for specific diseases
-- Contraindications
-- Precautions for disease states
-- Monitoring requirements
-
-**Command**:
-```bash
-python -m medkit drug drug_disease --drug <drug> --disease <disease>
-```
-
-### 5. Similar Medicines
-Find alternative medicines with similar properties:
-- Generic alternatives
-- Therapeutic equivalents
-- Different drug classes with similar effects
-- Cost and availability information
-
-**Command**:
-```bash
-python -m medkit drug similar_drugs --medicine <medicine>
-```
-
-### 6. Medicine Comparison
-Compare two medicines side-by-side:
-- Efficacy comparison
-- Side effect profiles
-- Cost differences
-- Dosing differences
-- Mechanism differences
-
-**Command**:
-```bash
-python -m medkit drug drugs_comparision --medicine1 <med1> --medicine2 <med2>
-```
+- `-m, --model`
+- `-d, --output-dir`
+- `-v, --verbosity`
+- `-s, --structured`
 
 ## Usage Examples
 
 ### Example 1: Get Aspirin Information
 
 ```bash
-python -m medkit drug medicine --medicine aspirin --output aspirin_info.json
+medkit-drug info aspirin -d outputs -s
 ```
 
 ### Example 2: Check Drug Interactions
 
 ```bash
 # Check interaction between Warfarin and Aspirin
-python -m medkit drug drug_drug --drug1 warfarin --drug2 aspirin
+medkit-drug interact warfarin aspirin -s
 ```
 
 ### Example 3: Check Food Interactions
 
 ```bash
 # Check if Metformin interacts with food
-python -m medkit drug drug_food --drug metformin --food "dairy products"
+medkit-drug food metformin "dairy products" -s
 ```
 
 ### Example 4: Compare Medicines
 
 ```bash
 # Compare Ibuprofen vs Aspirin
-python -m medkit drug drugs_comparision --medicine1 ibuprofen --medicine2 aspirin
+medkit-drug compare ibuprofen aspirin -s
 ```
 
 ### Example 5: Find Alternatives
 
 ```bash
 # Find medicines similar to Aspirin
-python -m medkit drug similar_drugs --medicine aspirin
+medkit-drug similar aspirin -s
 ```
 
 ### Example 6: Disease-Specific Information
 
 ```bash
 # Get info about Metformin for Diabetes
-python -m medkit drug drug_disease --drug metformin --disease diabetes
+medkit-drug disease metformin diabetes -s
 ```
 
 ## Python API Usage
@@ -292,11 +239,9 @@ except MedKitError as e:
 #!/bin/bash
 MEDICINE=$1
 
-python -m medkit drug medicine --medicine "$MEDICINE" \
-  --output "${MEDICINE}_info.json"
+medkit-drug info "$MEDICINE" -d outputs -s
 
-python -m medkit drug similar_drugs --medicine "$MEDICINE" \
-  --output "${MEDICINE}_similar.json"
+medkit-drug similar "$MEDICINE" -d outputs -s
 
 echo "Research complete for $MEDICINE"
 ```
@@ -309,9 +254,7 @@ echo "Research complete for $MEDICINE"
 PRIMARY_DRUG=$1
 
 for other_drug in ibuprofen aspirin acetaminophen; do
-  python -m medkit drug drug_drug \
-    --drug1 "$PRIMARY_DRUG" \
-    --drug2 "$other_drug"
+  medkit-drug interact "$PRIMARY_DRUG" "$other_drug" -s
 done
 ```
 
