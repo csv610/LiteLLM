@@ -86,41 +86,41 @@ Access a massive database of medical knowledge through specialized subcommands.
 
 | Subcommand | Description | Example |
 | :--- | :--- | :--- |
+| `advise` | Primary health care guidance | `medkit-medical advise "Managing mild fever at home"` |
 | `anatomy` | Detailed anatomical info | `medkit-medical anatomy "Liver"` |
+| `case` | Generate synthetic case reports | `medkit-medical case "Type 2 Diabetes"` |
+| `decision` | Clinical decision-making guide | `medkit-medical decision "Acute Cough"` |
 | `disease` | Disease causes, symptoms, treatments | `medkit-medical disease "Hypertension"` |
-| `procedure` | Step-by-step medical procedures | `medkit-medical procedure "Knee Replacement"` |
-| `surgery` | Comprehensive surgical info | `medkit-medical surgery "Appendectomy"` |
-| `herbal` | Evidence-based herbal info | `medkit-medical herbal "Turmeric"` |
 | `facts` | Fact-check medical statements | `medkit-medical facts "Vaccines cause autism"` |
+| `faq` | Common patient questions | `medkit-medical faq "Asthma"` |
+| `herbal` | Evidence-based herbal info | `medkit-medical herbal "Turmeric"` |
+| `history` | Generate patient intake questions | `medkit-medical history -e "Physical" -a 45 -g "Male"` |
+| `implant` | Medical device/implant info | `medkit-medical implant "Pacemaker"` |
 | `myth` | Debunk common medical myths | `medkit-medical myth "We use 10% of our brain"` |
+| `organ` | Organ-specific disease profiles | `medkit-medical organ "Pancreas"` |
+| `pose` | Surgical patient positioning | `medkit-medical pose "Prone"` |
+| `procedure` | Step-by-step medical procedures | `medkit-medical procedure "Knee Replacement"` |
 | `quiz` | Generate medical test questions | `medkit-medical quiz "Cardiology"` |
 | `refer` | Identify appropriate specialists | `medkit-medical refer "Chest pain and dyspnea"` |
-| `history` | Generate patient intake questions | `medkit-medical history -e "Physical" -a 45 -g "Male"` |
-| `case` | Generate synthetic case reports | `medkit-medical case "Type 2 Diabetes"` |
-| `organ` | Organ-specific disease profiles | `medkit-medical organ "Pancreas"` |
+| `roles` | Medical specialty responsibilities | `medkit-medical roles "Neurosurgeon"` |
+| `surgery` | Comprehensive surgical info | `medkit-medical surgery "Appendectomy"` |
 | `tool` | Surgical instrument descriptions | `medkit-medical tool "Scalpel"` |
 | `tray` | Surgical tray setup instructions | `medkit-medical tray "Orthopedic"` |
-| `pose` | Surgical patient positioning | `medkit-medical pose "Prone"` |
-| `decision` | Clinical decision-making guide | `medkit-medical decision "Acute Cough"` |
-| `advise` | Primary health care guidance | `medkit-medical advise "Managing mild fever at home"` |
-| `faq` | Common patient questions | `medkit-medical faq "Asthma"` |
-| `implant` | Medical device/implant info | `medkit-medical implant "Pacemaker"` |
-| `roles` | Medical specialty responsibilities | `medkit-medical roles "Neurosurgeon"` |
 
 #### 2. Pharmacology & Drugs (`medkit-drug`)
 Comprehensive tools for medication research, interaction checking, and safety analysis.
 
 | Subcommand | Description | Example |
 | :--- | :--- | :--- |
+| `addiction` | Addiction & recovery info | `medkit-drug addiction "Oxycodone"` |
+| `compare` | Side-by-side drug comparison | `medkit-drug compare "Tylenol" "Advil"` |
+| `disease` | Drug-disease contraindications | `medkit-drug disease "Ibuprofen" "Kidney Disease"` |
+| `explain` | Simple, friendly explanation | `medkit-drug explain "Amoxicillin"` |
+| `food` | Check drug-food interactions | `medkit-drug food "Metformin" "Grapefruit"` |
 | `info` | Detailed drug monographs | `medkit-drug info "Lisinopril"` |
 | `interact` | Check drug-drug interactions | `medkit-drug interact "Warfarin" "Aspirin"` |
-| `food` | Check drug-food interactions | `medkit-drug food "Metformin" "Grapefruit"` |
-| `disease` | Drug-disease contraindications | `medkit-drug disease "Ibuprofen" "Kidney Disease"` |
 | `similar` | Find therapeutic alternatives | `medkit-drug similar "Ozempic"` |
-| `compare` | Side-by-side drug comparison | `medkit-drug compare "Tylenol" "Advil"` |
 | `symptoms` | Reference drugs for symptoms | `medkit-drug symptoms "Migraine with aura"` |
-| `addiction` | Addiction & recovery info | `medkit-drug addiction "Oxycodone"` |
-| `explain` | Simple, friendly explanation | `medkit-drug explain "Amoxicillin"` |
 
 #### 3. Entity Recognition
 Extract structured data from unstructured clinical text.
