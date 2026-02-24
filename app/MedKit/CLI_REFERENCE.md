@@ -4,6 +4,23 @@ This manual is the definitive technical guide for MedKit. Every subcommand is de
 
 ---
 
+## 📂 Output & Data Storage
+
+MedKit uses a standardized storage architecture to ensure data is organized and secure.
+
+| Data Type | Default Location | Access Level | Description |
+| :--- | :--- | :--- | :--- |
+| **Generated Reports** | `./outputs/` | User | Clinical monographs, drug analyses, and test references. |
+| **Compliance Logs** | `~/.medkit/sessions/` | Restricted (0700) | HIPAA audit trails, session history, and PII-masked data. |
+| **Media Assets** | `./outputs/media/` | User | Downloaded medical images and video metadata. |
+| **System Logs** | `<module>/logs/` | Developer | Technical debug logs for troubleshooting AI responses. |
+
+**Global Flag: `-d, --output-dir`**
+You can override the default output path for any non-restricted command.
+*Example*: `medkit-medical anatomy "Liver" -d "./research_project_A"`
+
+---
+
 ## 🤖 `medkit-agent` (The Orchestrator)
 **"The Central Brain for Multi-Domain Queries"**
 

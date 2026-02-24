@@ -64,6 +64,14 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ---
 
+## 📂 Output & Storage
+
+*   **General Reports**: All generated medical, drug, and research reports are saved to the `./outputs/` directory by default.
+*   **Privacy Data**: HIPAA-compliant sessions and audit logs are stored securely at `~/.medkit/sessions/`.
+*   **Customization**: Use the `-d` or `--output-dir` flag with any command to override the default storage path.
+
+---
+
 ## ⚖️ License & Disclaimer
 
 Distributed under the MIT License. **MedKit is a research tool.** It is NOT a medical device and should NOT be used for direct patient diagnosis without professional oversight.
