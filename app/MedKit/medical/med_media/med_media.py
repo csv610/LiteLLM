@@ -7,8 +7,8 @@ from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
 # Import utils
-from utils.ddg_images import DuckDuckImages
-from utils.ddg_videos import DuckDuckVideos
+from .ddg_images import DuckDuckImages
+from .ddg_videos import DuckDuckVideos
 
 from .med_media_models import MedicalMediaModel, MediaCaptionModel, MediaSummaryModel, ModelOutput
 from .med_media_prompts import PromptBuilder
