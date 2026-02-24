@@ -52,6 +52,8 @@ Apply Theory of Mind to analyze the user's request, considering both logical int
 </Reasoning>
 """
 
+import argparse
+
 def explain_medicine(medicine_name: str) -> str:
     messages = [
         {"role": "system", "content": SYSTEM_BLOCK},
@@ -73,32 +75,17 @@ def explain_medicine(medicine_name: str) -> str:
 
 
 def main():
-    while True:
-        print("\nPlease enter your medication (generic name only, e.g. acetaminophen) and I will explain it in simple terms,")
-        print("(or type 'help' for more info, or 'quit' to exit):")
-        user_input = input("> ").strip().lower()
+    parser = argparse.ArgumentParser(description="MedKit Medicine Explainer.")
+    parser.add_argument("medicine", help="The generic name of the medicine (e.g., acetaminophen, ibuprofen).")
+    
+    args = parser.parse_args()
 
-        if not user_input:
-            continue
-            
-        if user_input in ['quit', 'exit']:
-            print("Goodbye!")
-            break
-            
-        if user_input == 'help':
-            print("\n--- MedKit Medicine Explainer Help ---")
-            print("1. Enter a generic drug name (e.g., ibuprofen, metformin, amoxicillin).")
-            print("2. The AI will explain what it's for, how it works, and what to watch out for.")
-            print("3. Use generic names only for best results.")
-            print("4. Type 'quit' or 'exit' to leave.")
-            continue
-
-        try:
-            print(f"Fetching explanation for {user_input}...")
-            result = explain_medicine(user_input)
-            print("\n" + result)
-        except Exception as e:
-            print(f"Error: {e}")
+    try:
+        print(f"Fetching explanation for {args.medicine}...")
+        result = explain_medicine(args.medicine)
+        print("\n" + result)
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
