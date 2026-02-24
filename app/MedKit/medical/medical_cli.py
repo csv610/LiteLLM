@@ -39,6 +39,7 @@ from medical.med_history.patient_medical_history import PatientMedicalHistoryGen
 from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
 from medical.med_ethics.med_ethics import MedEthicalQA
 from medical.med_flashcard.medical_flashcard import MedicalLabelExtractor, MedicalTermExplainer
+from medical.med_media.med_media import MedicalMediaGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,8 @@ def display_module_list():
             "disease": "Etiology, symptoms, and treatment protocols.",
             "organ": "Organ-specific physiology and systemic disease roles.",
             "topic": "Synthesis of general medical subjects.",
-            "herbal": "Evidence-based info on natural remedies and safety."
+            "herbal": "Evidence-based info on natural remedies and safety.",
+            "media": "Search, download, and analyze medical media (images/videos)."
         },
         "Clinical Support": {
             "advise": "Primary health care guidance and home management.",
@@ -173,6 +175,10 @@ def main():
     # Topic
     topic_p = subparsers.add_parser("topic", help="General medical topic info")
     topic_p.add_argument("topic", help="Topic or file path")
+
+    # Media
+    media_p = subparsers.add_parser("media", help="Medical media search and analysis")
+    media_p.add_argument("topic", help="Medical topic or file path")
 
     # Organ
     organ_p = subparsers.add_parser("organ", help="Organ-specific disease info")
@@ -324,6 +330,13 @@ def main():
             for item in tqdm(handle_batch_input(args.topic, "topic"), desc="Topic"):
                 res = gen.generate_text(topic=item, structured=args.structured)
                 if res: gen.save(res, output_dir)
+
+        elif args.command == "media":
+            gen = MedicalMediaGenerator(model_config)
+            for item in tqdm(handle_batch_input(args.topic, "media"), desc="Media"):
+                res = gen.generate_caption(topic=item, structured=args.structured)
+                if res: gen.save(res, output_dir, suffix="caption")
+
 
         elif args.command == "organ":
             gen = OrganDiseaseGenerator(model_config)
