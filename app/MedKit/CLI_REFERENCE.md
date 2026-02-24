@@ -1,6 +1,6 @@
 # MedKit CLI Reference
 
-This document provides a comprehensive guide to all CLI tools and subcommands available in the MedKit framework.
+This document provides a comprehensive guide to all CLI tools and subcommands available in the MedKit framework, including their primary usage, limitations, and failure modes.
 
 ---
 
@@ -9,10 +9,14 @@ This document provides a comprehensive guide to all CLI tools and subcommands av
 
 The orchestrator agent uses a ReAct (Reasoning and Acting) loop to solve complex clinical queries by dynamically selecting and chaining other MedKit tools.
 
-*   **Usage:** `medkit-agent "<query>"`
+*   **Primary Usage:** Solving multi-step clinical queries that require multiple data points (e.g., "Check interactions and find specialist").
 *   **Key Arguments:**
     *   `-m, --model`: LLM model (default: `ollama/gemma3`).
     *   `-t, --temperature`: Creativity control (0.0 to 1.0).
+*   **Does NOT:** Guarantee the accuracy of medical facts; it only orchestrates the tools it has access to. It does not possess a "medical license" or intuition.
+*   **Edge Cases:**
+    *   **Tool Loop:** If the LLM gets stuck, it might call the same tool repeatedly.
+    *   **Context Exhaustion:** Very complex queries can exceed the LLM's memory, leading it to forget the original goal.
 *   **Example:**
     ```bash
     medkit-agent "Patient is a 65yo female with sudden onset of left-sided weakness. What are the priority diagnostic steps and potential specialist referrals?"
@@ -25,293 +29,186 @@ The orchestrator agent uses a ReAct (Reasoning and Acting) loop to solve complex
 
 Access a massive database of anatomical, pathological, and clinical reference data.
 
+*   **Primary Usage:** Rapid reference for anatomical facts, disease profiles, or healthcare advice.
+*   **Does NOT:** Provide real-time patient diagnosis or monitor patient vitals.
+*   **Edge Cases:**
+    *   **Rare Conditions:** For extremely rare orphan diseases, it may return generic information instead of specific details.
+    *   **Ethics Bias:** Ethical analysis is based on established frameworks (AMA, etc.); it may struggle with emerging cultural variations.
+
 ### Subcommands
-
-#### `advise`
-Primary health care guidance for common concerns.
-*   **Example:** `medkit-medical advise "Managing mild fever at home"`
-
-#### `anatomy`
-Detailed anatomical information including classification, position, and function.
-*   **Example:** `medkit-medical anatomy "Liver"`
-
-#### `case`
-Generates synthetic medical case reports for clinical training and simulation.
-*   **Example:** `medkit-medical case "Type 2 Diabetes"`
-
-#### `decision`
-Clinical decision-making guides based on presenting symptoms.
-*   **Example:** `medkit-medical decision "Acute Cough"`
-
-#### `disease`
-Comprehensive profiles of diseases including causes, symptoms, and treatments.
-*   **Example:** `medkit-medical disease "Hypertension"`
-
-#### `ethics`
-Professional medical ethics analysis for complex scenarios or dilemmas.
-*   **Example:** `medkit-medical ethics "Patient confidentiality vs public safety"`
-
-#### `facts`
-Fact-check medical statements against evidence-based clinical knowledge.
-*   **Example:** `medkit-medical facts "Vaccines cause autism"`
-
-#### `faq`
-Generates common patient questions and professional answers for a given topic.
-*   **Example:** `medkit-medical faq "Asthma"`
-
-#### `flashcard`
-Explains medical terms or labels. If an image path is provided, it extracts labels first.
-*   **Example:** `medkit-medical flashcard "label_image.jpg"`
-
-#### `herbal`
-Evidence-based information on medicinal herbs and natural remedies.
-*   **Example:** `medkit-medical herbal "Turmeric"`
-
-#### `history`
-Generates standardized patient intake and medical history questions.
-*   **Example:** `medkit-medical history -e "Physical" -a 45 -g "Male"`
-
-#### `implant`
-Information on medical devices, implants, and surgical hardware.
-*   **Example:** `medkit-medical implant "Pacemaker"`
-
-#### `myth`
-Debunks common medical myths and misconceptions with scientific evidence.
-*   **Example:** `medkit-medical myth "We use 10% of our brain"`
-
-#### `organ`
-Organ-specific disease profiles and physiological summaries.
-*   **Example:** `medkit-medical organ "Pancreas"`
-
-#### `pose`
-Guidance on surgical patient positioning for specific procedures.
-*   **Example:** `medkit-medical pose "Prone"`
-
-#### `procedure`
-Step-by-step breakdown of medical and diagnostic procedures.
-*   **Example:** `medkit-medical procedure "Knee Replacement"`
-
-#### `quiz`
-Generates medical test questions for students and professionals.
-*   **Example:** `medkit-medical quiz "Cardiology"`
-
-#### `refer`
-Identifies the appropriate specialists for a given set of symptoms or conditions.
-*   **Example:** `medkit-medical refer "Chest pain and dyspnea"`
-
-#### `roles`
-Detailed responsibilities and scope of practice for medical specialties.
-*   **Example:** `medkit-medical roles "Neurosurgeon"`
-
-#### `surgery`
-Comprehensive information on surgical techniques, risks, and recovery.
-*   **Example:** `medkit-medical surgery "Appendectomy"`
-
-#### `tool`
-Descriptions and usage of surgical instruments and medical tools.
-*   **Example:** `medkit-medical tool "Scalpel"`
-
-#### `tray`
-Standardized surgical tray setup instructions for various operations.
-*   **Example:** `medkit-medical tray "Orthopedic"`
+*   `advise`: Primary health care guidance for common concerns.
+*   `anatomy`: Detailed anatomical information (classification, position, function).
+*   `case`: Generates synthetic medical case reports for training.
+*   `decision`: Clinical decision-making guides based on symptoms.
+*   `disease`: Comprehensive profiles of diseases.
+*   `ethics`: Professional medical ethics analysis for complex scenarios.
+*   `facts`: Fact-check medical statements.
+*   `faq`: Generates patient FAQs and professional answers.
+*   `flashcard`: Explains medical terms or labels (supports image OCR).
+*   `herbal`: Information on medicinal herbs and natural remedies.
+*   `history`: Generates standardized patient intake questions.
+*   `implant`: Information on medical devices and implants.
+*   `myth`: Debunk common medical myths with scientific evidence.
+*   `organ`: Organ-specific disease profiles and summaries.
+*   `pose`: Guidance on surgical patient positioning.
+*   `procedure`: Step-by-step breakdown of medical procedures.
+*   `quiz`: Generates medical test questions for students.
+*   `refer`: Identifies appropriate specialists for symptoms.
+*   `roles`: Responsibilities and scope of medical specialties.
+*   `surgery`: Information on surgical techniques and recovery.
+*   `tool`: Descriptions of surgical instruments.
+*   `tray`: Standardized surgical tray setup instructions.
 
 ---
 
 ## 💊 `medkit-drug`
 **Pharmacology, Interactions & Safety**
 
-Tools for pharmaceutical research and medication safety analysis.
+*   **Primary Usage:** Verifying medication safety and explaining pharmacology to patients or students.
+*   **Does NOT:** Provide precise pediatric or geriatric weight-based dosing; not a substitute for a pharmacist.
+*   **Edge Cases:**
+    *   **Brand vs. Generic:** Very new brand names may fail to link to their generic counterparts.
+    *   **Multidrug Complexity:** Checking 10+ drugs simultaneously can lead to "interaction fatigue."
 
 ### Subcommands
-
-#### `addiction`
-Detailed info on drug addiction, withdrawal symptoms, and recovery resources.
-*   **Example:** `medkit-drug addiction "Oxycodone"`
-
-#### `compare`
-Side-by-side comparison of two medications (efficacy, side effects, etc.).
-*   **Example:** `medkit-drug compare "Tylenol" "Advil"`
-
-#### `disease`
-Checks for contraindications and precautions between a drug and a disease.
-*   **Example:** `medkit-drug disease "Ibuprofen" "Kidney Disease"`
-
-#### `explain`
-Provides a simple, patient-friendly explanation of a medication.
-*   **Example:** `medkit-drug explain "Amoxicillin"`
-
-#### `food`
-Identifies potential interactions between medications and specific foods.
-*   **Example:** `medkit-drug food "Metformin" "Grapefruit"`
-
-#### `info`
-Comprehensive drug monographs including mechanism, dosage, and side effects.
-*   **Example:** `medkit-drug info "Lisinopril"`
-
-#### `interact`
-Detailed drug-drug interaction analysis between two or more medications.
-*   **Example:** `medkit-drug interact "Warfarin" "Aspirin"`
-
-#### `similar`
-Finds therapeutic alternatives or similar medications within the same class.
-*   **Example:** `medkit-drug similar "Ozempic"`
-
-#### `symptoms`
-Reference tool to find common medications used to treat specific symptoms.
-*   **Example:** `medkit-drug symptoms "Migraine with aura"`
+*   `addiction`: Info on addiction, withdrawal, and recovery.
+*   `compare`: Side-by-side comparison of two medications.
+*   `disease`: Checks drug-disease contraindications.
+*   `explain`: Simple, patient-friendly medication explanation.
+*   `food`: Identifies drug-food interactions.
+*   `info`: Comprehensive drug monographs.
+*   `interact`: Detailed drug-drug interaction analysis.
+*   `similar`: Finds therapeutic alternatives within the same class.
+*   `symptoms`: Find common medications used to treat specific symptoms.
 
 ---
 
 ## 📊 `medkit-graph`
 **Medical Knowledge Graph Extraction**
 
-Extract structured knowledge triples (Entity-Relation-Entity) and visualize them as interactive graphs.
+*   **Primary Usage:** Visualizing complex medical text to identify hidden relationships between symptoms and causes.
+*   **Does NOT:** Verify if the input text is medically true; it only maps what you provide.
+*   **Edge Cases:**
+    *   **Ambiguity:** "It causes pain" may result in a broken link if "It" is not clearly defined in context.
 
 ### Subcommands
-*   `anatomy`: Extract anatomical relationships.
-*   `disease`: Extract disease-symptom-treatment links.
-*   `genetic`: Extract genetic & genomic relations.
-*   `medicine`: Extract pharmaceutical knowledge.
-*   `pathophysiology`: Extract physiological mechanisms.
-*   `pharmacology`: Extract drug mechanisms of action.
-*   `procedure`: Extract surgical/clinical steps.
-*   `surgery`: Extract surgical anatomy/tools.
-*   `symptoms`: Extract symptom-disease mappings.
-*   `test`: Extract diagnostic test logic.
-
-*   **Example:** `medkit-graph disease "Diabetes is a chronic condition..."`
+*   `anatomy`, `disease`, `genetic`, `medicine`, `pathophysiology`, `pharmacology`, `procedure`, `surgery`, `symptoms`, `test`.
 
 ---
 
 ## 🔍 `medkit-recognizer`
 **Medical Entity Recognition (NER)**
 
-Extract and normalize structured data from unstructured clinical text.
+*   **Primary Usage:** Transforming unstructured doctor's notes into clean, structured datasets for research.
+*   **Does NOT:** Understand clinical intent (e.g., cannot distinguish "Patient denies cough" from "Patient has cough").
+*   **Edge Cases:**
+    *   **Overlapping Terms:** "Lung Cancer" might be incorrectly split into separate Anatomy and Disease concepts.
 
 ### Subcommands
-*   `abbreviation`: Resolve medical abbreviations (e.g., "COPD").
-*   `anatomy`: Identify anatomical structures.
-*   `clinical_sign`: Identify clinical signs (e.g., "Babinski").
-*   `coding`: Extract medical codes (ICD, CPT).
-*   `condition`: Identify general medical conditions.
-*   `device`: Identify medical devices and hardware.
-*   `disease`: Specific disease identification.
-*   `drug`: Pharmaceutical identification.
-*   `genetic`: Genetic variants and markers.
-*   `imaging`: Imaging findings (Radiology).
-*   `lab_unit`: Standardize laboratory units.
-*   `med_class`: Identify medication classes.
-*   `pathogen`: Identify bacteria, viruses, fungi.
-*   `procedure`: Identify medical procedures.
-*   `specialty`: Identify medical specialties.
-*   `supplement`: Identify dietary supplements.
-*   `symptom`: Identify medical symptoms.
-*   `test`: Identify laboratory/diagnostic tests.
-*   `vaccine`: Identify vaccines and biologics.
-
-*   **Example:** `medkit-recognizer drug "Patient is taking 10mg of Lisinopril daily."`
+*   `abbreviation`, `anatomy`, `clinical_sign`, `coding`, `condition`, `device`, `disease`, `drug`, `genetic`, `imaging`, `lab_unit`, `med_class`, `pathogen`, `procedure`, `specialty`, `supplement`, `symptom`, `test`, `vaccine`.
 
 ---
 
 ## 📸 `medkit-media`
 **Medical Image/Video Search & Analysis**
 
+*   **Primary Usage:** Sourcing visual aids for medical presentations or generating captions for educational scans.
+*   **Does NOT:** Verify image copyright or ensure 100% medical accuracy of web-sourced results.
+*   **Edge Cases:**
+    *   **Search Noise:** A search for "Stapes" might return a picture of a stapler if the index is noisy.
+
 ### Subcommands
-
-#### `caption`
-Generates clinical captions for medical images or scans.
-*   **Example:** `medkit-media caption "Rheumatoid hand x-ray"`
-
-#### `images`
-Searches and downloads medical images from DuckDuckGo.
-*   **Example:** `medkit-media images "Psoriasis plaques"`
-
-#### `summary`
-Summarizes educational medical videos or long-form medical content.
-*   **Example:** `medkit-media summary "Laparoscopic cholecystectomy"`
-
-#### `videos`
-Searches for medical educational videos.
-*   **Example:** `medkit-media videos "CPR technique"`
+*   `caption`: Generates clinical captions for images.
+*   `images`: Searches and downloads medical images.
+*   `summary`: Summarizes educational medical videos.
+*   `videos`: Searches for medical educational videos.
 
 ---
 
 ## 🧪 `medkit-diagnostics`
 **Medical Tests & Devices**
 
-### Subcommands
-#### `test`
-Reference information for laboratory tests, including normal ranges and indications.
-*   **Example:** `medkit-diagnostics test "HbA1c"`
+*   **Primary Usage:** Understanding the logic behind lab tests and the mechanics of diagnostic hardware.
+*   **Does NOT:** Interpret a specific patient's lab results (e.g., "My result is X, what does it mean?").
+*   **Edge Cases:**
+    *   **Non-Standard Abbreviations:** Fails on proprietary or rare regional lab shorthand.
 
-#### `device`
-Technical and clinical information about diagnostic medical devices.
-*   **Example:** `medkit-diagnostics device "MRI Scanner"`
+### Subcommands
+*   `test`: Reference info for lab tests (normal ranges, indications).
+*   `device`: Technical info about diagnostic medical devices.
 
 ---
 
 ## 📄 `medkit-article`
 **PubMed & Article Search**
 
-### Subcommands
-#### `search`
-Search for professional medical articles and PubMed records by disease.
-*   **Example:** `medkit-article search "Gout"`
+*   **Primary Usage:** Literature review and finding peer-reviewed evidence for specific medical conditions.
+*   **Does NOT:** Provide full-text PDFs; only provides metadata and abstracts.
+*   **Edge Cases:**
+    *   **Rate Limits:** Excessive searching can lead to temporary blocks from PubMed servers.
 
-#### `cite`
-Retrieve formatted citations for medical articles.
-*   **Example:** `medkit-article cite "Diabetes"`
+### Subcommands
+*   `search`: Search for articles and PubMed records by disease.
+*   `cite`: Retrieve formatted citations.
 
 ---
 
 ## 🛡️ `medkit-privacy`
 **HIPAA Compliance & Data Protection**
 
+*   **Primary Usage:** Automating HIPAA compliance workflows like consent capture and PII scrubbing.
+*   **Does NOT:** Provide legal indemnity or technical encryption.
+*   **Edge Cases:**
+    *   **Masking Failures:** If a name is also a common word (e.g., "Patient Rose"), it may remain unmasked.
+
 ### Subcommands
-#### `audit`
-Logs compliance and data access events for audit trailing.
-*   **Example:** `medkit-privacy audit --session "ID" --action "Login"`
-
-#### `consent`
-Displays and captures HIPAA-compliant informed consent.
-*   **Example:** `medkit-privacy consent`
-
-#### `mask`
-Scrubs Personally Identifiable Information (PII) from clinical text.
-*   **Example:** `medkit-privacy mask "Patient John Doe at 555-0199"`
-
-#### `report`
-Generates HIPAA compliance metrics and reports.
-*   **Example:** `medkit-privacy report`
+*   `audit`: Logs compliance and data access events.
+*   `consent`: Displays HIPAA-compliant informed consent.
+*   `mask`: Scrubs PII from clinical text.
+*   `report`: Generates HIPAA compliance metrics.
 
 ---
 
 ## 🧠 `medkit-mental`
 **Mental Health Assessment**
 
-Interactive assessment tool for psychological and mental health screening.
-*   **Usage:** `medkit-mental` (Starts interactive session)
+*   **Primary Usage:** Conducting preliminary psychiatric screenings and longitudinal tracking.
+*   **Does NOT:** Provide therapy, counseling, or emergency crisis intervention.
+*   **Edge Cases:**
+    *   **Crisis Detection:** AI can miss subtle linguistic cues of immediate self-harm risk.
 
 ---
 
 ## ⚖️ `medkit-sane`
 **SANE Interview Protocol**
 
-Specialized forensic interview protocols for Sexual Assault Nurse Examiners.
-*   **Usage:** `medkit-sane start`
+*   **Primary Usage:** Standardizing forensic interview protocols to ensure legal and clinical consistency.
+*   **Does NOT:** Collect physical DNA evidence or serve as a legal witness.
+*   **Edge Cases:**
+    *   **Trauma Response:** Struggles to build coherent timelines from non-linear accounts.
 
 ---
 
 ## 📖 `medkit-dictionary`
 **Medical Terminology Builder**
 
-Builds and manages a custom structured medical dictionary.
-*   **Usage:** `medkit-dictionary build`
+*   **Primary Usage:** Building and managing a custom structured medical glossary.
+*   **Does NOT:** Replace official medical dictionaries like Stedman's or Dorland's.
+
+---
+
+## 📋 `medkit-codes`
+**ICD-11 Coding**
+
+*   **Primary Usage:** Mapping clinical descriptions to international standard ICD-11 codes.
+*   **Does NOT:** Handle medical billing, insurance claims, or CPT/HCPCS codes.
+*   **Edge Cases:**
+    *   **Granularity:** May return a "parent" code if input is not specific enough.
 
 ---
 
 ## 📋 `medkit-exam`
 **Physical Examination Protocols**
 
-Reference for standardized physical examination protocols across multiple domains.
-*   **Usage:** `medkit-exam --list`
+*   **Primary Usage:** Training or reference for performing standardized physical examinations.
+*   **Does NOT:** Perform the actual exam or provide real-time guidance during physical touch.
