@@ -35,6 +35,7 @@ from surgical_tray.surgical_tray_info import SurgicalTrayGenerator
 from synthetic_case_report.synthetic_case_report import SyntheticCaseReportGenerator
 from med_history.patient_medical_history import PatientMedicalHistoryGenerator
 from med_history.patient_medical_history_prompts import MedicalHistoryInput
+from med_ethics.med_ethics import MedEthicalQA
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +146,10 @@ def main():
     # Case Report
     case_p = subparsers.add_parser("case", help="Synthetic case report generator")
     case_p.add_argument("condition", help="Condition name or file path")
+
+    # Ethics
+    ethics_p = subparsers.add_parser("ethics", help="Medical ethics analysis")
+    ethics_p.add_argument("question", help="Ethics question or file path")
 
     # Medical History
     history_p = subparsers.add_parser("history", help="Patient medical history questions")
@@ -299,6 +304,12 @@ def main():
             gen = SyntheticCaseReportGenerator(model_config)
             for item in tqdm(handle_batch_input(args.condition, "case"), desc="Case"):
                 res = gen.generate_text(condition=item, structured=args.structured)
+                if res: gen.save(res, output_dir)
+
+        elif args.command == "ethics":
+            gen = MedEthicalQA(model_config)
+            for item in tqdm(handle_batch_input(args.question, "ethics"), desc="Ethics"):
+                res = gen.generate_text(question=item, structured=args.structured)
                 if res: gen.save(res, output_dir)
 
         elif args.command == "history":

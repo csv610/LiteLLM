@@ -91,6 +91,7 @@ Access a massive database of medical knowledge through specialized subcommands.
 | `case` | Generate synthetic case reports | `medkit-medical case "Type 2 Diabetes"` |
 | `decision` | Clinical decision-making guide | `medkit-medical decision "Acute Cough"` |
 | `disease` | Disease causes, symptoms, treatments | `medkit-medical disease "Hypertension"` |
+| `ethics` | Professional medical ethics analysis | `medkit-medical ethics "Patient confidentiality vs public safety"` |
 | `facts` | Fact-check medical statements | `medkit-medical facts "Vaccines cause autism"` |
 | `faq` | Common patient questions | `medkit-medical faq "Asthma"` |
 | `herbal` | Evidence-based herbal info | `medkit-medical herbal "Turmeric"` |
