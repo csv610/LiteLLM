@@ -49,6 +49,52 @@ def handle_batch_input(input_val: str, desc: str):
         return items
     return [input_val]
 
+def display_module_list():
+    """Display a beautiful, categorized list of medical modules."""
+    print("\n🏥 MedKit Medical Module Catalog\n")
+    
+    categories = {
+        "General Reference": {
+            "anatomy": "Body structures, innervation, and blood supply.",
+            "disease": "Etiology, symptoms, and treatment protocols.",
+            "organ": "Organ-specific physiology and systemic disease roles.",
+            "topic": "Synthesis of general medical subjects.",
+            "herbal": "Evidence-based info on natural remedies and safety."
+        },
+        "Clinical Support": {
+            "advise": "Primary health care guidance and home management.",
+            "decision": "Diagnostic logic trees and clinical decision support.",
+            "facts": "Evidence-based verification of medical statements.",
+            "myth": "Scientific debunking of common medical misconceptions.",
+            "refer": "Identifying the correct specialty for clinical presentations.",
+            "history": "Standardized history-taking and intake questions.",
+            "faq": "Plain-language patient education materials."
+        },
+        "Surgical Suite": {
+            "surgery": "Exhaustive procedural monographs and recovery benchmarks.",
+            "pose": "Standard patient positioning and associated nerve/pressure risks.",
+            "tool": "Reference for surgical instruments and sterilization needs.",
+            "tray": "Standardized setup lists for surgical instrument trays."
+        },
+        "Education & Ethics": {
+            "ethics": "Structured pillar-based analysis of bioethical dilemmas.",
+            "case": "Realistic synthetic patient case report generation.",
+            "quiz": "MCQ assessment generation with distractors and rationales.",
+            "flashcard": "Terminology extraction and explanation from labels.",
+            "roles": "Scope of practice and responsibilities for medical specialties.",
+            "procedure": "Step-by-step educational breakdown of clinical procedures.",
+            "eval-procedure": "Auditing and evaluating medical procedure documentation."
+        }
+    }
+
+    for category, modules in categories.items():
+        print(f"🔹 {category}:")
+        for cmd, desc in modules.items():
+            print(f"  - {cmd.ljust(15)}: {desc}")
+        print()
+    
+    print("Usage: medkit-medical <subcommand> \"Input Text\"")
+
 def main():
     parser = argparse.ArgumentParser(description="MedKit Unified CLI - Access all medical AI tools.")
     
@@ -59,6 +105,9 @@ def main():
     parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
 
     subparsers = parser.add_subparsers(dest="command", required=True, help="Medical tool subcommands")
+
+    # List Modules
+    list_p = subparsers.add_parser("list", help="List all available medical modules and descriptions")
 
     # Anatomy
     anatomy_p = subparsers.add_parser("anatomy", help="Generate anatomical info")
@@ -172,7 +221,10 @@ def main():
     model_config = ModelConfig(model=args.model, temperature=0.2)
 
     try:
-        if args.command == "anatomy":
+        if args.command == "list":
+            display_module_list()
+
+        elif args.command == "anatomy":
             gen = MedicalAnatomyGenerator(model_config)
             for item in tqdm(handle_batch_input(args.body_part, "anatomy"), desc="Anatomy"):
                 res = gen.generate_text(body_part=item, structured=args.structured)

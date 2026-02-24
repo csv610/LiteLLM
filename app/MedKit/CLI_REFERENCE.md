@@ -46,6 +46,11 @@ You can override the default output path for any non-restricted command.
     *   `-m, --model`: Override the default model.
     *   `-d, --output-dir`: Specify where to save the generated report.
 
+### `list`
+*   **Primary Usage**: Discoverability tool to see all 24+ medical subcommands categorized by their clinical purpose.
+*   **Does**: Prints a clean, descriptive table of every available module.
+*   **Example**: `medkit-medical list`
+
 ### `anatomy`
 *   **Problem**: Sourcing reliable anatomical data (innervation, blood supply) is slow.
 *   **Usage**: Detailed research into specific body structures.
