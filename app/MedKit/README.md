@@ -78,11 +78,29 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ---
 
+### 💊 `medkit-drug` Subcommands (10 Modules)
+
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`addiction`** | Drug addiction, withdrawal symptoms, and recovery info. |
+| 2 | **`compare`** | Side-by-side comparison of two specific medicines. |
+| 3 | **`disease`** | Checking for drug-disease contraindications and safety. |
+| 4 | **`explain`** | Plain-language medication explanations for patients. |
+| 5 | **`food`** | Analysis of potential interactions between meds and foods. |
+| 6 | **`info`** | Comprehensive drug monographs (MOA, dosing, side effects). |
+| 7 | **`interact`** | Drug-drug interaction analysis between two medications. |
+| 8 | **`similar`** | Finding therapeutic alternatives or similar medications. |
+| 9 | **`symptoms`** | Suggesting drug categories for specific clinical symptoms. |
+
+---
+
 #### 🧪 Clinical Intelligence: AI Augmentation of Traditional Workflows
 
 MedKit doesn't just provide definitions; it augments traditional medical practice through targeted AI reasoning:
 
 *   **`advise` & `decision`**: Replaces static paper flowcharts with dynamic clinical decision support, suggesting prioritized differential diagnoses based on patient context.
+*   **`interact` & `disease` (Pharmacology)**: Automates multi-drug interaction screening and drug-disease safety checks, identifying physiological contraindications often overlooked in rapid clinical encounters.
+*   **`explain` (Patient Safety)**: Generates compassionate, plain-language patient education to improve adherence and bridge the health literacy gap.
 *   **`anatomy` & `organ`**: Moves beyond 2D atlases to semantic functional mapping, explaining the systemic "why" behind clinical findings.
 *   **`case` & `quiz`**: Automates the generation of high-fidelity synthetic patient data and MCQs for rapid, bias-free medical education.
 *   **`eval-procedure` & `surgery`**: Acts as a digital auditor for operative documentation, flagging inconsistencies and identifying nerve/pressure risks in patient positioning (`pose`).

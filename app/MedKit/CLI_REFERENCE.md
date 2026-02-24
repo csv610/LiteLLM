@@ -279,8 +279,6 @@ The following sections provide a definitive guide to every `medkit-medical` modu
 
 *(Note: All 24 medical subcommands accept the `--structured` argument to return machine-readable JSON reports.)*
 
----
-
 ## 💊 `medkit-drug` (Pharmacology & Safety)
 **10 Specialized Subcommands for Medication Management**
 
@@ -292,58 +290,95 @@ The following sections provide a definitive guide to every `medkit-medical` modu
 *   **Does**: Prints a clean, descriptive table of every available drug module.
 *   **Example**: `medkit-drug list`
 
-### `info`
-*   **Problem**: Clinicians need deeper monographs than simple definitions.
-*   **Usage**: Professional medication reference.
-*   **Does**: MOA, pharmacodynamics, and adult dosing guidelines.
-*   **Example**: `medkit-drug info "Lisinopril" --structured`
+#### Subcommand Catalog
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`addiction`** | Drug addiction, withdrawal symptoms, and recovery info. |
+| 2 | **`compare`** | Side-by-side comparison of two specific medicines. |
+| 3 | **`disease`** | Checking for drug-disease contraindications and safety. |
+| 4 | **`explain`** | Plain-language medication explanations for patients. |
+| 5 | **`food`** | Analysis of potential interactions between meds and foods. |
+| 6 | **`info`** | Comprehensive drug monographs (MOA, dosing, side effects). |
+| 7 | **`interact`** | Drug-drug interaction analysis between two medications. |
+| 8 | **`similar`** | Finding therapeutic alternatives or similar medications. |
+| 9 | **`symptoms`** | Suggesting drug categories for specific clinical symptoms. |
 
-### `interact`
-*   **Problem**: Multidrug regimens increase life-threatening interaction risks.
-*   **Usage**: Screening for drug-drug interactions.
-*   **Does**: Identifies Major, Moderate, and Minor severity interactions.
-*   **Example**: `medkit-drug interact "Warfarin" "Aspirin" --structured`
+---
 
-### `food`
-*   **Problem**: Many patients are unaware of dietary restrictions with medications.
-*   **Usage**: Checking for drug-food interactions.
-*   **Does**: Identifies potential absorption issues or metabolic interference.
-*   **Example**: `medkit-drug food "Sertraline" "Grapefruit" -s`
+### 📘 Exhaustive Module Reference (Pharmacology)
 
-### `disease`
-*   **Problem**: Certain drugs are lethal if the patient has a secondary disease.
-*   **Usage**: Checking drug-disease safety.
-*   **Does**: Flags risks like Beta-blockers in Asthma patients.
-*   **Example**: `medkit-drug disease "Ibuprofen" "Kidney Disease" -s`
+The following sections provide a definitive guide to every `medkit-drug` module, detailing how AI augments traditional clinical practice.
 
-### `explain`
-*   **Problem**: Clinical terminology confuses patients, leading to non-adherence.
-*   **Usage**: Generating simple, compassionate medication explanations.
-*   **Does**: Uses plain language to explain what a drug is and how to take it.
-*   **Example**: `medkit-drug explain "Metformin"`
-
-### `addiction`
-*   **Problem**: Recovery requires clear info on withdrawal and support.
+#### `addiction`
+*   **Problem**: Recovery requires clear info on withdrawal and support, which is often difficult to find in standardized monographs.
 *   **Usage**: Substance abuse and recovery reference.
-*   **Does**: Outlines symptoms, risks, and recovery pathways.
+*   **Does**: Outlines symptoms, risks, and recovery pathways for specific drugs.
+*   **Does NOT**: Provide clinical addiction treatment or professional counseling.
+*   **AI Augmentation**: Outlines recovery pathways and withdrawal risks with scientific rigor, synthesizing data from multiple toxicology and recovery resources.
 *   **Example**: `medkit-drug addiction "Fentanyl" -s`
 
-### `similar`
-*   **Problem**: Allergies or shortages require finding therapeutic alternatives.
-*   **Usage**: Finding therapeutic substitutes.
-*   **Does**: Identifies medications in the same class or with similar utility.
-*   **Example**: `medkit-drug similar "Lisinopril" -s`
-
-### `compare`
-*   **Problem**: Choosing between two similar drugs for a specific patient profile.
+#### `compare`
+*   **Problem**: Choosing between two similar drugs for a specific patient profile requires manual cross-referencing of efficacy and safety data.
 *   **Usage**: Side-by-side medication comparison.
-*   **Does**: Highlights differences in MOA, side effects, and cost.
+*   **Does**: Highlights differences in MOA, side effects, and clinical utility.
+*   **Does NOT**: Recommend one drug over another for a specific patient.
+*   **AI Augmentation**: Performs multi-parametric comparison (MOA, safety, cost) to aid clinical choice, providing a comparative view that traditional monographs often lack.
 *   **Example**: `medkit-drug compare "Atorvastatin" "Rosuvastatin" -s`
 
-### `symptoms`
-*   **Problem**: Rapidly identifying drug classes for specific clinical presentations.
-*   **Usage**: Symptom-to-medication category mapping.
-*   **Does**: Suggests relevant drug classes for clinical symptoms.
+#### `disease`
+*   **Problem**: Certain drugs are lethal if the patient has a secondary disease, and these contraindications can be easily missed.
+*   **Usage**: Checking for drug-disease safety and contraindications.
+*   **Does**: Flags risks like Beta-blockers in Asthma patients or NSAIDs in kidney disease.
+*   **Does NOT**: Replace a full medical history review or pharmacy safety check.
+*   **AI Augmentation**: Identifies potential contraindications between a drug and a specific disease state using advanced physiological reasoning.
+*   **Example**: `medkit-drug disease "Ibuprofen" "Kidney Disease" -s`
+
+#### `explain`
+*   **Problem**: Clinical terminology confuses patients, leading to non-adherence and safety risks.
+*   **Usage**: Generating simple, compassionate medication explanations for patients.
+*   **Does**: Uses plain language to explain what a drug is, how it works, and how to take it.
+*   **Does NOT**: Provide specific dosage instructions or therapeutic recommendations.
+*   **AI Augmentation**: Generates compassionate, plain-language patient education materials to improve adherence and bridge the health literacy gap.
+*   **Example**: `medkit-drug explain "Metformin"`
+
+#### `food`
+*   **Problem**: Many patients are unaware of dietary restrictions that can alter drug absorption or metabolism.
+*   **Usage**: Checking for drug-food interactions.
+*   **Does**: Identifies potential absorption issues or metabolic interference (e.g., grapefruit juice).
+*   **Does NOT**: Provide comprehensive nutritional advice or meal plans.
+*   **AI Augmentation**: Checks for clinically significant interactions between medications and specific foods or nutrients using metabolic pathway analysis.
+*   **Example**: `medkit-drug food "Sertraline" "Grapefruit" -s`
+
+#### `info`
+*   **Problem**: Clinicians often need deeper monographs that include pharmacodynamics and adult dosing guidelines.
+*   **Usage**: Professional medication reference and monograph retrieval.
+*   **Does**: Covers MOA, pharmacodynamics, side effects, and standard adult dosing.
+*   **Does NOT**: Provide real-time pricing, stock availability, or pediatric dosing by default.
+*   **AI Augmentation**: Synthesizes professional monographs from diverse clinical sources, providing a unified view of MOA and pharmacodynamics.
+*   **Example**: `medkit-drug info "Lisinopril" --structured`
+
+#### `interact`
+*   **Problem**: Multidrug regimens increase life-threatening interaction risks, which are complex to manage manually.
+*   **Usage**: Screening for drug-drug interactions between multiple medications.
+*   **Does**: Identifies Major, Moderate, and Minor severity interactions with physiological rationales.
+*   **Does NOT**: Predict all possible idiosyncratic or rare adverse reactions.
+*   **AI Augmentation**: Cross-checks multi-drug regimens for interaction severity and physiological mechanisms, acting as a redundant safety check for clinicians.
+*   **Example**: `medkit-drug interact "Warfarin" "Aspirin" --structured`
+
+#### `similar`
+*   **Problem**: Allergies, side effects, or drug shortages require finding safe therapeutic alternatives.
+*   **Usage**: Finding therapeutic substitutes within the same or similar drug classes.
+*   **Does**: Identifies medications in the same class or with similar therapeutic utility.
+*   **Does NOT**: Confirm bioequivalence for generic substitution (always consult a pharmacist).
+*   **AI Augmentation**: Identifies therapeutic alternatives within the same chemical or functional class based on clinical indications.
+*   **Example**: `medkit-drug similar "Lisinopril" -s`
+
+#### `symptoms`
+*   **Problem**: Rapidly identifying relevant drug classes for specific clinical symptoms is essential during initial diagnosis.
+*   **Usage**: Symptom-to-medication category mapping for reference.
+*   **Does**: Suggests relevant drug classes (not specific drugs) for clinical symptoms.
+*   **Does NOT**: Recommend specific drugs for treatment or replace diagnostic protocols.
+*   **AI Augmentation**: Maps clinical symptoms to physiological drug classes, aiding differential pharmacology and clinical reasoning.
 *   **Example**: `medkit-drug symptoms "Severe productive cough" -s`
 
 ---
