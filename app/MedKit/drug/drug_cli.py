@@ -29,7 +29,7 @@ def display_module_list():
     categories = {
         "Drug Information": {
             "info": "Comprehensive drug monographs (MOA, dosing, side effects).",
-            "explain": "Simple, patient-friendly Friendly explanation of a medicine.",
+            "explain": "Please enter your medication (generic name only, e.g. acetaminophen) and I will explain it in simple terms.",
             "addiction": "Drug addiction, withdrawal symptoms, and recovery info."
         },
         "Interactions & Safety": {
@@ -104,8 +104,8 @@ def main():
     addiction_p.add_argument("drug", help="Drug name")
 
     # 9. Explain (Simple)
-    explain_p = subparsers.add_parser("explain", help="Simple friendly explanation of a medicine")
-    explain_p.add_argument("medicine", help="Medicine name")
+    explain_p = subparsers.add_parser("explain", help="Please enter your medication (generic name only, e.g. acetaminophen) and I will explain it in simple terms.")
+    explain_p.add_argument("medicine", nargs="?", help="Medicine name (optional, if omitted, enters interactive mode)")
 
     args = parser.parse_args()
 
@@ -178,11 +178,22 @@ def main():
             if res: gen.save(res, output_dir)
 
         elif args.command == "explain":
-            from drug.medicine_explainer import explain_medicine
-            res = explain_medicine(args.medicine)
-            print(res)
-            with open(output_dir / f"{args.medicine.lower()}_explanation.md", "w") as f:
-                f.write(res)
+            from drug.medicine_explainer import explain_medicine, main as explainer_main
+            
+            if args.medicine:
+                if args.medicine.lower() == 'help':
+                    print("\n--- MedKit Medicine Explainer Help ---")
+                    print("Usage: medkit-drug explain [medicine_name]")
+                    print("Example: medkit-drug explain ibuprofen")
+                    print("If no medicine name is provided, it enters interactive mode.")
+                    return
+                    
+                res = explain_medicine(args.medicine)
+                print(res)
+                with open(output_dir / f"{args.medicine.lower()}_explanation.md", "w") as f:
+                    f.write(res)
+            else:
+                explainer_main()
 
     except Exception as e:
         print(f"Error: {e}")
