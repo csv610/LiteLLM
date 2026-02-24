@@ -1,353 +1,157 @@
 # Medical Module
 
-Medical information system with 18+ specialized modules.
+Medical information system with 30+ specialized modules for clinical support, surgical reference, anatomical research, and medical education.
 
 ## Overview
 
-The Medical Module provides medical information across major medical specialties including diseases, anatomy, procedures, surgical information, herbal remedies, FAQs, and more.
+The Medical Module provides a unified interface to a comprehensive suite of AI-driven medical information tools. From anatomical structures to complex surgical tray setups and clinical decision support, the system is designed to provide high-quality, structured medical information for educational and reference purposes.
 
 ## Module Structure
 
 ```
 medical/
-├── disease_info/              # Disease information
-├── anatomy/                   # Anatomical information
-├── med_procedure_info/        # Medical procedures
-├── surgical_info/             # Surgical procedures
-├── med_speciality/            # Medical specialties
-├── herbal_info/               # Herbal remedies
-├── med_faqs/                  # Medical FAQs
-├── med_history/               # Patient history
-├── med_implant/               # Medical implants
-├── med_physical_exams_questions/  # Exam questions
-├── med_decision_guide/        # Clinical decision support
-├── med_facts_checker/         # Fact verification
-├── med_myths_checker/         # Myth debunking
-├── med_terms_extractor/       # Term extraction
-├── med_topic/                 # Topic information
-├── synthetic_case_report/     # Case synthesis
-├── surgical_tool_info/        # Surgical tools
-├── medical_dictionary.py      # Medical glossary
-└── user_guide.py              # User guide
+├── anatomy/                   # Anatomical structures and functions
+├── disease_info/              # Disease etiology, symptoms, and treatment
+├── organ_diseases/            # Organ-specific physiology and diseases
+├── med_topic/                 # Synthesis of general medical subjects
+├── herbal_info/               # Evidence-based natural remedies
+├── med_advise/                # Primary health care and home management
+├── med_decision_guide/        # Clinical decision support logic
+├── med_facts_checker/         # Evidence-based fact verification
+├── med_myths_checker/         # Scientific debunking of medical myths
+├── med_refer/                 # Specialty referral recommendations
+├── med_history/               # Standardized history-taking protocols
+├── med_implant/               # Medical implants and surgical devices
+├── med_faqs/                  # Plain-language patient education
+├── surgical_info/             # Procedural monographs and benchmarks
+├── surgical_pose_info/        # Patient positioning and nerve risks
+├── surgical_tool_info/        # Surgical instruments and sterilization
+├── surgical_tray/             # Standardized instrument tray setups
+├── med_ethics/                # Pillar-based bioethical analysis
+├── synthetic_case_report/     # Realistic synthetic patient cases
+├── med_quiz/                  # MCQ assessment generation
+├── med_flashcard/             # Terminology extraction and explanation
+├── med_speciality/            # Medical specialties and areas of practice
+├── med_speciality_roles/      # Scope of practice and responsibilities
+├── med_procedure_info/        # Educational breakdown of procedures
+├── med_physical_exams_questions/ # Exam-specific clinical questions
+├── med_prescription/          # Prescription analysis and extraction
+├── med_media/                 # Medical image and video search
+└── med_utils/                 # Shared utilities and helpers
 ```
 
-## Key Modules
+## Unified CLI Usage
 
-### 1. Disease Information
-Information about medical conditions, causes, symptoms, diagnosis, and treatment.
+The system features a unified CLI to access all modules from a single entry point.
 
 ```bash
-python -m medkit medical disease_info --disease diabetes
-python -m medkit medical disease_info --disease "heart disease"
+# List all available modules
+python medical_cli.py list
+
+# Get help for a specific command
+python medical_cli.py <command> --help
 ```
 
-### 2. Anatomy
-Detailed anatomical information about body structures.
+### Global Options
 
-```bash
-python -m medkit medical anatomy --structure heart
-python -m medkit medical anatomy --structure brain
-```
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-m, --model` | LLM model to use | `ollama/gemma3` |
+| `-d, --output-dir` | Directory to save results | `outputs` |
+| `-v, --verbosity` | Log level (0-4) | `2` |
+| `-s, --structured` | Use structured JSON output | `False` |
 
-### 3. Medical Procedures
-Information about diagnostic and therapeutic medical procedures.
+---
 
-```bash
-python -m medkit medical med_procedure_info --procedure "knee replacement"
-python -m medkit medical med_procedure_info --procedure "colonoscopy"
-```
+## Key Module Categories
 
-### 4. Surgical Information
-Details about surgical procedures and outcomes.
+### 1. General Reference
+Foundational medical knowledge about the human body and diseases.
 
-```bash
-python -m medkit medical surgical_info --surgery "appendectomy"
-python -m medkit medical surgical_info --surgery "cardiac bypass"
-```
+*   **Anatomy**: `python medical_cli.py anatomy heart`
+*   **Disease**: `python medical_cli.py disease diabetes`
+*   **Organ-specific**: `python medical_cli.py organ liver`
+*   **Medical Topics**: `python medical_cli.py topic "immunology"`
+*   **Implant Info**: `python medical_cli.py implant "pacemaker"`
+*   **Herbal Info**: `python medical_cli.py herbal "ashwagandha"`
 
-### 5. Herbal Information
-Information about medicinal herbs and natural remedies.
+### 2. Clinical Support
+Tools for clinical reasoning and evidence-based practice.
 
-```bash
-python -m medkit medical herbal_info --herb ginger
-python -m medkit medical herbal_info --herb turmeric
-```
+*   **PHC Advise**: `python medical_cli.py advise "persistent dry cough"`
+*   **Decision Guide**: `python medical_cli.py decision "acute chest pain"`
+*   **Fact Checker**: `python medical_cli.py facts "Vitamin C prevents the common cold"`
+*   **Myth Checker**: `python medical_cli.py myth "We only use 10% of our brain"`
+*   **Referral**: `python medical_cli.py refer "blurry vision and sudden headaches"`
+*   **Medical History**: `python medical_cli.py history -e neurological_exam -a 45 -g female`
 
-### 6. Medical FAQs
-Frequently asked questions on medical topics.
+### 3. Surgical Suite
+Comprehensive references for the operating room.
 
-```bash
-python -m medkit medical med_faqs --topic diabetes
-python -m medkit medical med_faqs --topic hypertension
-```
+*   **Surgical Info**: `python medical_cli.py surgery appendectomy`
+*   **Positioning**: `python medical_cli.py pose supine`
+*   **Surgical Tools**: `python medical_cli.py tool scalpel`
+*   **Tray Setup**: `python medical_cli.py tray "total knee replacement"`
 
-### 7. Medical Implants
-Information about surgical implants and devices.
+### 4. Education & Ethics
+Advanced modules for medical learning and ethical analysis.
 
-```bash
-python -m medkit medical med_implant --implant "pacemaker"
-python -m medkit medical med_implant --implant "hip replacement"
-```
+*   **Medical Ethics**: `python medical_cli.py ethics "triage in resource-limited settings"`
+*   **Case Reports**: `python medical_cli.py case "type 2 diabetes"`
+*   **Quiz Gen**: `python medical_cli.py quiz cardiology --num-questions 10`
+*   **Flashcards**: `python medical_cli.py flashcard "amoxicillin_label.png"`
+*   **Procedures**: `python medical_cli.py procedure "venipuncture"`
 
-### 8. Fact Checker
-Verify medical facts and claims.
-
-```bash
-python -m medkit medical med_facts_checker --fact "Vaccines are safe"
-python -m medkit medical med_facts_checker --fact "Sleep is important"
-```
-
-### 9. Myth Checker
-Debunk common medical myths.
-
-```bash
-python -m medkit medical med_myths_checker --myth "Sugar makes kids hyperactive"
-python -m medkit medical med_myths_checker --myth "We only use 10% of our brain"
-```
-
-### 10. Medical Terms Extractor
-Extract medical terminology from text.
-
-```bash
-python -m medkit medical med_terms_extractor --text "Patient presents with dyspnea"
-python -m medkit medical med_terms_extractor --text "Diagnosis: Type 2 diabetes mellitus"
-```
-
-### 11. Medical Dictionary
-Reference medical terms and definitions.
-
-```python
-from medical.medical_dictionary import MedicalDictionary
-
-dictionary = MedicalDictionary()
-definition = dictionary.get_definition("hypertension")
-```
-
-### 12. Medical Specialties
-Information about medical specialties and specializations.
-
-```bash
-python -m medkit medical med_speciality --specialty cardiology
-python -m medkit medical med_speciality --specialty neurology
-```
-
-### 13. Medical Decision Guide
-Clinical decision support and guidance.
-
-```bash
-python -m medkit medical med_decision_guide --condition "chest pain"
-python -m medkit medical med_decision_guide --condition "fever"
-```
-
-### 14. Surgical Tools
-Reference for surgical instruments and tools.
-
-```bash
-python -m medkit medical surgical_tool_info --tool "scalpel"
-python -m medkit medical surgical_tool_info --tool "sutures"
-```
-
-### 15. Synthetic Case Reports
-Generate synthetic medical case reports for learning.
-
-```bash
-python -m medkit medical synthetic_case_report --condition diabetes
-python -m medkit medical synthetic_case_report --condition hypertension
-```
-
-## Usage Examples
-
-### Example 1: Research a Disease
-
-```bash
-python -m medkit medical disease_info --disease "type 2 diabetes" \
-  --output diabetes.json
-```
-
-### Example 2: Learn About Anatomy
-
-```bash
-python -m medkit medical anatomy --structure heart --output heart.json
-```
-
-### Example 3: Understand a Procedure
-
-```bash
-python -m medkit medical med_procedure_info --procedure "knee replacement" \
-  --output knee_replacement.json
-```
-
-### Example 4: Herbal Research
-
-```bash
-python -m medkit medical herbal_info --herb ginger --output ginger.json
-```
-
-### Example 5: Fact Verification
-
-```bash
-python -m medkit medical med_facts_checker \
-  --fact "Regular exercise improves health"
-```
+---
 
 ## Python API Usage
+
+Most modules can be used directly in Python scripts for programmatic access.
 
 ### Disease Information
 
 ```python
-from medical.disease_info.disease_info_cli import DiseaseInfoGenerator
+from medical.disease_info.disease_info import DiseaseInfoGenerator
+from lite.config import ModelConfig
 
-generator = DiseaseInfoGenerator()
-result = generator.generate_text("diabetes", structured=True)
+config = ModelConfig(model="ollama/gemma3")
+generator = DiseaseInfoGenerator(config)
+result = generator.generate_text("hypertension", structured=True)
 
-print(f"Disease: {result.name}")
-print(f"Symptoms: {result.symptoms}")
-print(f"Treatment: {result.treatment}")
+print(f"Etiology: {result.etiology}")
 ```
 
-### Anatomy Information
+### Medical Ethics Analysis
 
 ```python
-from medical.anatomy.medical_anatomy_cli import AnatomyInfoGenerator
+from medical.med_ethics.med_ethics import MedEthicalQA
+from lite.config import ModelConfig
 
-generator = AnatomyInfoGenerator()
-result = generator.generate_text("heart", structured=True)
+config = ModelConfig(model="ollama/gemma3")
+qa = MedEthicalQA(config)
+result = qa.generate_text("Should a physician disclose a terminal diagnosis against family wishes?")
 
-print(f"Structure: {result.name}")
-print(f"Function: {result.function}")
-```
-
-### Batch Processing
-
-```python
-from medical.disease_info.disease_info_cli import DiseaseInfoGenerator
-
-generator = DiseaseInfoGenerator()
-diseases = ["diabetes", "hypertension", "asthma", "arthritis"]
-
-for disease in diseases:
-    result = generator.generate_text(disease, structured=True)
-    result.save(f"{disease}_info.json")
-    print(f"✓ Processed {disease}")
-```
-
-## Configuration
-
-### Environment Variables
-
-```bash
-export MEDKIT_MODEL=ollama/gemma3
-export MEDKIT_OUTPUT_DIR=/path/to/outputs
-export MEDKIT_LOG_LEVEL=INFO
-```
-
-### Command-Line Options
-
-All medical module commands support:
-
-| Option | Description |
-|--------|-------------|
-| `--output` | Save to file |
-| `--output-dir` | Output directory |
-| `--model` | LLM model |
-| `-v, --verbosity` | Log level (0-4) |
-
-## Common Use Cases
-
-### Use Case 1: Patient Education
-
-```bash
-# Create patient education materials
-for disease in diabetes hypertension asthma; do
-  python -m medkit medical disease_info --disease "$disease" \
-    --output "patient_education_${disease}.json"
-done
-```
-
-### Use Case 2: Medical Reference
-
-```bash
-# Build a medical reference library
-mkdir -p medical_reference
-
-# Diseases
-python -m medkit medical disease_info --disease diabetes \
-  --output medical_reference/diabetes.json
-
-# Procedures
-python -m medkit medical med_procedure_info --procedure "knee replacement" \
-  --output medical_reference/knee_replacement.json
-
-# Anatomy
-python -m medkit medical anatomy --structure heart \
-  --output medical_reference/heart.json
-```
-
-### Use Case 3: Fact Checking
-
-```python
-# Verify medical claims
-claims = [
-    "Drinking water prevents dehydration",
-    "Regular exercise improves mental health",
-    "Sleep is essential for health"
-]
-
-from medical.med_facts_checker.medical_facts_checker_cli import FactChecker
-
-fact_checker = FactChecker()
-for claim in claims:
-    result = fact_checker.generate_text(claim, structured=True)
-    print(f"Claim: {claim}")
-    print(f"Verified: {result.is_verified}")
-    print(f"Explanation: {result.explanation}\n")
+print(result.analysis)
 ```
 
 ## Limitations
 
-1. **Information Quality**: Depends on LLM training data
-2. **Knowledge Cutoff**: May not include recent research
-3. **Not Personalized**: Cannot provide individualized medical advice
-4. **Educational Purpose**: For learning and reference only
-5. **Incomplete**: Coverage varies by topic
-6. **No Professional Review**: Not reviewed by medical professionals
-
-## Best Practices
-
-1. **Verify Information**: Cross-reference with authoritative sources
-2. **Professional Consultation**: Consult healthcare providers
-3. **Current Research**: Check for recent updates
-4. **Context Matters**: Individual situations vary
-5. **Use as Reference**: For educational and reference purposes
-6. **Evidence-Based**: Prefer evidence-based information
+1. **Information Quality**: Output quality depends on the underlying LLM's training data.
+2. **Knowledge Cutoff**: Information may not reflect the absolute latest clinical trials or research.
+3. **Not Personalized**: System cannot provide individualized medical advice or diagnosis.
+4. **Educational Purpose**: Intended for learning, research, and reference only.
+5. **No Professional Review**: Outputs are AI-generated and have not been reviewed by medical professionals.
 
 ## Important Disclaimers
 
-**This module is for educational and informational purposes only.** It is not a substitute for professional medical advice. Users should:
+**THIS SYSTEM IS FOR EDUCATIONAL AND INFORMATIONAL PURPOSES ONLY.** 
 
-- Consult qualified healthcare professionals
-- Verify information with peer-reviewed sources
-- Be aware of LLM limitations
-- Understand that medical information changes
-- Consider individual circumstances
-- Report health concerns to healthcare providers
-
-## Related Modules
-
-- [drug/](../drug/) - Pharmaceutical information
-- [phyexams/](../phyexams/) - Physical examinations
-- [mental_health/](../mental_health/) - Mental health assessment
-- [diagnostics/](../diagnostics/) - Medical tests and devices
-
-## Support
-
-For help:
-1. See [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)
-2. Check [CLI_REFERENCE.md](../CLI_REFERENCE.md)
-3. Review [API.md](../API.md)
-4. Read [FAQ.md](../FAQ.md)
+It is NOT a substitute for professional medical advice, diagnosis, or treatment. 
+- Always seek the advice of a physician or other qualified health provider with any questions regarding a medical condition.
+- Never disregard professional medical advice or delay in seeking it because of something you have read here.
+- In case of a medical emergency, call your local emergency services immediately.
 
 ---
 
-**Last Updated**: January 25, 2026
-**Related**: [README.md](../README.md) | [ARCHITECTURE.md](../ARCHITECTURE.md) | [CLI_REFERENCE.md](../CLI_REFERENCE.md)
+**Last Updated**: February 24, 2026
+**Related**: [ARCHITECTURE.md](../ARCHITECTURE.md) | [CLI_REFERENCE.md](../CLI_REFERENCE.md)
