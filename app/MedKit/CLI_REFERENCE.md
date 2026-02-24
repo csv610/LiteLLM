@@ -51,6 +51,34 @@ You can override the default output path for any non-restricted command.
 *   **Does**: Prints a clean, descriptive table of every available module.
 *   **Example**: `medkit-medical list`
 
+#### Subcommand Catalog
+| Subcommand | Clinical Domain | Primary Utility |
+| :--- | :--- | :--- |
+| **`anatomy`** | General Reference | Body structures, innervation, and blood supply. |
+| **`disease`** | General Reference | Etiology, symptoms, and treatment protocols. |
+| **`organ`** | General Reference | Organ-specific physiology and systemic disease roles. |
+| **`topic`** | General Reference | Synthesis of general medical subjects. |
+| **`herbal`** | General Reference | Evidence-based info on natural remedies and safety. |
+| **`advise`** | Clinical Support | Primary health care guidance and home management. |
+| **`decision`** | Clinical Support | Diagnostic logic trees and clinical decision support. |
+| **`facts`** | Clinical Support | Evidence-based verification of medical statements. |
+| **`myth`** | Clinical Support | Scientific debunking of common medical misconceptions. |
+| **`refer`** | Clinical Support | Identifying the correct specialty for clinical presentations. |
+| **`history`** | Clinical Support | Standardized history-taking and intake questions. |
+| **`faq`** | Clinical Support | Plain-language patient education materials. |
+| **`implant`** | Clinical Support | Detailed information on medical implants and prosthetics. |
+| **`surgery`** | Surgical Suite | Exhaustive procedural monographs and recovery benchmarks. |
+| **`pose`** | Surgical Suite | Standard patient positioning and associated risks. |
+| **`tool`** | Surgical Suite | Reference for surgical instruments and sterilization. |
+| **`tray`** | Surgical Suite | Standardized setup lists for surgical instrument trays. |
+| **`ethics`** | Education & Ethics | Structured pillar-based analysis of bioethical dilemmas. |
+| **`case`** | Education & Ethics | Realistic synthetic patient case report generation. |
+| **`quiz`** | Education & Ethics | MCQ assessment generation with distractors and rationales. |
+| **`flashcard`** | Education & Ethics | Terminology extraction and explanation from labels. |
+| **`roles`** | Education & Ethics | Scope of practice and responsibilities for specialties. |
+| **`procedure`** | Education & Ethics | Step-by-step educational breakdown of clinical procedures. |
+| **`eval-procedure`**| Education & Ethics | Auditing and evaluating medical procedure documentation. |
+
 ### `anatomy`
 *   **Problem**: Sourcing reliable anatomical data (innervation, blood supply) is slow.
 *   **Usage**: Detailed research into specific body structures.

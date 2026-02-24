@@ -45,6 +45,17 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 | **`medkit-article`**| **Evidence**: Searches PubMed and BioMCP for peer-reviewed research. |
 | **`medkit-diagnose`**| **Diagnostics**: Comprehensive information on medical laboratory tests and diagnostic devices. |
 
+---
+
+### 🏥 `medkit-medical` Subcommands (24 Modules)
+
+| Category | Modules |
+| :--- | :--- |
+| **General Reference** | `anatomy`, `disease`, `organ`, `topic`, `herbal` |
+| **Clinical Support** | `advise`, `decision`, `facts`, `myth`, `refer`, `history`, `faq`, `implant` |
+| **Surgical Suite** | `surgery`, `pose`, `tool`, `tray` |
+| **Education & Ethics** | `ethics`, `case`, `quiz`, `flashcard`, `roles`, `procedure`, `eval-procedure` |
+
 > **📘 Exhaustive Reference**: For every subcommand, clinical safety boundary, and failure mode, see the [**Detailed CLI Reference**](./CLI_REFERENCE.md).
 
 ---
