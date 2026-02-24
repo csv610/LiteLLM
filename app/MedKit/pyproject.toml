@@ -24,7 +24,7 @@ medkit-recognizer = "recognizers.medical_recognizer_cli:main"
 medkit-dictionary = "med_dictionary.medical_dictionary_cli:main"
 medkit-codes = "med_codes.get_icd11:main"
 medkit-mental = "mental_health.mental_health_chat_app:cli"
-medkit-drug = "drug.medicine_explainer:main"
+medkit-drug = "drug.drug_cli:main"
 medkit-agent = "medkit_agent.orchestrator:main"
 
 [tool.setuptools]

@@ -72,7 +72,7 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | :--- | :--- | :--- | :--- |
 | **Agent** | `medkit-agent` | Autonomous reasoning & tool coordination | `medkit-agent "Flu symptoms treatment"` |
 | **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
-| **Drugs** | `medkit-drug` | Simple Pharmacology Explainer | `medkit-drug "Metformin"` |
+| **Drugs** | `medkit-drug` | Pharmacology, Interactions & Safety | `medkit-drug info "Metformin"` |
 | **Recognition** | `medkit-recognizer` | Named Entity Recognition (NER) | `medkit-recognizer drug "Advil"` |
 | **Codes** | `medkit-codes` | ICD-11 Code Lookup | `medkit-codes search "Asthma"` |
 | **Mental Health** | `medkit-mental` | Assessment Chatbot | `medkit-mental` (Interactive) |
@@ -107,12 +107,20 @@ Access a massive database of medical knowledge through specialized subcommands.
 | `implant` | Medical device/implant info | `medkit-medical implant "Pacemaker"` |
 | `roles` | Medical specialty responsibilities | `medkit-medical roles "Neurosurgeon"` |
 
-#### 2. Drug Analysis
-Understand medications, side effects, and interactions.
-```bash
-# Get simplified drug monograph
-medkit-drug "Atorvastatin"
-```
+#### 2. Pharmacology & Drugs (`medkit-drug`)
+Comprehensive tools for medication research, interaction checking, and safety analysis.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `info` | Detailed drug monographs | `medkit-drug info "Lisinopril"` |
+| `interact` | Check drug-drug interactions | `medkit-drug interact "Warfarin" "Aspirin"` |
+| `food` | Check drug-food interactions | `medkit-drug food "Metformin" "Grapefruit"` |
+| `disease` | Drug-disease contraindications | `medkit-drug disease "Ibuprofen" "Kidney Disease"` |
+| `similar` | Find therapeutic alternatives | `medkit-drug similar "Ozempic"` |
+| `compare` | Side-by-side drug comparison | `medkit-drug compare "Tylenol" "Advil"` |
+| `symptoms` | Reference drugs for symptoms | `medkit-drug symptoms "Migraine with aura"` |
+| `addiction` | Addiction & recovery info | `medkit-drug addiction "Oxycodone"` |
+| `explain` | Simple, friendly explanation | `medkit-drug explain "Amoxicillin"` |
 
 #### 3. Entity Recognition
 Extract structured data from unstructured clinical text.
