@@ -481,7 +481,7 @@ class TestBaseCLI:
         """Test displaying BaseModel result."""
         cli = TestCLI()
 
-        with patch('utils.output_formatter.print_result') as mock_print:
+        with patch('utils.print_response') as mock_print:
             response = TestResponse(result="test")
             cli._display_result(response)
 

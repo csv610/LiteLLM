@@ -11,7 +11,7 @@ from tqdm import tqdm
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 from lite.config import ModelConfig, ModelInput
-from utils.output_formatter import print_result
+from utils import print_response
 from lite.logging_config import configure_logging
 
 from .eval_physical_exam_questions_models import QualityEvaluation
@@ -283,7 +283,7 @@ def main() -> int:
             evaluation = evaluator.generate_text(input_file, structured=args.structured)
 
             if len(input_files) == 1:
-                print_result(evaluation, title="Physical Exam Questions Evaluation")
+                print_response(evaluation, title="Physical Exam Questions Evaluation")
 
             # Report output
             if args.output and len(input_files) == 1:

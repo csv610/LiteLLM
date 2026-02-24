@@ -13,7 +13,7 @@ utils/
 ├── cli_base.py                 # Base classes for CLI modules
 ├── error_handler.py            # Error handling utilities
 ├── error_recovery.py           # Error recovery patterns
-├── output_formatter.py         # Output formatting
+├── lite/utils/print_response.py # Output formatting (now external)
 ├── privacy_compliance.py       # Privacy and compliance
 ├── storage_config.py           # Storage configuration
 ├── logging_config.py           # Logging configuration
@@ -137,15 +137,14 @@ def call_generator():
 
 ### 6. Output Formatter: Result Formatting
 
-Format and display results.
+Format and display results (now using `lite.utils.print_response`).
 
 ```python
-from utils.output_formatter import print_result
+from utils import print_response
 
-print_result(
-    title="Medicine Information",
-    data=result.dict(),
-    format="json"
+print_response(
+    result=result.dict(),
+    title="Medicine Information"
 )
 ```
 
@@ -268,14 +267,13 @@ result = get_medicine_info("aspirin")
 ### Example 4: Output Formatting
 
 ```python
-from utils.output_formatter import print_result
+from utils import print_response
 import json
 
 # Format and print result
-print_result(
+print_response(
     title="Medicine Information",
-    data=result.dict(),
-    format="json"
+    result=result.dict(),
 )
 
 # Save to file
@@ -452,9 +450,9 @@ class CustomRecovery(ErrorRecoveryStrategy):
 ### Custom Output Formatting
 
 ```python
-from utils.output_formatter import OutputFormatter
+from lite.utils.print_response import print_response
 
-class CustomFormatter(OutputFormatter):
+class CustomFormatter:
     def format_json(self, data):
         # Custom JSON formatting
         pass

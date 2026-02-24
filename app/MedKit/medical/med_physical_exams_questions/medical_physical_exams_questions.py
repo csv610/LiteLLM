@@ -9,7 +9,7 @@ from typing import List, Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
-from utils.output_formatter import print_result
+from utils import print_response
 
 from .medical_physical_exams_questions_models import ExamQuestions
 
@@ -112,7 +112,7 @@ def main():
         print(f"Generating physical exam questions...")
         result = generator.generate_text(exam_type=args.exam, age=args.age, gender=args.gender)
         
-        print_result(result, title="Medical Physical Exam Questions")
+        print_response(result, title="Medical Physical Exam Questions")
         
         if args.output:
             save_model_response(result, args.output)

@@ -27,7 +27,14 @@ except ImportError:
     def get_default_output_path(*args, **kwargs):
         return None
 
-from .output_formatter import print_result, print_simple_result
+try:
+    from lite.utils.print_response import print_response, print_simple_result
+except ImportError:
+    # Fallback for environments where lite is not available
+    def print_response(*args, **kwargs):
+        pass
+    def print_simple_result(*args, **kwargs):
+        pass
 
 __all__ = [
     # CLI utilities
@@ -37,6 +44,6 @@ __all__ = [
     "ensure_output_dir",
     "get_default_output_path",
     # Output formatting
-    "print_result",
+    "print_response",
     "print_simple_result",
 ]

@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from lite.config import ModelConfig
-from .recognizer_factory import RecognizerFactory
+from recognizers.recognizer_factory import RecognizerFactory
 
 def create_parser():
     # Force registration by listing available
@@ -27,13 +27,14 @@ def create_parser():
     
     parser.add_argument(
         "type",
-        choices=available_types,
-        help="Type of medical entity to identify"
+        choices=available_types + ["list"],
+        help="Type of medical entity to identify or 'list' to see all available types"
     )
     
     parser.add_argument(
         "name",
-        help="Name of the entity to identify"
+        nargs="?",
+        help="Name of the entity to identify (not required for 'list' command)"
     )
     
     parser.add_argument(
@@ -61,6 +62,17 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
     
+    if args.type == "list":
+        available_types = RecognizerFactory.list_available()
+        print("\n🔍 Available Medical Entity Recognizers:\n")
+        for i, r_type in enumerate(sorted(available_types), 1):
+            print(f"  {i}. {r_type}")
+        print("\nUsage: medkit-recognizer <type> <name> [options]\n")
+        return
+
+    if not args.name:
+        parser.error("the following arguments are required: name")
+
     try:
         config = ModelConfig(
             model=args.model,

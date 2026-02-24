@@ -9,11 +9,7 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 
 from rxclass_client import RxClassClient
-
-def print_result(data: Any, title: str = ""):
-    """Prints data using Rich."""
-    console = Console()
-    console.print(Panel(Pretty(data), title=title))
+from utils import print_response
 
 def main():
     """CLI function for RxClassClient examples."""
@@ -56,7 +52,7 @@ def main():
 
     for key, val in results.items():
         print(f"{key} ->")
-        print_result(val, title=key.replace('_', ' ').title())
+        print_response(val, title=key.replace('_', ' ').title())
 
 
 if __name__ == "__main__":

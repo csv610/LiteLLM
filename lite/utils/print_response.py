@@ -8,19 +8,15 @@ from typing import Any, Dict, Union
 from pydantic import BaseModel
 
 
-def print_result(
+def print_response(
     result: Union[BaseModel, Dict[str, Any], Any],
-    verbose: bool = False,
-    title: str = "Result",
-    border_style: str = "cyan"
+    title: str = "Result"
 ) -> None:
     """Print result in a formatted manner.
 
     Args:
         result: The result to print (BaseModel, dict, or other)
-        verbose: Enable verbose output
         title: Title for the output
-        border_style: Border style (ignored in plain text version)
     """
     print(f"\n=== {title.upper()} ===")
 
@@ -80,15 +76,13 @@ def _format_value(value: Any, indent: int = 0) -> None:
 
 def print_simple_result(
     result: Union[str, Dict[str, Any]],
-    title: str = "Result",
-    border_style: str = "cyan"
+    title: str = "Result"
 ) -> None:
     """Print a simple result (string or flat dict).
 
     Args:
         result: String or dictionary to display
         title: Title for the output
-        border_style: Border style
     """
     print(f"\n=== {title.upper()} ===")
 
