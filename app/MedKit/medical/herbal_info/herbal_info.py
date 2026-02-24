@@ -7,15 +7,25 @@ comprehensive herbal remedy information based on provided configuration.
 """
 
 import logging
+import sys
 from pathlib import Path
 from typing import Union
+
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .herbal_info_models import HerbalInfoModel, ModelOutput
-from .herbal_info_prompts import PromptBuilder
+try:
+    from .herbal_info_models import HerbalInfoModel, ModelOutput
+    from .herbal_info_prompts import PromptBuilder
+except (ImportError, ValueError):
+    from medical.herbal_info.herbal_info_models import HerbalInfoModel, ModelOutput
+    from medical.herbal_info.herbal_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

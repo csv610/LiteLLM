@@ -6,14 +6,23 @@ Encapsulates functionality for building and managing dictionary definitions usin
 import json
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import List, Optional
 from tqdm import tqdm
 
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
-from medical_dictionary_prompts import MedicalDictionaryPromptBuilder
+try:
+    from .medical_dictionary_prompts import MedicalDictionaryPromptBuilder
+except (ImportError, ValueError):
+    from medical_dictionary_prompts import MedicalDictionaryPromptBuilder
 
 # Logging setup
 log_file = Path(__file__).parent / "logs" / "medical_dictionary.log"

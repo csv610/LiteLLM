@@ -9,8 +9,10 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add parent directory to sys.path to allow imports from .
-sys.path.append(str(Path(__file__).parent))
+# Add the project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 from lite.config import ModelConfig
 from recognizers.recognizer_factory import RecognizerFactory

@@ -2,12 +2,21 @@
 
 import argparse
 import logging
+import sys
 from pathlib import Path
 from tqdm import tqdm
 
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from .herbal_info import HerbalInfoGenerator
+try:
+    from .herbal_info import HerbalInfoGenerator
+except (ImportError, ValueError):
+    from medical.herbal_info.herbal_info import HerbalInfoGenerator
 
 logger = logging.getLogger(__name__)
 

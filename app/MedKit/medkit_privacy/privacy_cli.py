@@ -2,7 +2,16 @@ import argparse
 import sys
 import json
 from pathlib import Path
-from .privacy_compliance import PrivacyManager
+
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+
+try:
+    from .privacy_compliance import PrivacyManager
+except (ImportError, ValueError):
+    from privacy_compliance import PrivacyManager
 
 def main():
     parser = argparse.ArgumentParser(description="MedKit Privacy & Compliance CLI")

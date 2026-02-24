@@ -7,15 +7,25 @@ comprehensive disease information based on provided configuration.
 """
 
 import logging
+import sys
 from pathlib import Path
 from typing import Union
+
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .disease_info_models import DiseaseInfoModel, ModelOutput
-from .disease_info_prompts import PromptBuilder
+try:
+    from .disease_info_models import DiseaseInfoModel, ModelOutput
+    from .disease_info_prompts import PromptBuilder
+except (ImportError, ValueError):
+    from medical.disease_info.disease_info_models import DiseaseInfoModel, ModelOutput
+    from medical.disease_info.disease_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

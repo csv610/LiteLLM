@@ -8,7 +8,7 @@ Comprehensive mental health assessment tools, chatbots, and interview systems wi
 from .models import ChatSession, ChatMessage, PrivacyConsent, AuditLog
 
 # Import other modules
-from .mental_health_assessment import MentalHealthAssessment
+from .mental_health_assessment_models import MentalHealthAssessment
 from .sane_interview import SANEInterviewChatbot
 
 __all__ = [

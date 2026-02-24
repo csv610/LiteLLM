@@ -1,17 +1,27 @@
 import logging
+import sys
 from pathlib import Path
 from typing import List, Optional
+
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-# Import utils
-from .ddg_images import DuckDuckImages
-from .ddg_videos import DuckDuckVideos
-
-from .med_media_models import MedicalMediaModel, MediaCaptionModel, MediaSummaryModel, ModelOutput
-from .med_media_prompts import PromptBuilder
+try:
+    from .ddg_images import DuckDuckImages
+    from .ddg_videos import DuckDuckVideos
+    from .med_media_models import MedicalMediaModel, MediaCaptionModel, MediaSummaryModel, ModelOutput
+    from .med_media_prompts import PromptBuilder
+except (ImportError, ValueError):
+    from medical.med_media.ddg_images import DuckDuckImages
+    from medical.med_media.ddg_videos import DuckDuckVideos
+    from medical.med_media.med_media_models import MedicalMediaModel, MediaCaptionModel, MediaSummaryModel, ModelOutput
+    from medical.med_media.med_media_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

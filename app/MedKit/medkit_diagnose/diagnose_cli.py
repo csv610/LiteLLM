@@ -5,14 +5,24 @@ from pathlib import Path
 from tqdm import tqdm
 
 # Add the project root to sys.path
-sys.path.append(str(Path(__file__).parent.parent))
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 # Import generators from diagnostics package
-from medkit_diagnose.medical_tests.medical_test_info import MedicalTestInfoGenerator
-from medkit_diagnose.medical_devices.medical_test_devices import MedicalTestDeviceGuide
+try:
+    from medkit_diagnose.medical_tests.medical_test_info import MedicalTestInfoGenerator
+    from medkit_diagnose.medical_devices.medical_test_devices import MedicalTestDeviceGuide
+except (ImportError, ValueError):
+    try:
+        from .medical_tests.medical_test_info import MedicalTestInfoGenerator
+        from .medical_devices.medical_test_devices import MedicalTestDeviceGuide
+    except (ImportError, ValueError):
+        from medical_tests.medical_test_info import MedicalTestInfoGenerator
+        from medical_devices.medical_test_devices import MedicalTestDeviceGuide
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ from io import BytesIO
 
 import requests
 from PIL import Image
-from ddgs import DDGS
+from duckduckgo_search import DDGS
 
 logger = logging.getLogger(__name__)
 

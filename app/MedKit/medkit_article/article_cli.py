@@ -1,7 +1,17 @@
 import argparse
 import sys
 import json
-from .biomcp_article_search import MedicalArticleSearch
+from pathlib import Path
+
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+
+try:
+    from .biomcp_article_search import MedicalArticleSearch
+except (ImportError, ValueError):
+    from biomcp_article_search import MedicalArticleSearch
 
 def main():
     parser = argparse.ArgumentParser(description="MedKit Medical Article Search CLI")

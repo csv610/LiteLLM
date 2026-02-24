@@ -2,6 +2,11 @@ import argparse
 import sys
 from pathlib import Path
 
+# Add the project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+
 def list_exams():
     exams = [
         "abstract_reasoning", "anal_rectum_prostate", "arithmetic_calculation", "attention_span",
