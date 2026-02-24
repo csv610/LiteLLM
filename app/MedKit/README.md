@@ -71,8 +71,8 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | Domain | Command | Description | Example Usage |
 | :--- | :--- | :--- | :--- |
 | **Agent** | `medkit-agent` | Autonomous reasoning & tool coordination | `medkit-agent "Flu symptoms treatment"` |
-| **Medical Info** | `medkit-medical` | General medical knowledge (Anatomy, Disease) | `medkit-medical anatomy "Heart"` |
-| **Drugs** | `medkit-drug` | Pharmacology & Interactions | `medkit-drug "Metformin"` |
+| **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
+| **Drugs** | `medkit-drug` | Simple Pharmacology Explainer | `medkit-drug "Metformin"` |
 | **Recognition** | `medkit-recognizer` | Named Entity Recognition (NER) | `medkit-recognizer drug "Advil"` |
 | **Codes** | `medkit-codes` | ICD-11 Code Lookup | `medkit-codes search "Asthma"` |
 | **Mental Health** | `medkit-mental` | Assessment Chatbot | `medkit-mental` (Interactive) |
@@ -81,17 +81,36 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 
 ### Detailed Examples
 
-#### 1. Anatomy & Disease
-Generate structured reports on body parts or conditions.
-```bash
-medkit-medical anatomy "Liver"
-medkit-medical disease "Hypertension"
-```
+#### 1. Medical Reference (`medkit-medical`)
+Access a massive database of medical knowledge through specialized subcommands.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `anatomy` | Detailed anatomical info | `medkit-medical anatomy "Liver"` |
+| `disease` | Disease causes, symptoms, treatments | `medkit-medical disease "Hypertension"` |
+| `procedure` | Step-by-step medical procedures | `medkit-medical procedure "Knee Replacement"` |
+| `surgery` | Comprehensive surgical info | `medkit-medical surgery "Appendectomy"` |
+| `herbal` | Evidence-based herbal info | `medkit-medical herbal "Turmeric"` |
+| `facts` | Fact-check medical statements | `medkit-medical facts "Vaccines cause autism"` |
+| `myth` | Debunk common medical myths | `medkit-medical myth "We use 10% of our brain"` |
+| `quiz` | Generate medical test questions | `medkit-medical quiz "Cardiology"` |
+| `refer` | Identify appropriate specialists | `medkit-medical refer "Chest pain and dyspnea"` |
+| `history` | Generate patient intake questions | `medkit-medical history -e "Physical" -a 45 -g "Male"` |
+| `case` | Generate synthetic case reports | `medkit-medical case "Type 2 Diabetes"` |
+| `organ` | Organ-specific disease profiles | `medkit-medical organ "Pancreas"` |
+| `tool` | Surgical instrument descriptions | `medkit-medical tool "Scalpel"` |
+| `tray` | Surgical tray setup instructions | `medkit-medical tray "Orthopedic"` |
+| `pose` | Surgical patient positioning | `medkit-medical pose "Prone"` |
+| `decision` | Clinical decision-making guide | `medkit-medical decision "Acute Cough"` |
+| `advise` | Primary health care guidance | `medkit-medical advise "Managing mild fever at home"` |
+| `faq` | Common patient questions | `medkit-medical faq "Asthma"` |
+| `implant` | Medical device/implant info | `medkit-medical implant "Pacemaker"` |
+| `roles` | Medical specialty responsibilities | `medkit-medical roles "Neurosurgeon"` |
 
 #### 2. Drug Analysis
 Understand medications, side effects, and interactions.
 ```bash
-# Get detailed drug monograph
+# Get simplified drug monograph
 medkit-drug "Atorvastatin"
 ```
 
