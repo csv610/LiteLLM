@@ -16,7 +16,7 @@ from typing import Optional, List
 from lite.utils import save_model_response
 
 # Fix import path
-from utils.pydantic_prompt_generator import PromptStyle
+from .pydantic_prompt_generator import PromptStyle
 
 
 class WritingSampleEvaluation(BaseModel):

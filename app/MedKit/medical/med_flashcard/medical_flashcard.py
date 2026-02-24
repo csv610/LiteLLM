@@ -72,10 +72,10 @@ class MedicalTermExplainer:
 
     def explain_label(self, label: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive medical information for a term."""
-        if not term or not str(term).strip():
+        if not label or not str(label).strip():
             raise ValueError("Term name cannot be empty for report generation.")
 
-        logger.debug(f"Starting medical information generation for: {term}")
+        logger.debug(f"Starting medical information generation for: {label}")
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(label)

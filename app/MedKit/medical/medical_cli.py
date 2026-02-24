@@ -36,6 +36,7 @@ from synthetic_case_report.synthetic_case_report import SyntheticCaseReportGener
 from med_history.patient_medical_history import PatientMedicalHistoryGenerator
 from med_history.patient_medical_history_prompts import MedicalHistoryInput
 from med_ethics.med_ethics import MedEthicalQA
+from med_flashcard.medical_flashcard import MedicalLabelExtractor, MedicalTermExplainer
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +151,10 @@ def main():
     # Ethics
     ethics_p = subparsers.add_parser("ethics", help="Medical ethics analysis")
     ethics_p.add_argument("question", help="Ethics question or file path")
+
+    # Flashcard
+    flashcard_p = subparsers.add_parser("flashcard", help="Explain medical labels from an image")
+    flashcard_p.add_argument("image", help="Path to medical image or label")
 
     # Medical History
     history_p = subparsers.add_parser("history", help="Patient medical history questions")
@@ -311,6 +316,26 @@ def main():
             for item in tqdm(handle_batch_input(args.question, "ethics"), desc="Ethics"):
                 res = gen.generate_text(question=item, structured=args.structured)
                 if res: gen.save(res, output_dir)
+
+        elif args.command == "flashcard":
+            extractor = MedicalLabelExtractor(model_config)
+            explainer = MedicalTermExplainer(model_config)
+            
+            input_path = Path(args.image)
+            is_image = input_path.suffix.lower() in ['.jpg', '.jpeg', '.png', '.webp']
+            
+            if is_image:
+                terms = extractor.extract_terms(str(input_path))
+                if not terms:
+                    print(f"No medical terms found in {args.image}")
+                else:
+                    for term in tqdm(terms, desc="Explaining Labels"):
+                        res = explainer.explain_label(term, structured=args.structured)
+                        if res: explainer.save(res, output_dir, term=term)
+            else:
+                # Treat as a direct term
+                res = explainer.explain_label(args.image, structured=args.structured)
+                if res: explainer.save(res, output_dir, term=args.image)
 
         elif args.command == "history":
             gen = PatientMedicalHistoryGenerator(model_config)

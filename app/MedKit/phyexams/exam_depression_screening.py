@@ -23,7 +23,7 @@ _medkit_root = _repo_root / "app" / "MedKit"
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
-from utils.pydantic_prompt_generator import PromptStyle
+from .pydantic_prompt_generator import PromptStyle
 
 # Configure logging
 logging.basicConfig(

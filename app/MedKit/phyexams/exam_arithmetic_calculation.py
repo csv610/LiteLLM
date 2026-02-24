@@ -15,7 +15,7 @@ from typing import Optional
 from lite.utils import save_model_response
 
 # Fix import path
-from utils.pydantic_prompt_generator import PromptStyle
+from .pydantic_prompt_generator import PromptStyle
 
 
 class SimpleAddition(BaseModel):

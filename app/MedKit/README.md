@@ -72,15 +72,17 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | :--- | :--- | :--- | :--- |
 | **Agent** | `medkit-agent` | Autonomous reasoning & tool coordination | `medkit-agent "Flu symptoms treatment"` |
 | **Article** | `medkit-article` | Medical Article & PubMed Search | `medkit-article search "Asthma"` |
-| **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
-| **Drugs** | `medkit-drug` | Pharmacology, Interactions & Safety | `medkit-drug info "Metformin"` |
-| **Media** | `medkit-media` | Medical Image/Video search, Captioning & Summary | `medkit-media images "Lupus rash"` |
-| **Recognition** | `medkit-recognizer` | Named Entity Recognition (NER) | `medkit-recognizer drug "Advil"` |
 | **Codes** | `medkit-codes` | ICD-11 Code Lookup | `medkit-codes search "Asthma"` |
-| **Mental Health** | `medkit-mental` | Assessment Chatbot | `medkit-mental` (Interactive) |
-| **Forensics** | `medkit-sane` | SANE Interview Protocol | `medkit-sane start` |
+| **Diagnostics** | `medkit-diagnostics` | Medical Tests & Devices Info | `medkit-diagnostics test "HbA1c"` |
 | **Dictionary** | `medkit-dictionary` | Terminology Builder | `medkit-dictionary build` |
+| **Drugs** | `medkit-drug` | Pharmacology, Interactions & Safety | `medkit-drug info "Metformin"` |
+| **Exam** | `medkit-exam` | Physical Examination Protocols | `medkit-exam --list` |
+| **Forensics** | `medkit-sane` | SANE Interview Protocol | `medkit-sane start` |
+| **Media** | `medkit-media` | Medical Image/Video search, Captioning & Summary | `medkit-media images "Lupus rash"` |
+| **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
+| **Mental Health** | `medkit-mental` | Assessment Chatbot | `medkit-mental` (Interactive) |
 | **Privacy** | `medkit-privacy` | HIPAA Compliance & Data Protection | `medkit-privacy report` |
+| **Recognition** | `medkit-recognizer` | Named Entity Recognition (NER) | `medkit-recognizer drug "Advil"` |
 
 ### Detailed Examples
 
@@ -97,6 +99,7 @@ Access a massive database of medical knowledge through specialized subcommands.
 | `ethics` | Professional medical ethics analysis | `medkit-medical ethics "Patient confidentiality vs public safety"` |
 | `facts` | Fact-check medical statements | `medkit-medical facts "Vaccines cause autism"` |
 | `faq` | Common patient questions | `medkit-medical faq "Asthma"` |
+| `flashcard` | Explain medical labels from images | `medkit-medical flashcard "label_image.jpg"` |
 | `herbal` | Evidence-based herbal info | `medkit-medical herbal "Turmeric"` |
 | `history` | Generate patient intake questions | `medkit-medical history -e "Physical" -a 45 -g "Male"` |
 | `implant` | Medical device/implant info | `medkit-medical implant "Pacemaker"` |
@@ -111,7 +114,16 @@ Access a massive database of medical knowledge through specialized subcommands.
 | `tool` | Surgical instrument descriptions | `medkit-medical tool "Scalpel"` |
 | `tray` | Surgical tray setup instructions | `medkit-medical tray "Orthopedic"` |
 
-#### 2. Medical Article Search (`medkit-article`)
+#### 2. Diagnostics & Exams (`medkit-diagnostics`, `medkit-exam`)
+Access detailed information on diagnostic tests, medical devices, and standardized physical examination protocols.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `device` | Diagnostic device information | `medkit-diagnostics device "MRI"` |
+| `test` | Lab test reference values & info | `medkit-diagnostics test "CBC"` |
+| `exam --list` | List physical exam protocols | `medkit-exam --list` |
+
+#### 3. Medical Article Search (`medkit-article`)
 Search and retrieve professional medical articles, PubMed records, and research citations.
 
 | Subcommand | Description | Example |

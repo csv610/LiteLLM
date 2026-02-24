@@ -32,7 +32,7 @@ from lite.utils import save_model_response
 # ==============================================================================
 # LOCAL IMPORTS (Module models)
 # ==============================================================================
-from utils.pydantic_prompt_generator import PromptStyle
+from .pydantic_prompt_generator import PromptStyle
 
 # ==============================================================================
 # LOGGING CONFIGURATION
