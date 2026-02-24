@@ -1,372 +1,277 @@
-# MedKit Detailed CLI Reference
+# MedKit Exhaustive CLI Reference
 
-This document serves as the definitive technical manual for the MedKit framework. Every command and subcommand is detailed with its primary usage, functional boundaries, and known failure modes.
+This manual provides detailed technical descriptions, primary usage scenarios, and specific examples for the entire MedKit suite.
 
 ---
 
 ## 🤖 `medkit-agent`
-**The Autonomous Medical Orchestrator**
+**Autonomous Medical Orchestrator**
 
-*   **Primary Usage:** Solving high-level, multi-step clinical queries that require coordinating multiple data sources (e.g., "Identify this drug, check its interactions with the patient's existing meds, and find a relevant specialist").
-*   **What it DOES:**
-    *   Parses natural language intent.
-    *   Executes a ReAct (Reasoning + Acting) loop.
-    *   Calls other `medkit-*` tools as "tools" or "plugins."
-    *   Synthesizes a final answer from multiple tool outputs.
-*   **What it DOES NOT Do:**
-    *   It is not a medical professional; it is a logic engine.
-    *   It cannot perform physical actions or real-world diagnostics.
-*   **Edge Cases:**
-    *   **Infinite Loops:** Can get stuck if two tools provide contradictory info.
-    *   **Hallucination:** If a tool fails, the agent might try to "guess" the missing data to fulfill the query.
+*   **Primary Usage**: This tool is designed to solve complex, multi-step clinical queries that require information from multiple specialized domains. It interprets high-level intent and coordinates other MedKit tools to form a comprehensive answer.
+*   **What it DOES**: It parses natural language instructions, executes a reasoning loop, identifies which sub-tools are needed, and synthesizes their outputs into a final response.
+*   **What it DOES NOT Do**: It does not possess medical intuition or a professional license. It is strictly a logic engine that relies on the accuracy of the tools it calls.
+*   **Edge Cases**: The agent can occasionally enter a tool-calling loop if sub-tools provide conflicting data, and it may lose context if the query involves too many logical branches.
+*   **Example**:
+    ```bash
+    medkit-agent "Patient is a 65yo male with sudden onset of left-sided weakness. Check for drug side effects and find relevant specialists."
+    ```
 
 ---
 
 ## 🏥 `medkit-medical`
-**Clinical Reference & Knowledge Base**
+**General Medical Knowledge & Clinical Tools**
 
-### `advise`
-*   **Primary Usage:** Providing evidence-based guidance for primary healthcare concerns and home management.
-*   **Does:** Offers triage-style advice and self-care steps for minor ailments.
-*   **Does NOT:** Provide a definitive diagnosis or emergency medical care.
-*   **Edge Cases:** Struggles with vague symptoms like "I feel weird."
+This tool provides access to a massive database of static medical reference data across 20+ specialized domains.
 
-### `anatomy`
-*   **Primary Usage:** Deep-dive research into specific human anatomical structures.
-*   **Does:** Provides classification, blood supply, innervation, and functional roles.
-*   **Does NOT:** Interpret specific patient scans (X-rays/MRIs).
-*   **Edge Cases:** May lack detail on rare anatomical variations (e.g., accessory muscles).
+### Subcommands
 
-### `case`
-*   **Primary Usage:** Generating realistic, synthetic patient case reports for medical education and software testing.
-*   **Does:** Creates a coherent narrative including history, physical exam, and labs for a specific condition.
-*   **Does NOT:** Represent a real historical patient record.
-*   **Edge Cases:** Sometimes generates "textbook-perfect" cases that lack the messiness of real-world comorbidities.
-
-### `decision`
-*   **Primary Usage:** Clinical decision support for determining the next steps in a diagnostic workup.
-*   **Does:** Provides logic trees or "if-then" scenarios based on presenting symptoms.
-*   **Does NOT:** Replace the professional judgment of a physician.
-*   **Edge Cases:** If critical vitals are missing, the suggested decision may be too conservative.
-
-### `disease`
-*   **Primary Usage:** Retrieving comprehensive clinical monographs for specific medical conditions.
-*   **Does:** Details etiology, pathophysiology, clinical presentation, and standard treatment protocols.
-*   **Does NOT:** Predict the prognosis of an individual patient.
-*   **Edge Cases:** Rapidly evolving conditions (like new virus variants) may lag behind current research.
-
-### `ethics`
-*   **Primary Usage:** Analyzing complex ethical dilemmas in healthcare (e.g., end-of-life care, AI in diagnostics).
-*   **Does:** Applies established frameworks (Autonomy, Beneficence, Non-maleficence, Justice) to a scenario.
-*   **Does NOT:** Provide a legally binding ruling or a single "correct" answer.
-*   **Edge Cases:** Struggles with scenarios that have heavy cultural or religious specificities.
-
-### `facts`
-*   **Primary Usage:** Verifying or debunking specific medical statements found in the media or clinical literature.
-*   **Does:** Cross-references statements against clinical guidelines and peer-reviewed consensus.
-*   **Does NOT:** Act as a real-time "lie detector" for spoken conversation.
-*   **Edge Cases:** Emerging science where no consensus yet exists will return an "inconclusive" or "variable evidence" result.
-
-### `faq`
-*   **Primary Usage:** Automating the creation of patient education materials and frequently asked questions.
-*   **Does:** Generates common questions and professional, plain-language answers for any medical topic.
-*   **Does NOT:** Handle patient-specific questions ("Why is *my* leg hurting?").
-*   **Edge Cases:** Can be overly verbose if the topic is too broad (e.g., "Cancer").
-
-### `flashcard`
-*   **Primary Usage:** Rapid extraction and explanation of medical terminology from visual labels or text lists.
-*   **Does:** Performs OCR on images to find terms and provides 1-2 sentence clinical definitions for each.
-*   **Does NOT:** Translate languages (it expects English medical terms).
-*   **Edge Cases:** Blurred images or handwritten notes often result in failed extraction.
-
-### `herbal`
-*   **Primary Usage:** Researching the safety, efficacy, and interactions of natural supplements and traditional medicines.
-*   **Does:** Lists known active compounds, clinical evidence levels, and potential drug interactions.
-*   **Does NOT:** Endorse "alternative" medicine over conventional evidence-based practice.
-*   **Edge Cases:** Many herbs have very little high-quality clinical trial data, resulting in "limited evidence" warnings.
-
-### `history`
-*   **Primary Usage:** Standardizing the patient intake process by generating targeted history-taking questions.
-*   **Does:** Provides a structured list of questions based on age, gender, and the purpose of the exam.
-*   **Does NOT:** Record the patient's actual answers into an EMR automatically.
-*   **Edge Cases:** May generate too many questions for a simple visit if the "purpose" is too broad.
-
-### `implant`
-*   **Primary Usage:** Reference for technical and clinical information regarding surgical implants (pacemakers, joints).
-*   **Does:** Describes materials, indications, common complications, and MRI compatibility notes.
-*   **Does NOT:** Track individual serial numbers or recall statuses for specific batches.
-*   **Edge Cases:** Proprietary/Brand-new devices might not be in the training set yet.
-
-### `myth`
-*   **Primary Usage:** Debunking widespread medical misconceptions (e.g., "Vaccines cause autism").
-*   **Does:** Provides the origin of the myth and the scientific evidence that refutes it.
-*   **Does NOT:** Debate "conspiracy theories" that lack any scientific basis.
-*   **Edge Cases:** Cultural myths that are harmless (e.g., "Chicken soup cures colds") are treated with less scientific rigor.
-
-### `organ`
-*   **Primary Usage:** Quick reference for organ-specific physiology and associated disease patterns.
-*   **Does:** Summarizes the primary and secondary functions of an organ and its role in systemic disease.
-*   **Does NOT:** Provide detailed surgical anatomy (use `anatomy` or `surgery` for that).
-*   **Edge Cases:** Multiorgan systems (e.g., the HPA axis) are sometimes split awkwardly between individual organ commands.
-
-### `pose`
-*   **Primary Usage:** Reference for correct patient positioning during specific surgical procedures.
-*   **Does:** Describes positions (Lithotomy, Trendelenburg, etc.) and lists pressure-point risks and nerve safety notes.
-*   **Does NOT:** Provide real-time intraoperative monitoring.
-*   **Edge Cases:** Non-standard or "hybrid" positions used in robotic surgery might be missing.
-
-### `procedure`
-*   **Primary Usage:** Step-by-step educational breakdown of non-surgical medical procedures (e.g., Lumbar Puncture).
-*   **Does:** Lists indications, equipment needed, technique steps, and common complications.
-*   **Does NOT:** Certify a user to perform the procedure.
-*   **Edge Cases:** Pediatric vs. Adult variations might be merged unless specified in the query.
-
-### `quiz`
-*   **Primary Usage:** Generating assessment questions for medical students or clinical competency testing.
-*   **Does:** Creates multiple-choice questions with rationales for the correct and incorrect answers.
-*   **Does NOT:** Track scores or manage a student database.
-*   **Edge Cases:** High difficulty settings can sometimes generate "trick" questions that rely on obscure trivia.
-
-### `refer`
-*   **Primary Usage:** Identifying the correct medical specialty or sub-specialty for a complex set of symptoms.
-*   **Does:** Maps clinical findings to the appropriate board-certified specialty.
-*   **Does NOT:** Book appointments or provide a list of local providers.
-*   **Edge Cases:** Overlapping specialties (e.g., Nephrology vs. Urology for kidney stones) may return both.
-
-### `roles`
-*   **Primary Usage:** Clarifying the scope of practice and responsibilities of different healthcare professionals.
-*   **Does:** Defines what a specialist (e.g., Anesthesiologist vs. CRNA) can and cannot do.
-*   **Does NOT:** Handle state-specific or country-specific licensing law variations.
-*   **Edge Cases:** Rapidly changing "scope of practice" laws may not be reflected.
-
-### `surgery`
-*   **Primary Usage:** Detailed monographs for major surgical operations.
-*   **Does:** Covers pre-op prep, technical approach, intra-op risks, and post-op recovery.
-*   **Does NOT:** Provide a "how-to" guide for untrained individuals to operate.
-*   **Edge Cases:** Experimental or "off-label" surgical techniques are excluded.
-
-### `tool`
-*   **Primary Usage:** Reference for surgical instrumentation and medical equipment.
-*   **Does:** Identifies the tool, its primary use, and sterilization requirements.
-*   **Does NOT:** Interface with inventory management systems.
-*   **Edge Cases:** Generic names (e.g., "Forceps") will return a list of many types rather than one.
-
-### `tray`
-*   **Primary Usage:** Standardizing the "back table" setup for surgical technologists and nurses.
-*   **Does:** Lists every instrument and consumable required for a specific standardized surgical tray.
-*   **Does NOT:** Account for individual surgeon "preference cards."
-*   **Edge Cases:** Local hospital naming conventions for trays may vary from the tool's output.
+*   **`advise`**: Provides evidence-based guidance for primary healthcare concerns and minor home management.
+    *   *Example*: `medkit-medical advise "Managing mild fever at home"`
+*   **`anatomy`**: Retrieves detailed anatomical information including classification, blood supply, and functional roles of body parts.
+    *   *Example*: `medkit-medical anatomy "Liver"`
+*   **`case`**: Generates synthetic medical case reports for clinical training, simulation, or software testing.
+    *   *Example*: `medkit-medical case "Type 2 Diabetes"`
+*   **`decision`**: Provides diagnostic logic trees and clinical decision support based on a patient's presenting symptoms.
+    *   *Example*: `medkit-medical decision "Acute Cough"`
+*   **`disease`**: Accesses comprehensive monographs for medical conditions, covering etiology, presentation, and standard treatments.
+    *   *Example*: `medkit-medical disease "Hypertension"`
+*   **`ethics`**: Analyzes complex medical ethics scenarios using established principles like autonomy, beneficence, and justice.
+    *   *Example*: `medkit-medical ethics "Patient confidentiality vs public safety"`
+*   **`facts`**: Verifies or refutes medical statements by cross-referencing them against established clinical guidelines.
+    *   *Example*: `medkit-medical facts "Vaccines cause autism"`
+*   **`faq`**: Automatically generates patient education materials consisting of common questions and plain-language answers.
+    *   *Example*: `medkit-medical faq "Asthma"`
+*   **`flashcard`**: Extracts medical terms from images via OCR or processes text lists to provide concise clinical definitions.
+    *   *Example*: `medkit-medical flashcard "label_image.jpg"`
+*   **`herbal`**: Researches the safety and clinical evidence levels for medicinal herbs and natural supplements.
+    *   *Example*: `medkit-medical herbal "Turmeric"`
+*   **`history`**: Generates standardized and targeted history-taking questions based on a patient's age, gender, and the purpose of the visit.
+    *   *Example*: `medkit-medical history -e "Physical" -a 45 -g "Male"`
+*   **`implant`**: Provides technical reference data for surgical hardware, including materials, indications, and MRI safety notes.
+    *   *Example*: `medkit-medical implant "Pacemaker"`
+*   **`myth`**: Debunks widespread medical misconceptions with documented scientific evidence and explains the origin of the myth.
+    *   *Example*: `medkit-medical myth "We use 10% of our brain"`
+*   **`organ`**: Offers quick summaries of organ-specific physiology and the organ's role in systemic disease patterns.
+    *   *Example*: `medkit-medical organ "Pancreas"`
+*   **`pose`**: Details the correct patient positioning for surgical procedures and lists associated pressure-point and nerve risks.
+    *   *Example*: `medkit-medical pose "Prone"`
+*   **`procedure`**: Breaks down medical and diagnostic procedures into step-by-step educational instructions.
+    *   *Example*: `medkit-medical procedure "Knee Replacement"`
+*   **`quiz`**: Generates multiple-choice questions with rationales for use in medical education and competency assessments.
+    *   *Example*: `medkit-medical quiz "Cardiology"`
+*   **`refer`**: Identifies the most appropriate medical specialty or sub-specialty based on a complex set of clinical findings.
+    *   *Example*: `medkit-medical refer "Chest pain and dyspnea"`
+*   **`roles`**: Defines the scope of practice and specific clinical responsibilities for different healthcare professional specialties.
+    *   *Example*: `medkit-medical roles "Neurosurgeon"`
+*   **`surgery`**: Provides detailed surgical monographs covering preoperative preparation, technique, and postoperative recovery.
+    *   *Example*: `medkit-medical surgery "Appendectomy"`
+*   **`tool`**: Identifies and describes surgical instruments and medical equipment, including their primary use and sterilization needs.
+    *   *Example*: `medkit-medical tool "Scalpel"`
+*   **`tray`**: Lists the standard instrument and consumable requirements for setting up specific surgical back tables.
+    *   *Example*: `medkit-medical tray "Orthopedic"`
 
 ---
 
 ## 💊 `medkit-drug`
-**Pharmacology & Medication Safety**
+**Pharmacology, Interactions & Medication Safety**
 
-### `addiction`
-*   **Primary Usage:** Clinical and social research into substance use disorders and recovery paths.
-*   **Does:** Provides DSM-5 criteria, withdrawal timelines, and evidence-based treatment options (MAT).
-*   **Does NOT:** Provide active crisis counseling or direct addiction therapy.
-*   **Edge Cases:** New "designer drugs" (research chemicals) often have no data.
+This tool provides a unified interface for researching medications and screening for safety issues.
 
-### `compare`
-*   **Primary Usage:** Side-by-side comparison of two drugs in the same or different classes.
-*   **Does:** Compares efficacy, half-life, cost-profile, and side-effect frequency.
-*   **Does NOT:** Recommend which drug is "better" for a specific patient.
-*   **Edge Cases:** Comparing drugs with completely different indications (e.g., an antibiotic vs. a statin) provides low-value results.
+### Subcommands
 
-### `disease`
-*   **Primary Usage:** Identifying contraindications and necessary dosage adjustments for patients with specific comorbidities.
-*   **Does:** Checks if a drug is safe for someone with, for example, Renal Failure or Myasthenia Gravis.
-*   **Does NOT:** Provide a "Green Light" for prescribing; always requires physician oversight.
-*   **Edge Cases:** Rare genetic conditions may not trigger a warning.
-
-### `explain`
-*   **Primary Usage:** Patient education and health literacy.
-*   **Does:** Translates complex pharmacology into a 5th-grade reading level explanation.
-*   **Does NOT:** Include technical details like cytochrome P450 metabolism.
-*   **Edge Cases:** Over-simplification can sometimes miss critical "black box" warnings.
-
-### `food`
-*   **Primary Usage:** Counseling patients on dietary restrictions while on medication.
-*   **Does:** Identifies common interactions (e.g., Grapefruit juice and Statins, Leafy greens and Warfarin).
-*   **Does NOT:** Provide a full "meal plan."
-*   **Edge Cases:** Struggles with multi-ingredient processed foods.
-
-### `info`
-*   **Primary Usage:** Rapid professional reference for drug monographs.
-*   **Does:** Provides MOA, pharmacokinetics, standard adult dosing, and adverse reactions.
-*   **Does NOT:** Provide pediatric weight-based calculations.
-*   **Edge Cases:** Drug-drug combinations (e.g., Percocet) might be split into individual components.
-
-### `interact`
-*   **Primary Usage:** Safety screening for polypharmacy patients.
-*   **Does:** Identifies Major, Moderate, and Minor interactions between two or more drugs.
-*   **Does NOT:** Account for the sequence of drug administration.
-*   **Edge Cases:** "Interaction Fatigue" occurs when too many minor warnings are generated for common combinations.
-
-### `similar`
-*   **Primary Usage:** Finding therapeutic alternatives when a drug is out of stock or causes side effects.
-*   **Does:** Lists drugs in the same class or with the same therapeutic goal.
-*   **Does NOT:** Guarantee that the alternative will be as effective for that specific patient.
-*   **Edge Cases:** May suggest an alternative that is much more expensive or requires different monitoring.
-
-### `symptoms`
-*   **Primary Usage:** Reference tool for identifying common pharmacological treatments for a symptom set.
-*   **Does:** Lists OTC and prescription options typically used for a symptom (e.g., "Neuropathic pain").
-*   **Does NOT:** Recommend a specific drug for the user to take.
-*   **Edge Cases:** Vague symptoms (e.g., "Tiredness") return too many unrelated drug categories.
+*   **`addiction`**: Provides clinical information on substance use disorders, including withdrawal timelines and evidence-based recovery paths.
+    *   *Example*: `medkit-drug addiction "Oxycodone"`
+*   **`compare`**: Performs a side-by-side comparison of two medications, highlighting differences in efficacy, side effects, and cost profiles.
+    *   *Example*: `medkit-drug compare "Tylenol" "Advil"`
+*   **`disease`**: Checks for contraindications and necessary dosage adjustments for drugs when a patient has specific comorbid conditions.
+    *   *Example*: `medkit-drug disease "Ibuprofen" "Kidney Disease"`
+*   **`explain`**: Translates complex pharmacological mechanisms into simple, patient-friendly language for better health literacy.
+    *   *Example*: `medkit-drug explain "Amoxicillin"`
+*   **`food`**: Identifies known interactions between specific medications and dietary components like grapefruit or leafy greens.
+    *   *Example*: `medkit-drug food "Metformin" "Grapefruit"`
+*   **`info`**: Provides comprehensive professional drug monographs, including pharmacokinetics, dosing, and adverse reactions.
+    *   *Example*: `medkit-drug info "Lisinopril"`
+*   **`interact`**: Conducts a detailed safety screening for interactions between two or more drugs, categorized by severity.
+    *   *Example*: `medkit-drug interact "Warfarin" "Aspirin"`
+*   **`similar`**: Finds therapeutic alternatives or similar drugs within the same pharmacological class for substitution research.
+    *   *Example*: `medkit-drug similar "Ozempic"`
+*   **`symptoms`**: Identifies common pharmacological treatments typically used to manage a specific set of clinical symptoms.
+    *   *Example*: `medkit-drug symptoms "Neuropathic pain"`
 
 ---
 
 ## 📊 `medkit-graph`
-**Knowledge Graph Reasoning**
+**Medical Knowledge Graph Extraction**
 
-### `disease`, `anatomy`, `medicine`, etc.
-*   **Primary Usage:** Converting unstructured medical text into structured "Triples" (Subject -> Relation -> Object) for data science and visualization.
-*   **Does:** Maps entities and their logical links (e.g., "Lisinopril --inhibits--> ACE").
-*   **Does NOT:** Verify the medical truth of the input text.
-*   **Edge Cases:**
-    *   **Anaphora:** If the text says "This drug causes X," the tool may fail to identify what "This drug" refers to.
-    *   **Complexity:** Extremely dense paragraphs can result in a "spiderweb" graph that is unreadable without filtering.
+This tool converts unstructured medical text into structured knowledge triples (Subject-Relation-Object) and generates interactive visual graphs.
+
+### Subcommands
+*   **`anatomy`**: Maps anatomical relationships and structural links from descriptive text.
+*   **`disease`**: Extracts links between diseases, their symptoms, and standard treatments.
+*   **`genetic`**: Identifies relationships between genes, variants, and associated clinical conditions.
+*   **`medicine`**: Maps pharmaceutical knowledge and drug targets from research text.
+*   **`pathophysiology`**: Extracts physiological mechanisms and causal pathways of diseases.
+*   **`pharmacology`**: Maps drug mechanisms of action and enzymatic pathways.
+*   **`procedure`**: Extracts the logical sequence of steps in a medical or surgical procedure.
+*   **`surgery`**: Maps surgical anatomy, tool requirements, and procedural landmarks.
+*   **`symptoms`**: Extracts symptom-to-disease and symptom-to-anatomy mappings.
+*   **`test`**: Extracts the logic behind diagnostic tests, including what they measure and why.
+
+*   *Example*: `medkit-graph disease "Diabetes is a chronic condition caused by insulin resistance."`
 
 ---
 
 ## 🔍 `medkit-recognizer`
-**Named Entity Recognition (NER)**
+**Medical Entity Recognition (NER)**
 
-### `drug`, `disease`, `symptom`, etc. (19 subcommands)
-*   **Primary Usage:** High-accuracy extraction of medical entities from clinical notes for research or database population.
-*   **Does:** Identifies the entity, its category, and often its standardized form (Normalization).
-*   **Does NOT:** Understand clinical negation (e.g., "No signs of fever" might still extract "fever").
-*   **Edge Cases:**
-    *   **Abbreviations:** "MS" could be "Multiple Sclerosis" or "Mitral Stenosis" depending on context.
-    *   **Spelling:** Typos in raw clinical notes significantly degrade extraction accuracy.
+This tool extracts and standardizes medical entities from unstructured clinical text using 19 specialized identifiers.
+
+### Subcommands
+*   **`abbreviation`**: Resolves medical abbreviations into their full clinical forms.
+*   **`anatomy`**: Identifies and extracts anatomical structures and body locations.
+*   **`clinical_sign`**: Identifies specific clinical examination findings and signs.
+*   **`coding`**: Extracts and maps medical descriptions to standard codes like ICD or CPT.
+*   **`condition`**: Identifies general medical conditions and states of health.
+*   **`device`**: Identifies medical hardware, diagnostic devices, and clinical tools.
+*   **`disease`**: Performs high-accuracy identification of specific medical diseases.
+*   **`drug`**: Extracts pharmaceutical names and medication mentions.
+*   **`genetic`**: Identifies genetic variants, markers, and genomic mentions.
+*   **`imaging`**: Extracts findings and technical terms from radiology reports.
+*   **`lab_unit`**: Identifies and standardizes laboratory measurement units.
+*   **`med_class`**: Identifies broader pharmacological and medication classes.
+*   **`pathogen`**: Identifies bacteria, viruses, and other infectious agents.
+*   **`procedure`**: Extracts mentions of medical, surgical, or diagnostic procedures.
+*   **`specialty`**: Identifies medical specialties and sub-specialty mentions.
+*   **`supplement`**: Identifies dietary supplements and nutraceuticals.
+*   **`symptom`**: Extracts subjective medical symptoms reported by patients.
+*   **`test`**: Identifies mentions of laboratory and diagnostic tests.
+*   **`vaccine`**: Extracts mentions of vaccines and biological products.
+
+*   *Example*: `medkit-recognizer drug "Patient is taking 10mg of Lisinopril daily."`
 
 ---
 
 ## 📸 `medkit-media`
-**Medical Media Search & AI Analysis**
+**Medical Image/Video Search & Analysis**
 
-### `caption`
-*   **Primary Usage:** Generating professional descriptions for medical images used in teaching or research.
-*   **Does:** Identifies anatomy and pathology in a context-aware way.
-*   **Does NOT:** Provide a diagnostic "Final Read" for a patient's scan.
-*   **Edge Cases:** If the AI is not trained on a specific rare pathology, it will provide a generic description.
+This tool enables the searching, downloading, and AI-powered analysis of medical visual content.
 
-### `images`
-*   **Primary Usage:** Sourcing visual aids for medical education.
-*   **Does:** Downloads medical images from the web based on a query.
-*   **Does NOT:** Filter for copyright or creative commons licenses automatically.
-*   **Edge Cases:** Search "noise" can lead to non-medical images being downloaded if the query is ambiguous.
+### Subcommands
 
-### `summary`
-*   **Primary Usage:** Rapidly digesting long-form medical video content or articles.
-*   **Does:** Provides a structured summary of key learning points.
-*   **Does NOT:** Replace the need to watch the full content for critical procedures.
-*   **Edge Cases:** Summaries of highly technical lectures may lose nuanced data.
-
-### `videos`
-*   **Primary Usage:** Finding educational medical content (procedures, lectures).
-*   **Does:** Returns URLs and metadata for videos on the web.
-*   **Does NOT:** Host the video files or remove ads from source sites.
-*   **Edge Cases:** May return dead links or removed content.
+*   **`caption`**: Generates professional, context-aware descriptions for medical images or clinical scans.
+    *   *Example*: `medkit-media caption "Rheumatoid hand x-ray"`
+*   **`images`**: Searches DuckDuckGo for medical images and downloads them to a local directory for reference.
+    *   *Example*: `medkit-media images "Psoriasis plaques" -n 5`
+*   **`summary`**: Summarizes the key learning points and clinical significance of long-form medical videos or articles.
+    *   *Example*: `medkit-media summary "Laparoscopic cholecystectomy technique"`
+*   **`videos`**: Searches for educational medical videos and returns metadata and source URLs.
+    *   *Example*: `medkit-media videos "CPR technique instructional"`
 
 ---
 
 ## 🧪 `medkit-diagnostics`
-**Laboratory & Device Reference**
+**Medical Tests & Diagnostic Devices**
 
-### `test`
-*   **Primary Usage:** Understanding the clinical utility and normal ranges of lab tests.
-*   **Does:** Explains *why* a test is ordered and what high/low values typically signify.
-*   **Does NOT:** Interpret a specific patient's result.
-*   **Edge Cases:** Normal ranges vary by lab/hospital; the tool provides a general "standard" range.
+This tool provides technical and clinical reference data for the diagnostics domain.
 
-### `device`
-*   **Primary Usage:** Technical reference for diagnostic hardware.
-*   **Does:** Covers physics of operation (e.g., how a CT works), indications, and safety.
-*   **Does NOT:** Troubleshoot malfunctioning physical hardware.
-*   **Edge Cases:** Newer "Point-of-Care" (POCUS) devices may have less documentation.
+### Subcommands
+
+*   **`test`**: Provides reference information for lab tests, including why they are ordered and what their normal ranges represent.
+    *   *Example*: `medkit-diagnostics test "HbA1c"`
+*   **`device`**: Offers technical information on diagnostic hardware, including physics of operation and clinical safety.
+    *   *Example*: `medkit-diagnostics device "MRI Scanner"`
 
 ---
 
 ## 📄 `medkit-article`
-**PubMed & Research Search**
+**PubMed & Medical Research Search**
 
-### `search`
-*   **Primary Usage:** Evidence-based medicine research and literature review.
-*   **Does:** Searches PubMed/BioMCP for the latest research on a disease.
-*   **Does NOT:** Provide the full-text PDF (it provides the Abstract).
-*   **Edge Cases:** Paywalled articles are not accessible beyond the abstract.
+This tool is used for evidence-based research by searching peer-reviewed medical literature.
 
-### `cite`
-*   **Primary Usage:** Generating bibliographies for medical papers or presentations.
-*   **Does:** Formats research findings into standardized clinical citations.
-*   **Does NOT:** Support every possible citation style (defaults to NLM/Vancouver).
+### Subcommands
+
+*   **`search`**: Searches PubMed and BioMCP for the latest research articles related to a specific medical condition.
+    *   *Example*: `medkit-article search "Gout"`
+*   **`cite`**: Retrieves and formats article citations in standardized clinical formats for bibliographies.
+    *   *Example*: `medkit-article cite "Diabetes"`
 
 ---
 
 ## 🛡️ `medkit-privacy`
-**Compliance & Data Governance**
+**HIPAA Compliance & Data Protection**
 
-### `audit`
-*   **Primary Usage:** Maintaining a HIPAA-compliant record of all data access and modifications.
-*   **Does:** Logs WHO accessed WHAT and WHEN into a secure, immutable-style JSON log.
-*   **Does NOT:** Provide physical server security.
-*   **Edge Cases:** If the session ID is lost, the audit trail becomes fragmented.
+This tool automates privacy workflows and ensures sensitive data is handled according to healthcare standards.
 
-### `consent`
-*   **Primary Usage:** Standardizing the informed consent process for digital health apps.
-*   **Does:** Displays a HIPAA-standard notice and captures a digital "Yes/No" acknowledgement.
-*   **Does NOT:** Serve as a replacement for a signed legal document in high-risk surgery.
+### Subcommands
 
-### `mask`
-*   **Primary Usage:** De-identifying clinical text for research or sharing with LLMs.
-*   **Does:** Uses regex and patterns to scrub Names, Phones, and Emails.
-*   **Does NOT:** Guaranteed to find 100% of PII (especially handwritten or oddly formatted data).
-*   **Edge Cases:** "Patient Rose" might not be masked if "Rose" is treated as a flower/common word.
-
-### `report`
-*   **Primary Usage:** Administrative oversight of data handling practices.
-*   **Does:** Generates a high-level summary of active sessions and compliance status.
-*   **Does NOT:** Automatically "fix" compliance violations.
+*   **`audit`**: Logs all data access and modification events into a secure, HIPAA-compliant audit trail.
+    *   *Example*: `medkit-privacy audit --session "SESS123" --action "View Record" --role "Nurse"`
+*   **`consent`**: Displays standardized HIPAA privacy notices and captures digital informed consent from users.
+    *   *Example*: `medkit-privacy consent`
+*   **`mask`**: Uses patterns and regex to identify and scrub Personally Identifiable Information (PII) from clinical text.
+    *   *Example*: `medkit-privacy mask "Patient John Doe at 555-0199"`
+*   **`report`**: Generates administrative reports on active sessions and overall system compliance metrics.
+    *   *Example*: `medkit-privacy report`
 
 ---
 
 ## 🧠 `medkit-mental`
-**Interactive Psychiatric Assessment**
+**Interactive Mental Health Assessment**
 
-*   **Primary Usage:** Preliminary screening for depression, anxiety, and other common mental health conditions.
-*   **Does:** Conducts a structured conversation based on validated clinical scales.
-*   **Does NOT:** Provide therapy or crisis intervention.
-*   **Edge Cases:** **CRITICAL:** While it tries to detect self-harm risk, it is an AI and CAN miss cues. Never use for active crisis.
+This tool conducts an interactive psychiatric screening session using validated clinical scales. It is intended for preliminary assessment and longitudinal tracking of mental health symptoms.
+*   **Usage**: Run `medkit-mental` to start a structured, conversational screening session.
+*   **What it DOES**: It asks diagnostic questions, evaluates responses based on scales like PHQ-9, and provides a summary.
+*   **What it DOES NOT Do**: It does not provide therapy, crisis counseling, or definitive psychiatric diagnosis.
+*   **Example**:
+    ```bash
+    medkit-mental
+    ```
 
 ---
 
 ## ⚖️ `medkit-sane`
-**Forensic Nursing Protocol**
+**Forensic Nursing & SANE Interview Protocol**
 
-*   **Primary Usage:** Standardizing the Sexual Assault Nurse Examiner (SANE) interview process.
-*   **Does:** Guides the examiner through the legal and medical sequence required for a forensic exam.
-*   **Does NOT:** Collect or store physical evidence (DNA kits).
-*   **Edge Cases:** Highly traumatized patients may provide non-linear info that breaks the AI's "timeline" generation.
+This specialized tool guides Sexual Assault Nurse Examiners through the complex sequence of a forensic interview. It ensures that all legal and clinical steps are followed according to strict protocols.
+*   **Usage**: Run `medkit-sane start` to begin a guided interview protocol.
+*   **What it DOES**: It provides the correct interview sequence, ensures legally necessary questions are asked, and helps build a coherent timeline.
+*   **What it DOES NOT Do**: It does not collect physical DNA evidence or serve as a legal representative.
+*   **Example**:
+    ```bash
+    medkit-sane start
+    ```
 
 ---
 
 ## 📋 `medkit-codes`
 **ICD-11 Diagnostic Coding**
 
-*   **Primary Usage:** Mapping clinical diagnoses to official WHO ICD-11 codes for record-keeping.
-*   **Does:** Searches the massive ICD-11 hierarchy for the most relevant code.
-*   **Does NOT:** Handle billing (CPT) or insurance reimbursement logic.
-*   **Edge Cases:** If the clinical description is too vague, it may return a "top-level" code (e.g., "Injury") instead of a specific one.
+This tool maps clinical descriptions to the official WHO ICD-11 diagnostic hierarchy. It is used for medical record-keeping and diagnostic standardization.
+*   **Usage**: `medkit-codes search "<description>"`
+*   **What it DOES**: It searches the ICD-11 database and returns the most relevant diagnostic codes and their titles.
+*   **What it DOES NOT Do**: It does not handle medical billing, insurance claim submission, or CPT/HCPCS coding.
+*   *Example*: `medkit-codes search "Asthma"`
+
+---
+
+## 📖 `medkit-dictionary`
+**Medical Terminology Builder**
+
+This tool is designed to build and manage a custom, structured medical dictionary for use in other clinical software applications.
+*   **Usage**: `medkit-dictionary build`
+*   **What it DOES**: It automates the generation of structured definitions and metadata for a large volume of medical terms.
+*   **Example**: `medkit-dictionary build`
 
 ---
 
 ## 📋 `medkit-exam`
-**Standardized Physical Examination**
+**Standardized Physical Examination Protocols**
 
-*   **Primary Usage:** Training, checklist generation, and reference for head-to-toe physical exams.
-*   **Does:** Lists 28+ standardized protocols (Heart, Lung, Neurological, etc.) and their required steps.
-*   **Does NOT:** Perform the exam or provide real-time haptic feedback.
-*   **Edge Cases:** Does not account for specialized "pediatric" or "geriatric" maneuvers unless specified.
+This tool serves as a reference and training guide for performing standardized head-to-toe physical examinations. It contains 28+ specific protocols for different body systems.
+*   **Usage**: `medkit-exam --list`
+*   **What it DOES**: It provides step-by-step checklists and maneuvers required for a professional physical exam (e.g., Cardiac, Neurological).
+*   **What it DOES NOT Do**: It does not perform the exam or provide real-time haptic feedback to the examiner.
+*   **Example**:
+    ```bash
+    medkit-exam --list
+    ```
