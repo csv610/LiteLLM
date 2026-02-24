@@ -81,140 +81,203 @@ You can override the default output path for any non-restricted command.
 
 ---
 
-### 📘 Detailed Module Analysis: AI Augmentation of Clinical Workflows
+### 📘 Exhaustive Module Reference
 
-The following sections provide an exhaustive breakdown of how each `medkit-medical` subcommand leverages AI to transcend traditional medical reference methods.
+The following sections provide a definitive guide to every `medkit-medical` module, detailing how AI augments traditional clinical practice.
 
-#### 1. `advise` (Primary Health Care Advice)
-*   **Traditional Method**: Reliance on generic triage pamphlets, nurse hotlines with high wait times, or "Dr. Google," which often leads to unnecessary ER visits or missed red flags.
-*   **AI Augmentation**: MedKit analyzes specific symptoms and patient context to provide evidence-based, conservative triage guidance. It differentiates between self-limiting conditions (home care) and emergent presentations requiring immediate intervention, reducing healthcare system load while ensuring patient safety.
+#### `advise`
+*   **Problem**: Reliance on generic triage pamphlets or long wait times for nurse hotlines often leads to unnecessary ER visits or missed red flags.
+*   **Usage**: Conservative triage guidance for primary health care concerns.
+*   **Does**: Analyzes symptoms to differentiate between self-limiting conditions (home care) and emergent presentations.
+*   **Does NOT**: Provide definitive diagnosis or replace emergency services.
+*   **AI Augmentation**: MedKit analyzes specific symptoms and patient context to provide evidence-based triage. It identifies subtle patterns in clinical presentation that might be missed by generic flowcharts, ensuring patient safety while optimizing system resources.
+*   **Example**: `medkit-medical advise "Persistent dry cough for 3 days, no fever" -s`
 
-#### 2. `anatomy` (Structural & Functional Reference)
-*   **Traditional Method**: Static 2D atlases or heavy physical textbooks (e.g., Gray’s Anatomy) that require manual cross-referencing for innervation and vascular supply.
-*   **AI Augmentation**: AI provides dynamic, semantic retrieval of anatomical relationships. It can instantly map the secondary implications of a lesion (e.g., "If this nerve is damaged, which specific muscle groups and sensory zones are affected?"), serving as a real-time "functional atlas" for clinicians and students.
+#### `anatomy`
+*   **Problem**: Sourcing reliable anatomical data (innervation, blood supply) from static 2D atlases is slow and requires manual cross-referencing.
+*   **Usage**: Detailed research into specific body structures and functional relationships.
+*   **Does**: Provides names, body systems, innervation, blood supply, and functional mechanisms.
+*   **Does NOT**: Analyze patient-specific medical images (DICOM/X-ray).
+*   **AI Augmentation**: AI provides dynamic, semantic retrieval of anatomical relationships. It can instantly map the secondary implications of a lesion (e.g., "If this nerve is damaged, which muscle groups are affected?"), serving as a real-time "functional atlas."
+*   **Example**: `medkit-medical anatomy "Brachial Plexus" --structured`
 
-#### 3. `case` (Synthetic Clinical Scenarios)
-*   **Traditional Method**: Educators manually write patient cases, which is time-consuming and often results in repetitive or biased scenarios. Using real patient data for training is ethically complex and requires heavy de-identification.
+#### `case`
+*   **Problem**: Educators manually writing patient cases is time-consuming and often results in repetitive or biased scenarios. Using real data is ethically complex.
+*   **Usage**: Generating realistic patient scenarios for education and testing.
+*   **Does**: Generates high-fidelity, diverse, and medically plausible synthetic patient cases with history, physical findings, and labs.
+*   **Does NOT**: Represent any real individual (strictly synthetic).
 *   **AI Augmentation**: AI generates high-fidelity, diverse, and medically plausible synthetic patient cases at scale. These cases include realistic history, physical findings, and labs, allowing for robust medical education and software testing without any HIPAA or privacy risks.
+*   **Example**: `medkit-medical case "Uncontrolled Type 2 Diabetes with neuropathy" -s`
 
-#### 4. `decision` (Clinical Decision Support)
-*   **Traditional Method**: Static paper flowcharts or memorized diagnostic algorithms (e.g., the Ottawa Ankle Rules) that cannot easily account for complex comorbidities.
+#### `decision`
+*   **Problem**: Static paper flowcharts or memorized algorithms cannot easily account for complex patient-specific comorbidities.
+*   **Usage**: Diagnostic logic trees and clinical decision support.
+*   **Does**: Parses a constellation of symptoms into a prioritized differential diagnosis and suggests the next logical diagnostic step.
+*   **Does NOT**: Make final clinical decisions or replace professional judgment.
 *   **AI Augmentation**: MedKit creates dynamic diagnostic logic trees. It parses a constellation of symptoms into a prioritized differential diagnosis, suggesting the most logical next diagnostic step based on the principle of "Occam's Razor" (simplicity) and "Sutton's Law" (probability).
+*   **Example**: `medkit-medical decision "Acute epigastric pain radiating to the back" -s`
 
-#### 5. `disease` (Comprehensive Monographs)
-*   **Traditional Method**: Searching subscription-based databases like UpToDate or reading exhaustive textbook chapters that may be months or years out of date.
+#### `disease`
+*   **Problem**: Searching exhaustive textbook chapters or subscription databases for standard-of-care treatments is slow.
+*   **Usage**: Retrieving comprehensive, evidence-based disease monographs.
+*   **Does**: Covers pathophysiology, etiology, symptoms, diagnostic criteria, and management.
+*   **Does NOT**: Account for real-time drug shortages or local hospital protocols.
 *   **AI Augmentation**: AI synthesizes the most recent peer-reviewed guidelines and clinical literature into concise, actionable monographs. It provides the "Clinical Essentials"—etiology, pathophysiology, and gold-standard management—in seconds rather than minutes.
+*   **Example**: `medkit-medical disease "Systemic Lupus Erythematosus" -s`
 
-#### 6. `ethics` (Bioethical Framework Analysis)
-*   **Traditional Method**: Ethics committees meet infrequently, and clinicians often rely on "gut feeling" or hospital policy when faced with dilemmas like end-of-life care or organ allocation.
+#### `ethics`
+*   **Problem**: Clinicians often rely on hospital policy or "gut feeling" for complex bioethical dilemmas like end-of-life care.
+*   **Usage**: Structured analysis of complex bioethical scenarios.
+*   **Does**: Applies frameworks like Autonomy, Beneficence, Non-maleficence, and Justice to a specific case.
+*   **Does NOT**: Provide legal advice or make the final ethical decision for the committee.
 *   **AI Augmentation**: AI applies structured bioethical frameworks (Autonomy, Beneficence, Non-maleficence, and Justice) to a specific case. It provides a balanced, multi-perspective analysis that helps clinicians navigate "gray areas" with consistent, logical rigor.
+*   **Example**: `medkit-medical ethics "Family refuses life-saving treatment for a minor"`
 
-#### 7. `eval-procedure` (Documentation Auditing)
-*   **Traditional Method**: Manual review of operative notes or discharge summaries by senior attendings or billing coders, which is prone to human oversight.
+#### `eval-procedure`
+*   **Problem**: Manual review of operative notes for safety steps or terminology consistency is prone to human oversight.
+*   **Usage**: Auditing and evaluating medical procedure documentation.
+*   **Does**: Identifies missing safety steps, terminology inconsistencies, or omissions in follow-up instructions.
+*   **Does NOT**: Edit the original legal record directly (provides an audit report).
 *   **AI Augmentation**: AI audits medical documentation against clinical standards. It identifies missing safety steps (e.g., "Was the timeout documented?"), inconsistencies in anatomical terminology, or omissions in follow-up care instructions, ensuring high-quality, compliant records.
+*   **Example**: `medkit-medical eval-procedure "path/to/operative_note.txt"`
 
-#### 8. `facts` (Evidence Verification)
-*   **Traditional Method**: Manual literature searches on PubMed or Google Scholar to verify a specific clinical claim, which requires significant time to filter through thousands of results.
+#### `facts`
+*   **Problem**: Manually verifying clinical claims on PubMed requires significant time to filter results.
+*   **Usage**: Evidence-based verification of specific medical statements.
+*   **Does**: Uses RAG to verify statements against authoritative datasets, providing a "truth score" and context.
+*   **Does NOT**: Verify non-medical or speculative claims.
 *   **AI Augmentation**: AI uses Retrieval-Augmented Generation (RAG) to verify medical statements against high-quality, authoritative datasets. It provides a "truth score" and clinical context, acting as a real-time guardrail against medical misinformation.
+*   **Example**: `medkit-medical facts "High-dose Vitamin C cures viral pneumonia"`
 
-#### 9. `faq` (Patient Education)
-*   **Traditional Method**: Handing patients generic, one-size-fits-all printed templates that are often written at a reading level too high for the general public.
+#### `faq`
+*   **Problem**: Generic patient education templates are often written at a reading level too high for the general public.
+*   **Usage**: Generating plain-language patient education materials.
+*   **Does**: Translates complex clinical concepts into empathetic, easy-to-understand explanations.
+*   **Does NOT**: Give specific dosage or medical instructions to a patient.
 *   **AI Augmentation**: AI generates personalized, empathetic patient education materials. It translates complex clinical concepts into plain language (e.g., "the pump in your chest" instead of "myocardial contractility") while ensuring the core medical facts remain accurate.
+*   **Example**: `medkit-medical faq "How to manage high blood pressure at home"`
 
-#### 10. `flashcard` (Visual Terminology Extraction)
-*   **Traditional Method**: Manually typing or looking up unfamiliar terms found on medication labels, pathology reports, or device packaging.
+#### `flashcard`
+*   **Problem**: Dense jargon on medical labels or pathology reports is inaccessible to patients and junior staff.
+*   **Usage**: Terminology extraction and explanation from labels and reports.
+*   **Does**: Uses OCR to find medical terms and provides instant, simplified clinical definitions.
+*   **Does NOT**: Interpret the results as a diagnosis (e.g., "You have cancer").
 *   **AI Augmentation**: AI uses computer vision (OCR) to extract medical terms directly from images of labels or reports and provides instant, simplified clinical explanations. This bridges the "health literacy gap" for both patients and junior staff.
+*   **Example**: `medkit-medical flashcard "medication_bottle.jpg"`
 
-#### 11. `herbal` (Botanical Safety Reference)
-*   **Traditional Method**: Herbal remedies are often omitted from patient records, and data on their safety or drug interactions is scattered across non-clinical websites.
+#### `herbal`
+*   **Problem**: Data on the safety or drug-drug interactions of herbal supplements is often scattered across non-clinical websites.
+*   **Usage**: Evidence-based info on botanical remedies and safety.
+*   **Does**: Analyzes therapeutic utility, toxicities, and herb-drug interactions.
+*   **Does NOT**: Recommend herbal treatments over standard pharmaceutical care.
 *   **AI Augmentation**: AI provides an evidence-based analysis of herbal supplements, focusing on therapeutic utility, toxicities, and—critically—herb-drug interactions (e.g., St. John's Wort's effect on cytochrome P450), ensuring holistic patient safety.
+*   **Example**: `medkit-medical herbal "St. John's Wort" -s`
 
-#### 12. `history` (Standardized Intake)
-*   **Traditional Method**: Unstructured history-taking or static intake forms that often miss critical details like family history or environmental exposures.
+#### `history`
+*   **Problem**: Unstructured intake or static forms often miss critical details like family history or environmental exposures.
+*   **Usage**: Standardizing targeted, adaptive history-taking questions.
+*   **Does**: Tailors intake questions to the patient's age, gender, and the purpose of the exam.
+*   **Does NOT**: Conduct the interview (it provides the questions for the clinician).
 *   **AI Augmentation**: AI generates adaptive, targeted history-taking questions. By knowing the patient's age, gender, and purpose of the visit, it prioritizes the most high-yield questions (e.g., "Review of Systems" specific to chest pain), ensuring no clinical "blind spots."
+*   **Example**: `medkit-medical history -e "Pre-op" -a 60 -g "Female" -s`
 
-#### 13. `implant` (Prosthetic & Device Reference)
-*   **Traditional Method**: Searching for physical manufacturer manuals or calling reps to find out if an old implant is MRI-compatible or what its expected failure rate is.
+#### `implant`
+*   **Problem**: Finding data on an old implant's MRI compatibility or failure rates often requires searching physical manufacturer manuals.
+*   **Usage**: Detailed reference for medical implants and prosthetics.
+*   **Does**: Provides data on indications, complications, and safety parameters (like MRI safety).
+*   **Does NOT**: Provide real-time tracking of individual serialized devices.
 *   **AI Augmentation**: AI serves as a centralized reference for medical implants. It provides instant data on indications, complications, and critical safety parameters (e.g., "Is this heart valve MRI-safe at 3T?"), which is vital for radiologists and surgeons.
+*   **Example**: `medkit-medical implant "St. Jude Medical Heart Valve" -s`
 
-#### 14. `myth` (Misinformation Debunking)
-*   **Traditional Method**: Correcting patient misconceptions (e.g., "vaccines cause autism") through repetitive, time-consuming verbal explanations during short office visits.
+#### `myth`
+*   **Problem**: Correcting patient misconceptions through repetitive verbal explanations is time-consuming during office visits.
+*   **Usage**: Evidence-based debunking of common medical myths.
+*   **Does**: Presents scientific consensus alongside the origins of the myth and provides a "script" for clinicians.
+*   **Does NOT**: Engage in hostile debate; it remains professional and objective.
 *   **AI Augmentation**: AI provides structured, evidence-based debunking of common medical myths. It presents the scientific consensus alongside the origins of the myth, providing clinicians with a "script" to handle difficult conversations effectively.
+*   **Example**: `medkit-medical myth "Flu shots give you the flu"`
 
-#### 15. `organ` (Systemic Pathophysiology)
-*   **Traditional Method**: Learning organ systems in isolation, which makes it difficult to understand how a failure in one (e.g., the liver) causes a systemic cascade (e.g., hepatic encephalopathy or coagulopathy).
+#### `organ`
+*   **Problem**: Learning organ systems in isolation makes it difficult to understand systemic cascades (e.g., how liver failure leads to brain swelling).
+*   **Usage**: Organ-specific physiology and systemic disease mapping.
+*   **Does**: Explains the functional connections between organs and systemic disease.
+*   **Does NOT**: Provide real-time diagnostic imaging of organs.
 *   **AI Augmentation**: AI maps the functional connections between organs and systemic disease. It explains the "why" behind clinical signs (e.g., "How does kidney failure lead to bone disease?"), fostering a deeper, integrated understanding of medicine.
+*   **Example**: `medkit-medical organ "Kidneys" -s`
 
-#### 16. `pose` (Surgical Positioning Safety)
-*   **Traditional Method**: Relying on the memory of the OR staff or old posters on the wall, which can lead to rare but devastating nerve palsies (e.g., ulnar nerve compression) or pressure ulcers.
+#### `pose`
+*   **Problem**: Relying on memory for surgical positioning can lead to rare but devastating nerve palsies or pressure ulcers.
+*   **Usage**: Safety reference for surgical patient positioning.
+*   **Does**: Identifies risks (nerve compression, joint strain) and padding requirements for specific positions.
+*   **Does NOT**: Physically position the patient.
 *   **AI Augmentation**: AI identifies the specific risks associated with every surgical position (e.g., Trendelenburg, Lithotomy). It lists "critical check-points" for padding and joint alignment, acting as a digital safety checklist for the surgical team.
+*   **Example**: `medkit-medical pose "Trendelenburg"`
 
-#### 17. `procedure` (Step-by-Step Education)
-*   **Traditional Method**: "See one, do one, teach one," which relies on the availability of a specific case and the teaching ability of a senior colleague.
+#### `procedure`
+*   **Problem**: "See one, do one, teach one" relies on the teaching ability of senior colleagues and specific case availability.
+*   **Usage**: Step-by-step educational breakdown of clinical procedures.
+*   **Does**: Provides technical steps, equipment lists, pitfall warnings, and physiological rationale.
+*   **Does NOT**: Grant clinical competency or license to perform the procedure.
 *   **AI Augmentation**: AI provides an exhaustive, step-by-step breakdown of clinical procedures. It includes "Clinical Pearls," common pitfalls to avoid, and the physiological rationale for each step, ensuring a standardized and safe learning environment.
+*   **Example**: `medkit-medical procedure "Lumbar Puncture" -s`
 
-#### 18. `quiz` (Clinical Assessment Generation)
-*   **Traditional Method**: Educators manually writing Multiple Choice Questions (MCQs), which is notoriously difficult to do well (e.g., creating plausible distractors).
+#### `quiz`
+*   **Problem**: Educators manually writing high-quality MCQs with plausible distractors is notoriously difficult.
+*   **Usage**: Generating clinical assessment questions and rationales.
+*   **Does**: Creates realistic MCQs with detailed explanations for both correct and incorrect options.
+*   **Does NOT**: Replace official board examinations or certification.
 *   **AI Augmentation**: AI generates high-quality medical assessments. It creates realistic distractors based on common clinical errors and provides detailed rationales for why the correct answer is right and why others are wrong, enhancing active learning.
+*   **Example**: `medkit-medical quiz "Cardiology" --difficulty "Advanced"`
 
-#### 19. `refer` (Specialty Optimization)
-*   **Traditional Method**: General practitioners referring to a broad specialty (e.g., "Surgery") without knowing if the patient needs a more specific sub-specialist (e.g., "Colorectal" vs. "Hepatobiliary").
+#### `refer`
+*   **Problem**: General practitioners often refer to broad specialties (e.g., "Surgery") without knowing the optimal sub-specialist for a specific case.
+*   **Usage**: Identifying the correct medical sub-specialty for a clinical presentation.
+*   **Does**: Recommends the specific sub-specialty best suited for a patient's symptoms or diagnosis.
+*   **Does NOT**: Schedule the appointment or guarantee insurance coverage.
 *   **AI Augmentation**: AI analyzes clinical presentations to recommend the most appropriate medical sub-specialty. This ensures the patient sees the right expert the first time, reducing wait times and improving diagnostic accuracy.
+*   **Example**: `medkit-medical refer "Unexplained weight loss and chronic diarrhea"`
 
-#### 20. `roles` (Scope of Practice Reference)
-*   **Traditional Method**: Confusion in interdisciplinary teams about who is responsible for what (e.g., "Can a Physician Assistant perform this specific procedure in this state?").
+#### `roles`
+*   **Problem**: Confusion in interdisciplinary teams about the scope of practice for various roles (e.g., PAs vs. NPs) can lead to safety risks.
+*   **Usage**: Scope of practice and responsibilities for medical specialties.
+*   **Does**: Outlines what each specialty can and cannot do based on standard clinical roles.
+*   **Does NOT**: Override local state laws or hospital bylaws.
 *   **AI Augmentation**: AI provides detailed mapping of roles and responsibilities within healthcare teams. It clarifies the scope of practice for various specialties, facilitating better communication and safer delegation in complex clinical environments.
+*   **Example**: `medkit-medical roles "Anesthesiology Assistant" -s`
 
-#### 21. `surgery` (Operative Monographs)
-*   **Traditional Method**: Reading sparse operative notes or watching videos that may not explain the "why" behind a specific technique or the evidence for postoperative benchmarks.
+#### `surgery`
+*   **Problem**: Operative notes are often sparse and don't explain the postoperative benchmarks or preoperative optimization required.
+*   **Usage**: Exhaustive procedural monographs and recovery benchmarks.
+*   **Does**: Covers preoperative prep, intraoperative highlights, and postoperative recovery timelines.
+*   **Does NOT**: Provide real-time intraoperative guidance.
 *   **AI Augmentation**: AI generates exhaustive procedural monographs. It covers preoperative optimization, intraoperative technical highlights, and specific postoperative recovery benchmarks (e.g., "When should the patient start mobilizing?"), providing a 360-degree view of the surgery.
+*   **Example**: `medkit-medical surgery "Laparoscopic Cholecystectomy" -s`
 
-#### 22. `tool` (Surgical Instrument Reference)
-*   **Traditional Method**: Junior staff or students "learning on the fly" in the OR, which is stressful and prone to error (e.g., using the wrong forceps for delicate tissue).
+#### `tool`
+*   **Problem**: Junior staff "learning on the fly" in the OR is stressful and prone to error (e.g., picking the wrong forceps).
+*   **Usage**: Detailed reference for surgical instruments and sterilization.
+*   **Does**: Explains tool utility, handling techniques, and sterilization requirements.
+*   **Does NOT**: Order instruments or manage inventory.
 *   **AI Augmentation**: AI provides a detailed reference for surgical instruments. It explains what each tool is for, how it should be handled, and its sterilization requirements, serving as a "digital mentor" for surgical trainees and scrub techs.
+*   **Example**: `medkit-medical tool "DeBakey Forceps" -s`
 
-#### 23. `topic` (High-Level Subject Synthesis)
-*   **Traditional Method**: Reading multiple Wikipedia entries or broad textbook chapters to get an overview of a complex field (e.g., "Immunotherapy in Oncology").
+#### `topic`
+*   **Problem**: Getting a comprehensive overview of a new field (e.g., "Immunotherapy") requires reading multiple fragmented sources.
+*   **Usage**: Synthesis of general medical subjects into "Pillars of Knowledge."
+*   **Does**: Provides a structured, high-level overview of complex medical topics.
+*   **Does NOT**: Provide deep-dive research into specific niche pathologies.
 *   **AI Augmentation**: AI provides a structured, high-level synthesis of complex medical subjects. It identifies the "Pillars of Knowledge" for that topic, allowing a clinician to get up to speed on a new or unfamiliar field in minutes.
+*   **Example**: `medkit-medical topic "CRISPR in Medicine" -s`
 
-#### 24. `tray` (Surgical Setup Standardization)
-*   **Traditional Method**: Senior scrub nurses relying on "preference cards" which are often outdated, leading to missing instruments and delays during surgery.
+#### `tray`
+*   **Problem**: Senior scrub nurses relying on outdated "preference cards" leads to missing instruments and delays.
+*   **Usage**: Standardized setup lists for surgical instrument trays.
+*   **Does**: Lists every specific instrument required for a standardized procedural tray.
+*   **Does NOT**: Track physical tray location in the sterile processing department.
 *   **AI Augmentation**: AI generates standardized setup lists for surgical instrument trays. It ensures that the specific instruments required for a procedure (e.g., "Laparoscopic Cholecystectomy Tray") are correctly identified and ready, streamlining OR throughput and safety.
+*   **Example**: `medkit-medical tray "Laparoscopic Appendix Tray" -s`
 
----
-
-### `anatomy`
-*   **Problem**: Sourcing reliable anatomical data (innervation, blood supply) is slow.
-*   **Usage**: Detailed research into specific body structures.
-*   **Does**: Provides names, body systems, and functional mechanisms.
-*   **Does NOT**: Analyze patient-specific medical images.
-*   **Example**: `medkit-medical anatomy "Liver" --structured`
-
-### `disease`
-*   **Problem**: Clinicians need rapid access to etiology and standard-of-care treatments.
-*   **Usage**: Retrieving comprehensive disease monographs.
-*   **Does**: Covers pathophysiology, symptoms, and management.
-*   **Example**: `medkit-medical disease "Hypertension" -s`
-
-### `ethics`
-*   **Problem**: Healthcare professionals face "gray area" decisions with no clear right answer.
-*   **Usage**: Analyzing complex bioethical scenarios.
-*   **Does**: Applies frameworks like Autonomy and Justice.
-*   **Example**: `medkit-medical ethics "Confidentiality vs public safety"`
-
-### `flashcard`
-*   **Problem**: Dense jargon on medical labels is inaccessible to many.
-*   **Usage**: Extraction and explanation of medical labels from images.
-*   **Does**: Uses OCR to find terms and provides professional definitions.
-*   **Example**: `medkit-medical flashcard "label_image.jpg" --structured`
-
-### `history`
-*   **Problem**: Unstructured intake results in missing clinical data.
-*   **Usage**: Standardizing targeted history-taking questions.
-*   **Does**: Tailors questions to age, gender, and purpose.
-*   **Example**: `medkit-medical history -e "Physical" -a 45 -g "Male" -s`
-
-*(Note: All 24+ medical subcommands like `advise`, `decision`, `facts`, `faq`, `herbal`, `implant`, `myth`, `organ`, `pose`, `procedure`, `quiz`, `refer`, `roles`, `surgery`, `tool`, `tray` accept the `--structured` argument.)*
+*(Note: All 24 medical subcommands accept the `--structured` argument to return machine-readable JSON reports.)*
 
 ---
 
