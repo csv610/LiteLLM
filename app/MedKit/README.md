@@ -76,7 +76,21 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 | 23 | **`topic`** | Synthesis of general medical subjects. |
 | 24 | **`tray`** | Standardized setup lists for surgical instrument trays. |
 
-> **📘 Exhaustive Reference**: For every subcommand, clinical safety boundary, and failure mode, see the [**Detailed CLI Reference**](./CLI_REFERENCE.md).
+---
+
+#### 🧪 Clinical Intelligence: AI Augmentation of Traditional Workflows
+
+MedKit doesn't just provide definitions; it augments traditional medical practice through targeted AI reasoning:
+
+*   **`advise` & `decision`**: Replaces static paper flowcharts with dynamic clinical decision support, suggesting prioritized differential diagnoses based on patient context.
+*   **`anatomy` & `organ`**: Moves beyond 2D atlases to semantic functional mapping, explaining the systemic "why" behind clinical findings.
+*   **`case` & `quiz`**: Automates the generation of high-fidelity synthetic patient data and MCQs for rapid, bias-free medical education.
+*   **`eval-procedure` & `surgery`**: Acts as a digital auditor for operative documentation, flagging inconsistencies and identifying nerve/pressure risks in patient positioning (`pose`).
+*   **`facts` & `myth`**: Leverages RAG to verify medical statements against high-quality evidence, systematically debunking clinical misinformation.
+*   **`flashcard`**: Uses computer vision to bridge the health literacy gap by extracting and explaining terms directly from physical medical labels.
+*   **`history` & `refer`**: Standardizes clinical intake with adaptive, targeted questions and optimizes specialist referrals to ensure patient-expert matching.
+
+> **📘 Exhaustive Reference**: For a deep-dive into all 24 medical modules and how they augment traditional practice, see the [**Detailed CLI Reference**](./CLI_REFERENCE.md).
 
 ---
 
