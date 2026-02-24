@@ -15,10 +15,11 @@ from typing import List, Literal, Optional
 from pathlib import Path
 from dataclasses import dataclass
 from pydantic import BaseModel, Field, validator
-import networkx as nx
+try:
+    import networkx as nx
+except ImportError:
+    nx = None
 import json
-from medkit.core.medkit_client import MedKitConfig
-
 
 import hashlib
 
@@ -86,28 +87,24 @@ NODE_TYPE_ALIASES = {
 # Configuration
 # =========================
 @dataclass
-class TestGraphConfig(MedKitConfig):
+class TestGraphConfig:
     """
     Configuration for medical_tests_graph.
-
-    Inherits from StorageConfig for LMDB database settings:
-    - db_path: Auto-generated path to medical_tests_graph.lmdb
-    - db_capacity_mb: Database capacity (default 500 MB)
-    - db_store: Whether to cache results (default True)
-    - db_overwrite: Whether to refresh cache (default False)
     """
+    db_path: Optional[str] = None
+    db_capacity_mb: int = 500
+    db_store: bool = True
+    db_overwrite: bool = False
     output_path: Optional[Path] = None
     verbosity: bool = False
     enable_cache: bool = True
 
     def __post_init__(self):
-        """Set default db_path if not provided, then validate."""
+        """Set default db_path if not provided."""
         if self.db_path is None:
             self.db_path = str(
                 Path(__file__).parent.parent / "storage" / "medical_tests_graph.lmdb"
             )
-        # Call parent validation
-        super().__post_init__()
 class Triple(BaseModel):
     """Represents one medical test knowledge triple."""
     source: str = Field(..., description="Subject entity")

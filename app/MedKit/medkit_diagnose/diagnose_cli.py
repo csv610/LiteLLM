@@ -11,8 +11,8 @@ from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 # Import generators from diagnostics package
-from .medical_tests.medical_test_info import MedicalTestInfoGenerator
-from .medical_devices.medical_test_devices import MedicalTestDevicesGenerator
+from medkit_diagnose.medical_tests.medical_test_info import MedicalTestInfoGenerator
+from medkit_diagnose.medical_devices.medical_test_devices import MedicalTestDeviceGuide
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def main():
                 if res: gen.save(res, output_dir)
 
         elif args.command == "device":
-            gen = MedicalTestDevicesGenerator(model_config)
+            gen = MedicalTestDeviceGuide(model_config)
             for item in tqdm(handle_batch_input(args.device, "device"), desc="Devices"):
                 res = gen.generate_text(device_name=item, structured=args.structured)
                 if res: gen.save(res, output_dir)

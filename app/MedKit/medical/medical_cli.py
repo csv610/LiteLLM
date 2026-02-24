@@ -4,36 +4,41 @@ import sys
 from pathlib import Path
 from tqdm import tqdm
 
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 # Import generators
-from anatomy.medical_anatomy import MedicalAnatomyGenerator
-from disease_info.disease_info import DiseaseInfoGenerator
-from herbal_info.herbal_info import HerbalInfoGenerator
-from med_advise.primary_health_care import PrimaryHealthCareProvider
-from med_decision_guide.medical_decision_guide import MedicalDecisionGuideGenerator
-from med_facts_checker.medical_facts_checker import MedicalFactsChecker
-from med_faqs.medical_faq import MedicalFAQGenerator
-from med_implant.medical_implant import MedicalImplantGenerator
-from med_myths_checker.medical_myth_checker import MedicalMythsChecker
-from med_physical_exams_questions.medical_physical_exams_questions import ExamQuestionGenerator as PhysicalExamGenerator
-from med_procedure_info.medical_procedure_info import MedicalProcedureInfoGenerator
-from med_procedure_info.eval_medical_procedure_output import MedicalProcedureEvaluator
-from med_quiz.medical_quiz import MedicalQuizGenerator
-from med_refer.med_refer import MedReferral
-from med_speciality_roles.med_speciality_roles import MedSpecialityRoles
-from med_topic.medical_topic import MedicalTopicGenerator
-from organ_diseases.organ_disease_info import DiseaseInfoGenerator as OrganDiseaseGenerator
-from surgical_info.surgical_info import SurgeryInfoGenerator 
-from surgical_pose_info.surgical_pose_info import SurgicalPoseInfoGenerator
-from surgical_tool_info.surgical_tool_info import SurgicalToolInfoGenerator
-from surgical_tray.surgical_tray_info import SurgicalTrayGenerator
-from synthetic_case_report.synthetic_case_report import SyntheticCaseReportGenerator
-from med_history.patient_medical_history import PatientMedicalHistoryGenerator
-from med_history.patient_medical_history_prompts import MedicalHistoryInput
-from med_ethics.med_ethics import MedEthicalQA
-from med_flashcard.medical_flashcard import MedicalLabelExtractor, MedicalTermExplainer
+from medical.anatomy.medical_anatomy import MedicalAnatomyGenerator
+from medical.disease_info.disease_info import DiseaseInfoGenerator
+from medical.herbal_info.herbal_info import HerbalInfoGenerator
+from medical.med_advise.primary_health_care import PrimaryHealthCareProvider
+from medical.med_decision_guide.medical_decision_guide import MedicalDecisionGuideGenerator
+from medical.med_facts_checker.medical_facts_checker import MedicalFactsChecker
+from medical.med_faqs.medical_faq import MedicalFAQGenerator
+from medical.med_implant.medical_implant import MedicalImplantGenerator
+from medical.med_myths_checker.medical_myth_checker import MedicalMythsChecker
+from medical.med_physical_exams_questions.medical_physical_exams_questions import ExamQuestionGenerator as PhysicalExamGenerator
+from medical.med_procedure_info.medical_procedure_info import MedicalProcedureInfoGenerator
+from medical.med_procedure_info.eval_medical_procedure_output import MedicalProcedureEvaluator
+from medical.med_quiz.medical_quiz import MedicalQuizGenerator
+from medical.med_refer.med_refer import MedReferral
+from medical.med_speciality_roles.med_speciality_roles import MedSpecialityRoles
+from medical.med_topic.medical_topic import MedicalTopicGenerator
+from medical.organ_diseases.organ_disease_info import DiseaseInfoGenerator as OrganDiseaseGenerator
+from medical.surgical_info.surgical_info import SurgeryInfoGenerator 
+from medical.surgical_pose_info.surgical_pose_info import SurgicalPoseInfoGenerator
+from medical.surgical_tool_info.surgical_tool_info import SurgicalToolInfoGenerator
+from medical.surgical_tray.surgical_tray_info import SurgicalTrayGenerator
+from medical.synthetic_case_report.synthetic_case_report import SyntheticCaseReportGenerator
+from medical.med_history.patient_medical_history import PatientMedicalHistoryGenerator
+from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
+from medical.med_ethics.med_ethics import MedEthicalQA
+from medical.med_flashcard.medical_flashcard import MedicalLabelExtractor, MedicalTermExplainer
 
 logger = logging.getLogger(__name__)
 
@@ -153,9 +158,9 @@ def main():
     # Quiz
     quiz_p = subparsers.add_parser("quiz", help="Generate medical quiz")
     quiz_p.add_argument("topic", help="Topic or file path")
-    quiz_p.add_argument("--difficulty", default="Intermediate")
-    quiz_p.add_argument("--num-questions", type=int, default=5)
-    quiz_p.add_argument("--num-options", type=int, default=4)
+    quiz_p.add_argument("--difficulty", default="Intermediate", help="Difficulty level (e.g., Beginner, Intermediate, Advanced)")
+    quiz_p.add_argument("--num-questions", type=int, default=5, help="Number of questions to generate")
+    quiz_p.add_argument("--num-options", type=int, default=4, help="Number of options per question")
 
     # Refer
     refer_p = subparsers.add_parser("refer", help="Recommend specialists")
@@ -180,7 +185,7 @@ def main():
     # Pose
     pose_p = subparsers.add_parser("pose", help="Surgical positioning info")
     pose_p.add_argument("pose", nargs="?", help="Position name or file path")
-    pose_p.add_argument("-l", "--list", action="store_true")
+    pose_p.add_argument("-l", "--list", action="store_true", help="List all common surgical positions")
 
     # Tool
     tool_p = subparsers.add_parser("tool", help="Surgical tool info")
@@ -204,10 +209,10 @@ def main():
 
     # Medical History
     history_p = subparsers.add_parser("history", help="Patient medical history questions")
-    history_p.add_argument("-e", "--exam", required=True)
-    history_p.add_argument("-a", "--age", type=int, required=True)
-    history_p.add_argument("-g", "--gender", required=True)
-    history_p.add_argument("-p", "--purpose", default="physical_exam")
+    history_p.add_argument("-e", "--exam", required=True, help="Exam type (e.g., neurological_exam)")
+    history_p.add_argument("-a", "--age", type=int, required=True, help="Patient age")
+    history_p.add_argument("-g", "--gender", required=True, help="Patient gender")
+    history_p.add_argument("-p", "--purpose", default="physical_exam", help="Purpose of the history taking")
 
     args = parser.parse_args()
 
