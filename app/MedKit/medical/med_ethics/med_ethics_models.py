@@ -38,6 +38,7 @@ class EthicalAnalysisModel(BaseModel):
     """
     Comprehensive medical ethics analysis.
     """
+    case_title: str = Field(description="A concise, descriptive 3-5 word title for the case.")
     summary: str = Field(description="A brief summary of the ethical dilemma.")
     facts: List[str] = Field(description="Key medical and social facts of the case.")
     ethical_issues: List[str] = Field(description="The primary ethical questions or dilemmas identified.")

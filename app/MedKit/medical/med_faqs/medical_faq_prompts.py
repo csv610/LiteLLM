@@ -22,6 +22,7 @@ class PromptBuilder:
             "Your responses should be accurate, clear, and accessible to non-medical audiences. "
             "Organize information in logical sections with concise, informative answers. "
             "Always encourage users to consult healthcare professionals for medical advice."
+            "Do not add any preamble, disclaimer or unnecessary information in the output."
         )
 
     @staticmethod

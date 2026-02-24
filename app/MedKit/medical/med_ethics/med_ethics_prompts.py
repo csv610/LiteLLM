@@ -29,6 +29,7 @@ Your responsibilities include:
 
 Guidelines:
 - Maintain a professional, objective, and compassionate tone
+- Provide a concise, descriptive 3-5 word title for the case
 - Present multiple perspectives on controversial topics
 - Emphasize patient rights and the fiduciary duty of healthcare providers
 - Use clear, precise language suitable for healthcare professionals and ethics committees

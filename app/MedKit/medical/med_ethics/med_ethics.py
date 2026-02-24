@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .med_ethics_models import EthicalAnalysisModel, ModelOutput
-from .med_ethics_prompts import PromptBuilder
+from med_ethics_models import EthicalAnalysisModel, ModelOutput
+from med_ethics_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -65,16 +65,45 @@ class MedEthicalQA:
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""
-        return self.client.generate_text(model_input=model_input)
+        response = self.client.generate_text(model_input=model_input)
+        
+        if isinstance(response, ModelOutput):
+            return response
+        elif isinstance(response, EthicalAnalysisModel):
+            return ModelOutput(data=response)
+        elif isinstance(response, str):
+            return ModelOutput(markdown=response)
+        else:
+            # Handle cases where it might be some other type
+            return ModelOutput(markdown=str(response))
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
-        """Saves the medical ethics analysis to a file."""
+        """Saves the medical ethics analysis to a file (JSON if structured, Markdown otherwise)."""
         if self.question is None:
             raise ValueError("No medical ethics question available. Call generate_text first.")
         
-        # Generate base filename - save_model_response will add appropriate extension
-        # Use first 50 chars of question for filename, sanitized
-        sanitized_q = "".join(c for c in self.question[:50] if c.isalnum() or c in (" ", "_")).rstrip()
-        base_filename = sanitized_q.lower().replace(' ', '_')
+        import re
+
+        if result.data:
+            # Structured output - Save as JSON using the title for filename
+            title = result.data.case_title or self.question[:50]
+            sanitized_title = re.sub(r'[^\w\s-]', '', title).strip().lower().replace(' ', '_')
+            logger.info(f"✓ Saving structured analysis to {output_dir / sanitized_title}.json")
+            return save_model_response(result, output_dir / sanitized_title)
         
-        return save_model_response(result, output_dir / base_filename)
+        # Markdown output
+        md_content = result.markdown
+        if not md_content:
+            raise ValueError("No content to save.")
+
+        first_line = md_content.split('\n')[0].strip('*# ')
+        sanitized_title = re.sub(r'[^\w\s-]', '', first_line).strip().lower().replace(' ', '_')
+        
+        filename = f"{sanitized_title}.md"
+        file_path = output_dir / filename
+        
+        with open(file_path, 'w') as f:
+            f.write(md_content)
+        
+        logger.info(f"✓ Saved markdown analysis to {file_path}")
+        return file_path
