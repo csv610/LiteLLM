@@ -77,6 +77,7 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | **Dictionary** | `medkit-dictionary` | Terminology Builder | `medkit-dictionary build` |
 | **Drugs** | `medkit-drug` | Pharmacology, Interactions & Safety | `medkit-drug info "Metformin"` |
 | **Exam** | `medkit-exam` | Physical Examination Protocols | `medkit-exam --list` |
+| **Graph** | `medkit-graph` | Medical Knowledge Graph Extraction | `medkit-graph disease "Text"` |
 | **Forensics** | `medkit-sane` | SANE Interview Protocol | `medkit-sane start` |
 | **Media** | `medkit-media` | Medical Image/Video search, Captioning & Summary | `medkit-media images "Lupus rash"` |
 | **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
@@ -156,7 +157,23 @@ Tools for finding, downloading, and analyzing medical visual content.
 | `summary` | Summarize educational medical media | `medkit-media summary "Laparoscopic cholecystectomy"` |
 | `videos` | Search for medical educational videos | `medkit-media videos "CPR technique"` |
 
-#### 4. Privacy & Compliance (`medkit-privacy`)
+#### 4. Medical Knowledge Graphs (`medkit-graph`)
+Extract structured knowledge triples (Entity-Relation-Entity) from medical text and visualize them as interactive graphs.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `anatomy` | Extract anatomical relationships | `medkit-graph anatomy "text_file.txt"` |
+| `disease` | Extract disease-symptom-treatment links | `medkit-graph disease "Diabetes is..."` |
+| `genetic` | Extract genetic & genomic relations | `medkit-graph genetic "BRCA1 links to..."` |
+| `medicine` | Extract pharmaceutical knowledge | `medkit-graph medicine "Aspirin affects..."` |
+| `pathophysiology` | Extract physiological mechanisms | `medkit-graph pathophysiology "Fever causes..."` |
+| `pharmacology` | Extract drug mechanisms of action | `medkit-graph pharmacology "Statins work by..."` |
+| `procedure` | Extract surgical/clinical steps | `medkit-graph procedure "Intubation steps..."` |
+| `surgery` | Extract surgical anatomy/tools | `medkit-graph surgery "Appendectomy involves..."` |
+| `symptoms` | Extract symptom-disease mappings | `medkit-graph symptoms "Cough and fever..."` |
+| `test` | Extract diagnostic test logic | `medkit-graph test "HbA1c measures..."` |
+
+#### 5. Privacy & Compliance (`medkit-privacy`)
 Tools for HIPAA compliance, audit logging, and sensitive data protection.
 
 | Subcommand | Description | Example |
@@ -166,7 +183,7 @@ Tools for HIPAA compliance, audit logging, and sensitive data protection.
 | `mask` | Scrub PII from clinical text | `medkit-privacy mask "Patient John Doe at 555-0199"` |
 | `report` | Generate compliance metrics | `medkit-privacy report` |
 
-#### 5. Entity Recognition (`medkit-recognizer`)
+#### 6. Entity Recognition (`medkit-recognizer`)
 Extract and normalize structured medical data from unstructured clinical text using specialized identifiers.
 
 | Subcommand | Description | Example |
