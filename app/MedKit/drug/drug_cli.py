@@ -22,6 +22,36 @@ def setup_path(subfolder):
     if p not in sys.path:
         sys.path.append(p)
 
+def display_module_list():
+    """Display a beautiful, categorized list of drug modules."""
+    print("\n💊 MedKit Drug & Pharmacology Module Catalog\n")
+    
+    categories = {
+        "Drug Information": {
+            "info": "Comprehensive drug monographs (MOA, dosing, side effects).",
+            "explain": "Simple, patient-friendly Friendly explanation of a medicine.",
+            "addiction": "Drug addiction, withdrawal symptoms, and recovery info."
+        },
+        "Interactions & Safety": {
+            "interact": "Drug-drug interaction analysis between two medications.",
+            "food": "Analysis of potential interactions between meds and foods.",
+            "disease": "Checking for drug-disease contraindications and safety."
+        },
+        "Alternatives & Research": {
+            "similar": "Finding therapeutic alternatives or similar medications.",
+            "compare": "Side-by-side comparison of two specific medicines.",
+            "symptoms": "Suggesting drug categories for specific clinical symptoms."
+        }
+    }
+
+    for category, modules in categories.items():
+        print(f"🔹 {category}:")
+        for cmd, desc in modules.items():
+            print(f"  - {cmd.ljust(15)}: {desc}")
+        print()
+    
+    print("Usage: medkit-drug <subcommand> \"Input Text\"")
+
 def main():
     parser = argparse.ArgumentParser(description="MedKit Drug CLI - Access all pharmacology AI tools.")
     
@@ -32,6 +62,9 @@ def main():
     parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
 
     subparsers = parser.add_subparsers(dest="command", required=True, help="Drug tool subcommands")
+
+    # List Modules
+    list_p = subparsers.add_parser("list", help="List all available drug modules and descriptions")
 
     # 1. Medicine Info
     info_p = subparsers.add_parser("info", help="Comprehensive medicine information")
@@ -83,7 +116,10 @@ def main():
     model_config = ModelConfig(model=args.model, temperature=0.2)
 
     try:
-        if args.command == "info":
+        if args.command == "list":
+            display_module_list()
+
+        elif args.command == "info":
             setup_path("medicine/medinfo")
             from medicine_info import MedicineInfoGenerator
             gen = MedicineInfoGenerator(model_config)

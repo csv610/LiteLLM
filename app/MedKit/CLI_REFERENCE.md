@@ -92,6 +92,11 @@ You can override the default output path for any non-restricted command.
 *   **Global Arguments**:
     *   **`-s, --structured`**: Returns drug data in a machine-readable JSON format.
 
+### `list`
+*   **Primary Usage**: Discoverability tool to see all 9 pharmacology subcommands categorized by their clinical purpose.
+*   **Does**: Prints a clean, descriptive table of every available drug module.
+*   **Example**: `medkit-drug list`
+
 ### `interact`
 *   **Problem**: Multidrug regimens increase life-threatening interaction risks.
 *   **Usage**: Screening for drug-drug interactions.
