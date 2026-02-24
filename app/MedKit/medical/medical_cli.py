@@ -4,6 +4,9 @@ import sys
 from pathlib import Path
 from tqdm import tqdm
 
+# Add the current directory to sys.path to support relative imports in this module
+sys.path.append(str(Path(__file__).parent))
+
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
@@ -45,9 +48,6 @@ def handle_batch_input(input_val: str, desc: str):
     return [input_val]
 
 def main():
-    # Add the current directory to sys.path to support relative imports in this module
-    sys.path.append(str(Path(__file__).parent))
-    
     parser = argparse.ArgumentParser(description="MedKit Unified CLI - Access all medical AI tools.")
     
     # Global arguments

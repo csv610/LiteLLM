@@ -146,7 +146,8 @@ Your goal is to assist clinicians by coordinating specialized medical tools.
                 model=self.model,
                 messages=[{"role": "system", "content": self.system_prompt}] + self.history,
                 functions=self.tools,
-                function_call="auto"
+                function_call="auto",
+                temperature=self.temperature
             )
             
             message = response.choices[0].message
@@ -191,11 +192,12 @@ def main():
     parser = argparse.ArgumentParser(description="MedKit Orchestrator CLI")
     parser.add_argument("query", nargs="?", help="The medical query to solve")
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use")
+    parser.add_argument("-t", "--temperature", type=float, default=0.2, help="Temperature for the model")
     parser.add_argument("-s", "--steps", type=int, default=5, help="Max reasoning steps")
     
     args = parser.parse_args()
     
-    orchestrator = MedKitOrchestrator(model=args.model, max_steps=args.steps)
+    orchestrator = MedKitOrchestrator(model=args.model, temperature=args.temperature, max_steps=args.steps)
     
     if args.query:
         orchestrator.run(args.query)
