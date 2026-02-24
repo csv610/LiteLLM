@@ -94,6 +94,32 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ---
 
+### 🔍 `medkit-recognizer` Subcommands (19 Identifiers)
+
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`abbreviation`** | Extracts and expands medical abbreviations and acronyms. |
+| 2 | **`anatomy`** | Identifies anatomical structures and body parts. |
+| 3 | **`clinical_sign`** | Detects objective clinical signs observed during examination. |
+| 4 | **`coding`** | Extracts alphanumeric medical codes (ICD, CPT, etc.). |
+| 5 | **`condition`** | Identifies broad medical conditions and pathologies. |
+| 6 | **`device`** | Recognizes medical diagnostic and therapeutic devices. |
+| 7 | **`disease`** | Extracts specific disease names and diagnoses. |
+| 8 | **`drug`** | Identifies medications, generics, and brand names. |
+| 9 | **`genetic`** | Recognizes genes, variants, and hereditary conditions. |
+| 10 | **`imaging`** | Identifies radiological and diagnostic imaging modalities. |
+| 11 | **`lab_unit`** | Extracts laboratory measurement units and values. |
+| 12 | **`med_class`** | Categorizes medications into pharmacological classes. |
+| 13 | **`pathogen`** | Identifies bacteria, viruses, and other microorganisms. |
+| 14 | **`procedure`** | Recognizes surgical and clinical procedures. |
+| 15 | **`specialty`** | Identifies medical specialties and sub-specialties. |
+| 16 | **`supplement`** | Recognizes dietary supplements and nutraceuticals. |
+| 17 | **`symptom`** | Detects subjective patient-reported symptoms. |
+| 18 | **`test`** | Identifies laboratory and diagnostic tests. |
+| 19 | **`vaccine`** | Recognizes immunizations and vaccine types. |
+
+---
+
 #### 🧪 Clinical Intelligence: AI Augmentation of Traditional Workflows
 
 MedKit doesn't just provide definitions; it augments traditional medical practice through targeted AI reasoning:
@@ -101,6 +127,8 @@ MedKit doesn't just provide definitions; it augments traditional medical practic
 *   **`advise` & `decision`**: Replaces static paper flowcharts with dynamic clinical decision support, suggesting prioritized differential diagnoses based on patient context.
 *   **`interact` & `disease` (Pharmacology)**: Automates multi-drug interaction screening and drug-disease safety checks, identifying physiological contraindications often overlooked in rapid clinical encounters.
 *   **`explain` (Patient Safety)**: Generates compassionate, plain-language patient education to improve adherence and bridge the health literacy gap.
+*   **`abbreviation` & `lab_unit` (NLP Precision)**: Uses context-aware reasoning to disambiguate medical acronyms and ensure laboratory values are correctly paired with clinical units, reducing data entry errors.
+*   **`genetic` (Precision Medicine)**: Scales the extraction of complex genomic nomenclature from narrative reports, facilitating large-scale precision medicine research.
 *   **`anatomy` & `organ`**: Moves beyond 2D atlases to semantic functional mapping, explaining the systemic "why" behind clinical findings.
 *   **`case` & `quiz`**: Automates the generation of high-fidelity synthetic patient data and MCQs for rapid, bias-free medical education.
 *   **`eval-procedure` & `surgery`**: Acts as a digital auditor for operative documentation, flagging inconsistencies and identifying nerve/pressure risks in patient positioning (`pose`).

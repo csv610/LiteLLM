@@ -399,12 +399,196 @@ The following sections provide a definitive guide to every `medkit-drug` module,
 ## 🔍 `medkit-recognizer` (Medical NER)
 **19 Identifiers for Unstructured Text Extraction**
 
-*   **Key Argument**:
+*   **Global Argument**:
     *   **`-s, --structured`**: Outputs the extracted entities as a JSON object instead of a highlighted list.
 
-*   **Primary Usage**: Extracting structured medical data from clinical notes.
-*   **Subcommands**: `drug`, `disease`, `symptom`, `anatomy`, `coding`, `test`, `clinical_sign`, `pathogen`, `procedure`, `med_class`, `device`, `genetic`, `imaging`, `lab_unit`, `vaccine`, `specialty`, `supplement`, `abbreviation`, `condition`.
-*   **Example**: `medkit-recognizer drug "Patient taking 10mg Lisinopril." -s`
+### `list`
+*   **Primary Usage**: Discoverability tool to see all 19 medical entity recognizers.
+*   **Does**: Prints a clean, descriptive table of every available recognizer.
+*   **Example**: `medkit-recognizer list`
+
+#### Subcommand Catalog
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`abbreviation`** | Extracts and expands medical abbreviations and acronyms. |
+| 2 | **`anatomy`** | Identifies anatomical structures and body parts. |
+| 3 | **`clinical_sign`** | Detects objective clinical signs observed during examination. |
+| 4 | **`coding`** | Extracts alphanumeric medical codes (ICD, CPT, etc.). |
+| 5 | **`condition`** | Identifies broad medical conditions and pathologies. |
+| 6 | **`device`** | Recognizes medical diagnostic and therapeutic devices. |
+| 7 | **`disease`** | Extracts specific disease names and diagnoses. |
+| 8 | **`drug`** | Identifies medications, generics, and brand names. |
+| 9 | **`genetic`** | Recognizes genes, variants, and hereditary conditions. |
+| 10 | **`imaging`** | Identifies radiological and diagnostic imaging modalities. |
+| 11 | **`lab_unit`** | Extracts laboratory measurement units and values. |
+| 12 | **`med_class`** | Categorizes medications into pharmacological classes. |
+| 13 | **`pathogen`** | Identifies bacteria, viruses, and other microorganisms. |
+| 14 | **`procedure`** | Recognizes surgical and clinical procedures. |
+| 15 | **`specialty`** | Identifies medical specialties and sub-specialties. |
+| 16 | **`supplement`** | Recognizes dietary supplements and nutraceuticals. |
+| 17 | **`symptom`** | Detects subjective patient-reported symptoms. |
+| 18 | **`test`** | Identifies laboratory and diagnostic tests. |
+| 19 | **`vaccine`** | Recognizes immunizations and vaccine types. |
+
+---
+
+### 📘 Exhaustive Module Reference (NER & Extraction)
+
+The following sections guide the use of MedKit’s 19 specialized entity recognizers, detailing how AI augments traditional medical NLP.
+
+#### `abbreviation`
+*   **Problem**: Unstructured medical notes are dense with ambiguous abbreviations (e.g., "PT" could mean Physical Therapy or Prothrombin Time).
+*   **Usage**: Extraction and expansion of medical abbreviations within context.
+*   **Does**: Identifies acronyms and provides the most likely clinical expansion based on surrounding text.
+*   **Does NOT**: Resolve every possible non-medical abbreviation.
+*   **AI Augmentation**: Uses context-aware reasoning to disambiguate medical acronyms, reducing the risk of misinterpretation in clinical documentation.
+*   **Example**: `medkit-recognizer abbreviation "Patient started on PT for recovery." -s`
+
+#### `anatomy`
+*   **Problem**: Manually mapping body parts to systems in large datasets is labor-intensive.
+*   **Usage**: Identification of anatomical entities in clinical or research text.
+*   **Does**: Detects structures from microscopic (cells) to macroscopic (organs).
+*   **Does NOT**: Provide functional physiological data (use `medkit-medical anatomy`).
+*   **AI Augmentation**: Automates the tagging of anatomical structures across thousands of documents, enabling large-scale spatial research.
+*   **Example**: `medkit-recognizer anatomy "Pain in the left distal radius." -s`
+
+#### `clinical_sign`
+*   **Problem**: Objective signs (e.g., "rebound tenderness") are often buried in narrative physical exam notes.
+*   **Usage**: Extracting observed medical signs for structured reporting.
+*   **Does**: Recognizes standardized clinical signs found in physical examinations.
+*   **Does NOT**: Interpret the severity or significance of the sign.
+*   **AI Augmentation**: Converts narrative physical exams into structured datasets of objective clinical markers.
+*   **Example**: `medkit-recognizer clinical_sign "Positive Babinski sign noted." -s`
+
+#### `coding`
+*   **Problem**: Identifying alphanumeric codes like ICD-10 or CPT in text is error-prone for manual review.
+*   **Usage**: Automated extraction of medical and billing codes.
+*   **Does**: Detects patterns matching major medical coding systems.
+*   **Does NOT**: Assign new codes or verify the accuracy of existing ones.
+*   **AI Augmentation**: Rapidly identifies and categorizes existing codes within notes, streamlining billing and audit workflows.
+*   **Example**: `medkit-recognizer coding "Diagnosis documented as ICD-10 I10." -s`
+
+#### `condition`
+*   **Problem**: General medical conditions are often described loosely, making data aggregation difficult.
+*   **Usage**: Recognizing broad medical states, disorders, and conditions.
+*   **Does**: Extracts a wide range of pathological states and disorders.
+*   **Does NOT**: Differentiate between "active" and "historical" conditions without further agentic reasoning.
+*   **AI Augmentation**: Clusters fragmented descriptions of health states into standardized "condition" entities for population health analysis.
+*   **Example**: `medkit-recognizer condition "Chronic inflammatory state with fatigue." -s`
+
+#### `device`
+*   **Problem**: Medical devices are often mentioned by slang or vague descriptions in clinical notes.
+*   **Usage**: Identifying diagnostic and therapeutic hardware.
+*   **Does**: Recognizes everything from simple tools (stethoscopes) to complex implants (AICD).
+*   **Does NOT**: Retrieve technical specifications (use `medkit-diagnose`).
+*   **AI Augmentation**: Automates device tracking and vigilance by identifying equipment mentioned across clinical registries.
+*   **Example**: `medkit-recognizer device "Patient has a Medtronic pacemaker." -s`
+
+#### `disease`
+*   **Problem**: Disease names have multiple synonyms and eponyms, complicating search and retrieval.
+*   **Usage**: Extracting specific diagnoses and disease entities.
+*   **Does**: Recognizes formal disease names, syndromes, and common variants.
+*   **Does NOT**: Provide diagnostic evidence or management guidelines.
+*   **AI Augmentation**: Normalizes varying nomenclature for the same disease state, ensuring consistent data extraction for researchers.
+*   **Example**: `medkit-recognizer disease "Confirmed case of Graves' ophthalmopathy." -s`
+
+#### `drug`
+*   **Problem**: Medication lists in notes often mix generic names, brand names, and dosages.
+*   **Usage**: Identification of pharmaceutical entities.
+*   **Does**: Detects generic and brand-name medications.
+*   **Does NOT**: Check for interactions (use `medkit-drug interact`).
+*   **AI Augmentation**: Rapidly extracts medication mentions to build structured "Medication Reconciliation" datasets from raw text.
+*   **Example**: `medkit-recognizer drug "Started on 5mg Amlodipine daily." -s`
+
+#### `genetic`
+*   **Problem**: Genetic nomenclature (e.g., BRCA1 c.5266dupC) is highly specialized and easily overlooked.
+*   **Usage**: Recognizing genes, mutations, and hereditary patterns.
+*   **Does**: Detects gene symbols, protein variants, and genetic disorders.
+*   **Does NOT**: Interpret the clinical significance of a mutation.
+*   **AI Augmentation**: Scales the extraction of genomic data from clinical reports, facilitating precision medicine research.
+*   **Example**: `medkit-recognizer genetic "Positive for MTHFR mutation." -s`
+
+#### `imaging`
+*   **Problem**: Modality mentions (CT, MRI, PET) are often scattered throughout historical notes.
+*   **Usage**: Identifying diagnostic imaging references.
+*   **Does**: Recognizes imaging techniques and radiological modalities.
+*   **Does NOT**: Analyze the actual image files.
+*   **AI Augmentation**: Structures the "Imaging History" of a patient by identifying all radiological interventions mentioned in their record.
+*   **Example**: `medkit-recognizer imaging "Scheduled for a contrast-enhanced CT scan." -s`
+
+#### `lab_unit`
+*   **Problem**: Laboratory values are meaningless without their specific units (e.g., mg/dL vs. mmol/L).
+*   **Usage**: Extracting measurement units associated with lab results.
+*   **Does**: Identifies standardized and non-standardized laboratory units.
+*   **Does NOT**: Perform unit conversion or reference range checks.
+*   **AI Augmentation**: Ensures that extracted numerical data is correctly paired with its clinical unit, preventing dangerous data entry errors.
+*   **Example**: `medkit-recognizer lab_unit "Glucose measured at 110 mg/dL." -s`
+
+#### `med_class`
+*   **Problem**: Clinicians often remember a drug's class (e.g., "Statins") but need to find all specific instances in a record.
+*   **Usage**: Categorizing medications into therapeutic or pharmacological classes.
+*   **Does**: Recognizes broad drug categories and classes.
+*   **Does NOT**: Provide specific drug monographs.
+*   **AI Augmentation**: Automates the categorization of drugs, enabling "Class-level" safety audits across patient populations.
+*   **Example**: `medkit-recognizer med_class "Patient is on several antihypertensives." -s`
+
+#### `pathogen`
+*   **Problem**: Microorganism names are complex and subject to frequent taxonomic changes.
+*   **Usage**: Identifying bacteria, viruses, fungi, and parasites.
+*   **Does**: Recognizes pathogen names across clinical and research text.
+*   **Does NOT**: Recommend antimicrobial therapy.
+*   **AI Augmentation**: Supports biosurveillance by identifying specific infectious agents mentioned in microbiology reports or public health data.
+*   **Example**: `medkit-recognizer pathogen "Culture positive for S. aureus." -s`
+
+#### `procedure`
+*   **Problem**: Clinical procedures range from minor (blood draw) to major (CABG), making manual classification difficult.
+*   **Usage**: Recognizing surgical and non-surgical clinical procedures.
+*   **Does**: Extracts a wide array of medical interventions and procedures.
+*   **Does NOT**: Explain the procedure (use `medkit-medical procedure`).
+*   **AI Augmentation**: Builds a structured "Interventional Timeline" by identifying every procedure mentioned in a patient's longitudinal record.
+*   **Example**: `medkit-recognizer procedure "Underwent urgent cholecystectomy." -s`
+
+#### `specialty`
+*   **Problem**: Determining which specialist saw a patient requires reading through signatures and letterheads.
+*   **Usage**: Identifying medical specialties and sub-specialties.
+*   **Does**: Detects mentions of clinical specialties (e.g., "Oncology", "Pediatrics").
+*   **Does NOT**: Verify the credentials of the mentioned specialty.
+*   **AI Augmentation**: Automatically routes documents or extracts "Consultation Histories" by identifying the specialties involved in a case.
+*   **Example**: `medkit-recognizer specialty "Referred to Endocrinology for further workup." -s`
+
+#### `supplement`
+*   **Problem**: Supplements are often not documented in the "Medications" section, leading to interaction risks.
+*   **Usage**: Identifying nutraceuticals and dietary supplements.
+*   **Does**: Detects vitamins, minerals, and herbal supplements.
+*   **Does NOT**: Check for drug-supplement interactions (use `medkit-drug`).
+*   **AI Augmentation**: Captures the "hidden" medication list by identifying supplements mentioned in narrative "social history" or "dietary" notes.
+*   **Example**: `medkit-recognizer supplement "Taking 2000IU Vitamin D3 daily." -s`
+
+#### `symptom`
+*   **Problem**: Subjective symptoms are often described using varied language (e.g., "short of breath" vs. "dyspnea").
+*   **Usage**: Detecting subjective patient-reported symptoms.
+*   **Does**: Recognizes symptoms and complaints reported by the patient.
+*   **Does NOT**: Correlate symptoms to a diagnosis (use `medkit-medical decision`).
+*   **AI Augmentation**: Extracts and standardizes subjective complaints, enabling better tracking of "Patient Reported Outcomes" (PROs).
+*   **Example**: `medkit-recognizer symptom "Complaining of nocturnal diaphoresis." -s`
+
+#### `test`
+*   **Problem**: Clinical notes often mention "orders" for tests that need to be tracked for completion.
+*   **Usage**: Identifying laboratory and diagnostic tests.
+*   **Does**: Recognizes the names of medical tests and panels.
+*   **Does NOT**: Provide test utility or normal ranges (use `medkit-diagnose`).
+*   **AI Augmentation**: Automates the extraction of "Ordered Tests" from plan sections, ensuring better clinical follow-through.
+*   **Example**: `medkit-recognizer test "Order CBC and Chem-7." -s`
+
+#### `vaccine`
+*   **Problem**: Immunization records are often fragmented across multiple systems.
+*   **Usage**: Recognizing vaccines and immunization types.
+*   **Does**: Identifies specific vaccine names and broad vaccine categories.
+*   **Does NOT**: Verify the patient's actual immunization status.
+*   **AI Augmentation**: Builds structured "Immunization Summaries" from raw pediatric or travel medicine notes.
+*   **Example**: `medkit-recognizer vaccine "Received second dose of mRNA-1273." -s`
+
+---
 
 ---
 
