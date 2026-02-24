@@ -605,8 +605,8 @@ This provides detailed logging information including:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd MedKit/diagnostics/medical_devices
+git clone https://github.com/csv610/LiteLLM.git
+cd LiteLLM/app/MedKit/diagnostics/medical_devices
 
 # Install dependencies
 pip install -r requirements.txt

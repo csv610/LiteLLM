@@ -37,8 +37,8 @@ Ensure you have the `lite` framework available in your Python environment and th
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd GenerateBook
+git clone https://github.com/csv610/LiteLLM.git
+cd LiteLLM/app/GenerateBook
 
 # Ensure dependencies are met
 pip install pydantic

@@ -54,20 +54,20 @@ python app/MedKit/recognizers/medical_symptom/medical_symptom_cli.py "chest pain
 ### **Content Tools**
 ```bash
 # Article review
-python app/cli/article_reviewer.py "your article text here"
+python app/ArticleReviewer/article_reviewer_cli.py "your article text here"
 
 # FAQ generation
-python app/cli/faq_generator.py "your content text here"
+python app/FAQGenerator/faq_generator_cli.py -i "your content text here"
 
-# Educational tutoring
-python app/cli/feymann_tutor.py "explain quantum computing"
+# Educational tutoring (interactive)
+python app/FeymannTutor/feymann_tutor.py
 ```
 
 ## Installation
 
 ### **Standard Installation**
 ```bash
-git clone <repository-url>
+git clone https://github.com/csv610/LiteLLM.git
 cd LiteLLM
 pip install -r requirements.txt
 pip install -e .
@@ -147,7 +147,7 @@ python app/MedKit/recognizers/clinical_sign/clinical_sign_cli.py "babinski sign"
 python app/cli/liteclient_cli.py -q "Review this Python code for security issues"
 
 # Documentation generation
-python app/cli/faq_generator.py "generate FAQ from technical documentation"
+python app/FAQGenerator/faq_generator_cli.py -i "technical documentation" -n 10
 
 # Data analysis
 python app/cli/liteclient_cli.py -q "Analyze this dataset and provide insights"
@@ -265,31 +265,35 @@ make dev
 - Review API key configuration for cloud providers
 
 ### **Contributing**
-- Follow development guidelines in CONTRIBUTING.md
+- Follow development guidelines in `lite/CONTRIBUTING.md`
 - Run tests before submitting changes
 - Maintain documentation consistency
 - Respect medical AI safety and ethical guidelines
 
-**Using standard venv:**
+## Extended Setup
+
+1. Create and activate a virtual environment.
+
+**Using standard venv**
 ```bash
 make venv
 source litenv/bin/activate
 ```
 
-3. Install dependencies:
+2. Install dependencies.
 
-**Using uv:**
+**Using uv**
 ```bash
 uv pip install -r requirements.txt
 uv pip install -e .
 ```
 
-**Using make/pip:**
+**Using make/pip**
 ```bash
 make install
 ```
 
-4. Set up your API keys in a `.env` file or as environment variables:
+3. Set up API keys in a `.env` file or as environment variables.
 ```bash
 export OPENAI_API_KEY="your-openai-key"
 export GEMINI_API_KEY="your-gemini-key"
@@ -310,9 +314,9 @@ LiteLLM/
 ├── app/                         # Applications layer
 │   ├── cli/                     # Specialized command-line interfaces
 │   │   ├── liteclient_cli.py    # Main unified CLI
-│   │   ├── article_reviewer.py  # AI-powered article review
-│   │   ├── faq_generator.py     # FAQ generation tool
-│   │   ├── feymann_tutor.py     # Feynman technique tutor
+│   │   ├── keyword_extraction.py  # NLP keyword extraction
+│   │   ├── multiple_choice_solver.py  # MCQ solver
+│   │   ├── llm_judge.py  # Response evaluation utilities
 │   │   └── ... (many other specialized tools)
 │   ├── MedKit/                  # Comprehensive Medical Toolkit
 │   │   ├── recognizers/         # 19 medical recognizer modules
@@ -328,7 +332,7 @@ LiteLLM/
 │   │   │   ├── medical_vaccine/  # Medical vaccine identification
 │   │   │   ├── medical_condition/ # Medical condition identification
 │   │   │   ├── medical_coding/   # Medical coding identification
-│   │   │   ├── medical_abbreviation/ # Medical abbreviation identification
+│   │   │   ├── med_abbreviation/ # Medical abbreviation identification
 │   │   │   ├── imaging_finding/  # Imaging finding identification
 │   │   │   ├── genetic_variant/  # Genetic variant identification
 │   │   │   ├── medical_pathogen/ # Medical pathogen identification
@@ -341,7 +345,7 @@ LiteLLM/
 │   │   └── diagnostics/         # Medical devices and tests
 │   └── web/                     # Web applications
 │       └── streamlit_liteclient.py # Interactive web UI
-├── utilities/                   # Search and experimental utilities
+├── examples/                    # Example scripts and sample usage
 ├── tests/                       # Comprehensive test suite
 ├── Makefile                     # Automation for setup, testing, and execution
 └── requirements.txt             # Project dependencies
