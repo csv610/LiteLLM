@@ -14,8 +14,8 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from med_ethics_models import EthicalAnalysisModel, ModelOutput
-from med_ethics_prompts import PromptBuilder
+from .med_ethics_models import EthicalAnalysisModel, ModelOutput
+from .med_ethics_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
