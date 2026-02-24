@@ -120,6 +120,15 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ---
 
+### 🧪 `medkit-diagnose` Subcommands (2 Modules)
+
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`device`** | Get information about medical diagnostic and therapeutic devices. |
+| 2 | **`test`** | Get information about medical laboratory and diagnostic tests. |
+
+---
+
 #### 🧪 Clinical Intelligence: AI Augmentation of Traditional Workflows
 
 MedKit doesn't just provide definitions; it augments traditional medical practice through targeted AI reasoning:
@@ -129,6 +138,7 @@ MedKit doesn't just provide definitions; it augments traditional medical practic
 *   **`explain` (Patient Safety)**: Generates compassionate, plain-language patient education to improve adherence and bridge the health literacy gap.
 *   **`abbreviation` & `lab_unit` (NLP Precision)**: Uses context-aware reasoning to disambiguate medical acronyms and ensure laboratory values are correctly paired with clinical units, reducing data entry errors.
 *   **`genetic` (Precision Medicine)**: Scales the extraction of complex genomic nomenclature from narrative reports, facilitating large-scale precision medicine research.
+*   **`test` & `device` (Diagnostics)**: Synthesizes fragmented hardware specifications and evolving laboratory reference parameters into a unified, evidence-based clinical resource.
 *   **`anatomy` & `organ`**: Moves beyond 2D atlases to semantic functional mapping, explaining the systemic "why" behind clinical findings.
 *   **`case` & `quiz`**: Automates the generation of high-fidelity synthetic patient data and MCQs for rapid, bias-free medical education.
 *   **`eval-procedure` & `surgery`**: Acts as a digital auditor for operative documentation, flagging inconsistencies and identifying nerve/pressure risks in patient positioning (`pose`).

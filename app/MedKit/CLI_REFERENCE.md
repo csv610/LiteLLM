@@ -614,8 +614,32 @@ The following sections guide the use of MedKit’s 19 specialized entity recogni
 *   **Global Arguments**:
     *   **`-s, --structured`**: Forces JSON output.
 
-### `test`
-*   **Usage**: Understanding the clinical utility and normal ranges of lab tests.
+#### Subcommand Catalog
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`device`** | Get information about medical diagnostic and therapeutic devices. |
+| 2 | **`test`** | Get information about medical laboratory and diagnostic tests. |
+
+---
+
+### 📘 Exhaustive Module Reference (Diagnostics)
+
+The following sections provide a definitive guide to every `medkit-diagnose` module, detailing how AI augments traditional clinical practice.
+
+#### `device`
+*   **Problem**: Sourcing comprehensive data on medical devices (operating principles, safety specifications, and maintenance) requires searching fragmented manufacturer documentation.
+*   **Usage**: Detailed research into medical hardware and diagnostic equipment.
+*   **Does**: Provides technical specifications, clinical applications, operating principles, and safety considerations for medical devices.
+*   **Does NOT**: Provide real-time repair instructions or individual device tracking.
+*   **AI Augmentation**: Synthesizes complex hardware specifications and safety protocols into a unified reference, enabling rapid clinical and technical assessment of diagnostic equipment.
+*   **Example**: `medkit-diagnose device "MRI Scanner" --structured`
+
+#### `test`
+*   **Problem**: Clinicians need rapid access to the clinical utility, normal ranges, and sample requirements for thousands of evolving medical laboratory tests.
+*   **Usage**: Understanding the clinical utility and reference parameters of laboratory and diagnostic tests.
+*   **Does**: Covers test purpose, indications, preparation, sample requirements, reference ranges, and interpretation guidelines.
+*   **Does NOT**: Perform the actual laboratory analysis or provide real-time patient results.
+*   **AI Augmentation**: Provides a dynamic, evidence-based reference for lab tests that includes nuanced interpretation guidelines and preparation requirements, acting as a "digital lab consultant."
 *   **Example**: `medkit-diagnose test "HbA1c" -s`
 
 ---
