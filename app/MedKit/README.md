@@ -71,6 +71,7 @@ MedKit provides a suite of specialized CLI tools for direct access to specific d
 | Domain | Command | Description | Example Usage |
 | :--- | :--- | :--- | :--- |
 | **Agent** | `medkit-agent` | Autonomous reasoning & tool coordination | `medkit-agent "Flu symptoms treatment"` |
+| **Article** | `medkit-article` | Medical Article & PubMed Search | `medkit-article search "Asthma"` |
 | **Medical Info** | `medkit-medical` | 20+ specialized medical info & clinical tools | `medkit-medical anatomy "Heart"` |
 | **Drugs** | `medkit-drug` | Pharmacology, Interactions & Safety | `medkit-drug info "Metformin"` |
 | **Media** | `medkit-media` | Medical Image/Video search, Captioning & Summary | `medkit-media images "Lupus rash"` |
@@ -110,7 +111,15 @@ Access a massive database of medical knowledge through specialized subcommands.
 | `tool` | Surgical instrument descriptions | `medkit-medical tool "Scalpel"` |
 | `tray` | Surgical tray setup instructions | `medkit-medical tray "Orthopedic"` |
 
-#### 2. Pharmacology & Drugs (`medkit-drug`)
+#### 2. Medical Article Search (`medkit-article`)
+Search and retrieve professional medical articles, PubMed records, and research citations.
+
+| Subcommand | Description | Example |
+| :--- | :--- | :--- |
+| `cite` | Get formatted article citations | `medkit-article cite "Diabetes"` |
+| `search` | Find articles for a given disease | `medkit-article search "Gout"` |
+
+#### 3. Pharmacology & Drugs (`medkit-drug`)
 Comprehensive tools for medication research, interaction checking, and safety analysis.
 
 | Subcommand | Description | Example |
