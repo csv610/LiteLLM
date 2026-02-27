@@ -29,8 +29,12 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    input_path = Path(args.topic)
-    items = [line.strip() for line in open(input_path)] if input_path.is_file() else [args.topic]
+    # Only treat as a file path if it's reasonably short and exists
+    items = [args.topic]
+    if len(args.topic) < 255:
+        input_path = Path(args.topic)
+        if input_path.is_file():
+            items = [line.strip() for line in open(input_path)]
     
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
