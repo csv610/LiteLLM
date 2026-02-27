@@ -6,7 +6,7 @@ anatomical information in a standardized format.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Any
 
 
 class AnatomyOverviewModel(BaseModel):
@@ -165,5 +165,5 @@ class MedicalAnatomyModel(BaseModel):
 
 
 class ModelOutput(BaseModel):
-    data: Optional[MedicalAnatomyModel] = None
+    data: Optional[Any] = None
     markdown: Optional[str] = None
