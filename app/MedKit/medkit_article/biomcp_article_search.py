@@ -8,7 +8,7 @@ class MedicalArticleSearch:
         self.articles = []
 
         if not disease.strip():
-           return self.articles()
+           return self.articles
 
         try:
             result = subprocess.run(
