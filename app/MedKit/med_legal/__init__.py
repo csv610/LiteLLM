@@ -1,0 +1,1 @@
+"""MedKit Legal Rights Package."""

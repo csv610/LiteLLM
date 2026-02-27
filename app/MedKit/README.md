@@ -44,6 +44,7 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 | **`medkit-exam`** | **Protocol**: Standardized head-to-toe physical examination checklists. |
 | **`medkit-article`**| **Evidence**: Searches PubMed and BioMCP for peer-reviewed research. |
 | **`medkit-diagnose`**| **Diagnostics**: Comprehensive information on medical laboratory tests and diagnostic devices. |
+| **`medkit-legal`**   | **Rights**: Educational materials for healthcare law, ethics, and patient rights. |
 
 ---
 
@@ -129,6 +130,15 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ---
 
+### ⚖️ `medkit-legal` Subcommands (2 Modules)
+
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`ls`** | List available patient legal right topics and scenarios. |
+| 2 | **`generate`** | Create comprehensive documentation for a specific legal right topic. |
+
+---
+
 #### 🧪 Clinical Intelligence: AI Augmentation of Traditional Workflows
 
 MedKit doesn't just provide definitions; it augments traditional medical practice through targeted AI reasoning:
@@ -139,6 +149,7 @@ MedKit doesn't just provide definitions; it augments traditional medical practic
 *   **`abbreviation` & `lab_unit` (NLP Precision)**: Uses context-aware reasoning to disambiguate medical acronyms and ensure laboratory values are correctly paired with clinical units, reducing data entry errors.
 *   **`genetic` (Precision Medicine)**: Scales the extraction of complex genomic nomenclature from narrative reports, facilitating large-scale precision medicine research.
 *   **`test` & `device` (Diagnostics)**: Synthesizes fragmented hardware specifications and evolving laboratory reference parameters into a unified, evidence-based clinical resource.
+*   **`ls` & `generate` (Legal Rights)**: Bridges the health literacy gap by providing patient-centric explanations of complex healthcare laws, informed consent requirements, and medical-legal recourse mechanisms.
 *   **`anatomy` & `organ`**: Moves beyond 2D atlases to semantic functional mapping, explaining the systemic "why" behind clinical findings.
 *   **`case` & `quiz`**: Automates the generation of high-fidelity synthetic patient data and MCQs for rapid, bias-free medical education.
 *   **`eval-procedure` & `surgery`**: Acts as a digital auditor for operative documentation, flagging inconsistencies and identifying nerve/pressure risks in patient positioning (`pose`).

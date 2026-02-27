@@ -30,7 +30,8 @@ def display_module_list():
         "Drug Information": {
             "info": "Comprehensive drug monographs (MOA, dosing, side effects).",
             "explain": "Explain medicine (generic name only, e.g. acetaminophen) simple terms.",
-            "addiction": "Drug addiction, withdrawal symptoms, and recovery info."
+            "addiction": "Drug addiction, withdrawal symptoms, and recovery info.",
+            "prescription": "Analyze prescription images for extraction and safety."
         },
         "Interactions & Safety": {
             "interact": "Drug-drug interaction analysis between two medications.",
@@ -107,6 +108,10 @@ def main():
     explain_p = subparsers.add_parser("explain", help="Please enter your medication (generic name only, e.g. acetaminophen) and I will explain it in simple terms.")
     explain_p.add_argument("medicine", nargs="?", help="Medicine name (optional, if omitted, enters interactive mode)")
 
+    # 10. Prescription Analysis
+    prescription_p = subparsers.add_parser("prescription", help="Analyze prescription images")
+    prescription_p.add_argument("image_path", help="Path to the prescription image")
+
     args = parser.parse_args()
 
     # Logging config
@@ -176,6 +181,15 @@ def main():
             gen = DrugAddictionGenerator(model_config)
             res = gen.generate_text(drug=args.drug, structured=args.structured)
             if res: gen.save(res, output_dir)
+
+        elif args.command == "prescription":
+            setup_path("med_prescription")
+            from prescription_analyzer import analyze_prescription
+            res = analyze_prescription(args.image_path)
+            if res:
+                print(res.model_dump_json(indent=4))
+                with open(output_dir / f"prescription_analysis.json", "w") as f:
+                    f.write(res.model_dump_json(indent=4))
 
         elif args.command == "explain":
             from drug.medicine_explainer import explain_medicine, main as explainer_main

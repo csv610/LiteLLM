@@ -14,8 +14,12 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from legal_rights_models import LegalRightsModel, ModelOutput
-from legal_rights_prompts import PromptBuilder
+try:
+    from med_legal.legal_rights_models import LegalRightsModel, ModelOutput
+    from med_legal.legal_rights_prompts import PromptBuilder
+except (ImportError, ValueError):
+    from legal_rights_models import LegalRightsModel, ModelOutput
+    from legal_rights_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
