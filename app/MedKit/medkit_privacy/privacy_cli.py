@@ -34,6 +34,10 @@ def main():
     mask_p = subparsers.add_parser("mask", help="Mask PII in text")
     mask_p.add_argument("text", help="Text to mask")
 
+    # Detect
+    detect_p = subparsers.add_parser("detect", help="Detect PII in text")
+    detect_p.add_argument("text", help="Text to detect PII in")
+
     args = parser.parse_args()
     manager = PrivacyManager()
 
@@ -56,6 +60,10 @@ def main():
         elif args.command == "mask":
             masked = manager.mask_pii(args.text)
             print(masked)
+
+        elif args.command == "detect":
+            detections = manager.detect_pii(args.text)
+            print(json.dumps(detections, indent=2))
 
     except Exception as e:
         print(f"Error: {e}")
