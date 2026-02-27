@@ -44,31 +44,34 @@ class PIIDetector:
         self.model_config = model_config or ModelConfig(model="ollama/gemma3")
         self.client = LiteClient(model_config=self.model_config)
         self.system_prompt = """
-        You are an expert PII (Personally Identifiable Information) detector specializing in HIPAA Safe Harbor de-identification standards.
-        Analyze the input text and identify ALL of the following 18 identifiers:
+        You are an expert Privacy and Compliance Auditor specializing in both HIPAA Safe Harbor and GDPR (General Data Protection Regulation) standards.
+        Analyze the input text and identify ALL Personal Data and Protected Health Information (PHI).
         
-        1. Names.
-        2. All geographical subdivisions smaller than a state, including street address, city, county, precinct, and zip code. 
-           - Special Rule: The initial three digits of a zip code may be retained ONLY if the geographic unit formed by combining all zip codes with the same three initial digits contains more than 20,000 people. Otherwise, the zip code must be treated as PII.
-        3. All elements of dates (except year) for dates directly related to an individual, including birth date, admission date, discharge date, and date of death.
-           - Special Rule: For individuals age 90 or older, ALL elements of dates (including year) indicative of such age must be identified as PII, except that such ages and elements may be aggregated into a single category of 'age 90 or older'.
-        4. Telephone numbers.
-        5. Fax numbers.
-        6. Email addresses.
-        7. Social Security numbers.
-        8. Medical record numbers.
-        9. Health plan beneficiary numbers.
-        10. Account numbers.
-        11. Certificate/license numbers.
-        12. Vehicle identifiers and serial numbers, including license plate numbers.
-        13. Device identifiers and serial numbers.
-        14. Web Universal Resource Locators (URLs).
-        15. Internet Protocol (IP) address numbers.
-        16. Biometric identifiers, including finger and voice prints.
-        17. Full face photographic images and any comparable images.
-        18. Any other unique identifying number, characteristic, or code, except as permitted by the HIPAA Safe Harbor for re-identification (e.g., a code assigned by the investigator).
+        Identify the following categories:
+        1. HIPAA 18 Identifiers: Names, all geographical subdivisions smaller than a state (addresses, zip codes), all elements of dates directly related to an individual (DOB, admission/discharge), telephone/fax numbers, emails, SSNs, MRNs, health plan IDs, account numbers, license numbers, vehicle identifiers, device serial numbers, URLs, IP addresses, biometric identifiers, and full-face photos.
         
-        Return the data in the specified JSON format. The 'start' and 'end' must be exact character indices.
+        2. GDPR Specific Identifiers:
+           - Online Identifiers: Cookie IDs, RFID tags, device IDs, and metadata that could identify a user.
+           - Indirect Identifiers: Information specific to physical, physiological, genetic, mental, economic, cultural, or social identity that could identify a person in context (e.g., "the only left-handed surgeon at St. Jude's").
+        
+        3. GDPR Special Categories (Article 9):
+           - Racial or ethnic origin.
+           - Political opinions or Trade union membership.
+           - Religious or philosophical beliefs.
+           - Genetic and Biometric data.
+           - Data concerning health, sex life, or sexual orientation.
+        
+        4. Any other unique identifying number, characteristic, or code.
+        
+        Return ONLY a JSON object with a 'pii' key containing a list of objects:
+        {
+          "pii": [
+            {"type": "NAME", "value": "John Doe", "start": 11, "end": 19},
+            {"type": "POLITICAL_OPINION", "value": "Federalist", "start": 30, "end": 40}
+          ]
+        }
+        Use descriptive category names like NAME, CONTACT, LOCATION, DATE, IDENTITY, ONLINE_ID, POLITICAL_OPINION, RELIGIOUS_BELIEF, BIOMETRIC, HEALTH_DATA, or INDIRECT_ID.
+        The 'start' and 'end' must be the exact character indices in the input text.
         """
 
     def detect(self, text: str) -> List[Dict]:

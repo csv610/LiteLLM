@@ -1,74 +1,53 @@
 # MedKit Privacy & Compliance Module
 
-The `medkit_privacy` module provides a state-of-the-art framework for ensuring HIPAA-compliant handling of sensitive mental health data. It leverages Large Language Models (LLMs) to provide context-aware PII detection and enforces strict regulatory standards for data security and auditing.
+The `medkit_privacy` module provides a state-of-the-art framework for HIPAA and GDPR-compliant handling of sensitive mental health data. It leverages Large Language Models (LLMs) to provide context-aware PII detection and enforces strict regulatory standards for data security, de-identification, and anonymization.
 
-## Key Features
+## Core Modules
 
-- **Exclusively LLM-Based PII Detection**: Uses `ollama/gemma3` for high-fidelity, context-aware identification of sensitive information, far surpassing traditional regex-based methods.
-- **HIPAA Safe Harbor Compliance**: Explicitly trained to identify all 18 HIPAA identifiers, including:
-  - Nuanced geographical de-identification (Zip code rules).
-  - Specialized date handling for individuals age 90+.
-  - Comprehensive identification of names, MRNs, SSNs, and more.
-- **Structured Pydantic Output**: Utilizes Pydantic models for type-safe, validated PII detection and index correction.
-- **Secure Audit Logging**: Maintains a detailed audit trail with a mandatory 7-year retention policy.
-- **Data Security**: Enforced file-system permissions (`0o700` directories, `0o600` files) for all patient data.
+### 1. `Deidentifier` (HIPAA Safe Harbor)
+Provides high-level API for HIPAA-compliant de-identification.
+- **Text De-identification**: Removes all 18 HIPAA identifiers with standardized masking.
+- **Structured Record De-identification**: Recursively masks patient information in JSON-like structures.
+- **Safe Harbor Compliance**: Specifically tuned for the US Department of Health and Human Services standards.
 
-## Architecture
+### 2. `Anonymizer` (GDPR Irreversibility)
+Provides stricter, irreversible data cleaning for GDPR compliance.
+- **Generalization**: Buckets specific ages into decade ranges (e.g., "age 24" becomes "age 20-30").
+- **Suppression**: Identifies and removes unique characteristics (`INDIRECT_ID`) to prevent "jigsaw identification."
+- **Noise Addition**: Implements basic Laplace-style noise for privacy-preserving numerical data.
 
-The module follows the Single Responsibility Principle, decomposing compliance tasks into focused services orchestrated by a central `PrivacyManager`:
-
-- **`PIIDetector`**: The LLM engine for structured PII identification.
-- **`PIIMasker`**: Coordinates with the detector to redact sensitive text.
-- **`AuditLogger`**: Manages secure, long-term compliance logs.
-- **`SessionRepository`**: Handles encrypted-grade storage for chat sessions.
+### 3. `PIIDetector` & `PIIMasker`
+The underlying LLM-based engines (`ollama/gemma3`) for context-aware identification of names, dates, locations, and sensitive personal categories (political, religious, etc.).
 
 ## Quick Start
 
-### Programmatic Usage
-
+### De-identification (HIPAA)
 ```python
-from medkit_privacy.privacy_compliance import PrivacyManager
+from medkit_privacy.deidentification import Deidentifier
 
-# Initialize the manager (defaults to ollama/gemma3)
-manager = PrivacyManager()
-
-# Mask sensitive data in a clinical note
-note = "Patient Jane Doe (DOB: 05/12/1985) lives at 123 Maple Ave."
-masked_note = manager.mask_pii(note)
+deidentifier = Deidentifier()
+masked_note = deidentifier.deidentify_text("Patient Jane Doe (DOB: 05/12/1985) lives at 123 Maple Ave.")
 # Result: "Patient [NAME] ([DATE]) lives at [LOCATION]."
-
-# Log a HIPAA-compliant audit event
-manager.log_audit_event(
-    session_id="session-123",
-    action="DATA_ACCESS",
-    details=f"Processed note: {masked_note}"
-)
 ```
 
-### CLI Commands
+### Anonymization (GDPR)
+```python
+from medkit_privacy.anonymization import Anonymizer
 
-- **Detect PII (JSON output)**:
-  ```bash
-  python privacy_cli.py detect "My name is Alexander Hamilton"
-  ```
-- **Mask PII in Text**:
-  ```bash
-  python privacy_cli.py mask "Contact me at 555-0199"
-  ```
-- **Generate Compliance Report**:
-  ```bash
-  python privacy_cli.py report
-  ```
+anonymizer = Anonymizer()
+anonymized_note = anonymizer.anonymize_text("Patient is age 24 and the only left-handed Treasury Secretary.")
+# Result: "REDACTED is age 20-30 and [DE-IDENTIFIED CHARACTERISTIC]."
+```
 
 ## Examples & Assets
 
 Explore the `assets/` folder for practical implementation guides:
-- `pii_sample_input.txt`: Sample clinical text for testing.
-- `sample_session.json`: Reference structure for patient records.
-- `example_workflow.py`: A complete Python script demonstrating the full module lifecycle.
+- `example_deidentification.py`: HIPAA-compliant de-identification workflow.
+- `example_anonymization.py`: GDPR-compliant anonymization and noise addition.
+- `example_workflow.py`: A complete script demonstrating the full module lifecycle.
 
 ## Security Standards
 
 - **Retention**: Chat Sessions (1 year), Audit Logs (7 years).
 - **Access Control**: User-only read/write permissions for all stored PHI.
-- **PII Redaction**: All text must be masked before being stored in audit logs.
+- **PII Redaction**: All text must be masked or anonymized before being stored in audit logs.
