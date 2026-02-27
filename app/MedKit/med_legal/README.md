@@ -40,13 +40,13 @@ pip install -r requirements.txt
 Generate patient legal rights information (defaults to India):
 
 ```bash
-python medical_topic_cli.py "Informed Consent"
+python legal_rights_cli.py "Informed Consent"
 ```
 
 Specify a country:
 
 ```bash
-python medical_topic_cli.py "Informed Consent" -c "USA"
+python legal_rights_cli.py "Informed Consent" -c "USA"
 ```
 
 ### Command-Line Options
@@ -65,29 +65,29 @@ python medical_topic_cli.py "Informed Consent" -c "USA"
 
 Generate information for India (default) with a user name:
 ```bash
-python medical_topic_cli.py "Right to Refuse Treatment" -u "jdoe"
+python legal_rights_cli.py "Right to Refuse Treatment" -u "jdoe"
 ```
 
 The output will be saved as `jdoe_complain_feb272026.md`.
 
 Generate information for the USA:
 ```bash
-python medical_topic_cli.py "HIPAA Privacy Rule" -c "USA"
+python legal_rights_cli.py "HIPAA Privacy Rule" -c "USA"
 ```
 
 Generate information for the UK:
 ```bash
-python medical_topic_cli.py "Access to Medical Records" -c "UK"
+python legal_rights_cli.py "Access to Medical Records" -c "UK"
 ```
 
 Use custom output directory with verbose logging:
 ```bash
-python medical_topic_cli.py "Informed Consent" -c "Australia" -d outputs/legal -v 3
+python legal_rights_cli.py "Informed Consent" -c "Australia" -d outputs/legal -v 3
 ```
 
 Generate multiple topics from a file for a specific country:
 ```bash
-python medical_topic_cli.py assets/topics_list.txt -c "Canada" -s
+python legal_rights_cli.py assets/topics_list.txt -c "Canada" -s
 ```
 
 ## Features
@@ -107,14 +107,14 @@ python medical_topic_cli.py assets/topics_list.txt -c "Canada" -s
 - Generates comprehensive legal documentation based on `PromptBuilder`.
 - Handles result display and file output.
 
-**`PromptBuilder`** (`medical_topic_prompts.py`)
+**`PromptBuilder`** (`legal_rights_prompts.py`)
 - `create_system_prompt()`: Defines the LLM's role as a legal expert in healthcare.
 - `create_user_prompt(topic)`: Creates structured queries for the specified legal topic.
 
-**`LegalRightsModel`** (`medical_topic_models.py`)
+**`LegalRightsModel`** (`legal_rights_models.py`)
 - Pydantic models for structured representation of legal information.
 
-**CLI Entry Point** (`medical_topic_cli.py`)
+**CLI Entry Point** (`legal_rights_cli.py`)
 - Handles argument parsing and orchestrates the generation workflow.
 
 ## Output Format

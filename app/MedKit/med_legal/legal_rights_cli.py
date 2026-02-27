@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from medical_topic import LegalRightsGenerator
+from legal_rights import LegalRightsGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def get_user_arguments() -> argparse.Namespace:
 
 def main():
     args = get_user_arguments()
-    configure_logging(log_file="medical_topic.log", verbosity=args.verbosity, enable_console=True)
+    configure_logging(log_file="legal_rights.log", verbosity=args.verbosity, enable_console=True)
     
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
