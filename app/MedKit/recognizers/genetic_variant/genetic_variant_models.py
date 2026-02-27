@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 class GeneticVariantIdentificationModel(BaseModel):
     variant_name: str = Field(description="Name of the gene or specific mutation (e.g., BRCA1, MTHFR)")

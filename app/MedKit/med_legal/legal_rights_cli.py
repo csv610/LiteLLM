@@ -84,7 +84,8 @@ def main():
         
         for item in tqdm(items, desc="Generating"):
             result = generator.generate_text(topic=item, country=args.country, structured=args.structured)
-            if result: generator.save(result, output_dir, user_name=args.user_name)
+            if result:
+                generator.save(result, output_dir, user_name=args.user_name)
             
         logger.info("✓ Completed successfully")
     except Exception as e:

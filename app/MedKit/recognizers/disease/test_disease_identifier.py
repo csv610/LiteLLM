@@ -7,7 +7,6 @@ without using mock libraries.
 """
 
 import sys
-import os
 import random
 from pathlib import Path
 
@@ -60,7 +59,7 @@ def test_prompt_builder():
     
     # Validate empty disease name handling
     try:
-        empty_input = DiseaseIdentifierInput("")
+        DiseaseIdentifierInput("")
         assert False, "Expected ValueError for empty disease name"
     except ValueError:
         print("✓ Empty disease name validation functions correctly")
@@ -126,18 +125,18 @@ def test_disease_identifier_validation():
     print("\nValidating DiseaseIdentifier Input Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = DiseaseIdentifier(config)
+    DiseaseIdentifier(config)
     
     # Validate empty disease name handling
     try:
-        disease_input = DiseaseIdentifierInput("")
+        DiseaseIdentifierInput("")
         assert False, "Expected ValueError for empty disease name"
     except ValueError:
         print("✓ Empty disease name validation functions correctly")
     
     # Validate whitespace-only disease name handling
     try:
-        disease_input = DiseaseIdentifierInput("   ")
+        DiseaseIdentifierInput("   ")
         assert False, "Expected ValueError for whitespace-only disease name"
     except ValueError:
         print("✓ Whitespace-only disease name validation functions correctly")
@@ -148,7 +147,7 @@ def test_with_example_diseases():
     print("\nValidating with Example Diseases...")
 
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = DiseaseIdentifier(config)
+    DiseaseIdentifier(config)
 
     # Validate multiple random examples
     for i in range(3):

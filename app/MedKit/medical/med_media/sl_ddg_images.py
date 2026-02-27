@@ -18,7 +18,7 @@ class RenderImages:
             st.write(f"Could not retrieve image size for {url}.")
             return
         st.image(url, caption=f"Image - Size: {width}x{height}", width='stretch' if self.fit_image else 'content')
-        if st.button(f"Remove Image", key=query+url):
+        if st.button("Remove Image", key=query+url):
             for query, urls in st.session_state.object_images.items():
                 if url in urls:
                     st.session_state.object_images[query].remove(url)

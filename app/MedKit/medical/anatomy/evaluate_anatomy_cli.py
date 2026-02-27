@@ -97,7 +97,7 @@ class EvaluationCLI:
         print(border)
 
         # Anatomical Accuracy
-        print(f"\n📋 ANATOMICAL ACCURACY")
+        print("\n📋 ANATOMICAL ACCURACY")
         print(f"   {result.anatomical_accuracy[0].value}")
         if result.anatomical_accuracy[1]:
             for issue in result.anatomical_accuracy[1]:
@@ -105,21 +105,21 @@ class EvaluationCLI:
                 print(f"{prefix} {issue}")
 
         # Terminology Precision
-        print(f"\n📚 TERMINOLOGY PRECISION")
+        print("\n📚 TERMINOLOGY PRECISION")
         print(f"   {result.terminology_precision[0].value}")
         if result.terminology_precision[1]:
             for issue in result.terminology_precision[1]:
                 print(f"   ⚠️ {issue}")
 
         # Embryology
-        print(f"\n🧬 EMBRYOLOGY")
+        print("\n🧬 EMBRYOLOGY")
         print(f"   {result.embryology[0].value}")
         if result.embryology[1]:
             for issue in result.embryology[1]:
                 print(f"   ⚠️ {issue}")
 
         # Clinical Reliability
-        print(f"\n⚕️ CLINICAL RELIABILITY")
+        print("\n⚕️ CLINICAL RELIABILITY")
         print(f"   {result.clinical_reliability[0].value}")
         if result.clinical_reliability[1]:
             for issue in result.clinical_reliability[1]:
@@ -127,7 +127,7 @@ class EvaluationCLI:
                 print(f"{prefix} {issue}")
 
         # Structural Organization
-        print(f"\n🏗️ STRUCTURAL ORGANIZATION")
+        print("\n🏗️ STRUCTURAL ORGANIZATION")
         print(f"   {result.structural_organization[0].value}")
         if result.structural_organization[1]:
             for issue in result.structural_organization[1]:
@@ -141,13 +141,13 @@ class EvaluationCLI:
 
         # Critical Issues
         if result.critical_issues:
-            print(f"\n🔴 CRITICAL ISSUES (MUST FIX):")
+            print("\n🔴 CRITICAL ISSUES (MUST FIX):")
             for issue in result.critical_issues:
                 print(f"   ❌ {issue}")
 
         # Recommendations
         if result.recommendations:
-            print(f"\n💡 RECOMMENDATIONS:")
+            print("\n💡 RECOMMENDATIONS:")
             for rec in result.recommendations:
                 print(f"   → {rec}")
 
@@ -181,13 +181,13 @@ class EvaluationCLI:
             avg_score = sum(scores) / len(scores)
             max_score = max(scores)
             min_score = min(scores)
-            print(f"\nScore Statistics:")
+            print("\nScore Statistics:")
             print(f"  Average: {avg_score:.1f}/100")
             print(f"  Highest: {max_score:.1f}/100")
             print(f"  Lowest: {min_score:.1f}/100")
 
         # Details by file
-        print(f"\nDetailed Results:")
+        print("\nDetailed Results:")
         print("-" * 90)
         for filename, result in sorted(results.items()):
             if isinstance(result, dict) and "overall_quality_score" in result:

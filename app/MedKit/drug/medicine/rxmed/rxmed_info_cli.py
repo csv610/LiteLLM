@@ -3,10 +3,6 @@
 
 import json
 import sys
-from typing import Any
-from rich.console import Console
-from rich.panel import Panel
-from rich.pretty import Pretty
 
 from rxclass_client import RxClassClient
 from utils import print_response

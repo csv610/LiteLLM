@@ -8,7 +8,7 @@ a comprehensive database of medical specialities using LiteClient.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -27,7 +27,7 @@ class MedicalSpecialityGenerator:
         """Initialize the generator."""
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
-        logger.debug(f"Initialized MedicalSpecialityGenerator")
+        logger.debug("Initialized MedicalSpecialityGenerator")
 
     def generate_text(self, structured: bool = False) -> Union[MedicalSpecialistDatabase, str]:
         """Generate a comprehensive medical specialists database."""
@@ -64,6 +64,6 @@ class MedicalSpecialityGenerator:
     def save(self, result: Union[MedicalSpecialistDatabase, str], output_dir: Path) -> Path:
         """Saves the medical speciality database information to a file."""
         # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"medical_specialities_database"
+        base_filename = "medical_specialities_database"
         
         return save_model_response(result, output_dir / base_filename)

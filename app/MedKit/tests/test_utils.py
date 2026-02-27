@@ -293,7 +293,7 @@ class TestLoggingSetup:
 
     def test_logger_propagation(self, suppress_logging):
         """Test logger propagation."""
-        parent = logging.getLogger("parent")
+        logging.getLogger("parent")
         child = logging.getLogger("parent.child")
 
         # Child should propagate by default

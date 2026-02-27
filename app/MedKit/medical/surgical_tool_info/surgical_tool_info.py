@@ -16,7 +16,7 @@ class SurgicalToolInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.tool = None
-        logger.debug(f"Initialized SurgicalToolInfoGenerator")
+        logger.debug("Initialized SurgicalToolInfoGenerator")
 
     def generate_text(self, tool: str, structured: bool = False) -> ModelOutput:
         if not tool or not str(tool).strip():

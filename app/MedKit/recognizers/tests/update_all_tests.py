@@ -3,8 +3,6 @@
 Script to update all test files to remove mock libraries and use consistent identify method.
 """
 
-import sys
-import os
 from pathlib import Path
 
 # Test modules to update

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from imaging_finding.recognizer import ImagingFindingIdentifier
 from imaging_finding.models import ModelOutput, ImagingFindingIdentifierModel, ImagingFindingIdentificationModel
 from lite.config import ModelConfig

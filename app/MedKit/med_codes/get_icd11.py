@@ -1,6 +1,5 @@
 import requests
 import os
-import json
 import sys
 
 class ICD11Client:
@@ -100,7 +99,7 @@ def main():
             for entity in entities[:10]:  # Show top 10 results
                 title = entity.get('title', 'No Title').replace('<em class=\'found\'>', '').replace('</em>', '')
                 code = entity.get('theCode', 'N/A')
-                uri = entity.get('id', 'N/A')
+                entity.get('id', 'N/A')
                 print(f"Code: {code.ljust(10)} | Title: {title}")
     else:
         print("Failed to retrieve search results.")

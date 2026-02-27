@@ -1,7 +1,6 @@
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).parent.parent.parent
@@ -20,7 +19,7 @@ try:
 except (ImportError, ValueError):
     from medical.med_media.ddg_images import DuckDuckImages
     from medical.med_media.ddg_videos import DuckDuckVideos
-    from medical.med_media.med_media_models import MedicalMediaModel, MediaCaptionModel, MediaSummaryModel, ModelOutput
+    from medical.med_media.med_media_models import MediaCaptionModel, MediaSummaryModel, ModelOutput
     from medical.med_media.med_media_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)

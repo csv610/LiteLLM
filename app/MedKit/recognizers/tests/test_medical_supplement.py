@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_supplement.recognizer import MedicalSupplementIdentifier
 from medical_supplement.models import ModelOutput, SupplementIdentifierModel, SupplementIdentificationModel
 from lite.config import ModelConfig
@@ -39,6 +38,6 @@ def test_identify(supplement_identifier):
     assert result.data.identification.is_well_known is True
     assert supplement_identifier.client.generate_text.called
 
-def test_identify(supplement_identifier):
+def test_identify_empty_name(supplement_identifier):
     with pytest.raises(ValueError, match="Supplement name cannot be empty"):
         supplement_identifier.identify("")

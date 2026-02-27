@@ -1,5 +1,4 @@
-import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from get_icd11 import ICD11Client
 
 def mock_demo():

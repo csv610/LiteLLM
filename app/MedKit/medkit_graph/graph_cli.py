@@ -81,7 +81,7 @@ def main():
                 visualizer.show()
 
         elif args.command == "test":
-            from medkit_diagnose.medical_tests_graph import MedicalTestTripletExtractor, MedicalTestGraphBuilder, GraphVisualizer
+            from medkit_diagnose.medical_tests_graph import MedicalTestTripletExtractor, MedicalTestGraphBuilder
             
             extractor = MedicalTestTripletExtractor()
             triples = extractor.extract(input_text)

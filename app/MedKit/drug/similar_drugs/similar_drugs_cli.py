@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Optional, Union
 
 from lite.config import ModelConfig
-from lite.logging_config import configure_logging
 
 from similar_drugs_models import SimilarMedicinesResult
 from similar_drugs import SimilarDrugs
@@ -173,7 +172,7 @@ def main() -> int:
             verbosity=args.verbosity,
         )
 
-        logger.debug(f"Configuration created successfully")
+        logger.debug("Configuration created successfully")
 
         # Run analysis
         model_config = ModelConfig(model="ollama/gemma2", temperature=0.7)

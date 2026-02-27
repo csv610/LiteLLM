@@ -7,7 +7,6 @@ Identify whether a given name is a recognized medical pathogen in medical litera
 
 import argparse
 import sys
-from pathlib import Path
 
 
 from lite.config import ModelConfig
@@ -31,7 +30,7 @@ Examples:
     # Positional argument
     parser.add_argument(
         "name",
-        help=f"Name of the medical pathogen to identify"
+        help="Name of the medical pathogen to identify"
     )
     
     # Model configuration options

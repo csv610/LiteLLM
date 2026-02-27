@@ -1,15 +1,13 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 from drug_food_interaction import DrugFoodInteraction
-from drug_food_interaction_models import DrugFoodInteractionModel, ModelOutput
-from drug_food_interaction_prompts import PromptBuilder, DrugFoodInput
+from drug_food_interaction_prompts import DrugFoodInput
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +61,7 @@ def main() -> int:
         # Validate the input
         user_input.validate()
 
-        logger.info(f"Configuration created successfully")
+        logger.info("Configuration created successfully")
 
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugFoodInteraction(model_config)

@@ -8,7 +8,6 @@ comprehensive information for medical test devices using LiteClient.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

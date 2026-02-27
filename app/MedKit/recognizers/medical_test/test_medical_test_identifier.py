@@ -7,7 +7,6 @@ without using mock libraries.
 """
 
 import sys
-import os
 from pathlib import Path
 
 
@@ -36,7 +35,7 @@ def test_prompt_builder():
     
     # Test empty test name
     try:
-        empty_input = MedicalTestIdentifierInput("")
+        MedicalTestIdentifierInput("")
         assert False, "Should have raised ValueError for empty test name"
     except ValueError:
         print("✓ Empty test name validation works correctly")
@@ -86,18 +85,18 @@ def test_medical_test_identifier_validation():
     print("\nTesting MedicalTestIdentifier Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalTestIdentifier(config)
+    MedicalTestIdentifier(config)
     
     # Test empty test name
     try:
-        test_input = MedicalTestIdentifierInput("")
+        MedicalTestIdentifierInput("")
         assert False, "Should have raised ValueError for empty test name"
     except ValueError:
         print("✓ Empty test name validation works correctly")
     
     # Test whitespace-only test name
     try:
-        test_input = MedicalTestIdentifierInput("   ")
+        MedicalTestIdentifierInput("   ")
         assert False, "Should have raised ValueError for whitespace-only test name"
     except ValueError:
         print("✓ Whitespace-only test name validation works correctly")
@@ -125,11 +124,11 @@ def test_with_example_tests():
         # Test a few examples
         test_examples = tests[:5]  # Test first 5 tests
         config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-        identifier = MedicalTestIdentifier(config)
+        MedicalTestIdentifier(config)
         
         for test in test_examples:
             try:
-                test_input = MedicalTestIdentifierInput(test)
+                MedicalTestIdentifierInput(test)
                 print(f"✓ Test input created for: {test}")
             except Exception as e:
                 print(f"✗ Error creating input for {test}: {e}")
@@ -142,13 +141,13 @@ def test_test_categories():
     print("\nTesting Test Categories...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalTestIdentifier(config)
+    MedicalTestIdentifier(config)
     
     # Test blood tests
     blood_tests = ["complete_blood_count", "blood_glucose", "cholesterol", "liver_function_tests"]
     for test in blood_tests:
         try:
-            test_input = MedicalTestIdentifierInput(test)
+            MedicalTestIdentifierInput(test)
             print(f"✓ Blood test input created for: {test}")
         except Exception as e:
             print(f"✗ Error with blood test {test}: {e}")
@@ -157,7 +156,7 @@ def test_test_categories():
     imaging_tests = ["x_ray", "ct_scan", "mri", "ultrasound"]
     for test in imaging_tests:
         try:
-            test_input = MedicalTestIdentifierInput(test)
+            MedicalTestIdentifierInput(test)
             print(f"✓ Imaging test input created for: {test}")
         except Exception as e:
             print(f"✗ Error with imaging test {test}: {e}")
@@ -166,7 +165,7 @@ def test_test_categories():
     cardiac_tests = ["ecg", "echocardiogram", "stress_test", "holter_monitor"]
     for test in cardiac_tests:
         try:
-            test_input = MedicalTestIdentifierInput(test)
+            MedicalTestIdentifierInput(test)
             print(f"✓ Cardiac test input created for: {test}")
         except Exception as e:
             print(f"✗ Error with cardiac test {test}: {e}")
@@ -175,7 +174,7 @@ def test_test_categories():
     lab_tests = ["urine_analysis", "blood_culture", "allergy_testing", "genetic_testing"]
     for test in lab_tests:
         try:
-            test_input = MedicalTestIdentifierInput(test)
+            MedicalTestIdentifierInput(test)
             print(f"✓ Laboratory test input created for: {test}")
         except Exception as e:
             print(f"✗ Error with laboratory test {test}: {e}")
@@ -186,13 +185,13 @@ def test_common_abbreviations():
     print("\nTesting Common Test Abbreviations...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalTestIdentifier(config)
+    MedicalTestIdentifier(config)
     
     abbreviations = ["cbc", "ecg", "ct", "mri", "hba1c", "bmi", "bp", "hr", "rr", "spo2"]
     
     for abbr in abbreviations:
         try:
-            test_input = MedicalTestIdentifierInput(abbr)
+            MedicalTestIdentifierInput(abbr)
             print(f"✓ Abbreviation input created for: {abbr}")
         except Exception as e:
             print(f"✗ Error with abbreviation {abbr}: {e}")

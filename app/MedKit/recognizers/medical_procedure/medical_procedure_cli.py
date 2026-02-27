@@ -7,7 +7,6 @@ Identify whether a given name is a recognized medical procedure in medical liter
 
 import argparse
 import sys
-from pathlib import Path
 
 
 from lite.config import ModelConfig
@@ -30,7 +29,7 @@ Examples:
     # Positional argument
     parser.add_argument(
         "name",
-        help=f"Name of the medical procedure to identify"
+        help="Name of the medical procedure to identify"
     )
     
     # Model configuration options

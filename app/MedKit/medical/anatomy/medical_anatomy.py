@@ -9,7 +9,6 @@ comprehensive anatomical information based on provided configuration.
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, Union
 
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).parent.parent.parent
@@ -37,7 +36,7 @@ class MedicalAnatomyGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.body_part = None  # Store the body part being analyzed
-        logger.debug(f"Initialized MedicalAnatomyGenerator")
+        logger.debug("Initialized MedicalAnatomyGenerator")
 
     def generate_text(self, body_part: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive anatomical information."""

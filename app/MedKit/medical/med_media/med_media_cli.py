@@ -2,7 +2,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from tqdm import tqdm
 
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).parent.parent.parent

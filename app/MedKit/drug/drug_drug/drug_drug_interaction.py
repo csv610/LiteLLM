@@ -8,7 +8,6 @@ interactions between two medicines.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -28,13 +27,13 @@ class DrugDrugInteractionGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.user_input = None  # Store the configuration for later use in save
-        logger.debug(f"Initialized DrugDrugInteractionGenerator")
+        logger.debug("Initialized DrugDrugInteractionGenerator")
 
     def generate_text(self, user_input: DrugDrugInput, structured: bool = False) -> ModelOutput:
         """Generate drug-drug interaction analysis."""
         # Store the configuration for later use in save
         self.user_inout = user_input
-        logger.debug(f"Starting drug-drug interaction analysis")
+        logger.debug("Starting drug-drug interaction analysis")
         logger.debug(f"Drug 1: {user_input.medicine1}")
         logger.debug(f"Drug 2: {user_input.medicine2}")
 

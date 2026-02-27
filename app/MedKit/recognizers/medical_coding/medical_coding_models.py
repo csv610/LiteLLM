@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 class MedicalCodingIdentificationModel(BaseModel):
     system_name: str = Field(description="Name of the coding system (e.g., ICD-10, CPT)")

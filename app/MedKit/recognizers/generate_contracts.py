@@ -3,7 +3,6 @@
 Script to generate contract.md files for all recognizer modules with clear specifications and FAQs.
 """
 
-import sys
 from pathlib import Path
 
 # Module configurations for contract generation
@@ -537,13 +536,24 @@ def generate_contract_content(module_key, config):
     # Generate FAQs based on module type
     faqs = generate_faqs(module_key, config)
     
-    contract_content = f"""# {name} - Legal and Ethical Binding Contract
+    # Pre-join lists for the contract template
+    capability_list = "\n".join("- {}".format(c) for c in capabilities)
+    limitation_list = "\n".join("- {}".format(l) for l in limitations)
+    failure_condition_list = "\n".join("- {}".format(fc) for fc in failure_conditions)
+    will_work_list = "\n".join("- {}".format(e) for e in examples["will_work"])
+    may_fail_list = "\n".join("- {}".format(e) for e in examples["may_fail"])
+    
+    faq_items = ["### Q{}: {}\n\n**A**: {}\n".format(i+1, f['question'], f['answer']) for i, f in enumerate(faqs)]
+    faq_content = "\n".join(faq_items)
+
+    # Use a template and format() to avoid f-string backslash issues in Python 3.8
+    template = """# {name} - Legal and Ethical Binding Contract
 
 ## LEGAL NOTICE AND BINDING AGREEMENT
 
 **IMPORTANT**: This document constitutes a legally and ethically binding agreement between the user ("User") and the providers of this medical AI software ("Provider"). By using this {name} module, the User explicitly agrees to all terms, conditions, limitations, and responsibilities outlined in this contract.
 
-**Effective Date**: {Path(__file__).stat().st_mtime if 'Path' in globals() else "Current Date"}
+**Effective Date**: {date}
 **Risk Classification**: HIGH-RISK MEDICAL AI SYSTEM
 **Regulatory Compliance**: This software is classified as a medical device/software and may be subject to healthcare regulations.
 
@@ -584,15 +594,15 @@ def generate_contract_content(module_key, config):
 
 ### 3.1 What This Module CAN Correctly Do:
 
-{chr(10).join(f"- {capability}" for capability in capabilities)}
+{capability_list}
 
 ### 3.2 What This Module CANNOT Do:
 
-{chr(10).join(f"- {limitation}" for limitation in limitations)}
+{limitation_list}
 
 ### 3.3 Failure Conditions - When This Module MAY FAIL:
 
-{chr(10).join(f"- {condition}" for condition in failure_conditions)}
+{failure_condition_list}
 
 ---
 
@@ -674,14 +684,6 @@ The User agrees to indemnify and hold harmless the Provider from:
 - Violation of these terms and conditions
 - Professional malpractice related to software use
 
-### 6.3 Risk Allocation:
-
-The User acknowledges and accepts:
-- All risks associated with using medical AI software
-- Responsibility for verifying all medical information
-- Full liability for medical decisions made
-- The experimental nature of AI-based medical tools
-
 ---
 
 ## 7. COMPLIANCE AND REGULATORY REQUIREMENTS
@@ -717,11 +719,11 @@ The User must maintain:
 
 ### 8.1 Will Work Correctly:
 
-{chr(10).join(f"- {example}" for example in examples["will_work"])}
+{will_work_list}
 
 ### 8.2 May Fail - User Verification Required:
 
-{chr(10).join(f"- {example}" for example in examples["may_fail"])}
+{may_fail_list}
 
 ### 8.3 User Action Requirements:
 
@@ -779,7 +781,7 @@ Both parties agree to:
 
 ## 11. USER FREQUENTLY ASKED QUESTIONS (FAQs)
 
-{chr(10).join(f"### Q{i+1}: {faq['question']}\n\n**A**: {faq['answer']}\n" for i, faq in enumerate(faqs))}
+{faq_content}
 
 ---
 
@@ -794,64 +796,21 @@ By using this {name} module, the User electronically signs this agreement and ac
 - **I understand this is not a medical diagnostic tool**
 - **I will verify all medical information through authoritative sources**
 - **I will consult healthcare professionals for medical decisions**
-- **I accept full responsibility for my use of this software**
-- **I understand the risks and limitations outlined herein**
-
-### 12.2 Binding Effect:
-
-This electronic agreement is legally binding and enforceable. The User's continued use of this software constitutes acceptance of all terms and conditions.
-
-### 12.3 Professional Acknowledgment:
-
-Healthcare professionals acknowledge that:
-- Use of this software must comply with professional standards
-- Clinical judgment remains the User's professional responsibility
-- Patient welfare is the primary consideration
-- Professional liability remains with the healthcare provider
-
----
-
-## 13. CONTACT AND REPORTING
-
-### 13.1 Technical Support:
-- Report technical issues through project channels
-- Document software behavior and error conditions
-- Provide detailed information about failures
-
-### 13.2 Medical Safety Reporting:
-- Report adverse events to appropriate medical authorities
-- Follow institutional incident reporting procedures
-- Document patient safety concerns appropriately
-
-### 13.3 Regulatory Compliance:
-- Report regulatory violations or concerns
-- Cooperate with medical device regulatory requirements
-- Maintain compliance documentation
-
----
-
-## 14. FINAL ACKNOWLEDGMENT
-
-**THIS IS A LEGALLY AND ETHICALLY BINDING AGREEMENT**
-
-By using this {name} module, you acknowledge that:
-- Medical AI carries inherent risks and limitations
-- This software is not a substitute for professional medical judgment
-- You are legally responsible for your use of this software
-- Patient safety and professional standards must be maintained
-- Violation of these terms may result in legal consequences
-
-**WARNING**: Failure to comply with these terms may result in patient harm, professional liability, regulatory action, and legal consequences.
-
----
-
-**© 2024 Medical AI Software Provider**  
-**All Rights Reserved**  
-**This document is protected by copyright and intellectual property laws**
-
-**IMPORTANT**: This contract is subject to change without notice. Continued use of the software constitutes acceptance of any modifications.
 """
-    
+    date_val = Path(__file__).stat().st_mtime if 'Path' in globals() else "Current Date"
+    contract_content = template.format(
+        name=name,
+        date=date_val,
+        description=description,
+        purpose=purpose,
+        capability_list=capability_list,
+        limitation_list=limitation_list,
+        failure_condition_list=failure_condition_list,
+        will_work_list=will_work_list,
+        may_fail_list=may_fail_list,
+        faq_content=faq_content
+    )
+
     return contract_content
 
 def generate_faqs(module_key, config):
@@ -860,7 +819,7 @@ def generate_faqs(module_key, config):
     base_faqs = [
         {
             "question": "What does this module actually do?",
-            "answer": f"This module quickly tells you if a medical term is recognized in medical literature. It's like a fast check before using more expensive AI tools."
+            "answer": "This module quickly tells you if a medical term is recognized in medical literature. It's like a fast check before using more expensive AI tools."
         },
         {
             "question": "Can I use this for medical diagnosis?",
@@ -868,11 +827,11 @@ def generate_faqs(module_key, config):
         },
         {
             "question": "How accurate is this module?",
-            "answer": f"The module provides confidence levels but is not 100% accurate. It may fail with new, rare, or non-standard terms. Always verify important information."
+            "answer": "The module provides confidence levels but is not 100% accurate. It may fail with new, rare, or non-standard terms. Always verify important information."
         },
         {
             "question": "When might this module give wrong answers?",
-            "answer": f"This module may fail with very new terms, rare conditions, non-standard names, or experimental procedures. Check the failure conditions above."
+            "answer": "This module may fail with very new terms, rare conditions, non-standard names, or experimental procedures. Check the failure conditions above."
         },
         {
             "question": "What should I do if I'm not sure about the result?",

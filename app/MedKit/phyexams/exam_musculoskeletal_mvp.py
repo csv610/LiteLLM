@@ -5,7 +5,6 @@ Simplified version for rapid testing and iteration.
 
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, List
 
 
 # ============================================================================
@@ -149,7 +148,7 @@ def generate_assessment(answers: dict, exam: dict) -> dict:
 
 def generate_patient_education(assessment: dict) -> dict:
     """Generate simple patient education responses."""
-    urgency = assessment.get("urgency", "monitor")
+    assessment.get("urgency", "monitor")
 
     education = {}
     education["diagnosis"] = f"Based on exam: {assessment.get('primary_impression')}. Your physician will provide specific diagnosis."

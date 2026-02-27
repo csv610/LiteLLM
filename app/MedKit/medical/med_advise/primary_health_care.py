@@ -8,7 +8,6 @@ patient questions with a generalist medical perspective.
 
 import logging
 from pathlib import Path
-from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -27,7 +26,7 @@ class PrimaryHealthCareProvider:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.query = None  # Store the query being addressed
-        logger.debug(f"Initialized PrimaryHealthCareProvider")
+        logger.debug("Initialized PrimaryHealthCareProvider")
 
     def generate_text(self, query: str, structured: bool = False) -> ModelOutput:
         """Addresses a patient's health concern or question."""

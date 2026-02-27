@@ -6,7 +6,6 @@ for identifying if a medical procedure is well-known in the healthcare community
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

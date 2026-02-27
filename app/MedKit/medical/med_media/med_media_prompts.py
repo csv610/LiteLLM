@@ -1,4 +1,3 @@
-from typing import Optional
 
 class PromptBuilder:
     """Prompt builder for medical media analysis."""

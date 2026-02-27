@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_device.recognizer import MedicalDeviceIdentifier
 from medical_device.models import ModelOutput, MedicalDeviceIdentifierModel, MedicalDeviceIdentificationModel
 from lite.config import ModelConfig
@@ -39,7 +38,7 @@ def test_identify(device_identifier):
     assert result.data.identification.is_well_known is True
     assert device_identifier.client.generate_text.called
 
-def test_identify(device_identifier):
+def test_identify_empty_name(device_identifier):
     with pytest.raises(ValueError, match="Device name cannot be empty"):
         device_identifier.identify("")
 

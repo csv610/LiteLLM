@@ -9,7 +9,6 @@ comprehensive herbal remedy information based on provided configuration.
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).parent.parent.parent
@@ -37,7 +36,7 @@ class HerbalInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.herb = None  # Store the herb being analyzed
-        logger.debug(f"Initialized HerbalInfoGenerator")
+        logger.debug("Initialized HerbalInfoGenerator")
 
     def generate_text(self, herb: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive herbal information."""

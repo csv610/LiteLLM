@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_anatomy.recognizer import MedicalAnatomyIdentifier
 from medical_anatomy.models import ModelOutput, MedicalAnatomyIdentifierModel, MedicalAnatomyIdentificationModel
 from lite.config import ModelConfig
@@ -39,7 +38,7 @@ def test_identify(anatomy_identifier):
     assert result.data.identification.is_well_known is True
     assert anatomy_identifier.client.generate_text.called
 
-def test_identify(anatomy_identifier):
+def test_identify_empty_name(anatomy_identifier):
     with pytest.raises(ValueError, match="Structure name cannot be empty"):
         anatomy_identifier.identify("")
 

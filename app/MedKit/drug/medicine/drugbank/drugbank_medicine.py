@@ -9,7 +9,7 @@ comprehensive medicine information using LiteClient.
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

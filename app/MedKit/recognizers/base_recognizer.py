@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union, Type
+from typing import Optional, Union, Type
 from pydantic import BaseModel
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

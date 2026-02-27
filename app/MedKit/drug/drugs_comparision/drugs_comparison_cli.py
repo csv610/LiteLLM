@@ -7,15 +7,12 @@ healthcare professionals and patients make informed treatment decisions.
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from drugs_comparison_models import MedicinesComparisonResult
 from drugs_comparison import DrugsComparison, DrugsComparisonInput
-from drugs_comparison_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +119,7 @@ def create_drugs_comparision_report(args) -> int:
         verbosity=args.verbosity,
         enable_console=True
     )
-    logger.debug(f"CLI Arguments:")
+    logger.debug("CLI Arguments:")
     logger.debug(f"  Medicine 1: {args.medicine1}")
     logger.debug(f"  Medicine 2: {args.medicine2}")
     logger.debug(f"  Use Case: {args.use_case}")

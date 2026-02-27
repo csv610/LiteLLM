@@ -5,15 +5,10 @@ Test script for Disease Identifier Module.
 This script tests the disease identifier functionality without using mock libraries.
 """
 
-import sys
-import os
-from pathlib import Path
 
 
 from app.MedKit.recognizers.disease.disease_identifier_models import DiseaseIdentifierModel, ModelOutput
 from app.MedKit.recognizers.disease.disease_identifier_prompts import PromptBuilder, DiseaseIdentifierInput
-from app.MedKit.recognizers.disease.disease_recognizer import DiseaseIdentifier
-from lite.config import ModelConfig
 
 
 def test_prompt_builder():
@@ -35,7 +30,7 @@ def test_prompt_builder():
     
     # Test empty disease name
     try:
-        empty_input = DiseaseIdentifierInput("")
+        DiseaseIdentifierInput("")
         assert False, "Should have raised ValueError for empty disease name"
     except ValueError:
         print(" Empty disease name validation works correctly")

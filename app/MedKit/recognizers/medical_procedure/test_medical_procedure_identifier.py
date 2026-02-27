@@ -6,7 +6,6 @@ This script validates the medical procedure identifier functionality without usi
 """
 
 import sys
-import os
 import random
 from pathlib import Path
 
@@ -55,7 +54,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = MedicalProcedureIdentifierInput("")
+        MedicalProcedureIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -106,18 +105,18 @@ def test_identifier_validation():
     print("\nValidating MedicalProcedureIdentifier Input Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalProcedureIdentifier(config)
+    MedicalProcedureIdentifier(config)
     
     # Validate empty input handling
     try:
-        test_input = MedicalProcedureIdentifierInput("")
+        MedicalProcedureIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
 
     # Validate whitespace-only input handling
     try:
-        test_input = MedicalProcedureIdentifierInput("   ")
+        MedicalProcedureIdentifierInput("   ")
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -136,7 +135,7 @@ def test_method_name_consistency():
     
     # Validate method signature
     try:
-        example = read_random_example_from_assets()
+        read_random_example_from_assets()
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

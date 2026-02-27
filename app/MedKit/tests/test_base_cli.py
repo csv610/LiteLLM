@@ -263,7 +263,7 @@ class TestBaseGenerator:
 
         with patch('lite.utils.save_model_response') as mock_save:
             mock_save.return_value = temp_output_dir / "output.md"
-            output_path = generator.save(response, temp_output_dir / "output.json")
+            generator.save(response, temp_output_dir / "output.json")
 
             # Should convert .json to .md for string responses
             call_args = mock_save.call_args
@@ -276,7 +276,7 @@ class TestBaseGenerator:
 
         with patch('lite.utils.save_model_response') as mock_save:
             mock_save.return_value = temp_output_dir / "output.md"
-            output_path = generator.save(response, temp_output_dir / "output.md")
+            generator.save(response, temp_output_dir / "output.md")
 
             call_args = mock_save.call_args
             assert call_args[0][1].suffix == ".md"

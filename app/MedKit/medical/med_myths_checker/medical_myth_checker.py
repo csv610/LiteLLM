@@ -8,7 +8,7 @@ medical myths for factual accuracy based on peer-reviewed evidence.
 
 import logging
 from pathlib import Path
-from typing import Optional, List, Union
+from typing import Optional
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

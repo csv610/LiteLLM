@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_procedure.recognizer import MedicalProcedureIdentifier
 from medical_procedure.models import ModelOutput, MedicalProcedureIdentifierModel, MedicalProcedureIdentificationModel
 from lite.config import ModelConfig
@@ -39,7 +38,7 @@ def test_identify(procedure_identifier):
     assert result.data.identification.is_well_known is True
     assert procedure_identifier.client.generate_text.called
 
-def test_identify(procedure_identifier):
+def test_identify_empty_name(procedure_identifier):
     with pytest.raises(ValueError, match="Procedure name cannot be empty"):
         procedure_identifier.identify("")
 

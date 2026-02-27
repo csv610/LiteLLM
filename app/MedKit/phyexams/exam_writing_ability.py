@@ -8,7 +8,6 @@ Supports both manual nurse evaluation and computer vision analysis.
 """
 
 import sys
-import json
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional, List

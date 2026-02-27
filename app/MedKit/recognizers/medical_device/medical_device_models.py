@@ -6,7 +6,7 @@ is well-known in the healthcare field and providing basic information about it.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 
 class MedicalDeviceIdentificationModel(BaseModel):

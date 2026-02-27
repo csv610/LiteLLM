@@ -7,8 +7,6 @@ generated medical procedure information against high medical standards.
 """
 
 import logging
-import re
-import json
 from pathlib import Path
 from typing import Optional, Union
 
@@ -30,7 +28,7 @@ class MedicalProcedureEvaluator:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.procedure_name: Optional[str] = None
-        logger.debug(f"Initialized MedicalProcedureEvaluator")
+        logger.debug("Initialized MedicalProcedureEvaluator")
 
     def generate_text(self, file_path: Union[str, Path], structured: bool = True) -> ModelOutput:
         """Read content from a file and evaluate it."""

@@ -8,7 +8,6 @@ comprehensive patient legal rights information based on provided configuration.
 
 import logging
 from pathlib import Path
-from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -31,7 +30,7 @@ class LegalRightsGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.topic = None  # Store the topic being analyzed
-        logger.debug(f"Initialized LegalRightsGenerator for Patient Legal Rights")
+        logger.debug("Initialized LegalRightsGenerator for Patient Legal Rights")
 
     def generate_text(self, topic: str, country: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive patient legal rights information for a specific country."""

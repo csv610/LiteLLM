@@ -263,7 +263,7 @@ class TestFileOutputOperations:
         with patch('lite.utils.save_model_response') as mock_save:
             mock_save.return_value = temp_output_dir / "output.md"
 
-            output_path = generator.save(
+            generator.save(
                 response,
                 temp_output_dir / "output.json"
             )
@@ -345,7 +345,7 @@ class TestJSONOutput:
         # Without -j flag
         with patch.object(cli, 'run', return_value="test"):
             with patch.object(cli, '_display_result'):
-                with patch.object(cli, '_output_json') as mock_json:
+                with patch.object(cli, '_output_json'):
                     cli.execute(["test query"])
                     # _output_json should still be called, but check args
                     assert cli.args.json_output is False

@@ -6,7 +6,6 @@ for identifying if a disease is well-known in the medical community.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

@@ -10,11 +10,10 @@ BaseModel definitions and the LiteClient AI client with schema-aware prompting.
 # STANDARD LIBRARY IMPORTS
 # ==============================================================================
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 # ==============================================================================
 # THIRD-PARTY IMPORTS
@@ -25,7 +24,6 @@ from pydantic import BaseModel, Field
 # LOCAL IMPORTS (LiteClient setup)
 # ==============================================================================
 from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
 # ==============================================================================
@@ -773,7 +771,7 @@ def main() -> int:
         patient_name = " ".join(args.patient)
         prompt_style = PromptStyle.CONCISE if args.concise else PromptStyle.DETAILED
 
-        result = evaluate_judgement(
+        evaluate_judgement(
             patient_name=patient_name,
             output_path=args.output,
             prompt_style=prompt_style,

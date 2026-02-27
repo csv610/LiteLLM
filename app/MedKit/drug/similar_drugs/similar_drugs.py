@@ -12,7 +12,7 @@ from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
 from lite.config import ModelInput
 
-from similar_drugs_models import SimilarMedicinesResult
+from similar_drugs_models import SimilarMedicinesResult, SimilarDrugsConfig
 from similar_drugs_prompts import PromptBuilder
 
 

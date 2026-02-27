@@ -8,14 +8,13 @@ prescribed for specific symptoms based on clinical guidance.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
 from symptom_drugs_models import SymptomDrugAnalysisModel, ModelOutput
-from symptom_drugs_prompts import PromptBuilder, SymptomInput, PromptStyle
+from symptom_drugs_prompts import PromptBuilder, SymptomInput
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ class SymptomDrugs:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.config = None  # Store the configuration for later use in save
-        logger.debug(f"Initialized SymptomDrugs")
+        logger.debug("Initialized SymptomDrugs")
 
     def generate_text(self, config: SymptomInput, structured: bool = False) -> ModelOutput:
         """
@@ -42,7 +41,7 @@ class SymptomDrugs:
         """
         # Store the configuration for later use in save
         self.config = config
-        logger.debug(f"Starting symptom-to-drug analysis")
+        logger.debug("Starting symptom-to-drug analysis")
         logger.debug(f"Symptom: {config.symptom_name}")
 
         user_prompt = PromptBuilder.create_user_prompt(config)

@@ -6,11 +6,10 @@ AI client with schema-aware prompting.
 """
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,7 +19,6 @@ from pydantic import BaseModel, Field
 _repo_root = Path(__file__).resolve().parent.parent.parent.parent
 _medkit_root = _repo_root / "app" / "MedKit"
 
-from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 from .pydantic_prompt_generator import PromptStyle
@@ -529,7 +527,6 @@ def create_depression_assessment_from_responses(patient_name: str, responses: di
     """
     Create a structured depression screening assessment from patient responses.
     """
-    import json
 
     # Build assessment data from responses
     assessment_data = {
@@ -763,7 +760,7 @@ def main() -> int:
         patient_name = " ".join(args.patient)
         prompt_style = PromptStyle.CONCISE if args.concise else PromptStyle.DETAILED
 
-        result = evaluate_depression_screening(
+        evaluate_depression_screening(
             patient_name=patient_name,
             output_path=args.output,
             prompt_style=prompt_style,

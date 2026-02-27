@@ -3,7 +3,6 @@
 import argparse
 import logging
 from pathlib import Path
-from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
@@ -44,7 +43,8 @@ def main():
         
         logger.info(f"Generating questions for {args.exam} exam...")
         result = generator.generate_text(input_data, structured=args.structured)
-        if result: generator.save(result, output_dir)
+        if result:
+                generator.save(result, output_dir)
             
         logger.info("✓ Completed successfully")
     except Exception as e:

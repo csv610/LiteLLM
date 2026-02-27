@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 from tqdm import tqdm
 
 # Add the project root to sys.path to support absolute imports

@@ -1,16 +1,14 @@
-
 PROMPT = """
-Extract biomedical knowledge triples from the text below.
+Extract medicine-related relationships as triples from the text.
 Each triple must be a JSON object with:
-  - source
-  - relation (choose from: treats, has_side_effect, belongs_to_class,
-    interacts_with, contraindicated_in, has_active_ingredient, affects_system,
-    has_dosage_form, has_route, requires_test, causes, has_mechanism,
-    manufactured_by, recommended_dose_for, other)
+  - source (e.g., DrugName, Ingredient, Class)
+  - relation (choose from: mechanism_of_action, therapeutic_class, adverse_effect,
+    treats, contraindication, dose_related_to, interact_with, metabolis_by,
+    available_as, biomarker_indication)
   - target
 Optional: source_type, target_type, confidence
-
-Return only a JSON array.
+Return a JSON array only.
 
 Text:
-"""{text}"""
+{text}
+"""

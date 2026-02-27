@@ -7,9 +7,7 @@ is well-known in the industry.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
-from pydantic import BaseModel
 from lite.utils import save_model_response
 from ..base_recognizer import BaseRecognizer
 

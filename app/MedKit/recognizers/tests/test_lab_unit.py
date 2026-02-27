@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from lab_unit.recognizer import LabUnitIdentifier
 from lab_unit.models import ModelOutput, LabUnitIdentifierModel, LabUnitIdentificationModel
 from lite.config import ModelConfig

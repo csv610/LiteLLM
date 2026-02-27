@@ -1,5 +1,4 @@
-from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from medkit.utils.logging_config import setup_logger

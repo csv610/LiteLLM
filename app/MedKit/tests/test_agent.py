@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch, MagicMock
 import pytest
-from medkit_agent.orchestrator import MedKitOrchestrator, ToolOutput
+from medkit_agent.orchestrator import MedKitOrchestrator
 
 class TestMedKitOrchestrator:
     """Tests for the MedKit Agentic Orchestrator."""

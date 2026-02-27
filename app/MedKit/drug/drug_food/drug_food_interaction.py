@@ -8,7 +8,6 @@ how food and beverages interact with medicines.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -27,14 +26,14 @@ class DrugFoodInteraction:
         """Initialize the drug-food interaction analyzer."""
         self.client = LiteClient(model_config)
         self.user_input = None  # Store the configuration for later use in save
-        logger.debug(f"Initialized DrugFoodInteraction")
+        logger.debug("Initialized DrugFoodInteraction")
 
     def generate_text(self, user_input: DrugFoodInput, structured: bool = False) -> ModelOutput:
         """Analyzes how food and beverages interact with a medicine."""
         # Store the configuration for later use in save
         self.user_input = user_input
-        logger.debug(f"Starting drug-food interaction analysis")
-        logger.debug(f"Medicine: {config.medicine_name}")
+        logger.debug("Starting drug-food interaction analysis")
+        logger.debug(f"Medicine: {user_input.medicine_name}")
 
         # Create user prompt with context
         user_prompt = PromptBuilder.create_user_prompt(user_input)

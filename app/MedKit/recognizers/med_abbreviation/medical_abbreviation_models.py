@@ -6,7 +6,7 @@ medical abbreviations and clinical shorthand.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 
 class AbbreviationIdentificationModel(BaseModel):

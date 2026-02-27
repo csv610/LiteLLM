@@ -9,7 +9,7 @@ if __name__ == "__main__":
     Mutations in BRCA1 are associated with breast and ovarian cancers.
     The BRCA1 protein participates in the DNA repair pathway.
     Certain BRCA1 variants are pathogenic in hereditary breast cancer.
-    "
+    """
 
     extractor = GeneticsTripletExtractor()  # Uses GEMINI_API_KEY from environment
     triples = extractor.extract(text)

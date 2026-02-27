@@ -1,8 +1,6 @@
 import argparse
-import logging
 import sys
 from pathlib import Path
-from tqdm import tqdm
 
 # Add the project root to sys.path to support absolute imports if needed, 
 # but we'll try to use relative or properly scoped imports.
@@ -65,7 +63,7 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True, help="Drug tool subcommands")
 
     # List Modules
-    list_p = subparsers.add_parser("list", help="List all available drug modules and descriptions")
+    subparsers.add_parser("list", help="List all available drug modules and descriptions")
 
     # 1. Medicine Info
     info_p = subparsers.add_parser("info", help="Comprehensive medicine information")
@@ -129,7 +127,8 @@ def main():
             from medicine_info import MedicineInfoGenerator
             gen = MedicineInfoGenerator(model_config)
             res = gen.generate_text(args.medicine, structured=args.structured)
-            if res: gen.save(res, output_dir / f"{args.medicine.lower()}_info")
+            if res:
+                gen.save(res, output_dir / f"{args.medicine.lower()}_info")
 
         elif args.command == "interact":
             setup_path("drug_drug")
@@ -138,49 +137,56 @@ def main():
             gen = DrugDrugInteractionGenerator(model_config)
             config = DrugDrugInput(medicine1=args.medicine1, medicine2=args.medicine2, age=args.age)
             res = gen.generate_text(config=config, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "food":
             setup_path("drug_food")
             from drug_food_interaction import DrugFoodInteractionGenerator
             gen = DrugFoodInteractionGenerator(model_config)
             res = gen.generate_text(medicine=args.medicine, food=args.food, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "disease":
             setup_path("drug_disease")
             from drug_disease_interaction import DrugDiseaseInteractionGenerator
             gen = DrugDiseaseInteractionGenerator(model_config)
             res = gen.generate_text(medicine=args.medicine, disease=args.disease, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "similar":
             setup_path("similar_drugs")
             from similar_drugs import SimilarDrugsGenerator
             gen = SimilarDrugsGenerator(model_config)
             res = gen.generate_text(medicine=args.medicine, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "compare":
             setup_path("drugs_comparision")
             from drugs_comparison import DrugsComparisonGenerator
             gen = DrugsComparisonGenerator(model_config)
             res = gen.generate_text(medicine1=args.medicine1, medicine2=args.medicine2, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "symptoms":
             setup_path("symptoms_drugs")
             from symptom_drugs import SymptomDrugsGenerator
             gen = SymptomDrugsGenerator(model_config)
             res = gen.generate_text(symptoms=args.symptoms, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "addiction":
             setup_path("drug_addiction")
             from drug_addiction import DrugAddictionGenerator
             gen = DrugAddictionGenerator(model_config)
             res = gen.generate_text(drug=args.drug, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
         elif args.command == "prescription":
             setup_path("med_prescription")
@@ -188,7 +194,7 @@ def main():
             res = analyze_prescription(args.image_path)
             if res:
                 print(res.model_dump_json(indent=4))
-                with open(output_dir / f"prescription_analysis.json", "w") as f:
+                with open(output_dir / "prescription_analysis.json", "w") as f:
                     f.write(res.model_dump_json(indent=4))
 
         elif args.command == "explain":

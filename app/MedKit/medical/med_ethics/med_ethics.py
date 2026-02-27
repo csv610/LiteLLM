@@ -9,7 +9,6 @@ comprehensive medical ethics analysis based on provided configuration.
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).parent.parent.parent
@@ -38,7 +37,7 @@ class MedEthicalQA:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.question = None  # Store the ethics question being analyzed
-        logger.debug(f"Initialized MedEthicalQA")
+        logger.debug("Initialized MedEthicalQA")
 
     def generate_text(self, question: str, structured: bool = False) -> ModelOutput:
         """Generate comprehensive medical ethics analysis."""

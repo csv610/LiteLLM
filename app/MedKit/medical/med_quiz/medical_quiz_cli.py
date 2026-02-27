@@ -53,7 +53,8 @@ def main():
                 num_options=args.num_options,
                 structured=True
             )
-            if result: generator.save(result, output_dir)
+            if result:
+                generator.save(result, output_dir)
             
         logger.info("✓ Completed successfully")
     except Exception as e:

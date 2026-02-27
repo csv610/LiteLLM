@@ -6,13 +6,9 @@ Provides structured interview flow with proper consent handling and support reso
 """
 
 from sane_interview_models import (
-    YesNoUnsure, SexualContactType, PainLevel,
-    ConsentSection, MedicalHistory, IncidentHistory, SexualContactDetails,
-    InjuryAssessment, ForensicEvidence, TreatmentDiscussion,
-    PsychologicalAssessment, LegalFollowUp, ClosureSupport,
-    SANEInterviewRecord
+    YesNoUnsure, SexualContactType, SANEInterviewRecord
 )
-from typing import Optional, List, Any, Generator, Union
+from typing import Optional, List, Generator
 from dataclasses import dataclass
 
 @dataclass

@@ -1,10 +1,9 @@
 """medical_physical_exams_questions - Generate structured physical examination questions."""
 
-import json
 import sys
 import argparse
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -109,7 +108,7 @@ def main():
     try:
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = ExamQuestionGenerator(model_config=model_config)
-        print(f"Generating physical exam questions...")
+        print("Generating physical exam questions...")
         result = generator.generate_text(exam_type=args.exam, age=args.age, gender=args.gender)
         
         print_response(result, title="Medical Physical Exam Questions")

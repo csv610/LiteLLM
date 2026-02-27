@@ -1,16 +1,14 @@
-
 PROMPT = """
-Extract pathophysiology triplets from the following biomedical text.
-Each triple must include:
-- source
-- relation (one of: causes, leads_to, results_in, mediated_by, associated_with,
-  triggered_by, worsens, complicates, alleviated_by, regulated_by, linked_to,
-  part_of, predisposes_to, mechanism_of, other)
-- target
+Extract pathophysiological relationships as triples from the text.
+Each triple must be a JSON object with:
+  - source (e.g., Mechanism, Trigger, Symptom)
+  - relation (choose from: triggers, leads_to, exacerbates, inhibits,
+    characterized_by, mechanism_of, resultant_effect, cellular_impact,
+    systemic_response, associated_pathway)
+  - target
 Optional: source_type, target_type, confidence
-
-Return JSON array only.
+Return a JSON array only.
 
 Text:
-"""{text}"""
-"
+{text}
+"""

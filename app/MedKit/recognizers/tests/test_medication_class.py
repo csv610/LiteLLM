@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medication_class.recognizer import MedicationClassIdentifier
 from medication_class.models import ModelOutput, MedicationClassIdentifierModel, MedicationClassIdentificationModel
 from lite.config import ModelConfig
@@ -39,6 +38,6 @@ def test_identify(class_identifier):
     assert result.data.identification.is_well_known is True
     assert class_identifier.client.generate_text.called
 
-def test_identify(class_identifier):
+def test_identify_empty_name(class_identifier):
     with pytest.raises(ValueError, match="Class name cannot be empty"):
         class_identifier.identify("")

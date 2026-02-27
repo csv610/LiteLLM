@@ -68,7 +68,7 @@ def test_save_with_case_title(tmp_path):
     
     with patch('med_ethics.save_model_response') as mock_save:
         mock_save.return_value = tmp_path / "intergenerational_resource_allocation.md"
-        output_path = generator.save(mock_output, tmp_path)
+        generator.save(mock_output, tmp_path)
         
         # Check if the base_filename passed to save_model_response is correct
         args, _ = mock_save.call_args

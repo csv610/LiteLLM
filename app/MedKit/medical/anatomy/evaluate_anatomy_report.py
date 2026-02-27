@@ -10,9 +10,9 @@ import logging
 import json
 import sys
 from pathlib import Path
-from typing import Optional, Dict, List, Tuple, Any
+from typing import Optional, Dict, List, Tuple
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 # Add the project root to sys.path
 project_root = Path(__file__).parent.parent.parent
@@ -342,12 +342,6 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             severity_count["major"] += 1
 
         # Check for missing critical anatomical details
-        required_details = {
-            "arterial": ["origin", "course", "branches", "termination"],
-            "bone": ["landmarks", "articulations", "attachments"],
-            "muscle": ["origin", "insertion", "innervation", "action"],
-            "nerve": ["origin", "course", "branches", "distribution"]
-        }
 
         # Determine overall rating
         if severity_count["critical"] > 0:
@@ -476,11 +470,6 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         severity_count = {"critical": 0, "major": 0, "minor": 0}
 
         # Check for potentially dangerous misinformation
-        dangerous_patterns = {
-            "non-existent structures": ["femoral notch", "deep saphenous"],
-            "misplaced structures": ["ulnar_artery.*thigh", "radial_artery.*leg"],
-            "contradictory information": ["superficial.*deep", "medial.*lateral"],
-        }
 
         # Check for critical anatomical errors that could lead to clinical harm
         if "femoral" in structure_name.lower():

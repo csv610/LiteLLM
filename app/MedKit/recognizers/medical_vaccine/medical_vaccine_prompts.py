@@ -6,7 +6,6 @@ for identifying vaccines.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

@@ -1,9 +1,8 @@
 import json
 import argparse
-import logging
 import re
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple
+from typing import List, Dict
 from dataclasses import dataclass, asdict
 from tqdm import tqdm
 

@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_pathogen.recognizer import MedicalPathogenIdentifier
 from medical_pathogen.models import ModelOutput, PathogenIdentifierModel, PathogenIdentificationModel
 from lite.config import ModelConfig
@@ -39,6 +38,6 @@ def test_identify(pathogen_identifier):
     assert result.data.identification.is_well_known is True
     assert pathogen_identifier.client.generate_text.called
 
-def test_identify(pathogen_identifier):
+def test_identify_empty_name(pathogen_identifier):
     with pytest.raises(ValueError, match="Pathogen name cannot be empty"):
         pathogen_identifier.identify("")

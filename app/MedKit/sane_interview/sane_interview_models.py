@@ -5,7 +5,7 @@ Defines comprehensive data models for Sexual Assault Nurse Examiner (SANE) inter
 with trauma-informed approach and proper data validation.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum

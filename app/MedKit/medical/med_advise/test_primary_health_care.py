@@ -1,7 +1,7 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from primary_health_care import PrimaryHealthCareProvider
-from lite.config import ModelConfig, ModelInput, ModelOutput
+from lite.config import ModelConfig
 from primary_health_care_models import PrimaryCareResponseModel
 
 @pytest.fixture

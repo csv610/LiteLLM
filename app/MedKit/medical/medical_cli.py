@@ -22,7 +22,6 @@ from medical.med_facts_checker.medical_facts_checker import MedicalFactsChecker
 from medical.med_faqs.medical_faq import MedicalFAQGenerator
 from medical.med_implant.medical_implant import MedicalImplantGenerator
 from medical.med_myths_checker.medical_myth_checker import MedicalMythsChecker
-from medical.med_physical_exams_questions.medical_physical_exams_questions import ExamQuestionGenerator as PhysicalExamGenerator
 from medical.med_procedure_info.medical_procedure_info import MedicalProcedureInfoGenerator
 from medical.med_procedure_info.eval_medical_procedure_output import MedicalProcedureEvaluator
 from medical.med_quiz.medical_quiz import MedicalQuizGenerator
@@ -111,7 +110,7 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True, help="Medical tool subcommands")
 
     # List Modules
-    list_p = subparsers.add_parser("list", help="List all available medical modules and descriptions")
+    subparsers.add_parser("list", help="List all available medical modules and descriptions")
 
     # Anatomy
     anatomy_p = subparsers.add_parser("anatomy", help="Generate anatomical info")
@@ -236,25 +235,29 @@ def main():
             gen = MedicalAnatomyGenerator(model_config)
             for item in tqdm(handle_batch_input(args.body_part, "anatomy"), desc="Anatomy"):
                 res = gen.generate_text(body_part=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "disease":
             gen = DiseaseInfoGenerator(model_config)
             for item in tqdm(handle_batch_input(args.disease, "disease"), desc="Disease"):
                 res = gen.generate_text(disease=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "herbal":
             gen = HerbalInfoGenerator(model_config)
             for item in tqdm(handle_batch_input(args.herb, "herbal"), desc="Herbal"):
                 res = gen.generate_text(herb=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "advise":
             gen = PrimaryHealthCareProvider(model_config)
             for item in tqdm(handle_batch_input(args.query, "advise"), desc="Advise"):
                 res = gen.generate_text(query=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "decision":
             gen = MedicalDecisionGuideGenerator(model_config)
@@ -277,37 +280,43 @@ def main():
             gen = MedicalFAQGenerator(model_config)
             for item in tqdm(handle_batch_input(args.topic, "faq"), desc="FAQ"):
                 res = gen.generate_text(topic=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "implant":
             gen = MedicalImplantGenerator(model_config)
             for item in tqdm(handle_batch_input(args.implant, "implant"), desc="Implant"):
                 res = gen.generate_text(implant=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "myth":
             gen = MedicalMythsChecker(model_config)
             for item in tqdm(handle_batch_input(args.input, "myth"), desc="Myth"):
                 res = gen.generate_text(myth=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "procedure":
             gen = MedicalProcedureInfoGenerator(model_config)
             for item in tqdm(handle_batch_input(args.procedure, "procedure"), desc="Procedure"):
                 res = gen.generate_text(procedure=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "eval-procedure":
             gen = MedicalProcedureEvaluator(model_config)
             for item in tqdm(handle_batch_input(args.file, "eval-procedure"), desc="Eval Proc"):
                 res = gen.generate_text(file_path=item)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "quiz":
             gen = MedicalQuizGenerator(model_config)
             for item in tqdm(handle_batch_input(args.topic, "quiz"), desc="Quiz"):
                 res = gen.generate_text(topic=item, difficulty=args.difficulty, num_questions=args.num_questions, num_options=args.num_options, structured=True)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "refer":
             gen = MedReferral(model_config)
@@ -315,7 +324,8 @@ def main():
                 res = gen.generate_text(item)
                 if res:
                     fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[:50]
-                    with open(output_dir / f"{fname}.md", 'w') as f: f.write(res)
+                    with open(output_dir / "{}.md".format(fname), 'w') as f:
+                        f.write(res)
 
         elif args.command == "roles":
             gen = MedSpecialityRoles(model_config)
@@ -323,13 +333,15 @@ def main():
                 res = gen.generate_text(item)
                 if res:
                     fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[:50]
-                    with open(output_dir / f"{fname}.md", 'w') as f: f.write(res)
+                    with open(output_dir / "{}.md".format(fname), 'w') as f:
+                        f.write(res)
 
         elif args.command == "topic":
             gen = MedicalTopicGenerator(model_config)
             for item in tqdm(handle_batch_input(args.topic, "topic"), desc="Topic"):
                 res = gen.generate_text(topic=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "media":
             gen = MedicalMediaGenerator(model_config)
@@ -342,13 +354,15 @@ def main():
             gen = OrganDiseaseGenerator(model_config)
             for item in tqdm(handle_batch_input(args.organ, "organ"), desc="Organ"):
                 res = gen.generate_text(organ=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "surgery":
             gen = SurgeryInfoGenerator(model_config)
             for item in tqdm(handle_batch_input(args.surgery, "surgery"), desc="Surgery"):
                 res = gen.generate_text(surgery=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "pose":
             if args.list:
@@ -358,31 +372,36 @@ def main():
                 gen = SurgicalPoseInfoGenerator(model_config)
                 for item in tqdm(handle_batch_input(args.pose, "pose"), desc="Pose"):
                     res = gen.generate_text(pose=item, structured=args.structured)
-                    if res: gen.save(res, output_dir)
+                    if res:
+                        gen.save(res, output_dir)
 
         elif args.command == "tool":
             gen = SurgicalToolInfoGenerator(model_config)
             for item in tqdm(handle_batch_input(args.tool, "tool"), desc="Tool"):
                 res = gen.generate_text(tool=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "tray":
             gen = SurgicalTrayGenerator(model_config)
             for item in tqdm(handle_batch_input(args.surgery, "tray"), desc="Tray"):
                 res = gen.generate_text(surgery=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "case":
             gen = SyntheticCaseReportGenerator(model_config)
             for item in tqdm(handle_batch_input(args.condition, "case"), desc="Case"):
                 res = gen.generate_text(condition=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "ethics":
             gen = MedEthicalQA(model_config)
             for item in tqdm(handle_batch_input(args.question, "ethics"), desc="Ethics"):
                 res = gen.generate_text(question=item, structured=args.structured)
-                if res: gen.save(res, output_dir)
+                if res:
+                    gen.save(res, output_dir)
 
         elif args.command == "flashcard":
             extractor = MedicalLabelExtractor(model_config)

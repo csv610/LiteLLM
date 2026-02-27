@@ -7,7 +7,6 @@ Identify whether a given name is a recognized disease in medical literature
 
 import argparse
 import sys
-from pathlib import Path
 
 from lite.config import ModelConfig
 from disease_recognizer import DiseaseIdentifier
@@ -29,7 +28,7 @@ Examples:
     # Positional argument
     parser.add_argument(
         "name",
-        help=f"Name of the disease to identify"
+        help="Name of the disease to identify"
     )
     
     # Model configuration options

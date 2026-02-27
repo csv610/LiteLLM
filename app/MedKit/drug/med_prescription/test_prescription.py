@@ -12,11 +12,9 @@ print(f"Added to sys.path: {app_dir}")
 
 try:
     # Try importing medkit (since it's macOS, MedKit should match medkit)
-    import MedKit
     print("✓ Successfully imported MedKit")
     
-    from MedKit.drug.med_prescription.prescription_extractor import PrescriptionExtractor, PrescriptionData
-    from MedKit.drug.med_prescription.prescription_analyzer import analyze_prescription
+    from MedKit.drug.med_prescription.prescription_extractor import PrescriptionExtractor
     from lite.config import ModelConfig
     
     print("✓ Successfully imported prescription modules")

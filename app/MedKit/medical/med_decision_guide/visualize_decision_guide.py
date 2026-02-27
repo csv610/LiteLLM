@@ -32,7 +32,7 @@ import json
 from pathlib import Path
 from typing import Literal, Optional
 
-from medkit.diagnostics.medical_decision_guide import MedicalDecisionGuide, DecisionNode, Outcome
+from medkit.diagnostics.medical_decision_guide import MedicalDecisionGuide
 
 
 def visualize_guide(

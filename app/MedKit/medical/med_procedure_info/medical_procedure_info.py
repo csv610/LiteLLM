@@ -8,7 +8,7 @@ comprehensive medical procedure information based on provided configuration.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -28,7 +28,7 @@ class MedicalProcedureInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.procedure_name: Optional[str] = None
-        logger.debug(f"Initialized MedicalProcedureInfoGenerator")
+        logger.debug("Initialized MedicalProcedureInfoGenerator")
 
     def generate_text(self, procedure: str, structured: bool = False) -> ModelOutput:
         """Generate and retrieve comprehensive medical procedure information."""

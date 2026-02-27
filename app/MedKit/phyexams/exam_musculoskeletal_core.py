@@ -10,7 +10,6 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List, Dict, Tuple
 
-from pathlib import Path
 from lite.utils import save_model_response
 
 

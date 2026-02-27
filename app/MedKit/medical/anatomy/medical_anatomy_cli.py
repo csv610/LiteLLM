@@ -45,7 +45,8 @@ def main():
         
         for item in tqdm(items, desc="Processing"):
             result = generator.generate_text(body_part=item, structured=args.structured)
-            if result: generator.save(result, output_dir)
+            if result:
+                generator.save(result, output_dir)
             
         logger.info("✓ Completed successfully")
     except Exception as e:

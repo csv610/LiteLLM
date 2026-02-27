@@ -3,13 +3,11 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 from drug_disease_interaction import DrugDiseaseInteraction, DrugDiseaseInput, PromptStyle
-from drug_disease_interaction_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

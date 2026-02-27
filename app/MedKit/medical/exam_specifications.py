@@ -348,20 +348,20 @@ def create_default_exam_specification(exam_type: str) -> ExamSpecification:
 
         required_inspection_questions=[
             f"Overall appearance and symmetry of the {exam_type.lower()} area",
-            f"Skin condition - color, integrity, lesions, rashes, or abnormalities",
+            "Skin condition - color, integrity, lesions, rashes, or abnormalities",
             f"Visible deformities, swelling, or asymmetry in the {exam_type.lower()}",
-            f"Signs of inflammation, erythema, or discoloration",
-            f"Muscle tone and bulk - normal vs atrophic or hypertrophied",
+            "Signs of inflammation, erythema, or discoloration",
+            "Muscle tone and bulk - normal vs atrophic or hypertrophied",
             f"Range of motion and functional ability of the {exam_type.lower()}",
         ],
 
         required_palpation_questions=[
             f"Palpate for tenderness, masses, or abnormal lumps in the {exam_type.lower()}",
-            f"Bilateral comparison - symmetry vs asymmetry between left and right sides",
-            f"Temperature assessment - normal, warm, or cold compared to contralateral side",
-            f"Texture and consistency assessment",
-            f"Joint assessment if applicable - stability, range of motion, crepitus",
-            f"Lymph node assessment in regional areas",
+            "Bilateral comparison - symmetry vs asymmetry between left and right sides",
+            "Temperature assessment - normal, warm, or cold compared to contralateral side",
+            "Texture and consistency assessment",
+            "Joint assessment if applicable - stability, range of motion, crepitus",
+            "Lymph node assessment in regional areas",
         ],
 
         required_percussion_questions=[],
@@ -369,33 +369,33 @@ def create_default_exam_specification(exam_type: str) -> ExamSpecification:
         required_auscultation_questions=[],
 
         required_verbal_assessment_questions=[
-            f"Chief complaint and primary concern",
-            f"Onset, duration, and progression of symptoms",
-            f"Associated pain, swelling, weakness, or functional limitation",
+            "Chief complaint and primary concern",
+            "Onset, duration, and progression of symptoms",
+            "Associated pain, swelling, weakness, or functional limitation",
             f"Recent injury, trauma, or illness affecting the {exam_type.lower()}",
-            f"Impact on daily activities and functional status",
-            f"Alleviating and aggravating factors",
+            "Impact on daily activities and functional status",
+            "Alleviating and aggravating factors",
         ],
 
         relevant_medical_history_topics=[
             f"Prior injuries or conditions affecting the {exam_type.lower()}",
-            f"Prior surgeries related to this area",
-            f"Current medications that may affect symptoms",
-            f"Underlying conditions (arthritis, neuropathy, vascular disease, etc.)",
-            f"Drug allergies",
+            "Prior surgeries related to this area",
+            "Current medications that may affect symptoms",
+            "Underlying conditions (arthritis, neuropathy, vascular disease, etc.)",
+            "Drug allergies",
         ],
 
         relevant_lifestyle_topics=[
-            f"Physical activity level and exercise routine",
+            "Physical activity level and exercise routine",
             f"Occupational demands on the {exam_type.lower()}",
-            f"Recreational activities that may stress this area",
-            f"Falls or trauma risk factors",
+            "Recreational activities that may stress this area",
+            "Falls or trauma risk factors",
         ],
 
         relevant_family_history_topics=[
-            f"Family history of musculoskeletal disorders",
-            f"Family history of genetic conditions affecting mobility",
-            f"Family history of arthritis or joint disease",
+            "Family history of musculoskeletal disorders",
+            "Family history of genetic conditions affecting mobility",
+            "Family history of arthritis or joint disease",
         ],
 
         min_physical_exam_questions=12,  # Generic minimum

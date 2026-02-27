@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from medical_faq import MedicalFAQGenerator
-from lite.config import ModelConfig, ModelOutput
+from lite.config import ModelConfig
 from medical_faq_models import MedicalFAQModel
 
 @pytest.fixture

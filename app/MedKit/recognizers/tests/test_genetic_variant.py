@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from genetic_variant.recognizer import GeneticVariantIdentifier
 from genetic_variant.models import ModelOutput, GeneticVariantIdentifierModel, GeneticVariantIdentificationModel
 from lite.config import ModelConfig

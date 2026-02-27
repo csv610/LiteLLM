@@ -136,7 +136,7 @@ def display_definition(entry: Dict) -> None:
 def display_closest_matches(user_term: str, matches: List[Tuple[str, str, float]]) -> None:
     """Display the closest matching terms when exact match not found."""
     print(f"\n✗ No exact match for '{user_term}'")
-    print(f"Did you mean one of these?\n")
+    print("Did you mean one of these?\n")
 
     for i, (term, definition, score) in enumerate(matches, 1):
         confidence = int(score * 100)

@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from disease_info import DiseaseInfoGenerator
-from lite.config import ModelConfig, ModelOutput
+from lite.config import ModelConfig
 from disease_info_models import DiseaseInfoModel
 
 @pytest.fixture

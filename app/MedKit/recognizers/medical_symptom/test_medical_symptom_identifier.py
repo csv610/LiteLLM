@@ -7,7 +7,6 @@ without using mock libraries.
 """
 
 import sys
-import os
 from pathlib import Path
 
 
@@ -36,7 +35,7 @@ def test_prompt_builder():
     
     # Test empty symptom name
     try:
-        empty_input = MedicalSymptomIdentifierInput("")
+        MedicalSymptomIdentifierInput("")
         assert False, "Should have raised ValueError for empty symptom name"
     except ValueError:
         print("✓ Empty symptom name validation works correctly")
@@ -86,18 +85,18 @@ def test_medical_symptom_identifier_validation():
     print("\nTesting MedicalSymptomIdentifier Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSymptomIdentifier(config)
+    MedicalSymptomIdentifier(config)
     
     # Test empty symptom name
     try:
-        symptom_input = MedicalSymptomIdentifierInput("")
+        MedicalSymptomIdentifierInput("")
         assert False, "Should have raised ValueError for empty symptom name"
     except ValueError:
         print("✓ Empty symptom name validation works correctly")
     
     # Test whitespace-only symptom name
     try:
-        symptom_input = MedicalSymptomIdentifierInput("   ")
+        MedicalSymptomIdentifierInput("   ")
         assert False, "Should have raised ValueError for whitespace-only symptom name"
     except ValueError:
         print("✓ Whitespace-only symptom name validation works correctly")
@@ -125,11 +124,11 @@ def test_with_example_symptoms():
         # Test a few examples
         test_symptoms = symptoms[:5]  # Test first 5 symptoms
         config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-        identifier = MedicalSymptomIdentifier(config)
+        MedicalSymptomIdentifier(config)
         
         for symptom in test_symptoms:
             try:
-                symptom_input = MedicalSymptomIdentifierInput(symptom)
+                MedicalSymptomIdentifierInput(symptom)
                 print(f"✓ Symptom input created for: {symptom}")
             except Exception as e:
                 print(f"✗ Error creating input for {symptom}: {e}")
@@ -142,13 +141,13 @@ def test_symptom_categories():
     print("\nTesting Symptom Categories...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSymptomIdentifier(config)
+    MedicalSymptomIdentifier(config)
     
     # Test common symptoms
     common_symptoms = ["headache", "fever", "cough", "fatigue"]
     for symptom in common_symptoms:
         try:
-            symptom_input = MedicalSymptomIdentifierInput(symptom)
+            MedicalSymptomIdentifierInput(symptom)
             print(f"✓ Common symptom input created for: {symptom}")
         except Exception as e:
             print(f"✗ Error with common symptom {symptom}: {e}")
@@ -157,7 +156,7 @@ def test_symptom_categories():
     neuro_symptoms = ["seizure", "memory_loss", "weakness", "numbness"]
     for symptom in neuro_symptoms:
         try:
-            symptom_input = MedicalSymptomIdentifierInput(symptom)
+            MedicalSymptomIdentifierInput(symptom)
             print(f"✓ Neurological symptom input created for: {symptom}")
         except Exception as e:
             print(f"✗ Error with neurological symptom {symptom}: {e}")
@@ -166,7 +165,7 @@ def test_symptom_categories():
     cardio_symptoms = ["chest_pain", "palpitations", "shortness_of_breath"]
     for symptom in cardio_symptoms:
         try:
-            symptom_input = MedicalSymptomIdentifierInput(symptom)
+            MedicalSymptomIdentifierInput(symptom)
             print(f"✓ Cardiovascular symptom input created for: {symptom}")
         except Exception as e:
             print(f"✗ Error with cardiovascular symptom {symptom}: {e}")

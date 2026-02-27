@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 from enum import Enum
-from dataclasses import dataclass
 
 from typing import List, Optional
 

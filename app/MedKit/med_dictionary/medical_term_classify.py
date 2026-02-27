@@ -5,10 +5,9 @@ Classifies medical terms into categories and subcategories using LLM.
 
 import json
 import logging
-import os
 import argparse
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List
 
 from tqdm import tqdm
 from lite.logging_config import configure_logging
@@ -68,7 +67,7 @@ class MedicalTermClassifier:
         self.client = LiteClient(model_config=model_config)
         self.prompt_builder = MedicalClassificationPromptBuilder()
         
-        self.output_file = Path(__file__).parent / "outputs" / f"classified.json"
+        self.output_file = Path(__file__).parent / "outputs" / "classified.json"
         
         self.classifications = self._load_classifications()
         self.existing_terms = {c.get("term", "").lower() for c in self.classifications}

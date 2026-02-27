@@ -7,7 +7,6 @@ without using mock libraries.
 """
 
 import sys
-import os
 from pathlib import Path
 
 
@@ -36,7 +35,7 @@ def test_prompt_builder():
     
     # Test empty specialty name
     try:
-        empty_input = MedicalSpecialtyIdentifierInput("")
+        MedicalSpecialtyIdentifierInput("")
         assert False, "Should have raised ValueError for empty specialty name"
     except ValueError:
         print("✓ Empty specialty name validation works correctly")
@@ -86,18 +85,18 @@ def test_medical_specialty_identifier_validation():
     print("\nTesting MedicalSpecialtyIdentifier Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSpecialtyIdentifier(config)
+    MedicalSpecialtyIdentifier(config)
     
     # Test empty specialty name
     try:
-        specialty_input = MedicalSpecialtyIdentifierInput("")
+        MedicalSpecialtyIdentifierInput("")
         assert False, "Should have raised ValueError for empty specialty name"
     except ValueError:
         print("✓ Empty specialty name validation works correctly")
     
     # Test whitespace-only specialty name
     try:
-        specialty_input = MedicalSpecialtyIdentifierInput("   ")
+        MedicalSpecialtyIdentifierInput("   ")
         assert False, "Should have raised ValueError for whitespace-only specialty name"
     except ValueError:
         print("✓ Whitespace-only specialty name validation works correctly")
@@ -125,11 +124,11 @@ def test_with_example_specialties():
         # Test a few examples
         test_specialties = specialties[:5]  # Test first 5 specialties
         config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-        identifier = MedicalSpecialtyIdentifier(config)
+        MedicalSpecialtyIdentifier(config)
         
         for specialty in test_specialties:
             try:
-                specialty_input = MedicalSpecialtyIdentifierInput(specialty)
+                MedicalSpecialtyIdentifierInput(specialty)
                 print(f"✓ Specialty input created for: {specialty}")
             except Exception as e:
                 print(f"✗ Error creating input for {specialty}: {e}")
@@ -142,13 +141,13 @@ def test_specialty_categories():
     print("\nTesting Specialty Categories...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSpecialtyIdentifier(config)
+    MedicalSpecialtyIdentifier(config)
     
     # Test medical specialties
     medical_specialties = ["cardiology", "neurology", "pediatrics", "oncology", "psychiatry"]
     for specialty in medical_specialties:
         try:
-            specialty_input = MedicalSpecialtyIdentifierInput(specialty)
+            MedicalSpecialtyIdentifierInput(specialty)
             print(f"✓ Medical specialty input created for: {specialty}")
         except Exception as e:
             print(f"✗ Error with medical specialty {specialty}: {e}")
@@ -157,7 +156,7 @@ def test_specialty_categories():
     surgical_specialties = ["general_surgery", "orthopedics", "neurosurgery", "cardiothoracic_surgery"]
     for specialty in surgical_specialties:
         try:
-            specialty_input = MedicalSpecialtyIdentifierInput(specialty)
+            MedicalSpecialtyIdentifierInput(specialty)
             print(f"✓ Surgical specialty input created for: {specialty}")
         except Exception as e:
             print(f"✗ Error with surgical specialty {specialty}: {e}")
@@ -166,7 +165,7 @@ def test_specialty_categories():
     diagnostic_specialties = ["radiology", "pathology", "nuclear_medicine", "laboratory_medicine"]
     for specialty in diagnostic_specialties:
         try:
-            specialty_input = MedicalSpecialtyIdentifierInput(specialty)
+            MedicalSpecialtyIdentifierInput(specialty)
             print(f"✓ Diagnostic specialty input created for: {specialty}")
         except Exception as e:
             print(f"✗ Error with diagnostic specialty {specialty}: {e}")
@@ -175,7 +174,7 @@ def test_specialty_categories():
     primary_care = ["family_medicine", "internal_medicine", "pediatrics", "emergency_medicine"]
     for specialty in primary_care:
         try:
-            specialty_input = MedicalSpecialtyIdentifierInput(specialty)
+            MedicalSpecialtyIdentifierInput(specialty)
             print(f"✓ Primary care specialty input created for: {specialty}")
         except Exception as e:
             print(f"✗ Error with primary care specialty {specialty}: {e}")
@@ -186,7 +185,7 @@ def test_subspecialties():
     print("\nTesting Medical Subspecialties...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSpecialtyIdentifier(config)
+    MedicalSpecialtyIdentifier(config)
     
     subspecialties = [
         "interventional_cardiology",
@@ -203,7 +202,7 @@ def test_subspecialties():
     
     for subspecialty in subspecialties:
         try:
-            specialty_input = MedicalSpecialtyIdentifierInput(subspecialty)
+            MedicalSpecialtyIdentifierInput(subspecialty)
             print(f"✓ Subspecialty input created for: {subspecialty}")
         except Exception as e:
             print(f"✗ Error with subspecialty {subspecialty}: {e}")

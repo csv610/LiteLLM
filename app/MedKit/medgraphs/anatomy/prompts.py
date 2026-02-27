@@ -10,5 +10,5 @@ Optional: source_type, target_type, confidence
 Return a JSON array only.
 
 Text:
-"""{text}"""
+{text}
 """

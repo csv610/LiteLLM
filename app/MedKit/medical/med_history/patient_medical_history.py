@@ -8,7 +8,6 @@ patient medical history questions using LiteClient.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -28,7 +27,7 @@ class PatientMedicalHistoryGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.user_input = None  # Store the input for later use in save
-        logger.debug(f"Initialized PatientMedicalHistoryGenerator")
+        logger.debug("Initialized PatientMedicalHistoryGenerator")
 
     def generate_text(self, user_input: MedicalHistoryInput, structured: bool = False) -> ModelOutput:
         """Generate patient medical history questions."""

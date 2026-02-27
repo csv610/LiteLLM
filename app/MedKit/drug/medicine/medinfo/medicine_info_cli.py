@@ -6,9 +6,7 @@ medicine information using AI-powered analysis.
 
 import argparse
 import logging
-import sys
 from pathlib import Path
-from typing import Union
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging

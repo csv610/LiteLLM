@@ -11,11 +11,10 @@ definitions and the LiteClient AI client with schema-aware prompting.
 # STANDARD LIBRARY IMPORTS
 # ==============================================================================
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 # ==============================================================================
 # THIRD-PARTY IMPORTS
@@ -26,7 +25,7 @@ from pydantic import BaseModel, Field
 # LOCAL IMPORTS (LiteClient setup)
 # ==============================================================================
 from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.utils import save_model_response
 
 # ==============================================================================
@@ -611,7 +610,7 @@ def create_nutrition_assessment_from_responses(patient_name: str, responses: dic
         height_m = float(responses.get('height_cm', '0')) / 100
         weight_kg = float(responses.get('weight_kg', '0'))
         bmi = weight_kg / (height_m ** 2) if height_m > 0 else 0
-    except:
+    except Exception:
         bmi = 0
 
     # Create assessment object from responses
@@ -942,7 +941,7 @@ def main() -> int:
         prompt_style = PromptStyle.CONCISE if args.concise else PromptStyle.DETAILED
         use_ai = not args.no_ai
 
-        result = evaluate_nutrition_and_growth(
+        evaluate_nutrition_and_growth(
             patient_name=patient_name,
             output_path=args.output,
             prompt_style=prompt_style,

@@ -8,7 +8,6 @@ comprehensive medical implant information based on provided configuration.
 
 import logging
 from pathlib import Path
-from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -27,7 +26,7 @@ class MedicalImplantGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.implant = None  # Store the implant being analyzed
-        logger.debug(f"Initialized MedicalImplantGenerator")
+        logger.debug("Initialized MedicalImplantGenerator")
 
     def generate_text(self, implant: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive medical implant information."""

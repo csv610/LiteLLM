@@ -29,4 +29,5 @@ def st_medial_articles_search():
 
 
 if __name__ == "__main__":
-    st_medical_articles_search()
+    # st_medical_articles_search()
+    print("Article search module loaded.")

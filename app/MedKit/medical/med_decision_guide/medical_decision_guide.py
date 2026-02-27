@@ -8,7 +8,6 @@ medical decision guides for symptom assessment.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -28,7 +27,7 @@ class MedicalDecisionGuideGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.symptom = None  # Store the symptom for later use in save
-        logger.debug(f"Initialized MedicalDecisionGuideGenerator")
+        logger.debug("Initialized MedicalDecisionGuideGenerator")
 
     def generate_text(self, symptom: str, structured: bool = False) -> ModelOutput:
         """Generates a medical decision guide for symptom assessment."""

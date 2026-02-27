@@ -8,7 +8,7 @@ medical statements for factual accuracy.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -28,7 +28,7 @@ class MedicalFactsChecker:
         self.client = LiteClient(model_config=model_config)
         self.statement: Optional[str] = None
         self.output_path: Optional[Path] = None
-        logger.debug(f"Initialized MedicalFactsChecker")
+        logger.debug("Initialized MedicalFactsChecker")
 
     def generate_text(self, statement: str, structured: bool = False) -> ModelOutput:
         """

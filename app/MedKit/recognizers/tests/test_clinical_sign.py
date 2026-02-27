@@ -6,7 +6,6 @@ This script tests the clinical sign identifier functionality without using mock 
 """
 
 import sys
-import os
 from pathlib import Path
 
 
@@ -35,7 +34,7 @@ def test_prompt_builder():
     
     # Test empty sign name
     try:
-        empty_input = ClinicalSignIdentifierInput("")
+        ClinicalSignIdentifierInput("")
         assert False, "Should have raised ValueError for empty sign name"
     except ValueError:
         print("✓ Empty sign name validation works correctly")
@@ -84,18 +83,18 @@ def test_clinical_sign_identifier_validation():
     print("\nTesting ClinicalSignIdentifier Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = ClinicalSignIdentifier(config)
+    ClinicalSignIdentifier(config)
     
     # Test empty sign name
     try:
-        sign_input = ClinicalSignIdentifierInput("")
+        ClinicalSignIdentifierInput("")
         assert False, "Should have raised ValueError for empty sign name"
     except ValueError:
         print("✓ Empty sign name validation works correctly")
     
     # Test whitespace-only sign name
     try:
-        sign_input = ClinicalSignIdentifierInput("   ")
+        ClinicalSignIdentifierInput("   ")
         assert False, "Should have raised ValueError for whitespace-only sign name"
     except ValueError:
         print("✓ Whitespace-only sign name validation works correctly")
@@ -123,11 +122,11 @@ def test_with_example_signs():
         # Test a few examples
         test_signs = signs[:5]  # Test first 5 signs
         config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-        identifier = ClinicalSignIdentifier(config)
+        ClinicalSignIdentifier(config)
         
         for sign in test_signs:
             try:
-                sign_input = ClinicalSignIdentifierInput(sign)
+                ClinicalSignIdentifierInput(sign)
                 print(f"✓ Sign input created for: {sign}")
             except Exception as e:
                 print(f"✗ Error creating input for {sign}: {e}")
@@ -140,13 +139,13 @@ def test_sign_categories():
     print("\nTesting Sign Categories...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = ClinicalSignIdentifier(config)
+    ClinicalSignIdentifier(config)
     
     # Test neurological signs
     neuro_signs = ["babinski_sign", "kernig_sign", "brudzinski_sign", "romberg_sign"]
     for sign in neuro_signs:
         try:
-            sign_input = ClinicalSignIdentifierInput(sign)
+            ClinicalSignIdentifierInput(sign)
             print(f"✓ Neurological sign input created for: {sign}")
         except Exception as e:
             print(f"✗ Error with neurological sign {sign}: {e}")
@@ -155,7 +154,7 @@ def test_sign_categories():
     cardio_signs = ["heart_murmur", "peripheral_edema", "jugular_venous_distension", "cyanosis"]
     for sign in cardio_signs:
         try:
-            sign_input = ClinicalSignIdentifierInput(sign)
+            ClinicalSignIdentifierInput(sign)
             print(f"✓ Cardiovascular sign input created for: {sign}")
         except Exception as e:
             print(f"✗ Error with cardiovascular sign {sign}: {e}")
@@ -164,7 +163,7 @@ def test_sign_categories():
     resp_signs = ["rales", "rhonchi", "wheezing", "stridor", "pleural_friction_rub"]
     for sign in resp_signs:
         try:
-            sign_input = ClinicalSignIdentifierInput(sign)
+            ClinicalSignIdentifierInput(sign)
             print(f"✓ Respiratory sign input created for: {sign}")
         except Exception as e:
             print(f"✗ Error with respiratory sign {sign}: {e}")
@@ -184,7 +183,7 @@ def test_method_name_consistency():
     # Test method signature (should not raise TypeError for correct arguments)
     try:
         # This should work without errors (though may fail at runtime without actual LLM)
-        sign_input = ClinicalSignIdentifierInput("babinski_sign")
+        ClinicalSignIdentifierInput("babinski_sign")
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

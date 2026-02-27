@@ -8,7 +8,7 @@ and explaining medical labels from images.
 
 import logging
 from pathlib import Path
-from typing import Union, List, Tuple
+from typing import List, Tuple
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

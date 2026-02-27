@@ -1,15 +1,14 @@
-
 PROMPT = """
-Extract medical procedure triples from the following text.
+Extract procedure-related relationships as triples from the text.
 Each triple must be a JSON object with:
-  - source
-  - relation (choose from: treats_disease, used_for_diagnosis, performed_on,
-    requires_instrument, performed_by_specialist, has_risk, has_benefit,
-    has_complication, requires_anesthesia, requires_preparation,
-    follow_up_by, related_to_procedure, other)
+  - source (e.g., Procedure, Tool, Specialty)
+  - relation (choose from: indicated_for, contraindication, performed_on,
+    uses_tool, step_of, complication_of, therapeutic_benefit, diagnostic_accuracy,
+    associated_specialty, post_op_care)
   - target
 Optional: source_type, target_type, confidence
-Return only a JSON array.
+Return a JSON array only.
 
 Text:
-"""{text}"""
+{text}
+"""

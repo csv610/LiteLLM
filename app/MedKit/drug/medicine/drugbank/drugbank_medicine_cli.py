@@ -2,17 +2,22 @@ import argparse
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Union
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response
 
-from drugbank_medicine_models import MedicineInfo
 from drugbank_medicine import DrugBankMedicine
 
 logger = logging.getLogger(__name__)
+
+
+def sanitize_filename(filename: str) -> str:
+    """Sanitize filename to prevent path traversal and invalid characters."""
+    sanitized = re.sub(r'[<>:"/\\|?*]', '', filename)
+    sanitized = re.sub(r'\s+', '_', sanitized)
+    sanitized = sanitized.strip('. ')
+    return sanitized if sanitized else "medicine"
 
 
 def get_user_arguments():

@@ -4,7 +4,7 @@ This module defines the data structures for organizing board-style
 medical quiz questions, options, and explanations.
 """
 
-from typing import List, Optional, Union, Dict
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
 

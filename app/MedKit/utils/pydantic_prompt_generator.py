@@ -386,7 +386,7 @@ class PydanticPromptGenerator:
     def _generate_technical_prompt(self) -> str:
         """Generates a technical prompt with JSON schema reference."""
         lines = [
-            f"Generate a JSON object conforming to this schema:\n\n",
+            "Generate a JSON object conforming to this schema:\n\n",
             "```json\n",
             json.dumps(self.schema, indent=2),
             "\n```\n"

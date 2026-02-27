@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from medical_coding.recognizer import MedicalCodingIdentifier
 from medical_coding.models import ModelOutput, MedicalCodingIdentifierModel, MedicalCodingIdentificationModel
 from lite.config import ModelConfig

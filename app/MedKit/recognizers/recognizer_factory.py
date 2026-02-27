@@ -1,4 +1,4 @@
-from typing import Dict, Type, Optional
+from typing import Dict, Type
 from .base_recognizer import BaseRecognizer
 from lite.config import ModelConfig
 

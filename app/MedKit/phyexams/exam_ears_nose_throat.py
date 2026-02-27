@@ -14,7 +14,6 @@ from typing import Optional
 from datetime import datetime
 
 # Fix import path
-from .pydantic_prompt_generator import PromptStyle
 
 
 # ============================================================================

@@ -28,7 +28,7 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     input_path = Path(args.image)
-    images = [line.strip() for line in open(input_path)] if input_path.is_file() and not input_path.suffix.lower() in ['.jpg', '.jpeg', '.png', '.webp'] else [args.image]
+    images = [line.strip() for line in open(input_path)] if input_path.is_file() and input_path.suffix.lower() not in ['.jpg', '.jpeg', '.png', '.webp'] else [args.image]
     
     try:
         model_config = ModelConfig(model=args.model, temperature=0.5)

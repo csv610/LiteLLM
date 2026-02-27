@@ -26,7 +26,8 @@ def main():
     
     if args.list:
         print("Common Surgical Positions:")
-        for pos in COMMON_SURGICAL_POSITIONS: print(f"- {pos}")
+        for pos in COMMON_SURGICAL_POSITIONS:
+            print("- {}".format(pos))
         return 0
 
     if not args.pose:
@@ -47,7 +48,8 @@ def main():
         
         for item in tqdm(items, desc="Generating"):
             result = generator.generate_text(pose=item, structured=args.structured)
-            if result: generator.save(result, output_dir)
+            if result:
+                generator.save(result, output_dir)
             
         logger.info("✓ Completed successfully")
     except Exception as e:

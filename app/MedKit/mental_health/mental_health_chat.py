@@ -467,7 +467,7 @@ Please reach out for help now. You matter and recovery is possible.
         Returns:
             Conclusion message
         """
-        return f"""Thank you for sharing with me today. I've gathered valuable information about your mental health and experiences.
+        return """Thank you for sharing with me today. I've gathered valuable information about your mental health and experiences.
 
 Based on our conversation, I'd like to generate a comprehensive assessment of what we've discussed. This will help provide insights into your mental health and recommendations for next steps.
 

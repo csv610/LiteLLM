@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 class ClinicalSignIdentificationModel(BaseModel):
     sign_name: str = Field(description="Name of the clinical sign (e.g., Babinski sign)")

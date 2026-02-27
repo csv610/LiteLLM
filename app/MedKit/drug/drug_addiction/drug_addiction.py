@@ -8,7 +8,6 @@ the addictive potential and risks associated with medicines and substances.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -27,13 +26,13 @@ class DrugAddiction:
         """Initialize the drug addiction analyzer."""
         self.client = LiteClient(model_config)
         self.config = None  # Store the configuration for later use in save
-        logger.debug(f"Initialized DrugAddiction")
+        logger.debug("Initialized DrugAddiction")
 
     def generate_text(self, config: DrugAddictionInput, structured: bool = False) -> ModelOutput:
         """Analyzes addiction risks for a medicine or substance."""
         # Store the configuration for later use in save
         self.config = config
-        logger.debug(f"Starting drug addiction analysis")
+        logger.debug("Starting drug addiction analysis")
         logger.debug(f"Substance: {config.medicine_name}")
 
         # Create user prompt with context

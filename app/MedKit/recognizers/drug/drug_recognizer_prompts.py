@@ -6,7 +6,6 @@ for identifying if a drug is well-known in the industry.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

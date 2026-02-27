@@ -2,7 +2,7 @@
 # Imports
 # =========================
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 import networkx as nx
 import matplotlib.pyplot as plt
 import json

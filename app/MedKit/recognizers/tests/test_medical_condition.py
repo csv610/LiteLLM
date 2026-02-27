@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_condition.recognizer import MedicalConditionIdentifier
 from medical_condition.models import ModelOutput, MedicalConditionIdentifierModel, MedicalConditionIdentificationModel
 from lite.config import ModelConfig
@@ -39,7 +38,7 @@ def test_identify(condition_identifier):
     assert result.data.identification.is_well_known is True
     assert condition_identifier.client.generate_text.called
 
-def test_identify(condition_identifier):
+def test_identify_empty_name(condition_identifier):
     with pytest.raises(ValueError, match="Condition name cannot be empty"):
         condition_identifier.identify("")
 

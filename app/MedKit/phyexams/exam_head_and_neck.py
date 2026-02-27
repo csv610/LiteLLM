@@ -7,7 +7,6 @@ thyroid, and lymph nodes using BaseModel definitions and interactive patient que
 """
 
 import sys
-import json
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional

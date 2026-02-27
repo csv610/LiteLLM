@@ -6,7 +6,6 @@ for identifying medication classes.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

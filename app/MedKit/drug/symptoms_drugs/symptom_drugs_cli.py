@@ -4,13 +4,12 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 from symptom_drugs import SymptomDrugs
-from symptom_drugs_prompts import PromptBuilder, SymptomInput, PromptStyle
+from symptom_drugs_prompts import SymptomInput, PromptStyle
 
 logger = logging.getLogger(__name__)
 

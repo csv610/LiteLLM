@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 
 from lite.lite_client import LiteClient
-from lite.utils import save_model_response
 from lite.config import ModelConfig, ModelInput
 from utils import print_response
 from lite.logging_config import configure_logging
@@ -99,7 +98,7 @@ class PhysicalExamEvaluator:
 
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
-        logger.debug(f"Initialized PhysicalExamEvaluator")
+        logger.debug("Initialized PhysicalExamEvaluator")
 
     def generate_text(self, input_file: str, structured: bool = False) -> Union[QualityEvaluation, str]:
         """
@@ -112,7 +111,7 @@ class PhysicalExamEvaluator:
         Returns:
             QualityEvaluation: Validated evaluation results (if structured=True, else raw response if applicable)
         """
-        logger.debug(f"Starting exam question evaluation")
+        logger.debug("Starting exam question evaluation")
         logger.debug(f"Input file: {input_file}")
 
         try:
@@ -134,9 +133,9 @@ class PhysicalExamEvaluator:
 
             result = self.client.generate_text(model_input=model_input)
 
-            logger.debug(f"✓ Successfully evaluated exam questions")
+            logger.debug("✓ Successfully evaluated exam questions")
             return result
-        except Exception as e:
+        except Exception:
             raise
     def _ask_llm(self, model_input: ModelInput) -> Union[QualityEvaluation, str]:
         """Internal helper to call the LLM client."""
@@ -187,17 +186,17 @@ Status: {'✓ PASS' if evaluation.pass_fail == 'pass' else '⚠ CONDITIONAL PASS
         for i, strength in enumerate(evaluation.strengths, 1):
             report += f"\n  {i}. {strength}"
 
-        report += f"\n\n⚠ AREAS FOR IMPROVEMENT:\n"
+        report += "\n\n⚠ AREAS FOR IMPROVEMENT:\n"
         for i, improvement in enumerate(evaluation.areas_for_improvement, 1):
             report += f"\n  {i}. {improvement}"
 
-        report += f"\n\n💡 RECOMMENDATIONS:\n"
+        report += "\n\n💡 RECOMMENDATIONS:\n"
         for i, rec in enumerate(evaluation.recommendations, 1):
             report += f"\n  {i}. {rec}"
 
-        report += f"\n\n╔══════════════════════════════════════════════════════════════════════╗\n"
+        report += "\n\n╔══════════════════════════════════════════════════════════════════════╗\n"
         report += f"║ FINAL VERDICT: {evaluation.pass_fail.upper()}\n"
-        report += f"╚══════════════════════════════════════════════════════════════════════╝\n"
+        report += "╚══════════════════════════════════════════════════════════════════════╝\n"
 
     # Save report if output file specified
     if output_file:

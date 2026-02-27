@@ -6,7 +6,6 @@ using AI-powered analysis.
 
 import logging
 from pathlib import Path
-from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

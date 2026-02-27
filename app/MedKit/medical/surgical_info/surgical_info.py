@@ -16,7 +16,7 @@ class SurgeryInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.surgery = None
-        logger.debug(f"Initialized SurgeryInfoGenerator")
+        logger.debug("Initialized SurgeryInfoGenerator")
 
     def generate_text(self, surgery: str, structured: bool = False) -> ModelOutput:
         if not surgery or not str(surgery).strip():

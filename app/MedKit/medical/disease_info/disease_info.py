@@ -9,7 +9,6 @@ comprehensive disease information based on provided configuration.
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).parent.parent.parent
@@ -38,7 +37,7 @@ class DiseaseInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.disease = None  # Store the disease being analyzed
-        logger.debug(f"Initialized DiseaseInfoGenerator")
+        logger.debug("Initialized DiseaseInfoGenerator")
 
     def generate_text(self, disease: str, structured: bool = False) -> ModelOutput:
         """Generate comprehensive disease information."""

@@ -7,7 +7,6 @@ Identify whether a given name is a recognized laboratory unit in medical literat
 
 import argparse
 import sys
-from pathlib import Path
 
 
 from lite.config import ModelConfig
@@ -31,7 +30,7 @@ Examples:
     # Positional argument
     parser.add_argument(
         "name",
-        help=f"Name of the laboratory unit to identify"
+        help="Name of the laboratory unit to identify"
     )
     
     # Model configuration options

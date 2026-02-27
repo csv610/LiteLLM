@@ -7,7 +7,6 @@ without using mock libraries.
 """
 
 import sys
-import os
 from pathlib import Path
 
 
@@ -36,7 +35,7 @@ def test_prompt_builder():
     
     # Test empty supplement name
     try:
-        empty_input = SupplementIdentifierInput("")
+        SupplementIdentifierInput("")
         assert False, "Should have raised ValueError for empty supplement name"
     except ValueError:
         print("✓ Empty supplement name validation works correctly")
@@ -86,18 +85,18 @@ def test_medical_supplement_identifier_validation():
     print("\nTesting MedicalSupplementIdentifier Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSupplementIdentifier(config)
+    MedicalSupplementIdentifier(config)
     
     # Test empty supplement name
     try:
-        supplement_input = SupplementIdentifierInput("")
+        SupplementIdentifierInput("")
         assert False, "Should have raised ValueError for empty supplement name"
     except ValueError:
         print("✓ Empty supplement name validation works correctly")
     
     # Test whitespace-only supplement name
     try:
-        supplement_input = SupplementIdentifierInput("   ")
+        SupplementIdentifierInput("   ")
         assert False, "Should have raised ValueError for whitespace-only supplement name"
     except ValueError:
         print("✓ Whitespace-only supplement name validation works correctly")
@@ -125,11 +124,11 @@ def test_with_example_supplements():
         # Test a few examples
         test_supplements = supplements[:5]  # Test first 5 supplements
         config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-        identifier = MedicalSupplementIdentifier(config)
+        MedicalSupplementIdentifier(config)
         
         for supplement in test_supplements:
             try:
-                supplement_input = SupplementIdentifierInput(supplement)
+                SupplementIdentifierInput(supplement)
                 print(f"✓ Supplement input created for: {supplement}")
             except Exception as e:
                 print(f"✗ Error creating input for {supplement}: {e}")
@@ -142,13 +141,13 @@ def test_supplement_categories():
     print("\nTesting Supplement Categories...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalSupplementIdentifier(config)
+    MedicalSupplementIdentifier(config)
     
     # Test vitamins
     vitamins = ["vitamin_a", "vitamin_c", "vitamin_d", "vitamin_e", "vitamin_k"]
     for supplement in vitamins:
         try:
-            supplement_input = SupplementIdentifierInput(supplement)
+            SupplementIdentifierInput(supplement)
             print(f"✓ Vitamin input created for: {supplement}")
         except Exception as e:
             print(f"✗ Error with vitamin {supplement}: {e}")
@@ -157,7 +156,7 @@ def test_supplement_categories():
     minerals = ["calcium", "magnesium", "zinc", "iron", "potassium"]
     for supplement in minerals:
         try:
-            supplement_input = SupplementIdentifierInput(supplement)
+            SupplementIdentifierInput(supplement)
             print(f"✓ Mineral input created for: {supplement}")
         except Exception as e:
             print(f"✗ Error with mineral {supplement}: {e}")
@@ -166,7 +165,7 @@ def test_supplement_categories():
     herbals = ["ginseng", "echinacea", "garlic", "turmeric", "ginger"]
     for supplement in herbals:
         try:
-            supplement_input = SupplementIdentifierInput(supplement)
+            SupplementIdentifierInput(supplement)
             print(f"✓ Herbal supplement input created for: {supplement}")
         except Exception as e:
             print(f"✗ Error with herbal supplement {supplement}: {e}")
@@ -175,7 +174,7 @@ def test_supplement_categories():
     specialty = ["omega_3", "probiotic", "coq10", "collagen", "creatine"]
     for supplement in specialty:
         try:
-            supplement_input = SupplementIdentifierInput(supplement)
+            SupplementIdentifierInput(supplement)
             print(f"✓ Specialty supplement input created for: {supplement}")
         except Exception as e:
             print(f"✗ Error with specialty supplement {supplement}: {e}")

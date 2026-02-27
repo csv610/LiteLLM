@@ -1,14 +1,14 @@
-
 PROMPT = """
-Extract symptom knowledge triples from the text below.
+Extract symptom-related relationships as triples from the text.
 Each triple must be a JSON object with:
-  - source
-  - relation (choose from: associated_with_disease, caused_by_condition, indicates_disease,
-    affects_body_part, diagnosed_by_test, treated_with_drug, treated_with_procedure,
-    has_severity, has_duration, co_occurs_with, risk_factor_for, other)
+  - source (e.g., Symptom, Sign, Condition)
+  - relation (choose from: caused_by, associated_with, symptom_of,
+    risk_factor_for, precedes, follows, exacerbated_by, relieved_by,
+    manifestation_of, sign_of, localized_to)
   - target
 Optional: source_type, target_type, confidence
 Return a JSON array only.
 
 Text:
-"""{text}"""
+{text}
+"""

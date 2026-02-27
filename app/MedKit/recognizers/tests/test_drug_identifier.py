@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from drug.drug_recognizer import DrugIdentifier
 from drug.drug_recognizer_model import ModelOutput, DrugIdentifierModel, DrugIdentificationModel
 from lite.config import ModelConfig
@@ -38,6 +38,6 @@ def test_identify(drug_identifier):
     assert result.data.identification.is_well_known is True
     assert drug_identifier.client.generate_text.called
 
-def test_identify(drug_identifier):
+def test_identify_empty_name(drug_identifier):
     with pytest.raises(ValueError, match="Drug name cannot be empty"):
         drug_identifier.identify("")

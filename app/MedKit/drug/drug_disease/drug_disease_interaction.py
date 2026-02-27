@@ -8,14 +8,13 @@ how medical conditions affect drug efficacy, safety, and metabolism.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
 from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
-from drug_disease_interaction_prompts import PromptBuilder, DrugDiseaseInput, PromptStyle
+from drug_disease_interaction_prompts import PromptBuilder, DrugDiseaseInput
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ class DrugDiseaseInteraction:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.config = None  # Store the configuration for later use in save
-        logger.debug(f"Initialized DrugDiseaseInteraction")
+        logger.debug("Initialized DrugDiseaseInteraction")
 
     def generate_text(self, config: DrugDiseaseInput, structured: bool = False) -> ModelOutput:
         """
@@ -42,7 +41,7 @@ class DrugDiseaseInteraction:
         """
         # Store the configuration for later use in save
         self.config = config
-        logger.debug(f"Starting drug-disease interaction analysis")
+        logger.debug("Starting drug-disease interaction analysis")
         logger.debug(f"Medicine: {config.medicine_name}")
         logger.debug(f"Condition: {config.condition_name}")
 
@@ -58,7 +57,7 @@ class DrugDiseaseInteraction:
         )
         result = self._ask_llm(model_input)
         
-        logger.debug(f"✓ Successfully analyzed disease interaction")
+        logger.debug("✓ Successfully analyzed disease interaction")
         return result
 
     def _ask_llm(self, model_input: ModelInput) -> ModelOutput:

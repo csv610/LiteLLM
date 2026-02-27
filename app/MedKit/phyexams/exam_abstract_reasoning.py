@@ -10,7 +10,6 @@ import sys
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional
-import json
 
 from lite.utils import save_model_response
 

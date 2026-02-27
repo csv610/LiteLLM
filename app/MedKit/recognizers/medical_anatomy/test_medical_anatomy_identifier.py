@@ -6,7 +6,6 @@ This script validates the medical anatomy identifier functionality without using
 """
 
 import sys
-import os
 import random
 from pathlib import Path
 
@@ -55,7 +54,7 @@ def test_prompt_builder():
     
     # Validate empty input handling
     try:
-        empty_input = MedicalAnatomyIdentifierInput("")
+        MedicalAnatomyIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -106,11 +105,11 @@ def test_identifier_validation():
     print("\nValidating MedicalAnatomyIdentifier Input Validation...")
     
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-    identifier = MedicalAnatomyIdentifier(config)
+    MedicalAnatomyIdentifier(config)
     
     # Validate empty input handling
     try:
-        test_input = MedicalAnatomyIdentifierInput("")
+        MedicalAnatomyIdentifierInput("")
         assert False, "Expected ValueError for empty input"
     except ValueError:
         print("✓ Empty input validation functions correctly")
@@ -118,7 +117,7 @@ def test_identifier_validation():
     # Validate whitespace-only input handling
     try:
         example = "   "
-        test_input = MedicalAnatomyIdentifierInput(example)
+        MedicalAnatomyIdentifierInput(example)
         assert False, "Expected ValueError for whitespace-only input"
     except ValueError:
         print("✓ Whitespace-only input validation functions correctly")
@@ -137,7 +136,7 @@ def test_method_name_consistency():
     
     # Validate method signature
     try:
-        example = read_random_example_from_assets()
+        read_random_example_from_assets()
         print("✓ identify method has correct signature")
     except Exception as e:
         print(f"✗ Error with identify method: {e}")

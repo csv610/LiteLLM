@@ -187,7 +187,6 @@ class TestDiseaseInfoCLI:
         """Test disease info prompt template."""
         disease = "Type 2 Diabetes"
 
-        system_prompt = "You are a medical expert..."
         user_prompt = f"Generate comprehensive information for the disease: {disease}."
 
         assert disease in user_prompt
@@ -379,7 +378,7 @@ class TestModelConfigurationValidation:
 
     def test_response_format_specification(self):
         """Test specifying response format."""
-        config = ModelConfig(model="test/model")
+        ModelConfig(model="test/model")
         model_input = ModelInput(
             user_prompt="Test",
             response_format=DiseaseInfoModel

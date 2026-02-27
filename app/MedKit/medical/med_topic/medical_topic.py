@@ -8,7 +8,6 @@ comprehensive medical topic information based on provided configuration.
 
 import logging
 from pathlib import Path
-from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -27,7 +26,7 @@ class MedicalTopicGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.topic = None  # Store the topic being analyzed
-        logger.debug(f"Initialized MedicalTopicGenerator")
+        logger.debug("Initialized MedicalTopicGenerator")
 
     def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive medical topic information."""

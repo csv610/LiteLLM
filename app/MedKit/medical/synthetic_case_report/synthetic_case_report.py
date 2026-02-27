@@ -16,7 +16,7 @@ class SyntheticCaseReportGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.condition = None
-        logger.debug(f"Initialized SyntheticCaseReportGenerator")
+        logger.debug("Initialized SyntheticCaseReportGenerator")
 
     def generate_text(self, condition: str, structured: bool = False) -> ModelOutput:
         if not condition or not str(condition).strip():

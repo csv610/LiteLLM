@@ -6,7 +6,6 @@ for identifying if a medical test is well-known in the healthcare community.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

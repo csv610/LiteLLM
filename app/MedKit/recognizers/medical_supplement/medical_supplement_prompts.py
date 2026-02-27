@@ -6,7 +6,6 @@ for identifying supplements and nutrients.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

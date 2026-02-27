@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 from medical_abbreviation.recognizer import MedicalAbbreviationIdentifier
 from medical_abbreviation.models import ModelOutput, AbbreviationIdentifierModel, AbbreviationIdentificationModel
 from lite.config import ModelConfig
@@ -39,6 +38,6 @@ def test_identify(abbr_identifier):
     assert result.data.identification.is_well_known is True
     assert abbr_identifier.client.generate_text.called
 
-def test_identify(abbr_identifier):
+def test_identify_empty_name(abbr_identifier):
     with pytest.raises(ValueError, match="Abbreviation cannot be empty"):
         abbr_identifier.identify("")

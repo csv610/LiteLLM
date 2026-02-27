@@ -31,7 +31,8 @@ def main():
         
         logger.info("Generating medical speciality database...")
         result = generator.generate_text(structured=args.structured)
-        if result: generator.save(result, output_dir)
+        if result:
+                generator.save(result, output_dir)
             
         logger.info("✓ Completed successfully")
     except Exception as e:

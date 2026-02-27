@@ -8,13 +8,12 @@ comprehensive disease information based on provided configuration.
 
 import logging
 from pathlib import Path
-from typing import Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .organ_disease_info_models import DiseaseInfoModel, OrganDiseasesModel, ModelOutput
+from .organ_disease_info_models import OrganDiseasesModel, ModelOutput
 from .organ_disease_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ class DiseaseInfoGenerator:
         self.client = LiteClient(model_config=model_config)
         self.disease = None  # Store the disease being analyzed
         self.organ = None    # Store the organ being analyzed
-        logger.debug(f"Initialized DiseaseInfoGenerator")
+        logger.debug("Initialized DiseaseInfoGenerator")
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""

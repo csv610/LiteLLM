@@ -8,7 +8,6 @@ comprehensive FAQ content for medical topics.
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -28,7 +27,7 @@ class MedicalFAQGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.topic = None  # Store the topic for later use in save
-        logger.debug(f"Initialized MedicalFAQGenerator")
+        logger.debug("Initialized MedicalFAQGenerator")
 
     def generate_text(
         self,

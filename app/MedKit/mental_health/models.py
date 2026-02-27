@@ -1,7 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-
+from mental_health_assessment_models import MentalHealthAssessment
 
 
 class ChatMessage(BaseModel):

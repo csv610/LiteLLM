@@ -93,7 +93,7 @@ def create_drug_drug_interaction_report(args) -> int:
         verbosity=args.verbosity,
         enable_console=True
     )
-    logger.debug(f"CLI Arguments:")
+    logger.debug("CLI Arguments:")
     logger.debug(f"  Medicine 1: {args.medicine1}")
     logger.debug(f"  Medicine 2: {args.medicine2}")
     logger.debug(f"  Age: {args.age}")

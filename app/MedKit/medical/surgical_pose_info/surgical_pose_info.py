@@ -62,7 +62,7 @@ class SurgicalPoseInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.pose = None  # Store the position being analyzed
-        logger.debug(f"Initialized SurgicalPoseInfoGenerator")
+        logger.debug("Initialized SurgicalPoseInfoGenerator")
 
     def generate_text(self, pose: str, structured: bool = False) -> ModelOutput:
         """Generates comprehensive surgical position information."""

@@ -38,7 +38,7 @@ class DrugsComparison:
     def __init__(self, model_config: ModelConfig):
         self.client = LiteClient(model_config)
         self.config = None  # Store the configuration for later use in save
-        logger.debug(f"Initialized DrugsComparison")
+        logger.debug("Initialized DrugsComparison")
 
     def generate_text(self, config: DrugsComparisonInput, structured: bool = False) -> Union[MedicinesComparisonResult, str]:
         """Compares two medicines across clinical, regulatory, and practical metrics."""
@@ -46,7 +46,7 @@ class DrugsComparison:
         self.config = config
         self._validate_input(config)
 
-        logger.debug(f"Starting medicines comparison analysis")
+        logger.debug("Starting medicines comparison analysis")
         logger.debug(f"Medicine 1: {config.medicine1}")
         logger.debug(f"Medicine 2: {config.medicine2}")
 
@@ -61,7 +61,7 @@ class DrugsComparison:
         )
         result = self._ask_llm(model_input)
 
-        logger.debug(f"✓ Successfully compared medicines")
+        logger.debug("✓ Successfully compared medicines")
         return result
 
     def _validate_input(self, config: DrugsComparisonInput) -> None:

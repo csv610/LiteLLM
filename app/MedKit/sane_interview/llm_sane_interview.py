@@ -52,13 +52,11 @@ KEY FEATURES:
 """
 
 from sane_interview_models import (
-    SANEInterview, YesNoUnsure, SexualContactType
+    YesNoUnsure, SexualContactType
 )
 from sane_interview_chatbot import SANEInterviewer
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from datetime import datetime
-import json
 
 
 class QuestionSuggestion(BaseModel):

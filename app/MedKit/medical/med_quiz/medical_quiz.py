@@ -11,7 +11,6 @@ import re
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Union
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.lite_client import LiteClient
@@ -73,7 +72,7 @@ class MedicalQuizGenerator:
         self.client = LiteClient(model_config)
         self.topic = None  # Store the topic for later use in save
         self.content_type = "quiz"
-        logger.debug(f"Initialized MedicalQuizGenerator")
+        logger.debug("Initialized MedicalQuizGenerator")
 
     def _sanitize_topic(self, topic: str) -> str:
         """Sanitize topic for safe filename generation."""
@@ -258,7 +257,7 @@ Detailed explanation would be included here.
         if question_text and options_dict:
             formatted_lines = [
                 f"# Medical Quiz: {self.topic}",
-                f"**Difficulty:** Intermediate",
+                "**Difficulty:** Intermediate",
                 "",
                 "## Question 1",
                 f"**{question_text}**",
@@ -290,16 +289,21 @@ Detailed explanation would be included here.
             return '\n'.join(formatted_lines)
         
         # If reformatting failed, return a basic formatted version
-        return f"""# Medical Quiz: {self.topic}
+        if options_dict:
+            options_text = "\n".join(["{}) {}".format(k, v) for k, v in options_dict.items()])
+        else:
+            options_text = "A) Option A\nB) Option B\nC) Option C\nD) Option D"
+
+        template = """# Medical Quiz: {topic}
 **Difficulty:** Intermediate
 
 ## Question 1
-**{question_text or 'Medical quiz question generated successfully.'}**
+**{question}**
 
 **Options:**
-{chr(10).join([f"{key}) {value}" for key, value in options_dict.items()]) if options_dict else "A) Option A\nB) Option B\nC) Option C\nD) Option D"}
+{options}
 
-**Answer:** {answer or 'A'}
+**Answer:** {answer}
 
 **Explanation:** 
 Detailed explanation would be included here.
@@ -307,6 +311,12 @@ Detailed explanation would be included here.
 ---
 
 """
+        return template.format(
+            topic=self.topic,
+            question=question_text or 'Medical quiz question generated successfully.',
+            options=options_text,
+            answer=answer or 'A'
+        )
     
     def _format_quiz_markdown(self, quiz_data: MedicalQuizModel) -> str:
         """Format quiz data as properly formatted markdown."""

@@ -4,7 +4,6 @@ Test script for Drug Identifier Module.
 """
 
 import sys
-import os
 import random
 from pathlib import Path
 

@@ -13,13 +13,10 @@ Integrates with LiteClient for LLM-powered clinical assessments.
 # ==============================================================================
 # STANDARD LIBRARY IMPORTS
 # ==============================================================================
-import argparse
-import json
 import logging
 import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import List, Literal, Optional, Tuple
 
 # ==============================================================================
 # THIRD-PARTY IMPORTS
@@ -30,13 +27,12 @@ from pydantic import BaseModel, Field
 # LOCAL IMPORTS (LiteClient setup)
 # ==============================================================================
 from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.utils import save_model_response
 
 # ==============================================================================
 # LOCAL IMPORTS (Module models)
 # ==============================================================================
-from .pydantic_prompt_generator import PromptStyle
 
 # ==============================================================================
 # LOGGING CONFIGURATION
@@ -227,7 +223,7 @@ def analyze_patient_answer(question: str, answer: str) -> dict:
         return {
             "answer_code": "present",
             "confidence": 0.95,
-            "follow_up": [f"Can you describe: location, severity, duration, what triggers it, and any other associated symptoms?"]
+            "follow_up": ["Can you describe: location, severity, duration, what triggers it, and any other associated symptoms?"]
         }
     elif "no" in answer_lower or answer_lower.startswith("n"):
         return {
@@ -239,7 +235,7 @@ def analyze_patient_answer(question: str, answer: str) -> dict:
         return {
             "answer_code": "unclear",
             "confidence": 0.70,
-            "follow_up": [f"Could you please clarify your answer?"]
+            "follow_up": ["Could you please clarify your answer?"]
         }
 
 
@@ -672,11 +668,11 @@ def display_assessment_summary(assessment: LLMAssessment, patient_name: str = "P
     print(f"\n📋 Primary Impression:\n   {assessment.primary_impression}")
     print(f"\n⚠  Urgency Level: {assessment.urgency.upper()}")
     print(f"📊 Confidence: {assessment.confidence * 100:.0f}%" if assessment.confidence else "📊 Confidence: Not specified")
-    print(f"\n💊 Recommendations:")
+    print("\n💊 Recommendations:")
     for i, rec in enumerate(assessment.recommendations, 1):
         print(f"   {i}. {rec}")
     if assessment.differential_diagnoses:
-        print(f"\n🔍 Differential Diagnoses:")
+        print("\n🔍 Differential Diagnoses:")
         for i, dx in enumerate(assessment.differential_diagnoses, 1):
             print(f"   {i}. {dx}")
 
@@ -684,7 +680,7 @@ def display_assessment_summary(assessment: LLMAssessment, patient_name: str = "P
 def display_patient_education(inquiries: List[PatientInquiryResponse], patient_name: str = "Patient") -> None:
     """Display patient education (Q&A)."""
     print("\n" + "=" * 70)
-    print(f"PATIENT EDUCATION - ANSWERS TO TOP 10 QUESTIONS")
+    print("PATIENT EDUCATION - ANSWERS TO TOP 10 QUESTIONS")
     print("=" * 70)
 
     for i, inquiry in enumerate(inquiries, 1):

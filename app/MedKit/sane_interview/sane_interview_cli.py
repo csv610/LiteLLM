@@ -1,5 +1,4 @@
-from sane_interview import SANEInterview, Question
-from sane_interview_models import YesNoUnsure
+from sane_interview import SANEInterview
 from lite.utils import save_model_response
 
 def cli():
