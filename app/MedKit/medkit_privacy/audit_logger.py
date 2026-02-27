@@ -1,5 +1,4 @@
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, List
@@ -9,13 +8,16 @@ try:
     from ..mental_health.models import AuditLog
 except (ImportError, ModuleNotFoundError):
     from pydantic import BaseModel
+
     class AuditLog(BaseModel):
         """Fallback audit log model."""
+
         session_id: str
         action: str
         user_role: str = "patient"
         details: Optional[str] = None
         timestamp: str = ""
+
 
 class AuditLogger:
     """Manages HIPAA-compliant audit logging with long-term retention."""
@@ -38,14 +40,18 @@ class AuditLogger:
                 action=action,
                 user_role=user_role,
                 details=details,
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
             # Load existing logs
             logs = self._load_logs()
-            
+
             # Append new log
-            logs.append(audit_log.model_dump() if hasattr(audit_log, 'model_dump') else audit_log.dict())
+            logs.append(
+                audit_log.model_dump()
+                if hasattr(audit_log, "model_dump")
+                else audit_log.dict()
+            )
 
             # Save updated logs
             with open(self.audit_file, "w") as f:
@@ -72,5 +78,5 @@ class AuditLogger:
         return {
             "total_audit_events": len(logs),
             "last_event_timestamp": logs[-1].get("timestamp") if logs else None,
-            "audit_logging_status": "active"
+            "audit_logging_status": "active",
         }

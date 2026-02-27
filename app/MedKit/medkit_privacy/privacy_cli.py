@@ -13,13 +13,14 @@ try:
 except (ImportError, ValueError):
     from privacy_compliance import PrivacyManager
 
+
 def main():
     parser = argparse.ArgumentParser(description="MedKit Privacy & Compliance CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Consent
-    consent_p = subparsers.add_parser("consent", help="Display HIPAA consent form")
-    
+    subparsers.add_parser("consent", help="Display HIPAA consent form")
+
     # Audit
     audit_p = subparsers.add_parser("audit", help="Log an audit event")
     audit_p.add_argument("--session", required=True, help="Session ID")
@@ -28,7 +29,7 @@ def main():
     audit_p.add_argument("--details", help="Event details")
 
     # Report
-    report_p = subparsers.add_parser("report", help="Generate compliance report")
+    subparsers.add_parser("report", help="Generate compliance report")
 
     # Mask
     mask_p = subparsers.add_parser("mask", help="Mask PII in text")
@@ -68,6 +69,7 @@ def main():
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,6 @@ data retention policies, right-to-deletion requests, secure session storage, and
 Handles Protected Health Information (PHI) with strict security and compliance controls.
 """
 
-import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
@@ -23,11 +22,13 @@ except (ImportError, ValueError):
 
 # Use relative imports for models
 try:
-    from ..mental_health.models import AuditLog, ChatSession
+    from ..mental_health.models import ChatSession
 except (ImportError, ModuleNotFoundError):
     from pydantic import BaseModel
+
     class ChatSession(BaseModel):
         """Fallback chat session model."""
+
         session_id: str
         user_id: str
         patient_name: str
@@ -42,10 +43,12 @@ except (ImportError, ModuleNotFoundError):
 
     class PrivacyConfig:
         """Local privacy configuration."""
+
         retention_days_session = 365
         retention_days_audit = 2555
 
 # ==================== Privacy Manager ====================
+
 
 class PrivacyManager:
     """Manages HIPAA-compliant mental health data handling by coordinating modular services."""
@@ -63,9 +66,7 @@ class PrivacyManager:
         self.audit_logger = AuditLogger(self.data_dir)
         self.repository = SessionRepository(self.data_dir)
 
-    def create_session(
-        self, patient_name: str, age: int, gender: str
-    ) -> ChatSession:
+    def create_session(self, patient_name: str, age: int, gender: str) -> ChatSession:
         """Create a new chat session."""
         session_id = str(uuid4())
         patient_id = str(uuid4())
@@ -81,7 +82,7 @@ class PrivacyManager:
             messages=[],
             assessment_data=None,
             session_status="active",
-            emergency_triggered=False
+            emergency_triggered=False,
         )
 
     def save_session(self, session: ChatSession) -> Optional[Path]:
@@ -124,14 +125,16 @@ By using this service, you acknowledge:
     def generate_compliance_report(self) -> Dict:
         """Generate HIPAA compliance report by aggregating sub-service reports."""
         audit_summary = self.audit_logger.get_report_summary()
-        session_count = len(self.repository.list_sessions()) - 1  # -1 for audit log file
-        
+        session_count = (
+            len(self.repository.list_sessions()) - 1
+        )  # -1 for audit log file
+
         report = {
             "report_date": datetime.now().isoformat(),
             "sessions_count": max(0, session_count),
             "data_retention_policy": "365 days sessions, 7 years audit",
             "encryption_status": "enabled (restricted file-level access)",
-            **audit_summary
+            **audit_summary,
         }
         return report
 

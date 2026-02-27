@@ -9,11 +9,12 @@ try:
 except (ImportError, ModuleNotFoundError):
     # Fallback/Mock if not available
     from dataclasses import dataclass
+
     @dataclass
     class ModelConfig:
         model: str
         temperature: float = 0.7
-    
+
     @dataclass
     class ModelInput:
         user_prompt: str = ""
@@ -21,20 +22,27 @@ except (ImportError, ModuleNotFoundError):
         response_format: Optional[Any] = None
 
     class LiteClient:
-        def __init__(self, model_config=None): pass
+        def __init__(self, model_config=None):
+            pass
+
         def generate_text(self, model_input: ModelInput, **kwargs):
             return '{"pii": []}'
 
+
 class PIIEntity(BaseModel):
     """Represents a single detected PII entity."""
+
     type: str
     value: str
     start: int
     end: int
 
+
 class PIIResponse(BaseModel):
     """Container for multiple PII entities, used for structured LLM output."""
+
     pii: List[PIIEntity]
+
 
 class PIIDetector:
     """Detects PII using LLM (via LiteClient) for high-accuracy, context-aware identification."""
@@ -81,27 +89,27 @@ class PIIDetector:
 
         # Create ModelInput with system prompt and Pydantic response format
         model_input = ModelInput(
-            user_prompt=text, 
+            user_prompt=text,
             system_prompt=self.system_prompt,
-            response_format=PIIResponse
+            response_format=PIIResponse,
         )
-        
+
         try:
             # LiteClient returns a PIIResponse instance
             response = self.client.generate_text(model_input)
-            
+
             entities = []
             if isinstance(response, PIIResponse):
                 entities = response.pii
             elif isinstance(response, str):
                 data = json.loads(response)
                 entities = [PIIEntity(**e) for e in data.get("pii", [])]
-            
+
             # Validation: Ensure values exist in text and indices are correct
             valid_entities = []
             for entity in entities:
                 # Sanity check: does the value at start:end match the detected value?
-                actual_value = text[entity.start:entity.end]
+                actual_value = text[entity.start : entity.end]
                 if actual_value.strip().lower() == entity.value.strip().lower():
                     valid_entities.append(entity.model_dump())
                 else:
@@ -112,11 +120,12 @@ class PIIDetector:
                         entity.start = pos
                         entity.end = pos + len(entity.value)
                         valid_entities.append(entity.model_dump())
-            
+
             return valid_entities
         except Exception as e:
             print(f"CRITICAL: LLM PII Detection Failed: {e}")
             return []
+
 
 class PIIMasker:
     """Masks PII in text using the LLM-based detector."""
@@ -127,13 +136,13 @@ class PIIMasker:
     def mask(self, text: str, placeholder: str = "[{type}]") -> str:
         """Mask all detected PII in text with placeholders."""
         detections = self.detector.detect(text)
-        
+
         # Sort by start index descending to replace without shifting indices
         sorted_detections = sorted(detections, key=lambda x: x["start"], reverse=True)
-        
+
         masked_text = text
         for d in sorted_detections:
             label = placeholder.format(type=d["type"])
-            masked_text = masked_text[:d["start"]] + label + masked_text[d["end"]:]
-            
+            masked_text = masked_text[: d["start"]] + label + masked_text[d["end"] :]
+
         return masked_text

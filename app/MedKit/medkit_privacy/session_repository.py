@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 from typing import Optional, List, Dict
-from uuid import uuid4
 
 # Use relative imports for models
 try:
@@ -9,8 +8,10 @@ try:
     from lite.utils import save_model_response
 except (ImportError, ModuleNotFoundError):
     from pydantic import BaseModel
+
     class ChatSession(BaseModel):
         """Fallback chat session model."""
+
         session_id: str
         user_id: str
         patient_name: str
@@ -28,6 +29,7 @@ except (ImportError, ModuleNotFoundError):
         with open(file_path, "w") as f:
             f.write(model.model_dump_json(indent=2))
 
+
 class SessionRepository:
     """Manages secure session storage and file-level security."""
 
@@ -40,13 +42,20 @@ class SessionRepository:
         """Save session to file with secure permissions."""
         try:
             session_file = self.data_dir / f"{session.session_id}.json"
-            
+
             # Save using utility or standard json
-            if 'save_model_response' in globals():
+            if "save_model_response" in globals():
                 save_model_response(session, session_file)
             else:
                 with open(session_file, "w") as f:
-                    json.dump(session.model_dump() if hasattr(session, 'model_dump') else session.dict(), f, indent=2, default=str)
+                    json.dump(
+                        session.model_dump()
+                        if hasattr(session, "model_dump")
+                        else session.dict(),
+                        f,
+                        indent=2,
+                        default=str,
+                    )
 
             # Set secure permissions
             session_file.chmod(0o600)
@@ -64,7 +73,7 @@ class SessionRepository:
 
             with open(session_file, "r") as f:
                 data = json.load(f)
-            
+
             return ChatSession(**data)
         except Exception as e:
             print(f"Error loading session: {e}")

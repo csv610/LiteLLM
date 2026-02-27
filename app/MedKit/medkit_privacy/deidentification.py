@@ -1,5 +1,6 @@
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 from .pii_utils import PIIMasker, PIIDetector
+
 
 class Deidentifier:
     """Provides HIPAA-compliant de-identification services."""
@@ -31,9 +32,9 @@ class Deidentifier:
 
     def apply_safe_harbor_rules(self, text: str) -> str:
         """
-        A stricter implementation that specifically targets HIPAA Safe Harbor 
+        A stricter implementation that specifically targets HIPAA Safe Harbor
         redaction patterns.
         """
-        # This currently leverages the LLM-based masker which is already 
+        # This currently leverages the LLM-based masker which is already
         # instructed on Safe Harbor rules.
         return self.deidentify_text(text)
