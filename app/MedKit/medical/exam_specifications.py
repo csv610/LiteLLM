@@ -1,10 +1,9 @@
+import logging
 from dataclasses import dataclass
 from typing import List
 
-from medkit.utils.logging_config import setup_logger
-
 # Configure logging
-logger = setup_logger(__name__, enable_file_handler=False)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ExamSpecification:

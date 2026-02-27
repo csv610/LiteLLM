@@ -3,8 +3,9 @@ from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 
 try:
-    from medkit.core.gemini_client import GeminiClient, ModelConfig, ModelInput
-    from medkit.utils.privacy_compliance import PrivacyManager
+    from lite.lite_client import LiteClient as GeminiClient
+    from lite.config import ModelConfig, ModelInput
+    from medkit_privacy.privacy_compliance import PrivacyManager
 except ImportError:
     # Fallback for standalone testing
     class ModelConfig:

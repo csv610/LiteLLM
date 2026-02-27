@@ -46,8 +46,8 @@ import argparse
 import traceback
 
 try:
-    from medkit.mental_health.mental_health_chat import MentalHealthChatEngine, ChatConfig
-    from medkit.utils.privacy_compliance import PrivacyManager
+    from mental_health.mental_health_chat import MentalHealthChatEngine, ChatConfig
+    from medkit_privacy.privacy_compliance import PrivacyManager
 except ImportError:
     try:
         from .mental_health_chat import MentalHealthChatEngine, ChatConfig

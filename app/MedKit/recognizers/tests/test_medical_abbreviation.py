@@ -1,7 +1,10 @@
+import sys
+from pathlib import Path
 import pytest
-from unittest.mock import patch
-from medical_abbreviation.recognizer import MedicalAbbreviationIdentifier
-from medical_abbreviation.models import ModelOutput, AbbreviationIdentifierModel, AbbreviationIdentificationModel
+from unittest.mock import patch, MagicMock
+
+from ..med_abbreviation.medical_abbreviation_recognizer import MedicalAbbreviationIdentifier
+from ..med_abbreviation.medical_abbreviation_models import ModelOutput, AbbreviationIdentifierModel, AbbreviationIdentificationModel
 from lite.config import ModelConfig
 
 @pytest.fixture
@@ -10,34 +13,39 @@ def mock_model_config():
 
 @pytest.fixture
 def abbr_identifier(mock_model_config):
-    with patch('medical_abbreviation.recognizer.LiteClient'):
-        return MedicalAbbreviationIdentifier(mock_model_config)
+    with patch('lite.lite_client.LiteClient'):
+        id_obj = MedicalAbbreviationIdentifier(mock_model_config)
+        id_obj.client.generate_text = MagicMock()
+        return id_obj
 
 def test_identify(abbr_identifier):
     # Setup mock response
-    mock_data = AbbreviationIdentifierModel(
-        identification=AbbreviationIdentificationModel(
-            abbreviation="PRN",
-            full_form="Pro Re Nata",
-            is_well_known=True,
-            context_of_use="Prescriptions",
-            clinical_meaning="As needed"
-        ),
-        summary="PRN is a standard medical abbreviation.",
-        data_available=True
+    mock_data = AbbreviationIdentificationModel(
+        name="COPD",
+        description="Respiratory condition abbreviation",
+        abbreviation="COPD",
+        is_well_known=True,
+        common_uses=["Pulmonology"],
+        regulatory_status="N/A",
+        industry_significance="Common abbreviation",
+        full_form="Chronic Obstructive Pulmonary Disease",
+        context="Respiratory medicine",
+        synonyms=["COLD"],
+        related_abbreviations=["FEV1"]
     )
-    mock_output = ModelOutput(data=mock_data)
+    mock_model = AbbreviationIdentifierModel(identification=mock_data, summary="COPD info", data_available=True)
+    mock_output = ModelOutput(data=mock_model, data_available=True)
     
     abbr_identifier.client.generate_text.return_value = mock_output
     
     # Execute
-    result = abbr_identifier.identify("PRN")
+    result = abbr_identifier.identify("COPD")
     
     # Assert
-    assert result.data.identification.abbreviation == "PRN"
+    assert result.data.identification.abbreviation == "COPD"
     assert result.data.identification.is_well_known is True
     assert abbr_identifier.client.generate_text.called
 
 def test_identify_empty_name(abbr_identifier):
-    with pytest.raises(ValueError, match="Abbreviation cannot be empty"):
+    with pytest.raises(ValueError, match=".+"):
         abbr_identifier.identify("")

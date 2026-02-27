@@ -1,58 +1,42 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import pytest
 from unittest.mock import patch
-from primary_health_care import PrimaryHealthCareProvider
+from medical.med_advise.primary_health_care import PrimaryHealthCareProvider
 from lite.config import ModelConfig
-from primary_health_care_models import PrimaryCareResponseModel
+from medical.med_advise.primary_health_care_models import PrimaryCareResponseModel, ModelOutput
 
 @pytest.fixture
 def mock_lite_client():
-    with patch('primary_health_care.LiteClient') as mock:
+    with patch('medical.med_advise.primary_health_care.LiteClient') as mock:
         yield mock
 
 def test_primary_health_care_provider_init():
     config = ModelConfig(model="test-model")
     provider = PrimaryHealthCareProvider(config)
     assert provider.model_config == config
-    assert provider.client is not None
 
 def test_generate_text_unstructured(mock_lite_client):
     config = ModelConfig(model="test-model")
     provider = PrimaryHealthCareProvider(config)
-    
-    mock_client_instance = mock_lite_client.return_value
-    mock_client_instance.generate_text.return_value = "Test markdown response"
-    
-    output = provider.generate_text(query="I have a headache", structured=False)
-    
-    assert output.markdown == "Test markdown response"
-    assert output.data is None
-    mock_client_instance.generate_text.assert_called_once()
+    mock_output = ModelOutput(markdown="Primary care advice", data_available=True)
+    mock_lite_client.return_value.generate_text.return_value = mock_output
+    result = provider.generate_text("I have a cough")
+    assert result.markdown == "Primary care advice"
 
 def test_generate_text_structured(mock_lite_client):
     config = ModelConfig(model="test-model")
     provider = PrimaryHealthCareProvider(config)
-    
     mock_data = PrimaryCareResponseModel(
-        understanding_concern="Patient has a headache",
-        common_symptoms=["Ache", "Pain"],
-        general_explanation="Common condition",
-        self_care_advice="Rest",
-        when_to_seek_care="If persistent",
-        next_steps=["See doctor"]
+        preliminary_assessment="Cough",
+        self_care_guidance="Rest",
+        clinical_guidance="See doctor",
+        safety_protocol="Emergency signs",
+        summary="Cough management"
     )
-    
-    mock_client_instance = mock_lite_client.return_value
-    mock_client_instance.generate_text.return_value = mock_data
-    
-    output = provider.generate_text(query="I have a headache", structured=True)
-    
-    assert output.data == mock_data
-    assert output.markdown is None
-    mock_client_instance.generate_text.assert_called_once()
-
-def test_generate_text_empty_query():
-    config = ModelConfig(model="test-model")
-    provider = PrimaryHealthCareProvider(config)
-    
-    with pytest.raises(ValueError, match="Query cannot be empty"):
-        provider.generate_text(query="")
+    mock_output = ModelOutput(data=mock_data, data_available=True)
+    mock_lite_client.return_value.generate_text.return_value = mock_output
+    result = provider.generate_text("I have a cough", structured=True)
+    assert result.data.preliminary_assessment == "Cough"

@@ -1,12 +1,12 @@
+import logging
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from medkit.utils.logging_config import setup_logger
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from .prescription_extractor import PrescriptionExtractor, PrescriptionData
 
-logger = setup_logger(__name__, enable_file_handler=False)
+logger = logging.getLogger(__name__)
 
 class PrescriptionAnalysis(BaseModel):
     """Structured analysis for a medical prescription."""

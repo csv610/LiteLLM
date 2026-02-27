@@ -1,7 +1,10 @@
+import sys
+from pathlib import Path
 import pytest
-from unittest.mock import patch
-from genetic_variant.recognizer import GeneticVariantIdentifier
-from genetic_variant.models import ModelOutput, GeneticVariantIdentifierModel, GeneticVariantIdentificationModel
+from unittest.mock import patch, MagicMock
+
+from ..genetic_variant.genetic_variant_recognizer import GeneticVariantIdentifier
+from ..genetic_variant.genetic_variant_models import ModelOutput, GeneticVariantIdentifierModel, GeneticVariantIdentificationModel
 from lite.config import ModelConfig
 
 @pytest.fixture
@@ -10,20 +13,29 @@ def mock_model_config():
 
 @pytest.fixture
 def identifier(mock_model_config):
-    with patch('genetic_variant.recognizer.LiteClient'):
-        return GeneticVariantIdentifier(mock_model_config)
+    with patch('lite.lite_client.LiteClient'):
+        id_obj = GeneticVariantIdentifier(mock_model_config)
+        id_obj.client.generate_text = MagicMock()
+        return id_obj
 
 def test_identify(identifier):
-    mock_data = GeneticVariantIdentifierModel(
-        identification=GeneticVariantIdentificationModel(
-            variant_name="BRCA1",
-            is_well_known=True,
-            inheritance_pattern='Autosomal dominant', clinical_implications='Increased cancer risk'
-        ),
-        summary="Summary",
-        data_available=True
+    mock_data = GeneticVariantIdentificationModel(
+        name="BRCA1 mutation",
+        description="Important genetic variant",
+        variant_name="BRCA1",
+        is_well_known=True,
+        common_uses=["N/A"],
+        regulatory_status="N/A",
+        industry_significance="Important variant",
+        gene="BRCA1",
+        variant_type="Mutation",
+        chromosomal_location="17q21.31",
+        clinical_significance="Pathogenic"
     )
-    mock_output = ModelOutput(data=mock_data)
+    mock_model = GeneticVariantIdentifierModel(identification=mock_data, summary="Variant info", data_available=True)
+    mock_output = ModelOutput(data=mock_model, data_available=True)
     identifier.client.generate_text.return_value = mock_output
+    
     result = identifier.identify("BRCA1")
-    assert getattr(result.data.identification, 'variant_name') == "BRCA1"
+    assert result.data.identification.variant_name == "BRCA1"
+    assert result.data.identification.is_well_known is True

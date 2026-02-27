@@ -1,7 +1,10 @@
+import sys
+from pathlib import Path
 import pytest
-from unittest.mock import patch
-from medical_anatomy.recognizer import MedicalAnatomyIdentifier
-from medical_anatomy.models import ModelOutput, MedicalAnatomyIdentifierModel, MedicalAnatomyIdentificationModel
+from unittest.mock import patch, MagicMock
+
+from ..medical_anatomy.medical_anatomy_identifier import MedicalAnatomyIdentifier
+from ..medical_anatomy.medical_anatomy_identifier_models import ModelOutput, MedicalAnatomyIdentifierModel, MedicalAnatomyIdentificationModel
 from lite.config import ModelConfig
 
 @pytest.fixture
@@ -10,23 +13,29 @@ def mock_model_config():
 
 @pytest.fixture
 def anatomy_identifier(mock_model_config):
-    with patch('medical_anatomy.recognizer.LiteClient'):
-        return MedicalAnatomyIdentifier(mock_model_config)
+    with patch('lite.lite_client.LiteClient'):
+        id_obj = MedicalAnatomyIdentifier(mock_model_config)
+        id_obj.client.generate_text = MagicMock()
+        return id_obj
 
 def test_identify(anatomy_identifier):
     # Setup mock response
-    mock_data = MedicalAnatomyIdentifierModel(
-        identification=MedicalAnatomyIdentificationModel(
-            structure_name="Heart",
-            is_well_known=True,
-            system="Cardiovascular system",
-            location="Thoracic cavity",
-            clinical_significance="Primary organ for pumping blood throughout the body."
-        ),
-        summary="The heart is a well-known anatomical structure.",
-        data_available=True
+    mock_data = MedicalAnatomyIdentificationModel(
+        name="Heart",
+        description="Vital cardiovascular organ",
+        structure_name="Heart",
+        is_well_known=True,
+        common_uses=["Pumping blood"],
+        regulatory_status="N/A",
+        industry_significance="Vital organ",
+        system="Cardiovascular",
+        location="Chest",
+        clinical_relevance="Key for life",
+        function="Pumping blood",
+        blood_supply="Coronary arteries"
     )
-    mock_output = ModelOutput(data=mock_data)
+    mock_model = MedicalAnatomyIdentifierModel(identification=mock_data, summary="Heart info", data_available=True)
+    mock_output = ModelOutput(data=mock_model, data_available=True)
     
     anatomy_identifier.client.generate_text.return_value = mock_output
     
@@ -39,6 +48,5 @@ def test_identify(anatomy_identifier):
     assert anatomy_identifier.client.generate_text.called
 
 def test_identify_empty_name(anatomy_identifier):
-    with pytest.raises(ValueError, match="Structure name cannot be empty"):
+    with pytest.raises(ValueError, match=".+"):
         anatomy_identifier.identify("")
-

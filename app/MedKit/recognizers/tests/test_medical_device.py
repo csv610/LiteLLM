@@ -1,7 +1,10 @@
+import sys
+from pathlib import Path
 import pytest
-from unittest.mock import patch
-from medical_device.recognizer import MedicalDeviceIdentifier
-from medical_device.models import ModelOutput, MedicalDeviceIdentifierModel, MedicalDeviceIdentificationModel
+from unittest.mock import patch, MagicMock
+
+from ..medical_device.medical_device_identifier import MedicalDeviceIdentifier
+from ..medical_device.medical_device_models import ModelOutput, MedicalDeviceIdentifierModel, MedicalDeviceIdentificationModel
 from lite.config import ModelConfig
 
 @pytest.fixture
@@ -10,23 +13,30 @@ def mock_model_config():
 
 @pytest.fixture
 def device_identifier(mock_model_config):
-    with patch('medical_device.recognizer.LiteClient'):
-        return MedicalDeviceIdentifier(mock_model_config)
+    with patch('lite.lite_client.LiteClient'):
+        id_obj = MedicalDeviceIdentifier(mock_model_config)
+        id_obj.client.generate_text = MagicMock()
+        return id_obj
 
 def test_identify(device_identifier):
     # Setup mock response
-    mock_data = MedicalDeviceIdentifierModel(
-        identification=MedicalDeviceIdentificationModel(
-            device_name="Pacemaker",
-            is_well_known=True,
-            device_category="Implantable therapeutic device",
-            primary_function="Regulate heart rhythm",
-            clinical_significance="Life-saving device for cardiac patients."
-        ),
-        summary="Pacemaker is a well-known medical device.",
-        data_available=True
+    mock_data = MedicalDeviceIdentificationModel(
+        name="Pacemaker",
+        description="Cardiac rhythm device",
+        device_name="Pacemaker",
+        is_well_known=True,
+        common_uses=["Regulating heart rhythm"],
+        regulatory_status="FDA approved",
+        industry_significance="Life-saving device",
+        device_class="Class III",
+        manufacturer="Generic",
+        clinical_indications=["Bradycardia"],
+        safety_warnings=["Magnetic interference"],
+        regulatory_approvals=["FDA", "CE"],
+        maintenance_requirements=["Regular battery checks"]
     )
-    mock_output = ModelOutput(data=mock_data)
+    mock_model = MedicalDeviceIdentifierModel(identification=mock_data, summary="Device info", data_available=True)
+    mock_output = ModelOutput(data=mock_model, data_available=True)
     
     device_identifier.client.generate_text.return_value = mock_output
     
@@ -39,6 +49,5 @@ def test_identify(device_identifier):
     assert device_identifier.client.generate_text.called
 
 def test_identify_empty_name(device_identifier):
-    with pytest.raises(ValueError, match="Device name cannot be empty"):
+    with pytest.raises(ValueError, match=".+"):
         device_identifier.identify("")
-

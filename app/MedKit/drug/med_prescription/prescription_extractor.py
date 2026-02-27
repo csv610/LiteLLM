@@ -1,11 +1,11 @@
+import logging
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from medkit.utils.logging_config import setup_logger
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-logger = setup_logger(__name__, enable_file_handler=False)
+logger = logging.getLogger(__name__)
 
 class Medication(BaseModel):
     """Structured data for a single medication."""

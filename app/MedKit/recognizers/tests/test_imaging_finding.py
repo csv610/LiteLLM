@@ -1,7 +1,10 @@
+import sys
+from pathlib import Path
 import pytest
-from unittest.mock import patch
-from imaging_finding.recognizer import ImagingFindingIdentifier
-from imaging_finding.models import ModelOutput, ImagingFindingIdentifierModel, ImagingFindingIdentificationModel
+from unittest.mock import patch, MagicMock
+
+from ..imaging_finding.imaging_finding_recognizer import ImagingFindingIdentifier
+from ..imaging_finding.imaging_finding_models import ModelOutput, ImagingFindingIdentifierModel, ImagingFindingIdentificationModel
 from lite.config import ModelConfig
 
 @pytest.fixture
@@ -10,20 +13,29 @@ def mock_model_config():
 
 @pytest.fixture
 def identifier(mock_model_config):
-    with patch('imaging_finding.recognizer.LiteClient'):
-        return ImagingFindingIdentifier(mock_model_config)
+    with patch('lite.lite_client.LiteClient'):
+        id_obj = ImagingFindingIdentifier(mock_model_config)
+        id_obj.client.generate_text = MagicMock()
+        return id_obj
 
 def test_identify(identifier):
-    mock_data = ImagingFindingIdentifierModel(
-        identification=ImagingFindingIdentificationModel(
-            finding_name="Consolidation",
-            is_well_known=True,
-            modalities=['CT'], differential_diagnosis=['Pneumonia']
-        ),
-        summary="Summary",
-        data_available=True
+    mock_data = ImagingFindingIdentificationModel(
+        name="Pulmonary nodule",
+        description="Common imaging finding",
+        finding_name="Pulmonary nodule",
+        is_well_known=True,
+        common_uses=["Radiology"],
+        regulatory_status="N/A",
+        industry_significance="Common finding",
+        modality="CT",
+        typical_location="Lung",
+        clinical_relevance="Requires followup",
+        differential_diagnosis=["Cancer", "Infection"]
     )
-    mock_output = ModelOutput(data=mock_data)
+    mock_model = ImagingFindingIdentifierModel(identification=mock_data, summary="Finding info", data_available=True)
+    mock_output = ModelOutput(data=mock_model, data_available=True)
     identifier.client.generate_text.return_value = mock_output
-    result = identifier.identify("Consolidation")
-    assert getattr(result.data.identification, 'finding_name') == "Consolidation"
+    
+    result = identifier.identify("Pulmonary nodule")
+    assert result.data.identification.finding_name == "Pulmonary nodule"
+    assert result.data.identification.is_well_known is True
