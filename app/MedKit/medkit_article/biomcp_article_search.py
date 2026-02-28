@@ -1,4 +1,5 @@
 import subprocess
+import json
 
 class MedicalArticleSearch:
     def __init__(self):
@@ -12,7 +13,7 @@ class MedicalArticleSearch:
 
         try:
             result = subprocess.run(
-                ["biomcp", "article", "search", "--disease", disease],
+                ["biomcp", "article", "search", "--disease", disease, "--json"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True
@@ -21,58 +22,17 @@ class MedicalArticleSearch:
             if result.returncode != 0:
                 raise Exception(f"Error running biomcp command: {result.stderr}")
 
-            self.articles = self.parse_articles(result.stdout)
+            self.articles = json.loads(result.stdout)
+            
+            # Ensure each article has the expected fields and format
+            for article in self.articles:
+                details = self.extract_article_details(article)
+                article.update(details)
+                
             return self.articles
 
         except Exception as e:
             raise e
-
-    def parse_articles(self, output):
-
-        records = output.strip().split("# Record ")
-        articles = []
-
-        for record in records[1:]:
-            if not record.strip():
-                continue  # Skip empty records
-                
-            article = {}
-            lines = record.strip().splitlines()
-            abstract_lines = []
-            for line in lines:
-                if line.startswith("Pmid:"):
-                    article["pmid"] = line.replace("Pmid:", "").strip()
-                elif line.startswith("Pmcid:"):
-                    article["pmcid"] = line.replace("Pmcid:", "").strip()
-                elif line.startswith("Title:"):
-                    article["title"] = line.replace("Title:", "").strip()
-                elif line.startswith("Journal:"):
-                    article["journal"] = line.replace("Journal:", "").strip()
-                elif line.startswith("Date:"):
-                    article["date"] = line.replace("Date:", "").strip()
-                elif line.startswith("Doi:"):
-                    article["doi"] = line.replace("Doi:", "").strip()
-                elif line.startswith("Abstract:"):
-                    abstract_lines = []
-                elif line.startswith("Pubmed Url:"):
-                    article["pubmed_url"] = line.replace("Pubmed Url:", "").strip()
-                elif line.startswith("Pmc Url:"):
-                    article["pmc_url"] = line.replace("Pmc Url:", "").strip()
-                elif line.startswith("Doi Url:"):
-                    article["doi_url"] = line.replace("Doi Url:", "").strip()
-                elif line.startswith("Authors:"):
-                    authors_str = line.replace("Authors:", "").strip()
-                    article["authors"] = [a.strip() for a in authors_str.split(",")]
-                else:
-                    abstract_lines.append(line.strip())
-
-            article["abstract"] = " ".join(abstract_lines).strip()
-            if article.get("title"):  # Only keep if title is present
-                details = self.extract_article_details(article)
-                article.update(details)  # Add formatted details to the article
-                articles.append(article)
-
-        return articles
 
     def get_article_count(self):
         """Get the number of articles found."""
@@ -80,9 +40,15 @@ class MedicalArticleSearch:
 
     def extract_article_details(self, article):
         """Extract and format article details."""
+        authors = article.get('authors', [])
+        if isinstance(authors, list):
+            authors_str = ", ".join(authors)
+        else:
+            authors_str = str(authors)
+            
         return {
             'title': article.get('title', 'N/A'),
-            'authors': ", ".join(article.get('authors', [])),
+            'authors': authors_str,
             'journal': article.get('journal', 'N/A'),
             'date': article.get('date', 'N/A'),
             'year': article.get('date', 'N/A').split('-')[0] if '-' in article.get('date', 'N/A') else article.get('date', 'N/A').split(' ')[0] if ' ' in article.get('date', 'N/A') else article.get('date', 'N/A'),

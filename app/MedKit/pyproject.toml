@@ -16,6 +16,7 @@ dependencies = [
     "google-genai",
     "typing-extensions",
     "rich",
+    "biomcp-python",
 ]
 
 [project.scripts]

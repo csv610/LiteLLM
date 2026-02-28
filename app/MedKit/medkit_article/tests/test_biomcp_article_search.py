@@ -1,6 +1,7 @@
 import pytest
+import json
 from unittest.mock import MagicMock, patch
-from biomcp_article_search import MedicalArticleSearch
+from medkit_article.biomcp_article_search import MedicalArticleSearch
 
 @pytest.fixture
 def searcher():
@@ -12,16 +13,19 @@ def test_search_articles_empty_disease(searcher):
 
 @patch('subprocess.run')
 def test_search_articles_success(mock_run, searcher):
-    # Mock output of biomcp
+    # Mock JSON output of biomcp
+    mock_data = [
+        {
+            "pmid": "12345",
+            "title": "Test Article",
+            "journal": "Test Journal",
+            "date": "2024-01-01",
+            "authors": ["Author A", "Author B"]
+        }
+    ]
     mock_run.return_value = MagicMock(
         returncode=0,
-        stdout="""# Record 1
-Pmid: 12345
-Title: Test Article
-Journal: Test Journal
-Date: 2024-01-01
-Authors: Author A, Author B
-"""
+        stdout=json.dumps(mock_data)
     )
 
     articles = searcher.search_articles("diabetes")
@@ -43,28 +47,6 @@ def test_search_articles_error(mock_run, searcher):
     with pytest.raises(Exception, match="Error running biomcp command"):
         searcher.search_articles("diabetes")
 
-def test_parse_articles(searcher):
-    sample_output = """
-# Record 1
-Pmid: 1
-Title: Title 1
-Journal: Journal 1
-Date: 2023-01-01
-Authors: Author 1
-
-# Record 2
-Pmid: 2
-Title: Title 2
-Journal: Journal 2
-Date: 2022
-Authors: Author 2, Author 3
-"""
-    articles = searcher.parse_articles(sample_output)
-    assert len(articles) == 2
-    assert articles[0]['title'] == "Title 1"
-    assert articles[1]['pmid'] == "2"
-    assert articles[1]['year'] == "2022"
-
 def test_get_article_citations(searcher):
     searcher.articles = [
         {
@@ -82,6 +64,10 @@ def test_get_article_citations(searcher):
             'pmid': 'P2'
         }
     ]
+    # Update articles with extracted details
+    for art in searcher.articles:
+        art.update(searcher.extract_article_details(art))
+        
     citations = searcher.get_article_citations()
     assert len(citations) == 2
     assert "1. T1, A1, A2. J1, 2023. PMID: P1" == citations[0]
