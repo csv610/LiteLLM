@@ -8,7 +8,10 @@ from tqdm import tqdm
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from med_images import MedImageClassifier
+try:
+    from .med_images import MedImageClassifier
+except (ImportError, ValueError):
+    from med_images import MedImageClassifier
 
 logger = logging.getLogger(__name__)
 

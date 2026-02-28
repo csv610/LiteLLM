@@ -1,12 +1,12 @@
 import pytest
 import unittest.mock as mock
 from pathlib import Path
-from med_images_models import (
+from medkit_diagnose.med_images.med_images_models import (
     MedicalImageClassificationModel,
     ModelOutput,
 )
-from med_images_prompts import PromptBuilder
-from med_images import MedImageClassifier
+from medkit_diagnose.med_images.med_images_prompts import PromptBuilder
+from medkit_diagnose.med_images.med_images import MedImageClassifier
 from lite.config import ModelConfig
 
 
@@ -66,7 +66,7 @@ def test_prompt_builder():
 
 @pytest.fixture
 def classifier():
-    with mock.patch("med_images.LiteClient") as mock_client_class:
+    with mock.patch("medkit_diagnose.med_images.med_images.LiteClient") as mock_client_class:
         model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
         gen = MedImageClassifier(model_config)
         # Ensure the client is the mock instance
@@ -95,7 +95,7 @@ def test_classifier_classify_image(mock_encode, classifier):
     classifier.client.generate_text.assert_called_once()
 
 
-@mock.patch("med_images.save_model_response")
+@mock.patch("medkit_diagnose.med_images.med_images.save_model_response")
 def test_classifier_save(mock_save_model_response, classifier):
     """Test the save method."""
     mock_result = ModelOutput(markdown="Mock Content")
@@ -118,10 +118,10 @@ def test_classifier_save(mock_save_model_response, classifier):
 # CLI LOGIC TESTS
 # ============================================================================
 
-from med_images_cli import create_med_images_report
+from medkit_diagnose.med_images.med_images_cli import create_med_images_report
 
-@mock.patch("med_images_cli.MedImageClassifier")
-@mock.patch("med_images_cli.configure_logging")
+@mock.patch("medkit_diagnose.med_images.med_images_cli.MedImageClassifier")
+@mock.patch("medkit_diagnose.med_images.med_images_cli.configure_logging")
 def test_cli_report_generation(mock_configure_logging, mock_classifier_class):
     """Test the CLI's report generation loop."""
     mock_gen_instance = mock_classifier_class.return_value
