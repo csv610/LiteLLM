@@ -7,7 +7,10 @@ from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from .organ_disease_info import DiseaseInfoGenerator
+try:
+    from .organ_disease_info import DiseaseInfoGenerator
+except (ImportError, ValueError):
+    from organ_disease_info import DiseaseInfoGenerator
 
 logger = logging.getLogger(__name__)
 

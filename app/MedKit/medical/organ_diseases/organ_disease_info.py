@@ -13,8 +13,12 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .organ_disease_info_models import OrganDiseasesModel, ModelOutput
-from .organ_disease_info_prompts import PromptBuilder
+try:
+    from .organ_disease_info_models import OrganDiseasesModel, ModelOutput
+    from .organ_disease_info_prompts import PromptBuilder
+except (ImportError, ValueError):
+    from organ_disease_info_models import OrganDiseasesModel, ModelOutput
+    from organ_disease_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
