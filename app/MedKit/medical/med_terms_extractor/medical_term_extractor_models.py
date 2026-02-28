@@ -80,6 +80,8 @@ class MedicalTermsModel(BaseModel):
         description="Causation relationships between medical concepts"
     )
 
+MedicalTerms = MedicalTermsModel
+
 
 class ModelOutput(BaseModel):
     data: Optional[MedicalTermsModel] = None

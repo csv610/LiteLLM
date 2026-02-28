@@ -55,11 +55,8 @@ class PrimaryHealthCareProvider:
         logger.debug("Calling LiteClient.generate_text()...")
         try:
             result = self.client.generate_text(model_input=model_input)
-            
-            if structured:
-                return ModelOutput(data=result, markdown=None)
-            else:
-                return ModelOutput(data=None, markdown=result)
+            logger.debug("✓ Successfully generated primary care response")
+            return result
         except Exception as e:
             logger.error(f"✗ Error generating response: {e}")
             raise

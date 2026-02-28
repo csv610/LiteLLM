@@ -1,18 +1,17 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
+# Add the project root to sys.path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from medical.organ_diseases.organ_disease_info import DiseaseInfoGenerator
 from lite.config import ModelConfig
 from medical.organ_diseases.organ_disease_info_models import (
-    OrganDiseasesModel, ModelOutput, DiseaseIdentityModel, 
-    DiseaseBackgroundModel, DiseaseEpidemiologyModel, 
-    DiseaseClinicalPresentationModel, DiseaseDiagnosisModel, 
-    DiseaseManagementModel, DiseaseResearchModel, 
-    DiseaseSpecialPopulationsModel, DiseaseLivingWithModel, 
-    RiskFactorsModel, DiagnosticCriteriaModel
+    OrganDiseasesModel, ModelOutput
 )
 
 @pytest.fixture
@@ -20,7 +19,7 @@ def mock_lite_client():
     with patch('medical.organ_diseases.organ_disease_info.LiteClient') as mock:
         yield mock
 
-def test_disease_info_generator_init():
+def test_generator_init():
     config = ModelConfig(model="test-model")
     generator = DiseaseInfoGenerator(config)
     assert generator.model_config == config
@@ -28,32 +27,47 @@ def test_disease_info_generator_init():
 def test_generate_text_unstructured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = DiseaseInfoGenerator(config)
-    mock_output = ModelOutput(markdown="Organ disease info", data_available=True)
+    mock_output = ModelOutput(markdown="Heart diseases", data=None)
     mock_lite_client.return_value.generate_text.return_value = mock_output
-    result = generator.generate_text("Heart", "Heart attack")
-    assert result.markdown == "Organ disease info"
+    
+    result = generator.generate_text("Heart")
+    assert result.markdown == "Heart diseases"
+    assert generator.organ == "Heart"
+
+def test_generate_text_empty():
+    config = ModelConfig(model="test-model")
+    generator = DiseaseInfoGenerator(config)
+    with pytest.raises(ValueError, match="Organ name cannot be empty"):
+        generator.generate_text("")
 
 def test_generate_text_structured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = DiseaseInfoGenerator(config)
     
-    mock_inner = DiseaseIdentityModel(name="Heart attack", disease_name="Heart attack", icd_10_code="I21", icd10_code="I21", icd11_code="BA41", synonyms=[])
-    
     mock_data = OrganDiseasesModel(
         organ="Heart",
-        disease="Heart attack",
-        identity=mock_inner,
-        background=DiseaseBackgroundModel(definition="Ischemia", pathophysiology="Blocked artery", etiology="Plaque"),
-        epidemiology=DiseaseEpidemiologyModel(prevalence="High", incidence="Rising", risk_factors=RiskFactorsModel(lifestyle=[], genetic=[], environmental=[], modifiable=[], non_modifiable=[])),
-        clinical_presentation=DiseaseClinicalPresentationModel(symptoms=["Pain"], complications=[], signs=[], natural_history="Acute"),
-        diagnosis=DiseaseDiagnosisModel(criteria=[], tests=[], diagnostic_criteria=DiagnosticCriteriaModel(primary=[], secondary=[], exclusion=[], symptoms=[], physical_exam=[], laboratory_tests=[], imaging_studies=[]), differential_diagnosis=[]),
-        management=DiseaseManagementModel(treatments=[], medications=[], lifestyle=[], treatment_options=[], prevention=[], prognosis="Variable"),
-        research=DiseaseResearchModel(current_research="None", recent_advancements="None", future_outlooks=[], current_trends=[]),
-        special_populations=DiseaseSpecialPopulationsModel(pediatric="None", geriatric="None", pregnancy="None"),
-        living_with=DiseaseLivingWithModel(dietary_guidelines=[], physical_activity=[], support_resources=[]),
-        summary="Heart info"
+        common_diseases=["CAD", "Heart Failure"],
+        rare_diseases=["Brugada Syndrome"],
+        educational_points=["Exercise daily", "Low salt diet"]
     )
-    mock_output = ModelOutput(data=mock_data, data_available=True)
+    
+    mock_output = ModelOutput(data=mock_data, markdown=None)
     mock_lite_client.return_value.generate_text.return_value = mock_output
-    result = generator.generate_text("Heart", "Heart attack", structured=True)
-    assert result.data.identification.organ == "Heart"
+    
+    result = generator.generate_text("Heart", structured=True)
+    assert result.data.organ == "Heart"
+
+@patch('medical.organ_diseases.organ_disease_info.save_model_response')
+def test_save_success(mock_save, mock_lite_client):
+    config = ModelConfig(model="test-model")
+    generator = DiseaseInfoGenerator(config)
+    mock_output = ModelOutput(markdown="Info")
+    mock_lite_client.return_value.generate_text.return_value = mock_output
+    
+    generator.generate_text("Heart")
+    generator.save(mock_output, Path("/tmp"))
+    
+    mock_save.assert_called_once()
+    args, _ = mock_save.call_args
+    assert args[0] == mock_output
+    assert str(args[1]).endswith("heart_diseases")

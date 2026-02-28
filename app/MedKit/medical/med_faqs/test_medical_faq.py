@@ -34,15 +34,18 @@ def test_generate_text_structured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalFAQGenerator(config)
     mock_data = MedicalFAQModel(
-        topic="Diabetes",
-        patient_faqs=PatientFAQModel(items=[FAQItemModel(question="What is it?", answer="A condition", medical_context="General", key_points=["Chronic"])]),
-        provider_faqs=ProviderFAQModel(items=[FAQItemModel(question="Management?", answer="Insulin", medical_context="Clinical", key_points=["Medication"])]),
-        misconceptions=[MisconceptionItemModel(misconception="Only old people get it", reality="Anyone can")],
-        when_to_seek_care=WhenToSeekCareModel(urgent_signs=["Very high sugar"], emergency_signs=["Coma"]),
-        see_also=SeeAlsoTopicsModel(topics=["Insulin"], resources=["WHO"]),
-        summary="Diabetes FAQ"
+        topic_name="Diabetes",
+        metadata={"version": "1.0"},
+        patient_faq=PatientFAQModel(
+            topic_name="Diabetes",
+            introduction="Intro",
+            faqs=[FAQItemModel(question="What is it?", answer="A condition")],
+            when_to_seek_care=[WhenToSeekCareModel(symptom_or_condition="Fever", urgency_level="Urgent", action_needed="See doctor")],
+            misconceptions=[MisconceptionItemModel(misconception="Myth", clarification="Truth", explanation="Reason")],
+            see_also=[SeeAlsoTopicsModel(name="Insulin", category="test", description="Desc", relevance="Rel")]
+        )
     )
     mock_output = ModelOutput(data=mock_data, data_available=True)
     mock_lite_client.return_value.generate_text.return_value = mock_output
     result = generator.generate_text("What is diabetes?", structured=True)
-    assert result.data.topic == "Diabetes"
+    assert result.data.topic_name == "Diabetes"

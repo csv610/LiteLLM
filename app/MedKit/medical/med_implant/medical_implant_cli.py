@@ -7,13 +7,16 @@ from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from .medical_implant import MedicalImplantGenerator
+try:
+    from .medical_implant import MedicalImplantGenerator
+except (ImportError, ValueError):
+    from medical.med_implant.medical_implant import MedicalImplantGenerator
 
 logger = logging.getLogger(__name__)
 
 def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate comprehensive medical implant information.")
-    parser.add_argument("implant", help="Implant name or file path containing names.")
+    parser.add_argument("-i", "--implant", required=True, help="Implant name or file path containing names.")
     parser.add_argument("-d", "--output-dir", default="outputs", help="Output directory.")
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")

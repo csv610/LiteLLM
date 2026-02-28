@@ -1,30 +1,23 @@
 import json
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Union
 from pydantic import BaseModel, Field
 import re
+import sys
+from pathlib import Path
+
+# Add project root to sys.path to access lite module
+project_root = str(Path(__file__).resolve().parents[4])
+if project_root not in sys.path:
+    sys.path.append(project_root)
 
 try:
-    from medkit.core.gemini_client import GeminiClient, ModelConfig, ModelInput
+    from lite.lite_client import LiteClient
+    from lite.config import ModelConfig, ModelInput
 except ImportError:
-    # Fallback classes
-    class ModelConfig:
-        def __init__(self, model_name="gemini-2.5-flash", temperature=0.7, max_output_tokens=2048):
-            self.model_name = model_name
-            self.temperature = temperature
-            self.max_output_tokens = max_output_tokens
-
-    class ModelInput:
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    class GeminiClient:
-        def __init__(self, config=None):
-            self.config = config or ModelConfig()
-
-        def query(self, prompt, **kwargs):
-            return "Mock medical response"
+    # Fallback to local imports or mock if necessary, though LiteClient is preferred
+    from lite_client import LiteClient
+    from config import ModelConfig, ModelInput
 
 # ==================== Data Models ====================
 
@@ -69,6 +62,7 @@ class ClinicalAssessment(BaseModel):
     most_likely_diagnosis: str
     diagnostic_confidence: str = Field(description="High, moderate, low")
     red_flags: List[str] = Field(description="Warning signs requiring immediate attention")
+    thinking_process: List[str] = Field(description="Internal medical reasoning captured during consultation", default_factory=list)
 
 class ManagementPlan(BaseModel):
     investigations_ordered: List[str] = Field(description="Lab tests, imaging, other diagnostic tests")
@@ -105,112 +99,23 @@ class EmergencyException(Exception):
         super().__init__(f"Emergency detected: {', '.join(red_flags)}")
 
 
-# ==================== Prompt Builder ====================
-
-class PromptBuilder:
-    """Builder class for creating prompts for medical consultation."""
-
-    @staticmethod
-    def create_system_prompt() -> str:
-        """
-        Create the system prompt for medical consultation.
-
-        Returns:
-            str: System prompt defining the AI's role and guidelines
-        """
-        return """You are a compassionate, skilled medical professional conducting a comprehensive medical consultation. Your role is to gather accurate patient information through thoughtful questioning while ensuring patient comfort and safety.
-
-Your responsibilities include:
-- Asking clear, focused medical history questions that are easy for patients to understand
-- Using simple language and avoiding overwhelming medical jargon
-- Being empathetic and patient-centered in your approach
-- Detecting and responding appropriately to medical red flags and emergency situations
-- Gathering comprehensive information about symptoms, medical history, and relevant factors
-- Building rapport and trust with patients through compassionate communication
-
-Guidelines:
-- Ask ONE clear question at a time
-- Use simple, everyday language that patients can easily understand
-- Be compassionate and non-judgmental in all interactions
-- Listen carefully to patient responses and ask relevant follow-up questions
-- Identify emergency red flags (chest pain, severe bleeding, loss of consciousness, etc.)
-- Base your questions on established medical interview practices
-- Maintain professionalism while being warm and approachable
-
-Always prioritize patient safety, accurate information gathering, and compassionate care."""
-
-    @staticmethod
-    def create_question_prompt(q_num: int, max_questions: int) -> str:
-        """
-        Create the prompt for generating the next medical history question.
-
-        Args:
-            q_num: Current question number (0-indexed)
-            max_questions: Total number of questions
-
-        Returns:
-            str: Formatted prompt for question generation
-        """
-        return f"""Ask the next relevant medical history question (Question {q_num + 1} of {max_questions}).
-Use simple language. Be compassionate. Ask ONE clear question at a time.
-Example: "You mentioned the headache started suddenly - what were you doing when it happened?"
-Avoid jargon and overwhelming the patient."""
-
-    @staticmethod
-    def create_summary_prompt(demographics: PatientDemographics, complaint: ChiefComplaint,
-                             conversation_log: list) -> str:
-        """
-        Create the prompt for generating a comprehensive medical summary.
-
-        Args:
-            demographics: Patient demographic information
-            complaint: Chief complaint information
-            conversation_log: List of Q&A exchanges
-
-        Returns:
-            str: Formatted prompt for summary generation
-        """
-        return f"""
-Based on this consultation, generate a comprehensive medical summary:
-
-Patient: {demographics.name}, {demographics.age}yo {demographics.gender}
-Chief Complaint: {complaint.primary_complaint}
-
-Consultation Q&A:
-{json.dumps(conversation_log, indent=2)}
-
-Generate ONLY valid JSON with these fields:
-- consultation_date (today's date)
-- patient_demographics (name, age, gender, occupation)
-- chief_complaint (primary_complaint, duration, severity, onset)
-- history_of_present_illness (narrative)
-- review_of_systems (constitutional, cardiovascular, respiratory, gastrointestinal, genitourinary, musculoskeletal, neurological, psychiatric, skin - each an array)
-- past_medical_history (past_medical_conditions, current_medications, allergies, surgical_history, family_history, social_history)
-- physical_examination (vital_signs dict, general_appearance, specific_findings array)
-- clinical_assessment (differential_diagnosis array, most_likely_diagnosis, diagnostic_confidence, red_flags array)
-- management_plan (investigations_ordered array, treatment_prescribed array, patient_education array, follow_up_plan, referrals array, precautions array)
-- clinical_notes (string)
-- emergency_alert (null or object with is_emergency, red_flags_detected, recommendation, action_required)
-
-Return ONLY the JSON object, no markdown or extra text."""
-
+from symptom_detection_prompts import PromptBuilder
 
 # ==================== Main Consultation Class ====================
 
 class MedicalConsultation:
-    """Simple medical consultation system."""
+    """Enhanced medical consultation system using LiteClient and structured branching."""
 
-    def __init__(self):
-        config = ModelConfig(
-            model_name='gemini-2.5-flash',
-            temperature=0.7,
-            max_output_tokens=2048
+    def __init__(self, model: str = "ollama/gemma3"):
+        self.config = ModelConfig(
+            model=model,
+            temperature=0.7
         )
-        self.client = GeminiClient(config=config)
+        self.client = LiteClient(model_config=self.config)
         self.conversation_history = []
-        self.transcript = []  # Store all Q&A for transcript
+        self.transcript = []
 
-        # Red flag keywords based on US medical standards
+        # Red flag keywords for immediate escalation
         self.red_flag_keywords = {
             "chest_pain": ["chest pain", "chest pressure", "chest tightness", "heart attack"],
             "respiratory_distress": ["shortness of breath", "short of breath", "trouble breathing", "difficulty breathing",
@@ -259,7 +164,7 @@ class MedicalConsultation:
 
         return len(detected_flags) > 0, detected_flags
 
-    def run(self):
+    def run(self, max_questions: int = 15):
         """Run the consultation from start to finish."""
         try:
             # Print disclaimers
@@ -270,7 +175,7 @@ class MedicalConsultation:
                 print("\nConsultation cannot proceed without acknowledgment.")
                 return None, None, None
 
-            # Collect basic info
+            # Collect prelimary info
             print("\n" + "="*80)
             print("PATIENT REGISTRATION")
             print("="*80)
@@ -280,39 +185,52 @@ class MedicalConsultation:
             gender = input("Gender (M/F/Other): ").strip()
             occupation = input("Occupation (optional): ").strip() or None
 
-            print("\nCHIEF COMPLAINT")
-            print("-" * 80)
-            complaint = input("What brings you here today? ").strip()
-            duration = input("How long have you had this? ").strip()
-            severity = input("How severe? (mild/moderate/severe): ").strip()
-            onset = input("How did it start? (sudden/gradual): ").strip()
-
-            # Store basic data
+            # Store demographics
             demographics = PatientDemographics(name=name, age=age, gender=gender, occupation=occupation)
-            chief_complaint = ChiefComplaint(
-                primary_complaint=complaint,
-                duration=duration,
-                severity=severity,
-                onset=onset
-            )
-
-            # Build context and conduct Q&A
-            context = self._build_context(demographics, chief_complaint)
+            
+            # Initial context
+            context = self._build_context(demographics)
             self.conversation_history.append({"role": "user", "content": context})
 
             print("\n" + "="*80)
-            print("CONSULTATION")
+            print("CONSULTATION (Branching Mode)")
             print("="*80)
-            print(f"\nDoctor: Thank you for coming in, {name}. I'll ask you some questions to understand your condition.\n")
+            print(f"\nDoctor: Thank you for coming in, {name}. Let me take a moment to understand your situation.\n")
 
-            conversation_log = self._conduct_qa(max_questions=15, patient_name=name)
+            # First question as requested: "What is troubling you?"
+            thinking_proc = "[THINKING: I am starting the initial assessment of the chief complaint.]"
+            question_text = "What is troubling you?"
+            print(f"Doctor:1 {question_text}")
+            self.transcript.append(f"Doctor:1 {thinking_proc} {question_text}")
+            first_answer = input("Patient: ").strip()
+            self.transcript.append(f"Patient: {first_answer}")
+            
+            # Check for red flags in first answer
+            is_emergency, red_flags = self.detect_red_flags(first_answer)
+            if is_emergency:
+                raise EmergencyException(red_flags, patient_name=name)
+
+            self.conversation_history.extend([
+                {"role": "model", "content": f"Doctor:1 {thinking_proc} {question_text}"},
+                {"role": "user", "content": first_answer}
+            ])
+
+            # Initialize conversation log with the first question
+            initial_log = [{"question": f"{thinking_proc} {question_text}", "answer": first_answer}]
+            
+            conversation_log = self._conduct_qa(
+                demographics=demographics, 
+                initial_log=initial_log, 
+                max_questions=max_questions, 
+                patient_name=name
+            )
 
             # Generate medical summary
             print("\n" + "="*80)
             print("Generating medical summary...")
             print("="*80 + "\n")
 
-            summary_dict = self._generate_summary(demographics, chief_complaint, conversation_log)
+            summary_dict = self._generate_summary(demographics, conversation_log)
             summary = MedicalSummary(**summary_dict)
             print("✓ Summary generated\n")
 
@@ -353,11 +271,6 @@ ALWAYS SEEK PROFESSIONAL MEDICAL CARE FOR:
 • Confirmation of diagnoses
 • Prescription medications
 • Professional medical examination
-
-DATA PROTECTION (HIPAA):
-• Your information is sensitive and protected
-• Store securely and do not share without consent
-• Consult privacy policy for data handling
 """)
         print("="*80 + "\n")
 
@@ -366,43 +279,50 @@ DATA PROTECTION (HIPAA):
         response = input("Do you acknowledge and accept these disclaimers? (yes/no): ").strip().lower()
         return response in ['yes', 'y']
 
-    def _build_context(self, demographics: PatientDemographics, complaint: ChiefComplaint) -> str:
-        """Build context for AI doctor."""
+    def _build_context(self, demographics: PatientDemographics) -> str:
+        """Build initial context for AI doctor."""
         return f"""
 PATIENT INFORMATION:
 Name: {demographics.name}
 Age: {demographics.age}
 Gender: {demographics.gender}
-Chief Complaint: {complaint.primary_complaint}
-Duration: {complaint.duration}
-Severity: {complaint.severity}
-Onset: {complaint.onset}
+Occupation: {demographics.occupation or 'Not specified'}
 
-You are a compassionate medical doctor conducting a consultation. Ask one question at a time
-in simple, non-technical language. Be empathetic and adapt based on patient responses.
-Focus on understanding the patient's symptoms and medical context.
+The doctor is starting the interview. The first question asked was 'What is troubling you?'.
+Follow the branching rules and thinking process strictly.
 """
 
-    def _conduct_qa(self, max_questions: int = 15, patient_name: str = "") -> list:
-        """Conduct question-answer cycle."""
-        conversation_log = []
+    def _conduct_qa(self, demographics: PatientDemographics, initial_log: list, max_questions: int = 15, patient_name: str = "") -> list:
+        """Conduct question-answer cycle with thinking process and branching."""
+        conversation_log = list(initial_log)
 
         for q_num in range(max_questions):
-            # Generate question
-            prompt = PromptBuilder.create_question_prompt(q_num, max_questions)
+            # Format history for the prompt
+            history_str = ""
+            for entry in conversation_log:
+                history_str += f"Doctor: {entry['question']}\nPatient: {entry['answer']}\n\n"
 
-            conversation_content = [msg["content"] for msg in self.conversation_history]
-            conversation_content.append(prompt)
-            full_prompt = "\n".join(conversation_content)
+            # Create detailed context for the LLM
+            context_str = f"PATIENT: {demographics.name}, {demographics.age}yo {demographics.gender}, {demographics.occupation or 'Not specified'}\n\n"
+            context_str += f"CONVERSATION HISTORY:\n{history_str}"
 
+            # Generate question using LiteClient
+            user_prompt = f"{context_str}\n\nContinue the consultation (Question {q_num + 2}). Categorize the previous response into the decision tree (YES/NO/UNCERTAIN/REFUSED/VAGUE), state your thinking (especially if repeating a question for a VAGUE response), and ask the next question. IMPORTANT: Do NOT repeat the same question if the previous response was clear and sufficient."
+            
             model_input = ModelInput(
                 system_prompt=PromptBuilder.create_system_prompt(),
-                user_prompt=full_prompt
+                user_prompt=user_prompt
             )
-            question = self.client.generate_content(model_input, stream=False).strip()
+            
+            # LiteClient usage: generate_text
+            response = self.client.generate_text(model_input)
+            full_question = response.strip()
 
-            print(f"Doctor: {question}")
-            self.transcript.append(f"Doctor: {question}")
+            # Remove [THINKING: ...] for console display
+            display_question = re.sub(r'\[THINKING:.*?\]', '', full_question).strip()
+
+            print(f"Doctor:{q_num + 2} {display_question}")
+            self.transcript.append(f"Doctor:{q_num + 2} {full_question}")
 
             # Get answer
             answer = input("Patient: ").strip()
@@ -416,9 +336,9 @@ Focus on understanding the patient's symptoms and medical context.
             if is_emergency:
                 raise EmergencyException(red_flags, patient_name=patient_name)
 
-            conversation_log.append({"question": question, "answer": answer})
+            conversation_log.append({"question": full_question, "answer": answer})
             self.conversation_history.extend([
-                {"role": "model", "content": question},
+                {"role": "model", "content": f"Doctor:{q_num + 2} {full_question}"},
                 {"role": "user", "content": answer}
             ])
 
@@ -426,16 +346,16 @@ Focus on understanding the patient's symptoms and medical context.
 
         return conversation_log
 
-    def _generate_summary(self, demographics: PatientDemographics, complaint: ChiefComplaint,
+    def _generate_summary(self, demographics: PatientDemographics,
                          conversation_log: list) -> dict:
-        """Generate medical summary using AI."""
-        prompt = PromptBuilder.create_summary_prompt(demographics, complaint, conversation_log)
+        """Generate medical summary using LiteClient."""
+        prompt = PromptBuilder.create_summary_prompt(demographics, conversation_log)
 
         model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=prompt
         )
-        response = self.client.generate_content(model_input, stream=False)
+        response = self.client.generate_text(model_input)
 
         return self._parse_json_from_response(response)
 
@@ -489,7 +409,7 @@ Focus on understanding the patient's symptoms and medical context.
         for system, findings in summary.review_of_systems.model_dump().items():
             if findings:
                 lines.append(f"{system.upper()}: {', '.join(findings)}")
-        lines.append()
+        lines.append("")
 
         # Medical history
         lines.append("PAST MEDICAL HISTORY")
@@ -505,7 +425,7 @@ Focus on understanding the patient's symptoms and medical context.
             lines.append(f"Surgeries: {', '.join(pmh.surgical_history)}")
         if pmh.family_history:
             lines.append(f"Family History: {', '.join(pmh.family_history)}")
-        lines.append()
+        lines.append("")
 
         # Physical exam
         lines.append("PHYSICAL EXAMINATION")
@@ -519,7 +439,7 @@ Focus on understanding the patient's symptoms and medical context.
             lines.append("Findings:")
             for finding in pe.specific_findings:
                 lines.append(f"  • {finding}")
-        lines.append()
+        lines.append("")
 
         # Assessment
         lines.append("CLINICAL ASSESSMENT")
@@ -534,7 +454,12 @@ Focus on understanding the patient's symptoms and medical context.
             lines.append("\n⚠ RED FLAGS:")
             for flag in ca.red_flags:
                 lines.append(f"  • {flag}")
-        lines.append()
+        
+        if ca.thinking_process:
+            lines.append("\nINTERNAL REASONING (THINKING PROCESS):")
+            for thought in ca.thinking_process:
+                lines.append(f"  • {thought}")
+        lines.append("")
 
         # Management
         lines.append("MANAGEMENT PLAN")
@@ -555,7 +480,7 @@ Focus on understanding the patient's symptoms and medical context.
         lines.append("\n⚠ Return Immediately If:")
         for precaution in mp.precautions:
             lines.append(f"  • {precaution}")
-        lines.append()
+        lines.append("")
 
         # Notes
         lines.append("CLINICAL NOTES")
@@ -608,24 +533,3 @@ Focus on understanding the patient's symptoms and medical context.
         print("\n⚠️  STOP THIS CONSULTATION")
         print("⚠️  CALL 911 IMMEDIATELY or go to the nearest Emergency Room")
         print("="*80 + "\n")
-
-def cli():
-    """Run the medical consultation system."""
-    app = MedicalConsultation()
-
-    try:
-        summary, summary_file, report_file = app.run()
-
-        if summary:
-            print("✓ Consultation completed successfully!")
-        else:
-            print("⚠️  Consultation ended due to emergency.")
-
-    except KeyboardInterrupt:
-        print("\n\nConsultation interrupted by user.")
-    except Exception as e:
-        print(f"\nError: {e}")
-
-
-if __name__ == "__main__":
-    cli()

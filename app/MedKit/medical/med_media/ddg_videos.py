@@ -29,16 +29,20 @@ class DuckDuckVideos:
         return self.sort_by_duration(video_urls)
 
     def _duration_to_seconds(self, duration_str):
-        if duration_str == 'N/A':
+        if duration_str == 'N/A' or not duration_str:
             return float('inf')
-        match = re.match(r'(?:(\d+):)?(\d+):?(\d+)?', duration_str)
-        if not match:
+        
+        parts = duration_str.split(':')
+        try:
+            parts = [int(p) for p in parts]
+            if len(parts) == 3: # HH:MM:SS
+                return parts[0] * 3600 + parts[1] * 60 + parts[2]
+            elif len(parts) == 2: # MM:SS
+                return parts[0] * 60 + parts[1]
+            elif len(parts) == 1: # SS
+                return parts[0]
+        except (ValueError, TypeError):
             return float('inf')
-        parts = [int(p) if p else 0 for p in match.groups()]
-        if len(parts) == 3:
-            return parts[0] * 3600 + parts[1] * 60 + parts[2]
-        elif len(parts) == 2:
-            return parts[0] * 60 + parts[1]
         return float('inf')
 
     def sort_by_duration(self, videos):

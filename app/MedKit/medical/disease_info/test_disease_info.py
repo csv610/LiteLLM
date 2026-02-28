@@ -45,11 +45,10 @@ def test_generate_text_structured(mock_lite_client):
         management=DiseaseManagementModel(treatments=[], medications=[], lifestyle=[], treatment_options=[], prevention=[], prognosis="Variable"),
         research=DiseaseResearchModel(current_research="None", recent_advancements="None", future_outlooks=[], current_trends=[]),
         special_populations=DiseaseSpecialPopulationsModel(pediatric="None", geriatric="None", pregnancy="None"),
-        living_with=DiseaseLivingWithModel(dietary_guidelines=[], physical_activity=[], support_resources=[]),
-        summary="A chronic disease"
+                    living_with=DiseaseLivingWithModel(quality_of_life="None", support_resources=[]),        summary="A chronic disease"
     )
     mock_output = ModelOutput(data=mock_data, data_available=True)
     mock_lite_client.return_value.generate_text.return_value = mock_output
     
     result = generator.generate_text("Diabetes", structured=True)
-    assert result.data.identity.disease_name == "Diabetes"
+    assert result.data.identity.name == "Diabetes"

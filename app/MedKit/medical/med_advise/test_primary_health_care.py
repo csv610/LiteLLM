@@ -30,13 +30,14 @@ def test_generate_text_structured(mock_lite_client):
     config = ModelConfig(model="test-model")
     provider = PrimaryHealthCareProvider(config)
     mock_data = PrimaryCareResponseModel(
-        preliminary_assessment="Cough",
-        self_care_guidance="Rest",
-        clinical_guidance="See doctor",
-        safety_protocol="Emergency signs",
-        summary="Cough management"
+        understanding_concern="Cough",
+        common_symptoms=["Cough", "Fever"],
+        general_explanation="A chronic cough",
+        self_care_advice="Rest",
+        when_to_seek_care="Fever",
+        next_steps=["See doctor"]
     )
     mock_output = ModelOutput(data=mock_data, data_available=True)
     mock_lite_client.return_value.generate_text.return_value = mock_output
     result = provider.generate_text("I have a cough", structured=True)
-    assert result.data.preliminary_assessment == "Cough"
+    assert result.data.understanding_concern == "Cough"

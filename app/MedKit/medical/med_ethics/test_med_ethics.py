@@ -36,17 +36,18 @@ def test_generate_text_structured(mock_lite_client):
     generator = MedEthicalQA(config)
     
     mock_data = EthicalAnalysisModel(
-        topic="Organ transplantation",
-        ethical_principles=[EthicalPrincipleModel(principle="Autonomy", principle_name="Autonomy", description="Self-determination", ethical_implications="Patient choice")],
-        stakeholders=[StakeholderModel(name="Patient", stakeholder_name="Patient", interests=["Health"], interest_description="Access to care")],
-        legal_frameworks=[LegalFrameworkModel(jurisdiction="Global", laws=["N/A"], framework_name="WHO", legal_framework_description="Global standards")],
-        pros=["Saves lives"],
-        cons=["Scarcity"],
-        conclusion="Complex topic",
-        summary="Ethics of organ transplantation"
+        case_title="Organ Transplant",
+        summary="Dilemma",
+        facts=["Fact"],
+        ethical_issues=["Issue"],
+        principles=[EthicalPrincipleModel(principle="Autonomy", application="Self-determination", implications=["Choice"])],
+        stakeholders=[StakeholderModel(name="Patient", interests=["Health"], rights=["Care"])],
+        legal_considerations=LegalFrameworkModel(regulations=["Law"], professional_guidelines=["Guide"]),
+        recommendations=["Action"],
+        conclusion="Complex topic"
     )
     mock_output = ModelOutput(data=mock_data, data_available=True)
     mock_lite_client.return_value.generate_text.return_value = mock_output
     
     result = generator.generate_text("Organ transplantation", structured=True)
-    assert result.data.topic == "Organ transplantation"
+    assert result.data.case_title == "Organ Transplant"
