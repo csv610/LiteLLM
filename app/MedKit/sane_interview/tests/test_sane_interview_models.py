@@ -1,5 +1,11 @@
+import os
+import sys
 import pytest
 from pydantic import ValidationError
+
+# Add parent directory to sys.path to allow imports when running from within tests/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from sane_interview_models import (
     SANEInterviewRecord, ConsentSection, MedicalHistory, 
     YesNoUnsure, SexualContactType

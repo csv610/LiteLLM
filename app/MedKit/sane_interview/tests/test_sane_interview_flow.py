@@ -1,4 +1,10 @@
+import os
+import sys
 import pytest
+
+# Add parent directory to sys.path to allow imports when running from within tests/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from sane_interview import SANEInterview, Question
 from sane_interview_models import YesNoUnsure, SANEInterviewRecord, SexualContactType
 

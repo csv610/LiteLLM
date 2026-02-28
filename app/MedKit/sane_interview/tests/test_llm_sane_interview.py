@@ -1,5 +1,11 @@
+import os
+import sys
 import pytest
 from unittest.mock import MagicMock, patch
+
+# Add parent directory to sys.path to allow imports when running from within tests/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from llm_sane_interview import (
     LLMAssistedSANEInterviewer, InterviewContext, QuestionSuggestion
 )
