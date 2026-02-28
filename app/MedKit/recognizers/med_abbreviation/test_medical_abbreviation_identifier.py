@@ -6,6 +6,8 @@ This script validates the medical abbreviation identifier functionality without 
 """
 
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
 import random
 from pathlib import Path
 
