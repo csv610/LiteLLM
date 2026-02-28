@@ -8,7 +8,8 @@ import random
 from pathlib import Path
 
 # Add project root to sys.path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent.absolute()))
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../")))
 
 from app.MedKit.recognizers.drug.drug_recognizer_model import DrugIdentifierModel, DrugIdentificationModel, ModelOutput
 from app.MedKit.recognizers.drug.drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
