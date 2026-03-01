@@ -4,8 +4,12 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite.utils import save_model_response
 
-from .surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
-from .surgical_tool_info_prompts import PromptBuilder
+try:
+    from .surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
+    from .surgical_tool_info_prompts import PromptBuilder
+except (ImportError, ValueError):
+    from surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
+    from surgical_tool_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

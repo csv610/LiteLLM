@@ -7,7 +7,10 @@ from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from .surgical_tool_info import SurgicalToolInfoGenerator
+try:
+    from .surgical_tool_info import SurgicalToolInfoGenerator
+except (ImportError, ValueError):
+    from surgical_tool_info import SurgicalToolInfoGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +23,25 @@ def get_user_arguments() -> argparse.Namespace:
     parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
     return parser.parse_args()
 
+def setup_subparser(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
+    """Sets up the subparser for this command."""
+    parser = subparsers.add_parser(
+        "surgical-tool-info",
+        help="Generate comprehensive surgical tool information.",
+        description="Generate comprehensive surgical tool information."
+    )
+    parser.add_argument("tool", help="Tool name or file path containing names.")
+    parser.add_argument("-d", "--output-dir", default="outputs", help="Output directory.")
+    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
+    parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")
+    parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
+    parser.set_defaults(func=main)
+    return parser
+
 def main():
+    """Main entry point for the CLI."""
     args = get_user_arguments()
+
     configure_logging(log_file="surgical_tool_info.log", verbosity=args.verbosity, enable_console=True)
     
     output_dir = Path(args.output_dir)
@@ -46,5 +66,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

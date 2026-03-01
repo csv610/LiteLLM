@@ -7,7 +7,10 @@ from tqdm import tqdm
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from .surgical_tray_info import SurgicalTrayGenerator
+try:
+    from .surgical_tray_info import SurgicalTrayGenerator
+except (ImportError, ValueError):
+    from surgical_tray_info import SurgicalTrayGenerator
 
 logger = logging.getLogger(__name__)
 
