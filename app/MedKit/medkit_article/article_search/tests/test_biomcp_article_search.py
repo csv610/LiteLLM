@@ -1,7 +1,7 @@
 import pytest
 import json
 from unittest.mock import MagicMock, patch
-from article_search.biomcp_article_search import MedicalArticleSearch
+from biomcp_articles_search import MedicalArticleSearch
 
 @pytest.fixture
 def searcher():

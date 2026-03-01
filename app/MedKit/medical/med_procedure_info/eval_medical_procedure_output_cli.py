@@ -1,5 +1,13 @@
 """eval_medical_procedure_output - Critically review medical procedure documentation."""
 
+import sys
+from pathlib import Path
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+
 import argparse
 import logging
 from pathlib import Path
@@ -12,7 +20,10 @@ sys.path.append(str(Path(__file__).parent))
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from .eval_medical_procedure_output import MedicalProcedureEvaluator
+try:
+    from .eval_medical_procedure_output import MedicalProcedureEvaluator
+except (ImportError, ValueError):
+    from medical.med_procedure_info.eval_medical_procedure_output import MedicalProcedureEvaluator
 
 logger = logging.getLogger(__name__)
 

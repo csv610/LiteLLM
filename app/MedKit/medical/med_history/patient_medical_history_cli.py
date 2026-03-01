@@ -1,13 +1,27 @@
 """Patient Medical History Questions Generator CLI."""
 
+import sys
+from pathlib import Path
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+
 import argparse
 import logging
 from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from .patient_medical_history import PatientMedicalHistoryGenerator
-from .patient_medical_history_prompts import MedicalHistoryInput
+try:
+    from .patient_medical_history import PatientMedicalHistoryGenerator
+except (ImportError, ValueError):
+    from medical.med_history.patient_medical_history import PatientMedicalHistoryGenerator
+try:
+    from .patient_medical_history_prompts import MedicalHistoryInput
+except (ImportError, ValueError):
+    from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
 
 logger = logging.getLogger(__name__)
 

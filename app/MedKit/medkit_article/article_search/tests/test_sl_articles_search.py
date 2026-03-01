@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from article_search.sl_articles_search import display_articles
+from articles_search_sl import display_articles
 
-@patch('article_search.sl_articles_search.st')
+@patch('articles_search_sl.st')
 def test_display_articles_empty(mock_st):
     display_articles([])
     mock_st.info.assert_called_with("No valid articles found.")
 
-@patch('article_search.sl_articles_search.st')
+@patch('articles_search_sl.st')
 def test_display_articles_success(mock_st):
     articles = [
         {

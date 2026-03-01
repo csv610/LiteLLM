@@ -131,6 +131,18 @@ Most AI tools provide "chat." MedKit provides **Standardized Clinical Output**.
 
 ---
 
+### 📚 `medkit-article` Subcommands (5 Modules)
+
+| # | Subcommand | Primary Utility |
+| :--- | :--- | :--- |
+| 1 | **`search`** | Search for medical articles using PubMed (via `biomcp`). |
+| 2 | **`review`** | Perform structured reviews of medical articles using LLMs. |
+| 3 | **`compare`** | Side-by-side comparison of two medical articles. |
+| 4 | **`summarize`** | Generate cohesive summaries for long medical articles. |
+| 5 | **`keywords`** | Extract precise medical keywords and terminology from articles. |
+
+---
+
 ### ⚖️ `medkit-legal` Subcommands (2 Modules)
 
 | # | Subcommand | Primary Utility |

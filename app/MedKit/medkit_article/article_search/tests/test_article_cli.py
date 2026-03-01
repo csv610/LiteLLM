@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from article_search.article_cli import main
+from articles_search_cli import main
 import json
 import io
 from contextlib import redirect_stdout
 
-@patch('article_search.article_cli.MedicalArticleSearch')
+@patch('articles_search_cli.MedicalArticleSearch')
 def test_cli_search_text_output(mock_search_class):
     # Setup mock
     mock_searcher = MagicMock()
@@ -21,7 +21,7 @@ def test_cli_search_text_output(mock_search_class):
         }
     ]
 
-    with patch('sys.argv', ['article_cli.py', 'search', 'diabetes']):
+    with patch('sys.argv', ['articles_search_cli.py', 'search', 'diabetes']):
         f = io.StringIO()
         with redirect_stdout(f):
             main()
@@ -31,7 +31,7 @@ def test_cli_search_text_output(mock_search_class):
     assert "Test Title" in output
     assert "PMID: 12345" in output
 
-@patch('article_search.article_cli.MedicalArticleSearch')
+@patch('articles_search_cli.MedicalArticleSearch')
 def test_cli_search_json_output(mock_search_class):
     # Setup mock
     mock_searcher = MagicMock()
@@ -47,7 +47,7 @@ def test_cli_search_json_output(mock_search_class):
     ]
     mock_searcher.search_articles.return_value = articles
 
-    with patch('sys.argv', ['article_cli.py', 'search', 'diabetes', '--json']):
+    with patch('sys.argv', ['articles_search_cli.py', 'search', 'diabetes', '--json']):
         f = io.StringIO()
         with redirect_stdout(f):
             main()
@@ -57,7 +57,7 @@ def test_cli_search_json_output(mock_search_class):
     assert len(parsed_output) == 1
     assert parsed_output[0]['title'] == 'Test Title'
 
-@patch('article_search.article_cli.MedicalArticleSearch')
+@patch('articles_search_cli.MedicalArticleSearch')
 def test_cli_cite_output(mock_search_class):
     # Setup mock
     mock_searcher = MagicMock()
@@ -65,7 +65,7 @@ def test_cli_cite_output(mock_search_class):
     mock_searcher.search_articles.return_value = [{}] # Just to make it not empty
     mock_searcher.get_article_citations.return_value = ["1. Citation 1", "2. Citation 2"]
 
-    with patch('sys.argv', ['article_cli.py', 'cite', 'diabetes']):
+    with patch('sys.argv', ['articles_search_cli.py', 'cite', 'diabetes']):
         f = io.StringIO()
         with redirect_stdout(f):
             main()
@@ -75,14 +75,14 @@ def test_cli_cite_output(mock_search_class):
     assert "1. Citation 1" in output
     assert "2. Citation 2" in output
 
-@patch('article_search.article_cli.MedicalArticleSearch')
+@patch('articles_search_cli.MedicalArticleSearch')
 def test_cli_no_articles(mock_search_class):
     # Setup mock
     mock_searcher = MagicMock()
     mock_search_class.return_value = mock_searcher
     mock_searcher.search_articles.return_value = []
 
-    with patch('sys.argv', ['article_cli.py', 'search', 'disease_x']):
+    with patch('sys.argv', ['articles_search_cli.py', 'search', 'disease_x']):
         f = io.StringIO()
         with redirect_stdout(f):
             main()

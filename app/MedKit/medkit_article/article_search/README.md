@@ -13,10 +13,10 @@ A command-line and Streamlit-ready tool for searching medical articles using Pub
 
 ```text
 article_search/
-├── article_cli.py            # Main command-line interface
-├── biomcp_article_search.py  # Core search logic using biomcp
-├── sl_articles_search.py     # Streamlit interface
-└── tests/                    # Unit tests
+├── articles_search_cli.py     # Main command-line interface
+├── biomcp_articles_search.py  # Core search logic using biomcp
+├── articles_search_sl.py      # Streamlit interface
+└── tests/                     # Unit tests
 ```
 
 ## Prerequisites
@@ -28,26 +28,26 @@ article_search/
 
 ### Command Line Interface
 
-The main entry point is `article_cli.py`.
+The main entry point is `articles_search_cli.py`.
 
 #### 1. Search for Articles
 ```bash
-python article_cli.py search "diabetes"
+python articles_search_cli.py search "diabetes"
 ```
 
 #### 2. Get JSON Output
 ```bash
-python article_cli.py search "hypertension" --json
+python articles_search_cli.py search "hypertension" --json
 ```
 
 #### 3. Limit Number of Results
 ```bash
-python article_cli.py search "cancer" -n 5
+python articles_search_cli.py search "cancer" -n 5
 ```
 
 #### 4. Get Formatted Citations
 ```bash
-python article_cli.py cite "alzheimer"
+python articles_search_cli.py cite "alzheimer"
 ```
 
 ### Streamlit Application
@@ -55,7 +55,7 @@ python article_cli.py cite "alzheimer"
 To run the Streamlit interface (ensure `streamlit` is installed):
 
 ```bash
-streamlit run sl_articles_search.py
+streamlit run articles_search_sl.py
 ```
 
 ## Testing

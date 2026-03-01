@@ -1,5 +1,13 @@
 """Surgical Tool Information Generator CLI."""
 
+import sys
+from pathlib import Path
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+
 import argparse
 import logging
 from pathlib import Path
@@ -8,7 +16,10 @@ from tqdm import tqdm
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 try:
-    from .surgical_tool_info import SurgicalToolInfoGenerator
+    try:
+        from .surgical_tool_info import SurgicalToolInfoGenerator
+    except (ImportError, ValueError):
+        from medical.surgical_tool_info.surgical_tool_info import SurgicalToolInfoGenerator
 except (ImportError, ValueError):
     from surgical_tool_info import SurgicalToolInfoGenerator
 

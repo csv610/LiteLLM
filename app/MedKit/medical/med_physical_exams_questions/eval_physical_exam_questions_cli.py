@@ -1,3 +1,10 @@
+
+import sys
+from pathlib import Path
+# Add the project root to sys.path to support absolute imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 import argparse
 import json
 import logging
@@ -13,7 +20,10 @@ from lite.config import ModelConfig, ModelInput
 from utils import print_response
 from lite.logging_config import configure_logging
 
-from .eval_physical_exam_questions_models import QualityEvaluation
+try:
+    from .eval_physical_exam_questions_models import QualityEvaluation
+except (ImportError, ValueError):
+    from medical.med_physical_exams_questions.eval_physical_exam_questions_models import QualityEvaluation
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,8 @@
 import streamlit as st
-from biomcp_article_search import MedicalArticleSearch
+try:
+    from .biomcp_articles_search import MedicalArticleSearch
+except (ImportError, ValueError):
+    from biomcp_articles_search import MedicalArticleSearch
 
 # Set layout to wide
 st.set_page_config(layout="wide")
