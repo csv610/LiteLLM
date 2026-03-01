@@ -1,73 +1,100 @@
 # MedKit Media
 
-MedKit Media is a specialized tool within the MedKit ecosystem designed for searching, downloading, and generating AI-powered analysis for medical media, including images and videos. It leverages DuckDuckGo for content discovery and AI models (via the `lite` library) for professional medical interpretation.
+MedKit Media is a specialized module within the MedKit ecosystem for searching, downloading, and analyzing medical media (images and videos). It combines DuckDuckGo's search capabilities with AI-powered medical interpretation to provide high-quality visual references and professional documentation.
 
 ## Features
 
-- **Medical Image Search & Download**: Search for high-quality medical images (e.g., anatomy, pathology, radiology) and download them locally with automatic validation.
-- **Medical Video Discovery**: Find relevant medical videos, including educational lectures and surgical procedures, with metadata (title, duration, URL).
-- **AI-Powered Medical Captions**: Generate professional, clinically accurate captions for medical media, identifying key entities and clinical context.
-- **Educational Summaries**: Create concise medical summaries for topics or video content, highlighting clinical significance and target audiences.
-- **Streamlit Web Components**: Includes modular components (`ddg_images_sl.py`, `ddg_videos_sl.py`) for building interactive medical media dashboards and search interfaces.
-- **Structured Data Support**: Export AI analysis in structured JSON formats or clean Markdown for integration into other medical applications.
+- **🔍 Medical Image Search**: Automated search and validation of medical images (anatomy, radiology, pathology).
+- **📥 Robust Downloader**: Downloads images with automatic validation of URLs and image formats.
+- **🎥 Video Discovery**: Lists medical videos from across the web with titles, durations, and direct links.
+- **✍️ AI-Powered Captions**: Generates clinically accurate captions for images, identifying landmarks and pathology.
+- **📊 Educational Summaries**: Creates concise summaries for medical topics or video content, highlighting clinical significance and target audiences.
+- **💻 Interactive Streamlit Components**: Includes `ddg_images_sl.py` and `ddg_videos_sl.py` for integration into Streamlit-based medical dashboards.
+- **🛡️ Medical Precision**: System prompts are tailored for anatomical identification and technical medical terminology.
 
 ## Installation
 
-Ensure you have the necessary dependencies installed:
+Install the required dependencies:
 
 ```bash
 pip install ddgs requests Pillow pydantic streamlit
 ```
 
-*Note: This tool depends on the internal `lite` library for AI generation.*
+*Note: This module depends on the internal `lite` library for AI generation and model management.*
 
 ## CLI Usage
 
-The project provides a unified CLI entry point: `med_media_cli.py`.
+The primary entry point is `med_media_cli.py`.
 
 ### 1. Search and Download Images
-Search for medical images and save them to a local directory.
+Downloads medical images to `outputs/media/images/`.
 
 ```bash
+# Download 5 large images of atrial fibrillation ECG
 python med_media_cli.py images "atrial fibrillation ECG" --num 5 --size Large
 ```
 
 ### 2. Search for Videos
-Find medical videos related to a specific topic.
+Retrieves metadata and links for medical videos.
 
 ```bash
-python med_media_cli.py videos "laparoscopic cholecystectomy" --num 3
+# Find 5 laparoscopic cholecystectomy videos
+python med_media_cli.py videos "laparoscopic cholecystectomy" --num 5
 ```
 
 ### 3. Generate Medical Captions
-Generate a professional caption for a medical topic or image context.
+Generates a professional description for a specific medical context.
 
 ```bash
+# Generate a structured caption for a Mitral Valve MRI
 python med_media_cli.py caption "mitral valve prolapse" --type "mri" --structured
 ```
 
 ### 4. Generate Medical Summaries
-Generate a medical summary for educational or clinical review.
+Creates an educational summary for a medical topic.
 
 ```bash
+# Generate a summary for a diabetes management lecture
 python med_media_cli.py summary "type 2 diabetes management" --type "lecture"
 ```
 
-## Global Options
+## Global CLI Options
 
-- `-m, --model`: AI model to use (default: `ollama/gemma3`).
-- `-d, --output-dir`: Base directory for saved results (default: `outputs/media`).
-- `-v, --verbosity`: Logging verbosity level (0-4).
-- `-s, --structured`: Output results as structured JSON.
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `-m, --model` | LLM model identifier | `ollama/gemma3` |
+| `-d, --output-dir` | Directory to save all outputs | `outputs/media` |
+| `-v, --verbosity` | Logging level (0-4) | `2` |
+| `-s, --structured` | Output results as structured JSON | `False` |
 
 ## Project Structure
 
-- `med_media_cli.py`: Command-line interface.
-- `med_media.py`: Core logic for searching and AI generation.
-- `med_media_models.py`: Pydantic models for structured output.
-- `ddg_images.py` & `ddg_videos.py`: DuckDuckGo search wrappers.
-- `med_media_prompts.py`: Medical-specific AI prompt templates.
-- `tests/`: Comprehensive test suite for all modules.
+```text
+med_media/
+├── med_media_cli.py     # Main CLI entry point
+├── med_media.py         # Core business logic and generator class
+├── ddg_images.py        # Image search and download implementation
+├── ddg_videos.py        # Video search implementation
+├── ddg_images_sl.py     # Streamlit component for image search
+├── ddg_videos_sl.py     # Streamlit component for video search
+├── med_media_models.py  # Pydantic models for structured AI output
+├── med_media_prompts.py # Medical-specialized prompt templates
+└── tests/               # Unit and integration tests
+```
+
+## Output Models
+
+### `MediaCaptionModel`
+- `title`: Short descriptive title.
+- `caption`: Comprehensive medical description.
+- `key_entities`: List of anatomy, pathology, or tools identified.
+- `clinical_context`: Relevance in clinical practice.
+
+### `MediaSummaryModel`
+- `topic`: Main medical subject.
+- `summary`: Key information presented.
+- `clinical_significance`: Medical importance.
+- `target_audience`: Recommended level (Student, Resident, Specialist, Patient).
 
 ## License
 
