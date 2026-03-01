@@ -1,5 +1,5 @@
 import logging
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 import re
 
 logger = logging.getLogger(__name__)
@@ -9,7 +9,7 @@ class DuckDuckVideos:
         video_urls = []
         try:
             with DDGS() as ddgs:
-                for result in ddgs.videos(keywords=query, max_results=max_results):
+                for result in ddgs.videos(query, max_results=max_results):
                     url = result.get('url') or result.get('content') or result.get('image')
                     if not url:
                         continue

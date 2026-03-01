@@ -4,7 +4,7 @@ from io import BytesIO
 
 import requests
 from PIL import Image
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +49,12 @@ class DuckDuckImages:
         """
         image_urls = []
         try:
+            kwargs = {'max_results': max_results * 2}
+            if size:
+                kwargs['size'] = size
+                
             with DDGS() as ddgs:
-                for result in ddgs.images(
-                    query,
-                    max_results=max_results * 2,  # Request more to account for validation failures
-                    type=size if size else None
-                ):
+                for result in ddgs.images(query, **kwargs):
                     url = result.get('image')
                     if not url:
                         continue
