@@ -1,37 +1,39 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import sys
-import os
+from pathlib import Path
 
-# Mock the lite package before importing NobelPrizeWinnerInfo
-mock_lite = MagicMock()
-sys.modules["lite"] = mock_lite
+# Mock the lite package dependencies before they are imported by nobel_prize_explorer
+sys.modules["lite"] = MagicMock()
 sys.modules["lite.lite_client"] = MagicMock()
 sys.modules["lite.config"] = MagicMock()
 sys.modules["lite.logging_config"] = MagicMock()
 
-from nobel_prize_explorer import NobelPrizeWinnerInfo
+# Now we can import it
+import nobel_prize_explorer
 from nobel_prize_models import PrizeWinner, PrizeResponse
 
 @pytest.fixture
-def mock_model_config():
-    config = MagicMock()
-    config.model = "test-model"
-    return config
+def mock_explorer():
+    with patch("nobel_prize_explorer.LiteClient"), \
+         patch("nobel_prize_explorer.logging_config") as mock_log:
+        mock_log.setup_logging.return_value = MagicMock()
+        model_config = MagicMock()
+        model_config.model = "test-model"
+        explorer = nobel_prize_explorer.NobelPrizeWinnerInfo(model_config)
+        yield explorer
 
-def test_validate_model_name():
-    explorer = NobelPrizeWinnerInfo(MagicMock())
+def test_validate_model_name(mock_explorer):
     # Should not raise
-    explorer._validate_model_name("gpt-4")
-    explorer._validate_model_name("gemini/gemini-1.5-pro")
+    mock_explorer._validate_model_name("gpt-4")
+    mock_explorer._validate_model_name("gemini/gemini-1.5-pro")
     
     # Should raise
     with pytest.raises(ValueError):
-        explorer._validate_model_name("invalid model!")
+        mock_explorer._validate_model_name("invalid model!")
 
-@patch("nobel_prize_explorer.LiteClient")
-def test_fetch_winners(mock_client_class, mock_model_config):
-    mock_client = mock_client_class.return_value
+def test_fetch_winners(mock_explorer):
+    mock_client = mock_explorer.client
     
     # Mock response
     mock_winner = MagicMock(spec=PrizeWinner)
@@ -41,8 +43,7 @@ def test_fetch_winners(mock_client_class, mock_model_config):
     
     mock_client.generate_text.return_value = mock_response
     
-    explorer = NobelPrizeWinnerInfo(mock_model_config)
-    winners = explorer.fetch_winners("Physics", "2020")
+    winners = mock_explorer.fetch_winners("Physics", "2020")
     
     assert len(winners) == 1
     assert winners[0].name == "Test Winner"
