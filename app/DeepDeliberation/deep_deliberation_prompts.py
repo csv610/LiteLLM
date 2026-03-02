@@ -63,7 +63,8 @@ class PromptBuilder:
 
     @staticmethod
     def get_discovery_check_prompt(topic: str, response: str) -> str:
-        """Target Objective: Knowledge Discovery in '{topic}'
+        """Adversarial check for novelty and insight density."""
+        return f"""Target Objective: Knowledge Discovery in '{topic}'
         
         Proposed Insight:
         {response}
