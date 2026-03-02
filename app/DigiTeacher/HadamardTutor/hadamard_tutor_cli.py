@@ -1,4 +1,4 @@
-from hadamard_tutor import HadamardTutor
+from hadamard_tutor import HadamardTutorQuestionGenerator
 
 def run_cli():
     print("\n🧠 Hadamard Discovery Tutor")
@@ -7,7 +7,7 @@ def run_cli():
     topic = input("📌 Topic or Problem: ")
     level = input("📊 Your current level/context (e.g., beginner, researching, stuck): ")
 
-    tutor = HadamardTutor(topic, level)
+    tutor = HadamardTutorQuestionGenerator(topic, level)
 
     print("\n--- [Beginning Discovery Loop] ---")
     response = tutor.get_preparation_phase()

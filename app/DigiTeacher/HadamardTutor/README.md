@@ -5,14 +5,14 @@ A Python-based AI tutor that guides you through the process of mathematical and 
 ## Features
 
 - **Hadamard Prompting:** Guided stages based on "The Psychology of Invention in the Mathematical Field."
-- **Core Engine:** `HadamardTutor` class handles the discovery logic and state.
+- **Core Engine:** `HadamardTutorQuestionGenerator` class handles the discovery logic and state.
 - **CLI Interface:** Interactive command-line interface for the discovery loop.
 - **LiteClient Integration:** Compatible with multiple LLMs via `LiteClient` (defaults to `ollama/gemma3`).
 
 ## Project Structure
 
 - `hadamard_tutor_cli.py`: The entry point for the interactive CLI application.
-- `hadamard_tutor.py`: Contains the `HadamardTutor` class that manages the discovery stages.
+- `hadamard_tutor.py`: Contains the `HadamardTutorQuestionGenerator` class that manages the discovery stages.
 - `prompt_builder.py`: Contains the `PromptBuilder` class that stores all system and stage prompts.
 - `tests/`: Directory containing unit tests.
 

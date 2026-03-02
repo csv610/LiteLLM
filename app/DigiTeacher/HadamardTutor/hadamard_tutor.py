@@ -3,7 +3,7 @@ from hadamard_tutor_prompts import PromptBuilder
 
 MODEL = "ollama/gemma3"
 
-class HadamardTutor:
+class HadamardTutorQuestionGenerator:
     def __init__(self, topic, level):
         self.topic = topic
         self.level = level
