@@ -11,6 +11,7 @@ the number of questions needed to identify the object.
 import json
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from object_guessing_prompts import PromptBuilder
 
 
 class ObjectGuessingGame:
@@ -30,6 +31,7 @@ class ObjectGuessingGame:
         """
         self.model_config = ModelConfig(model=model, temperature=temperature)
         self.client = LiteClient(model_config=self.model_config)
+        self.prompt_builder = PromptBuilder(max_questions=max_questions)
         self.conversation_history = []
         self.question_count = 0
         self.max_questions = max_questions
@@ -38,49 +40,9 @@ class ObjectGuessingGame:
         """Add a message to conversation history."""
         self.conversation_history.append({"role": role, "content": content})
 
-    def build_system_prompt(self) -> str:
-        """Build the system prompt for the LLM."""
-        return """You are playing a guessing game. The user has thought of an object,
-and your job is to identify it by asking yes/no questions.
-
-RULES:
-1. Ask strategic yes/no questions to narrow down what the object is
-2. Keep track of all previous answers to avoid contradictions
-3. Ask questions that help you eliminate as many possibilities as possible
-4. After you have enough information, make a guess
-5. If you identify the object correctly, the game ends
-
-STRATEGY:
-- Start with broad categories (Is it a person? Is it an animal? Is it living?)
-- Then narrow down (Is it a common object? Is it made of metal?)
-- Use previous answers to inform follow-up questions
-- Once you're confident, make your guess in the format: "I guess it's a [OBJECT_NAME]"
-- Keep your responses concise - ask ONE question per turn (except for your guess)
-
-Remember: You have 20 questions to identify the object. Make them count!"""
-
     def get_llm_question(self) -> str:
         """Get the next question from the LLM."""
-        # Build conversation context
-        conversation_context = "\n".join(
-            [f"{msg['role'].upper()}: {msg['content']}" for msg in self.conversation_history]
-        )
-
-        system_prompt = self.build_system_prompt()
-
-        if not self.conversation_history:
-            # First question
-            prompt = f"{system_prompt}\n\nStart the game by asking your first yes/no question to identify the object."
-        else:
-            # Follow-up questions
-            prompt = f"""{system_prompt}
-
-Previous conversation:
-{conversation_context}
-
-Based on the answers so far, ask your next yes/no question to identify the object.
-Remember to keep track of all previous answers and avoid asking contradictory questions.
-Only ask yes/no questions (or make a guess when you're confident)."""
+        prompt = self.prompt_builder.build_user_prompt(self.conversation_history)
 
         model_input = ModelInput(user_prompt=prompt)
         response = self.client.generate_text(model_input=model_input)
@@ -192,38 +154,3 @@ Only ask yes/no questions (or make a guess when you're confident)."""
         print(f"\nGame Over! The LLM couldn't identify the object in {self.max_questions} questions.")
         print("Better luck next time!")
         return False
-
-
-def object_guesser_cli():
-    """Main entry point for the game."""
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Play an object guessing game with an LLM"
-    )
-    parser.add_argument(
-        "-m", "--model",
-        default="ollama/gemma3",
-        help="Model to use (default: ollama/gemma3)",
-    )
-    parser.add_argument(
-        "--temperature",
-        type=float,
-        default=0.7,
-        help="Temperature for model responses (default: 0.7)",
-    )
-    parser.add_argument(
-        "--max-questions",
-        type=int,
-        default=20,
-        help="Maximum number of questions allowed (default: 20)",
-    )
-
-    args = parser.parse_args()
-
-    game = ObjectGuessingGame(model=args.model, temperature=args.temperature, max_questions=args.max_questions)
-    game.play()
-
-
-if __name__ == "__main__":
-    object_guesser_cli()
