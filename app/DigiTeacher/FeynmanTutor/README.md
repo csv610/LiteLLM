@@ -5,23 +5,21 @@ A Python-based AI tutor that helps you learn complex topics using the Feynman Te
 ## Features
 
 - **Prompt Management:** Centralized `PromptBuilder` class for easy prompt maintenance.
-- **Core Engine:** `FeynmanTutor` class handles the conversation logic and state.
+- **Core Engine:** `FeynmanTutorQuestionGenerator` class handles the conversation logic and state.
 - **CLI Interface:** Interactive command-line interface for the learning loop.
-- **LiteLLM Integration:** Compatible with multiple LLMs (defaults to `ollama/gemma3`).
+- **LiteClient Integration:** Compatible with multiple LLMs via `LiteClient` (defaults to `ollama/gemma3`).
 
 ## Project Structure
 
 - `feynman_tutor_cli.py`: The entry point for the interactive CLI application.
-- `feynman_tutor.py`: Contains the `FeynmanTutor` class that manages the learning logic.
+- `feynman_tutor.py`: Contains the `FeynmanTutorQuestionGenerator` class that manages the learning logic.
 - `feynman_tutor_prompts.py`: Contains the `PromptBuilder` class that stores all system and user prompts.
 - `tests/`: Directory containing unit tests.
 
 ## Setup
 
 1. **Install Dependencies:**
-   ```bash
-   pip install litellm
-   ```
+   Ensure the `lite` package is installed.
 
 2. **Configure Model:**
    The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `feynman_tutor.py` to your preferred provider (e.g., `gpt-4`, `claude-3-opus`).

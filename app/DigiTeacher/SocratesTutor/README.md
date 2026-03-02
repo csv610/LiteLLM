@@ -1,43 +1,40 @@
-# Hadamard Discovery AI Tutor
+# Socrates AI Tutor
 
-A Python-based AI tutor that guides you through the process of mathematical and conceptual discovery using Jacques Hadamard’s technique. It leverages Hadamard’s approach of Preparation, Incubation, Illumination, and Verification to help you reach deep intuitive breakthroughs.
+A Python-based AI tutor that helps you find the truth through dialogue using the Socratic Method. It leverages questioning to help you reach deep intuitive breakthroughs.
 
 ## Features
 
-- **Hadamard Prompting:** Guided stages based on "The Psychology of Invention in the Mathematical Field."
-- **Core Engine:** `HadamardTutor` class handles the discovery logic and state.
-- **CLI Interface:** Interactive command-line interface for the discovery loop.
-- **LiteLLM Integration:** Compatible with multiple LLMs (defaults to `ollama/gemma3`).
+- **Socratic Inquiry:** Guided dialogue to help you discover truths through reason.
+- **Core Engine:** `SocratesTutor` class handles the inquiry logic and state.
+- **CLI Interface:** Interactive command-line interface for the inquiry loop.
+- **LiteClient Integration:** Compatible with multiple LLMs via `LiteClient` (defaults to `ollama/gemma3`).
 
 ## Project Structure
 
-- `hadamard_tutor_cli.py`: The entry point for the interactive CLI application.
-- `hadamard_tutor.py`: Contains the `HadamardTutor` class that manages the discovery stages.
-- `prompt_builder.py`: Contains the `PromptBuilder` class that stores all system and stage prompts.
+- `socrates_tutor_cli.py`: The entry point for the interactive CLI application.
+- `socrates_tutor.py`: Contains the `SocratesTutor` class that manages the inquiry.
+- `socrates_tutor_prompts.py`: Contains the `PromptBuilder` class that stores all system and inquiry prompts.
 - `tests/`: Directory containing unit tests.
 
 ## Setup
 
 1. **Install Dependencies:**
-   ```bash
-   pip install litellm
-   ```
+   Ensure the `lite` package is installed.
 
 2. **Configure Model:**
-   The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `hadamard_tutor.py` to your preferred provider.
+   The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `socrates_tutor.py` to your preferred provider.
 
 ## Usage
 
 Run the CLI application:
 ```bash
-python hadamard_tutor_cli.py
+python socrates_tutor_cli.py
 ```
 
-Follow the stages:
-1. **Preparation**: Explore fundamentals and identify core struggles.
-2. **Incubation**: Abstract away from jargon into mental imagery.
-3. **Illumination**: Receive a conceptual spark and find your "Aha!" moment.
-4. **Verification**: Formalize and test your new insight.
+Follow the dialogue:
+1. **Begin Inquiry**: State the concept or problem you want to explore.
+2. **Respond**: Answer the questions posed by Socrates to refine your understanding.
+3. **Conclusion**: Reach a clear understanding through guided reason.
 
 ## Development
 

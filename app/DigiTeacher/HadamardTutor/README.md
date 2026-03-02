@@ -7,7 +7,7 @@ A Python-based AI tutor that guides you through the process of mathematical and 
 - **Hadamard Prompting:** Guided stages based on "The Psychology of Invention in the Mathematical Field."
 - **Core Engine:** `HadamardTutor` class handles the discovery logic and state.
 - **CLI Interface:** Interactive command-line interface for the discovery loop.
-- **LiteLLM Integration:** Compatible with multiple LLMs (defaults to `ollama/gemma3`).
+- **LiteClient Integration:** Compatible with multiple LLMs via `LiteClient` (defaults to `ollama/gemma3`).
 
 ## Project Structure
 
@@ -19,9 +19,7 @@ A Python-based AI tutor that guides you through the process of mathematical and 
 ## Setup
 
 1. **Install Dependencies:**
-   ```bash
-   pip install litellm
-   ```
+   Ensure the `lite` package is installed.
 
 2. **Configure Model:**
    The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `hadamard_tutor.py` to your preferred provider.

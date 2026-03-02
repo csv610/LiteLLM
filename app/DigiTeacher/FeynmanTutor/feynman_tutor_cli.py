@@ -1,4 +1,4 @@
-from feynman_tutor import FeynmanTutor
+from feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
 
 def run_cli():
     print("\n🧠 Feynman-Style AI Tutor\n")
@@ -6,10 +6,11 @@ def run_cli():
     topic = input("📌 Topic: ")
     level = input("📊 Your current understanding (beginner/intermediate/advanced): ")
 
-    tutor = FeynmanTutor(topic, level)
+    config = ModelConfig(topic=topic, level=level)
+    tutor = FeynmanTutorQuestionGenerator(config)
 
     print("\n--- [Beginning Learning Loop] ---")
-    response = tutor.get_initial_explanation()
+    response = tutor.start_tutoring()
     print(f"\n🧠 Feynman: {response}")
 
     while not tutor.is_convinced:
@@ -20,9 +21,8 @@ def run_cli():
             break
             
         print("\n--- [Thinking...] ---")
-        # Decide which step to take based on history or just use refinement
-        # For simplicity in this conversational version, we use refine_explanation
-        response = tutor.refine_explanation(user_input)
+        # Decide which step to take based on history or just use process_student_response
+        response = tutor.process_student_response(user_input)
         print(f"\n🧠 Feynman: {response}")
 
         if tutor.is_convinced:

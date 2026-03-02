@@ -9,6 +9,12 @@ class TestPromptBuilder(unittest.TestCase):
         self.assertIn("Hadamard", prompt)
         self.assertIn("discovery process", prompt)
 
+    def test_get_instructions(self):
+        prompt = PromptBuilder.get_instructions()
+        self.assertIn("YOUR ROLE IS EXCLUSIVELY TO GENERATE QUESTIONS", prompt)
+        self.assertIn("DO NOT PROVIDE EXPLANATIONS, ANSWERS, OR DIRECT TEACHING", prompt)
+        self.assertIn("LEAVE ALL THE DISCOVERY AND EXPLANATION TO THE STUDENT", prompt)
+
     def test_get_initial_user_prompt(self):
         topic = "Fractals"
         level = "researcher"
@@ -16,17 +22,19 @@ class TestPromptBuilder(unittest.TestCase):
         self.assertIn(topic, prompt)
         self.assertIn(level, prompt)
         self.assertIn("Preparation", prompt)
+        self.assertIn("Ask me a question", prompt)
 
 class TestHadamardTutor(unittest.TestCase):
     def setUp(self):
         self.topic = "Number Theory"
         self.level = "advanced"
-        self.tutor = HadamardTutor(self.topic, self.level)
+        with patch('hadamard_tutor.LiteClient') as mock_client:
+            self.mock_client = mock_client.return_value
+            self.tutor = HadamardTutor(self.topic, self.level)
 
-    @patch('hadamard_tutor.completion')
-    def test_get_preparation_phase(self, mock_completion):
-        # Mock the response from LiteLLM
-        mock_completion.side_effect = [{"choices": [{"message": {"content": "Preparation content"}}]}]
+    def test_get_preparation_phase(self):
+        # Mock the response from LiteClient
+        self.mock_client.completion.side_effect = [{"choices": [{"message": {"content": "Preparation content"}}]}]
 
         response = self.tutor.get_preparation_phase()
         
@@ -34,9 +42,8 @@ class TestHadamardTutor(unittest.TestCase):
         self.assertEqual(len(self.tutor.history), 1)
         self.assertEqual(self.tutor.history[0]["question"], "Preparation content")
 
-    @patch('hadamard_tutor.completion')
-    def test_get_incubation_phase(self, mock_completion):
-        mock_completion.side_effect = [
+    def test_get_incubation_phase(self):
+        self.mock_client.completion.side_effect = [
             {"choices": [{"message": {"content": "Incubation content"}}]},
             {"choices": [{"message": {"content": "Summary content"}}]}
         ]

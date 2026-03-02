@@ -1,4 +1,4 @@
-from litellm import completion
+from lite.lite_client import LiteClient
 from socrates_tutor_prompts import PromptBuilder
 
 MODEL = "ollama/gemma3"
@@ -10,6 +10,7 @@ class SocratesTutor:
         self.history = []  # List of (question, response) pairs
         self.summary = ""  # Summarized progress
         self.is_convinced = False
+        self.client = LiteClient()
         self.messages = [
             {"role": "system", "content": PromptBuilder.get_system_prompt()},
             {"role": "system", "content": PromptBuilder.get_context()},
@@ -22,7 +23,7 @@ class SocratesTutor:
 
     def _ask_llm(self):
         try:
-            response = completion(
+            response = self.client.completion(
                 model=MODEL,
                 messages=self.messages,
                 temperature=0.5
@@ -68,7 +69,7 @@ class SocratesTutor:
             {"role": "user", "content": PromptBuilder.get_summarization_prompt(history_text)}
         ]
         try:
-            response = completion(
+            response = self.client.completion(
                 model=MODEL,
                 messages=summary_messages,
                 temperature=0.3

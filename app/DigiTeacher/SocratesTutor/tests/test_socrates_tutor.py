@@ -21,15 +21,16 @@ class TestSocratesTutor(unittest.TestCase):
     def setUp(self):
         self.topic = "The Nature of Good"
         self.level = "curious"
-        self.tutor = SocratesTutor(self.topic, self.level)
+        with patch('socrates_tutor.LiteClient') as mock_client:
+            self.mock_client = mock_client.return_value
+            self.tutor = SocratesTutor(self.topic, self.level)
 
-    @patch('socrates_tutor.completion')
-    def test_begin_inquiry(self, mock_completion):
-        # Mock the response from LiteLLM
+    def test_begin_inquiry(self):
+        # Mock the response from LiteClient
         mock_response = {
             "choices": [{"message": {"content": "What is 'good'?"}}]
         }
-        mock_completion.return_value = mock_response
+        self.mock_client.completion.return_value = mock_response
 
         response = self.tutor.begin_inquiry()
         
@@ -38,10 +39,9 @@ class TestSocratesTutor(unittest.TestCase):
         self.assertEqual(self.tutor.history[0]["question"], "What is 'good'?")
         self.assertEqual(self.tutor.history[0]["response"], None)
 
-    @patch('socrates_tutor.completion')
-    def test_provide_response(self, mock_completion):
+    def test_provide_response(self):
         # We need to handle two calls: _ask_llm and _update_summary
-        mock_completion.side_effect = [
+        self.mock_client.completion.side_effect = [
             {"choices": [{"message": {"content": "Can you explain further?"}}]},
             {"choices": [{"message": {"content": "Summary content"}}]}
         ]
