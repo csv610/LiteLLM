@@ -44,24 +44,17 @@ python deep_intuition_cli.py --topic "Galois Theory"
 
 ```mermaid
 flowchart TD
-    Start([Initiate Mission]) --> Pillars[Map Core Pillars & Story Probes]
-    Pillars --> Loop{Narrative Rounds Remaining?}
-    Loop -- Yes --> Probe[Pop Story Probe]
-    Probe --> Gen[Conceptual Narrative: The 'Why' + The 'Aha!']
-    Gen --> Check{Intuition Gate: Is it clear and story-driven?}
-    Check -- Pass --> Accept[Update Narrative Map & History]
-    Check -- Fail --> Next[Refine Narrative & Move to Next Probe]
-    Accept --> NextProbe[Generate New Specialized Follow-up Probe]
-    NextProbe --> Next[Next Iteration]
-    Next --> Loop
-    Loop -- No --> Synthesis[Synthesize Master Narrative Map]
-    Synthesis --> End([Archive Mission Data])
+    Start([Initiate Storytelling Mission]) --> Gen[Uncover Human Story: 1000+ Words]
+    Gen --> Structure[Analyze Struggle + 'Aha!' + Counterfactuals]
+    Structure --> Synthesis[Synthesize Master Narrative Map]
+    Synthesis --> End([Archive Deep Intuition Story])
 ```
 
 ## 🛡 Features
-- **Intuition Scoring**: Every insight is scored on its clarity and conceptual "click" factor.
-- **Narrative-First**: Models are prompted to use metaphors and historical context.
-- **Conceptual Context**: The engine maintains the "thread of the story" to ensure follow-up probes move deeper into the intuition.
+- **Narrative Depth**: Every story is a deep, rich narrative of at least 1000 words.
+- **Human-First Discovery**: Explicitly demystifies 'genius' by showing the systematic struggle and failed attempts.
+- **Counterfactual Exploration**: Provides a detailed 'what-if' scenario for every fundamental discovery.
+- **Historical Anchors**: Strictly anchors the story in real historical events and intellectual lineages.
 
 ---
 *Bridging the gap between the abstract and the intuitive.*
