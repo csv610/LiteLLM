@@ -1,54 +1,70 @@
-import unittest
+import pytest
 from unittest.mock import patch, MagicMock
-from feymann_tutor_prompts import PromptBuilder
-from feymann_tutor import FeynmanTutor
+from feynman_tutor import FeynmanTutor
 
-class TestPromptBuilder(unittest.TestCase):
-    def test_get_system_prompt(self):
-        prompt = PromptBuilder.get_system_prompt()
-        self.assertIn("Feynman", prompt)
-        self.assertIn("master explainer", prompt)
+@pytest.fixture
+def mock_completion():
+    with patch('feynman_tutor.completion') as mock:
+        yield mock
 
-    def test_get_initial_user_prompt(self):
-        topic = "Quantum Mechanics"
-        level = "beginner"
-        prompt = PromptBuilder.get_initial_user_prompt(topic, level)
-        self.assertIn(topic, prompt)
-        self.assertIn(level, prompt)
+def test_tutor_initialization():
+    tutor = FeynmanTutor("quantum physics", "beginner")
+    assert tutor.topic == "quantum physics"
+    assert tutor.level == "beginner"
+    assert tutor.is_convinced is False
+    assert len(tutor.messages) == 4
 
-class TestFeynmanTutor(unittest.TestCase):
-    def setUp(self):
-        self.topic = "Relativity"
-        self.level = "intermediate"
-        self.tutor = FeynmanTutor(self.topic, self.level)
+def test_get_initial_explanation(mock_completion):
+    mock_completion.return_value = {
+        "choices": [{"message": {"content": "Initial explanation."}}]
+    }
+    tutor = FeynmanTutor("topic", "level")
+    explanation = tutor.get_initial_explanation()
+    
+    assert explanation == "Initial explanation."
+    assert len(tutor.history) == 1
+    assert tutor.history[0]["question"] == "Initial explanation."
+    assert tutor.history[0]["response"] is None
 
-    @patch('feymann_tutor.completion')
-    def test_get_initial_explanation(self, mock_completion):
-        # Mock the response from LiteLLM
-        mock_completion.side_effect = [{"choices": [{"message": {"content": "Initial explanation"}}]}]
+def test_refine_explanation(mock_completion):
+    # Setup: initial explanation already given
+    tutor = FeynmanTutor("topic", "level")
+    tutor.history = [{"question": "Initial question", "response": None}]
+    
+    # Mock for refine_explanation (asking for next step)
+    # And mock for _update_summary (called inside refine_explanation)
+    mock_completion.side_effect = [
+        {"choices": [{"message": {"content": "Next question."}}]}, # Response for refine_explanation
+        {"choices": [{"message": {"content": "Summary of progress."}}]} # Response for _update_summary
+    ]
+    
+    next_question = tutor.refine_explanation("I think I get it.")
+    
+    assert next_question == "Next question."
+    assert tutor.history[0]["response"] == "I think I get it."
+    assert len(tutor.history) == 2
+    assert tutor.history[1]["question"] == "Next question."
+    assert tutor.summary == "Summary of progress."
 
-        response = self.tutor.get_initial_explanation()
-        
-        self.assertEqual(response, "Initial explanation")
-        self.assertEqual(len(self.tutor.history), 1)
-        self.assertEqual(self.tutor.history[0]["question"], "Initial explanation")
+def test_convinced_logic(mock_completion):
+    mock_completion.side_effect = [
+        {"choices": [{"message": {"content": "Well done! [CONVINCED]"}}]}, # Response for refine_explanation
+        {"choices": [{"message": {"content": "Summary."}}]} # Response for _update_summary
+    ]
+    
+    tutor = FeynmanTutor("topic", "level")
+    tutor.history = [{"question": "Explain X", "response": None}]
+    
+    tutor.refine_explanation("User feedback")
+    
+    assert tutor.is_convinced is True
+    # The [CONVINCED] tag should be stripped
+    assert tutor.messages[-1]["content"] == "Well done!"
 
-    @patch('feymann_tutor.completion')
-    def test_refine_explanation(self, mock_completion):
-        mock_completion.side_effect = [
-            {"choices": [{"message": {"content": "Refined explanation"}}]},
-            {"choices": [{"message": {"content": "Summary content"}}]}
-        ]
-
-        # First, we need to begin inquiry to have a history item to respond to
-        self.tutor.history = [{"question": "Initial explanation", "response": None}]
-        
-        response = self.tutor.refine_explanation("I don't understand.")
-        
-        self.assertEqual(response, "Refined explanation")
-        self.assertEqual(len(self.tutor.history), 2)
-        self.assertEqual(self.tutor.history[0]["response"], "I don't understand.")
-        self.assertEqual(self.tutor.summary, "Summary content")
-
-if __name__ == '__main__':
-    unittest.main()
+def test_error_handling(mock_completion):
+    mock_completion.side_effect = Exception("API error")
+    
+    tutor = FeynmanTutor("topic", "level")
+    response = tutor.get_initial_explanation()
+    
+    assert "🚨 Error communicating with the tutor" in response

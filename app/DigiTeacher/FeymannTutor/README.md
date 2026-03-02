@@ -11,9 +11,9 @@ A Python-based AI tutor that helps you learn complex topics using the Feynman Te
 
 ## Project Structure
 
-- `cli.py`: The entry point for the interactive CLI application.
-- `feymann_tutor.py`: Contains the `FeynmanTutor` class that manages the learning logic.
-- `prompt_builder.py`: Contains the `PromptBuilder` class that stores all system and user prompts.
+- `feynman_tutor_cli.py`: The entry point for the interactive CLI application.
+- `feynman_tutor.py`: Contains the `FeynmanTutor` class that manages the learning logic.
+- `feynman_tutor_prompts.py`: Contains the `PromptBuilder` class that stores all system and user prompts.
 - `tests/`: Directory containing unit tests.
 
 ## Setup
@@ -24,7 +24,7 @@ A Python-based AI tutor that helps you learn complex topics using the Feynman Te
    ```
 
 2. **Configure Model:**
-   The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `feymann_tutor.py` to your preferred provider (e.g., `gpt-4`, `claude-3-opus`).
+   The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `feynman_tutor.py` to your preferred provider (e.g., `gpt-4`, `claude-3-opus`).
 
 ## Usage
 

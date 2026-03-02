@@ -1,4 +1,4 @@
-from feymann_tutor import FeynmanTutor
+from feynman_tutor import FeynmanTutor
 
 def run_cli():
     print("\n🧠 Feynman-Style AI Tutor\n")

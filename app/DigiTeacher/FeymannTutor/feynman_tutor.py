@@ -1,7 +1,7 @@
 # Acknowledgement: The following prompt has been copied verbatim from Dimitrios A. Karras’ Post on Linkedln.
 
 from litellm import completion
-from feymann_tutor_prompts import PromptBuilder
+from feynman_tutor_prompts import PromptBuilder
 
 MODEL = "ollama/gemma3"
 
