@@ -41,7 +41,7 @@ python periodic_table_cli.py --all
 ### Configuration Options
 - `-m`, `--model`: Specify the model to use (default: `ollama/gemma3:12b`).
 - `-t`, `--temperature`: Set the model temperature (default: `0.2`).
-- `-o`, `--output-dir`: Specify the directory to save JSON files (default: `.`).
+- `-o`, `--output-dir`: Specify the directory to save JSON files (default: `outputs`).
 
 ## Data Structure
 
