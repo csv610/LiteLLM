@@ -116,5 +116,45 @@ class HilbertProblemsGuide:
             logger.error(f"Error saving problem {problem.number}: {str(e)}")
             raise
 
-    
-    
+    @staticmethod
+    def display_problem(problem: HilbertProblemModel):
+        """Display detailed information about a Hilbert problem."""
+        if not problem:
+            print("\n❌ Error: No problem information available.")
+            return
+
+        print(f"\n{'='*80}")
+        print(f"HILBERT'S PROBLEM #{problem.number}: {problem.title}")
+        print(f"{'='*80}")
+        print(f"\nSTATUS: {problem.status.upper()}")
+        
+        if problem.solved_by:
+            print(f"SOLVED BY: {problem.solved_by}")
+        if problem.solution_year:
+            print(f"YEAR: {problem.solution_year}")
+            
+        print(f"\nDESCRIPTION:\n{problem.description}")
+        print(f"\nSOLUTION METHOD:\n{problem.solution_method}")
+        print(f"\nRELATED FIELDS: {', '.join(problem.related_fields)}")
+        print(f"\nNOTES:\n{problem.notes}")
+        print(f"\n{'='*80}\n")
+
+    def display_summary(self):
+        """Display a summary of all 23 Hilbert problems."""
+        print(f"\n{'='*80}")
+        print(f"SUMMARY OF HILBERT'S 23 PROBLEMS")
+        print(f"{'='*80}")
+        print("\nFetching summary information from AI...")
+        
+        try:
+            model_input = ModelInput(
+                system_prompt=PromptBuilder.get_system_prompt(),
+                user_prompt=PromptBuilder.get_summary_prompt()
+            )
+            summary_text = self.client.generate(model_input)
+            print(f"\n{summary_text}")
+        except Exception as e:
+            logger.error(f"Error fetching summary: {str(e)}")
+            print(f"\n❌ Error fetching summary: {str(e)}")
+        
+        print(f"\n{'='*80}\n")
