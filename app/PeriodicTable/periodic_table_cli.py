@@ -45,8 +45,8 @@ def arguments_parser():
     parser.add_argument(
         "-o", "--output-dir",
         type=str,
-        default=".",
-        help="Output directory for JSON files (default: current directory)"
+        default="outputs",
+        help="Output directory for JSON files (default: 'outputs' directory)"
     )
     return parser.parse_args()
 
