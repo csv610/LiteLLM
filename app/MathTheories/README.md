@@ -59,47 +59,6 @@ python math_theory_cli.py --theory "Chaos theory" --levels general high-school p
 - `assets/theories.txt`: Text file with a list of supported mathematical theories.
 - `tests/`: Directory containing test scripts for project validation.
 
-## Output Structure
-
-The tool saves each explanation as a Markdown file in `outputs/theories/<Theory_Name>.md`. If multiple audience levels are requested, they are appended in the same file, separated by a horizontal rule (`---`).
-
-The structure follows this template:
-
-# Theory Name
-
-## Audience Level: [e.g., General, Undergrad, etc.]
-
-### Introduction
-A high-level overview of the theory tailored to the specific audience.
-
-### Key Concepts
-- **Concept 1**: Brief description.
-- **Concept 2**: Brief description.
-...
-
-### Why It Was Created
-Historical context and the core motivation behind the theory's development.
-
-### Problems Solved or Simplified
-What was difficult before this theory, and how it made things easier.
-
-### How It Is Used Today
-Modern applications in science, technology, and industry.
-
-### Foundation for Other Theories
-How this theory serves as a building block for more advanced mathematical or scientific fields.
-
-### New Research
-Current open questions, recent breakthroughs, and active areas of study.
-
-### Solution Methods
-- **Analytical**: Mathematical proofs and exact calculation methods.
-- **Numerical**: Computational approaches, simulations, and algorithms.
-
----
-
-*(Additional audience levels repeat the structure above)*
-
 ## Supported Theories
 
 A pre-defined list of mathematical theories is maintained in `assets/theories.txt`.
