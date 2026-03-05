@@ -44,15 +44,20 @@ python faq_generator_cli.py --input "Distributed Systems" --num-faqs 10 --diffic
 python faq_generator_cli.py --input documentation.md --num-faqs 5 --difficulty simple --output ./results
 ```
 
-### Argument Reference
+### Example Inputs
 
-| Argument | Shorthand | Description | Default |
-| :--- | :--- | :--- | :--- |
-| `--input` | `-i` | Topic string or path to content file | (Required) |
-| `--num-faqs` | `-n` | Number of pairs to generate (1-100) | 5 |
-| `--difficulty` | `-d` | Level: simple, medium, hard, research | medium |
-| `--model` | `-m` | LLM identifier (e.g., `ollama/gemma3`) | `ollama/gemma3` |
-| `--output` | `-o` | Target directory for JSON results | `.` |
+The project includes sample input files in the `assets/` directory to demonstrate content-based generation:
+
+```bash
+# Generate FAQs based on the provided machine learning overview
+python faq_generator_cli.py --input assets/machine_learning.txt --difficulty medium
+
+# Generate advanced FAQs based on photosynthesis concepts
+python faq_generator_cli.py --input assets/photosynthesis.txt --difficulty hard
+
+# Generate research questions related to blockchain technology
+python faq_generator_cli.py --input assets/blockchain.txt --difficulty research
+```
 
 ## Security & Reliability
 
