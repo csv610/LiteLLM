@@ -2,6 +2,8 @@
 
 ArticleReviewer is a professional-grade automated tool designed to provide comprehensive, structured feedback on articles. Leveraging Large Language Models (LLMs) via the `LiteLLM` framework, it performs deep analysis across multiple dimensions including grammar, style, clarity, and structural integrity.
 
+The system is designed with robustness in mind, handling both raw JSON and Pydantic object responses from the underlying LLM to ensure a seamless review process.
+
 ## Key Features
 
 - **Structured Feedback**: Categorizes improvements into three actionable types:
@@ -16,14 +18,15 @@ ArticleReviewer is a professional-grade automated tool designed to provide compr
   - Consistency
 - **Severity Scoring**: Each suggestion is assigned a severity level (Low, Medium, High, Critical) to help prioritize revisions.
 - **Quality Assessment**: Provides an overall quality score (0-100) and a summary of the article's strengths and weaknesses.
-- **Flexible Output**: Generates both a formatted console report and a detailed JSON file for further processing.
+- **Flexible Output**: Generates both a formatted console report and a detailed JSON file (saved in the `outputs/` folder by default) for further processing.
+- **Robustness**: Seamlessly handles various model output formats, including direct Pydantic model responses.
 
 ## Installation
 
-Ensure you have the necessary dependencies installed. This project requires the `lite` package (part of the LiteLLM ecosystem) and `pydantic`.
+Ensure you have the necessary dependencies installed. This project requires the `lite` package (part of the LiteLLM ecosystem), `pydantic`, and `pytest` for testing.
 
 ```bash
-pip install pydantic
+pip install pydantic pytest
 # Ensure 'lite' package is available in your python path
 ```
 
@@ -40,12 +43,12 @@ python article_reviewer_cli.py "path/to/your/article.txt"
 #### CLI Options:
 - `article`: (Required) Path to the article file or direct text to review.
 - `-m`, `--model`: Specify the LLM model to use (default: `ollama/gemma3`).
-- `-o`, `--output`: Specify a custom output filename for the JSON review.
+- `-o`, `--output`: Specify a custom output filename for the JSON review. All outputs are saved to the `outputs/` directory.
 
 #### Examples:
 ```bash
 # Review a local text file
-python article_reviewer_cli.py my_article.md
+python article_reviewer_cli.py assets/quantum_proteins.txt
 
 # Use a specific model
 python article_reviewer_cli.py "article.txt" -m "gpt-4"
@@ -69,7 +72,7 @@ config = ModelConfig(model="ollama/gemma3", temperature=0.3)
 reviewer = ArticleReviewer(model_config=config)
 
 # Perform the review
-with open("my_article.txt", "r") as f:
+with open("assets/quantum_proteins.txt", "r") as f:
     text = f.read()
 
 review = reviewer.review(text)
@@ -78,10 +81,25 @@ review = reviewer.review(text)
 print(f"Score: {review.score}")
 print(f"Summary: {review.summary}")
 
-# Save or print the review
-reviewer.save_review(review, output_filename="review_results.json")
+# Save or print the review (defaults to outputs/ directory)
+saved_path = reviewer.save_review(review, output_filename="review_results.json")
+print(f"Review saved to: {saved_path}")
 reviewer.print_review(review)
 ```
+
+## Testing
+
+The project uses `pytest` for its test suite. You can run all tests with:
+
+```bash
+pytest test_article_reviewer.py
+```
+
+The tests cover:
+- Data model validation (Pydantic models)
+- Prompt building logic
+- Core `ArticleReviewer` logic (including model response handling)
+- CLI argument parsing and file loading
 
 ## Project Structure
 
@@ -89,6 +107,8 @@ reviewer.print_review(review)
 - `article_reviewer_cli.py`: Command-line interface for the tool.
 - `article_reviewer_models.py`: Pydantic data models defining the structured output.
 - `article_reviewer_prompts.py`: Logic for building comprehensive, rule-based prompts.
+- `assets/`: Contains sample articles for testing (e.g., `quantum_proteins.txt`).
+- `test_article_reviewer.py`: Comprehensive test suite for the entire project.
 
 ## Configuration
 
@@ -96,4 +116,4 @@ The tool defaults to using `ollama/gemma3` via a local Ollama instance. You can 
 
 ## License
 
-[Specify License Here, e.g., MIT]
+MIT License

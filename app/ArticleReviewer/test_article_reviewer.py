@@ -116,6 +116,30 @@ def test_article_reviewer_review(mock_lite_client):
     assert review.total_issues == 2 # 1 deletion + 1 modification
     assert review.deletions[0].content == "Extra word"
 
+def test_article_reviewer_review_object_response(mock_lite_client):
+    mock_instance = mock_lite_client.return_value
+    review_obj = ArticleReviewModel(
+        score=95,
+        total_issues=1,
+        summary="Excellent work.",
+        deletions=[
+            DeleteModel(line_number=1, content="Extra", reason="Redundant", severity="low")
+        ],
+        modifications=[],
+        insertions=[],
+        proofreading_rules_applied=["Style"]
+    )
+    mock_instance.generate_text.return_value = review_obj
+    
+    reviewer = ArticleReviewer()
+    review = reviewer.review("Some article text")
+    
+    assert isinstance(review, ArticleReviewModel)
+    assert review.score == 95
+    assert len(review.deletions) == 1
+    assert review.total_issues == 1
+    assert review.deletions[0].content == "Extra"
+
 def test_article_reviewer_save_review(tmp_path):
     reviewer = ArticleReviewer()
     review = ArticleReviewModel(

@@ -6,6 +6,7 @@ on deletions, modifications, and insertions using LiteClient.
 import sys
 import json
 import time
+import os
 from pathlib import Path
 
 from pydantic import Field
@@ -52,31 +53,37 @@ class ArticleReviewer:
         if isinstance(response_content, str):
             data = json.loads(response_content)
             review = ArticleReviewModel(**data)
-
-            # Filter out cosmetic empty line deletions
-            review.deletions = [
-                d for d in review.deletions
-                if d.content.strip() != ""  # Remove deletions that are just empty lines
-            ]
-
-            # Recalculate total issues
-            review.total_issues = len(review.deletions) + len(review.modifications) + len(review.insertions)
-
-            return review
+        elif isinstance(response_content, ArticleReviewModel):
+            review = response_content
         else:
-            raise ValueError("Expected string response from model")
+            raise ValueError(f"Expected string or ArticleReviewModel response from model, got {type(response_content)}")
 
-    def save_review(self, review: ArticleReviewModel, output_filename: str = None, input_filename: str = None) -> str:
+        # Filter out cosmetic empty line deletions
+        review.deletions = [
+            d for d in review.deletions
+            if d.content.strip() != ""  # Remove deletions that are just empty lines
+        ]
+
+        # Recalculate total issues
+        review.total_issues = len(review.deletions) + len(review.modifications) + len(review.insertions)
+
+        return review
+
+    def save_review(self, review: ArticleReviewModel, output_filename: str = None, input_filename: str = None, output_dir: str = "outputs") -> str:
         """Save the review to a JSON file.
 
         Args:
             review: The ArticleReviewModel to save
             output_filename: Optional filename for the output file. If not provided, uses input_filename.
             input_filename: The input filename to use as base for output filename.
+            output_dir: The directory where the output file should be saved. Default is "outputs".
 
         Returns:
             str: The path to the saved file
         """
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+
         if output_filename is None:
             if input_filename:
                 # Extract base filename without extension
@@ -88,10 +95,16 @@ class ArticleReviewer:
             if not output_filename.endswith('.json'):
                 output_filename = f"{output_filename}_review.json"
 
-        with open(output_filename, 'w') as f:
+        # Final path should be in the output_dir
+        # If output_filename is just a name, join it with output_dir
+        # If output_filename has a path component, still place it in output_dir unless it's absolute
+        file_name = os.path.basename(output_filename)
+        output_path = os.path.join(output_dir, file_name)
+
+        with open(output_path, 'w') as f:
             json.dump(review.model_dump(), f, indent=4)
 
-        return output_filename
+        return output_path
 
     def print_review(self, review: ArticleReviewModel) -> None:
         """Print a formatted review report to the console.
