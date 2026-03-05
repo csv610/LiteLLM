@@ -20,40 +20,66 @@ This tool generates comprehensive explanations for mathematical theories tailore
   - Foundational impact on other theories
   - Current research and open questions
   - Solution methods (Analytical and Numerical)
-- **JSON Output**: Saves results in structured JSON format.
+- **Markdown Output**: Generates well-formatted Markdown files for easy reading and documentation.
 
 ## Installation
 
 Ensure you have the `lite` library and its dependencies installed.
 
 ```bash
+# From the project root
 pip install -e .
 ```
 
 ## Usage
 
-### Fetch explanation for a specific theory
+### Fetch explanation for a specific theory (Undergrad default)
 
 ```bash
-python math_theory_cli.py --theory "Game theory"
+python math_theory_cli.py --theory "Group theory"
 ```
 
-### Fetch explanations for specific audience levels
+### Fetch explanations for a general audience (No math background)
 
 ```bash
-python math_theory_cli.py --theory "Chaos theory" --levels high-school phd
+python math_theory_cli.py --theory "Knot theory" --levels general
 ```
 
-## Data Structure
-The generated Markdown files follow the structure:
+### Fetch explanations for multiple audience levels
+
+```bash
+python math_theory_cli.py --theory "Chaos theory" --levels general high-school phd
+```
+
+## Output Structure
+The generated Markdown files (`outputs/theories/<Theory_Name>.md`) follow a structured format:
 
 # Theory Name
-## Audience Level: Level Name
+
+## Audience Level: [Level]
+
 ### Introduction
 ...
 ### Key Concepts
+- Concept 1
+- Concept 2
 ...
+### Why It Was Created
+...
+### Problems Solved or Simplified
+...
+### How It Is Used Today
+...
+### Foundation for Other Theories
+...
+### New Research
+...
+### Solution Methods
+**Analytical:** ...
+**Numerical:** ...
+
+---
 
 ## Supported Theories
 
-The list of theories is maintained in `assets/theories.txt`.
+A pre-defined list of mathematical theories is maintained in `assets/theories.txt`.
