@@ -51,6 +51,14 @@ python math_theory_cli.py --theory "Knot theory" --levels general
 python math_theory_cli.py --theory "Chaos theory" --levels general high-school phd
 ```
 
+## Code Structure
+
+- `math_theory_cli.py`: Main CLI entry point. Handles arguments and output generation.
+- `math_theory_element.py`: Core logic for fetching and processing mathematical theory explanations.
+- `math_theory_models.py`: Pydantic data models for structured LLM interaction.
+- `assets/theories.txt`: Text file with a list of supported mathematical theories.
+- `tests/`: Directory containing test scripts for project validation.
+
 ## Output Structure
 The generated Markdown files (`outputs/theories/<Theory_Name>.md`) follow a structured format:
 
