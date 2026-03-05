@@ -42,13 +42,13 @@ python math_theory_cli.py --theory "Group theory"
 ### Fetch explanations for a general audience (No math background)
 
 ```bash
-python math_theory_cli.py --theory "Knot theory" --levels general
+python math_theory_cli.py --theory "Knot theory" --level general
 ```
 
-### Fetch explanations for multiple audience levels
+### Fetch explanations for a specific audience level
 
 ```bash
-python math_theory_cli.py --theory "Chaos theory" --levels general high-school phd
+python math_theory_cli.py --theory "Chaos theory" --level phd
 ```
 
 ## Code Structure

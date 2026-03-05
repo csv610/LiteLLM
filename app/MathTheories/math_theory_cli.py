@@ -24,12 +24,11 @@ def arguments_parser():
         help="Specific mathematical theory to explain (default: 'Group theory')"
     )
     parser.add_argument(
-        "-l", "--levels",
+        "-l", "--level",
         type=str,
-        nargs="+",
-        default=["undergrad"],
+        default="undergrad",
         choices=[l.value for l in AudienceLevel],
-        help="Specify audience levels to fetch (default: ['undergrad'])"
+        help="Specify audience level to fetch (default: 'undergrad')"
     )
     parser.add_argument(
         "-m", "--model",
@@ -47,7 +46,7 @@ def arguments_parser():
         "-o", "--output-dir",
         type=str,
         default="outputs/theories",
-        help="Output directory for JSON files (default: 'outputs/theories' directory)"
+        help="Output directory for Markdown files (default: 'outputs/theories' directory)"
     )
     return parser.parse_args()
 
@@ -105,22 +104,20 @@ def math_theory_cli():
 
     model_config = ModelConfig(model=args.model, temperature=args.temperature)
     
-    # Convert levels string back to AudienceLevel enums
-    selected_levels = None
-    if args.levels:
-        selected_levels = [AudienceLevel(l) for l in args.levels]
+    # Convert level string back to AudienceLevel enum
+    selected_level = AudienceLevel(args.level)
 
     # Fetch specific theory
-    theory_info = fetch_theory_info(args.theory, model_config, selected_levels)
+    theory_info = fetch_theory_info(args.theory, model_config, [selected_level])
 
     if theory_info:
         # Save as Markdown
         markdown_content = math_theory_to_markdown(theory_info)
         safe_name = "".join([c if c.isalnum() else "_" for c in args.theory])
-        output_file = output_dir / f"{safe_name}.md"
+        output_file = output_dir / f"{safe_name}_{selected_level.value}.md"
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(markdown_content)
-        print(f"Saved explanation for '{args.theory}' to {output_file}", file=sys.stderr)
+        print(f"Saved explanation for '{args.theory}' at level '{selected_level.value}' to {output_file}", file=sys.stderr)
     else:
         print(f"Failed to fetch explanation for '{args.theory}'", file=sys.stderr)
         sys.exit(1)
