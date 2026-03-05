@@ -106,6 +106,17 @@ def math_theory_cli():
     
     # Convert level string back to AudienceLevel enum
     selected_level = AudienceLevel(args.level)
+    
+    # Mapping for level IDs
+    LEVEL_ID_MAP = {
+        AudienceLevel.GENERAL: 0,
+        AudienceLevel.HIGH_SCHOOL: 1,
+        AudienceLevel.UNDERGRAD: 2,
+        AudienceLevel.MASTER: 3,
+        AudienceLevel.PHD: 4,
+        AudienceLevel.RESEARCHER: 5
+    }
+    level_id = LEVEL_ID_MAP.get(selected_level, 0)
 
     # Fetch specific theory
     theory_info = fetch_theory_info(args.theory, model_config, [selected_level])
@@ -113,11 +124,11 @@ def math_theory_cli():
     if theory_info:
         # Save as Markdown
         markdown_content = math_theory_to_markdown(theory_info)
-        safe_name = "".join([c if c.isalnum() else "_" for c in args.theory])
-        output_file = output_dir / f"{safe_name}_{selected_level.value}.md"
+        safe_name = "".join([c if c.isalnum() else "_" for c in args.theory]).lower()
+        output_file = output_dir / f"{safe_name}_level{level_id}.md"
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(markdown_content)
-        print(f"Saved explanation for '{args.theory}' at level '{selected_level.value}' to {output_file}", file=sys.stderr)
+        print(f"Saved explanation for '{args.theory}' at level '{selected_level.value}' (ID: {level_id}) to {output_file}", file=sys.stderr)
     else:
         print(f"Failed to fetch explanation for '{args.theory}'", file=sys.stderr)
         sys.exit(1)
