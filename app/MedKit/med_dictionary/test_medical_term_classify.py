@@ -47,8 +47,7 @@ class TestMedicalTermClassifier(unittest.TestCase):
             "subcategory": "Antibiotic"
         })
 
-        classifier = MedicalTermClassifier(self.model_config)
-        classifier.output_file = self.mock_output_file
+        classifier = MedicalTermClassifier(self.model_config, output_file=self.mock_output_file)
         
         # Test classification
         count = classifier.classify("penicillin")
@@ -68,9 +67,7 @@ class TestMedicalTermClassifier(unittest.TestCase):
         with open(self.mock_output_file, 'w') as f:
             json.dump(initial_data, f)
             
-        classifier = MedicalTermClassifier(self.model_config)
-        classifier.output_file = self.mock_output_file
-        classifier.existing_terms = {"aspirin"} # Force it for the test
+        classifier = MedicalTermClassifier(self.model_config, output_file=self.mock_output_file)
         
         # Test classifying same term again
         count = classifier.classify("aspirin")
@@ -78,6 +75,50 @@ class TestMedicalTermClassifier(unittest.TestCase):
         self.assertEqual(count, 0)
         # Should not have called LLM
         MockLiteClient.return_value.generate_text.assert_not_called()
+
+    @patch('medical_term_classify.LiteClient')
+    def test_extract_json_markdown(self, MockLiteClient):
+        classifier = MedicalTermClassifier(self.model_config, output_file=self.mock_output_file)
+        
+        # Test markdown JSON block
+        text = "Here is the response:\n```json\n{\"category\": \"Disease\", \"subcategory\": \"Infection\"}\n```"
+        result = classifier._extract_json(text)
+        self.assertEqual(result["category"], "Disease")
+        
+        # Test markdown without 'json' tag
+        text = "```\n{\"category\": \"Procedure\", \"subcategory\": \"Surgery\"}\n```"
+        result = classifier._extract_json(text)
+        self.assertEqual(result["category"], "Procedure")
+
+        # Test text with JSON embedded
+        text = "The answer is {\"category\": \"Anatomy\", \"subcategory\": \"Organ\"} hope this helps."
+        result = classifier._extract_json(text)
+        self.assertEqual(result["category"], "Anatomy")
+
+    @patch('medical_term_classify.LiteClient')
+    def test_classify_invalid_json(self, MockLiteClient):
+        mock_client_instance = MockLiteClient.return_value
+        mock_client_instance.generate_text.return_value = "This is not JSON at all."
+
+        classifier = MedicalTermClassifier(self.model_config, output_file=self.mock_output_file)
+        
+        count = classifier.classify("invalid_term")
+        
+        self.assertEqual(count, 0)
+        self.assertEqual(len(classifier.classifications), 0)
+
+    @patch('medical_term_classify.LiteClient')
+    def test_classify_missing_keys(self, MockLiteClient):
+        mock_client_instance = MockLiteClient.return_value
+        # Missing 'subcategory'
+        mock_client_instance.generate_text.return_value = json.dumps({"category": "Disease"})
+
+        classifier = MedicalTermClassifier(self.model_config, output_file=self.mock_output_file)
+        
+        count = classifier.classify("incomplete_term")
+        
+        self.assertEqual(count, 0)
+        self.assertEqual(len(classifier.classifications), 0)
 
 if __name__ == '__main__':
     unittest.main()

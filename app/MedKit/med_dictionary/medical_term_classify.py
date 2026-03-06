@@ -62,12 +62,13 @@ def load_terms_from_file(file_path: Path) -> List[str]:
 class MedicalTermClassifier:
     """Core logic for classifying medical terms via LLM."""
 
-    def __init__(self, model_config: ModelConfig):
+    def __init__(self, model_config: ModelConfig, output_file: Path = None):
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.prompt_builder = MedicalClassificationPromptBuilder()
         
-        self.output_file = Path(__file__).parent / "outputs" / "classified.json"
+        self.output_file = output_file or (Path(__file__).parent / "outputs" / "classified.json")
+        logger.info(f"Using output file: {self.output_file}")
         
         self.classifications = self._load_classifications()
         self.existing_terms = {c.get("term", "").lower() for c in self.classifications}
@@ -87,10 +88,31 @@ class MedicalTermClassifier:
             sorted_data = sorted(self.classifications, key=lambda x: x.get("term", "").lower())
             with open(self.output_file, 'w', encoding='utf-8') as f:
                 json.dump(sorted_data, f, indent=2, ensure_ascii=False)
+            logger.debug(f"Classifications saved to {self.output_file}")
             return True
         except Exception as e:
-            logger.error(f"Failed to save: {e}")
+            logger.error(f"Failed to save to {self.output_file}: {e}")
             return False
+
+    def _extract_json(self, text: str) -> dict:
+        """Extracts and parses JSON from a string, handling markdown blocks."""
+        import re
+        
+        # Try to find JSON block in markdown
+        json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', text, re.DOTALL)
+        if json_match:
+            text = json_match.group(1)
+        else:
+            # Fallback: try to find anything that looks like a JSON object
+            json_match = re.search(r'(\{.*\})', text, re.DOTALL)
+            if json_match:
+                text = json_match.group(1)
+
+        try:
+            return json.loads(text.strip())
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON: {e}. Original text: {text}")
+            return {}
 
     def classify(self, input_data: str) -> int:
         """Process input (term or file) and classify medical terms."""
@@ -116,15 +138,9 @@ class MedicalTermClassifier:
                 ))
                 
                 if raw_response and raw_response.strip():
-                    try:
-                        # Clean LLM response to ensure it's valid JSON
-                        cleaned_response = raw_response.strip()
-                        if cleaned_response.startswith('```json'):
-                            cleaned_response = cleaned_response[7:-3].strip()
-                        elif cleaned_response.startswith('```'):
-                            cleaned_response = cleaned_response[3:-3].strip()
-                        
-                        classification_data = json.loads(cleaned_response)
+                    classification_data = self._extract_json(raw_response)
+                    
+                    if classification_data and "category" in classification_data and "subcategory" in classification_data:
                         classification_data["term"] = term
                         self.classifications.append(classification_data)
                         saved_count += 1
@@ -132,14 +148,13 @@ class MedicalTermClassifier:
                         # Save periodically
                         if saved_count % 5 == 0:
                             self.save()
-                            
-                    except json.JSONDecodeError:
-                        logger.error(f"Failed to parse JSON for '{term}': {raw_response}")
+                    else:
+                        logger.error(f"Invalid classification data for '{term}': {raw_response}")
             except Exception as e:
                 logger.error(f"Error processing '{term}': {e}")
         
         self.save()
-        logger.info(f"Completed: {saved_count}/{len(new_terms)} classified. Total: {len(self.classifications)}")
+        logger.info(f"Completed: {saved_count}/{len(new_terms)} classified. Total: {len(self.classifications)}. Results saved to: {self.output_file}")
         return saved_count
 
 def main():
