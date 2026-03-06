@@ -14,13 +14,21 @@ This project implements an automated pipeline for building a medical knowledge g
   - **DOT Format:** Generates `.dot` files in the `outputs/` directory for visualization with Graphviz.
   - **JSON Format:** Exports the complete triple list for programmatic use.
 
+## Project Structure
+
+- `medicine_graph.py`: The main entry point for running the extraction and graph building pipeline.
+- `medicine_models.py`: Contains the core Pydantic models for triples and the `MedicineGraphBuilder` / `MedicineTripletExtractor` classes.
+- `medicine_prompts.py`: Defines the system prompts used by the LLM for entity and relationship extraction.
+- `test_medicine.py`: Unit tests for validating the models, extraction logic, and graph building.
+- `outputs/`: Directory where generated graph files (`.dot`, `.json`) are stored.
+
 ## Installation
 
 Ensure you have the required dependencies installed:
 
 ```bash
 pip install networkx matplotlib pydantic
-# The 'lite' package must also be available in your environment.
+# The 'lite' package must also be available in your environment for LLM extraction.
 ```
 
 ## Usage
@@ -37,6 +45,20 @@ By default, this will:
 3. Save the results to:
    - `outputs/Paracetamol.dot`
    - `outputs/medicine_graph.json`
+
+## Testing
+
+To run the automated unit tests and ensure everything is working correctly:
+
+```bash
+python3 -m unittest test_medicine.py
+```
+
+The tests cover:
+- Pydantic model validation and normalization.
+- Extraction simulation logic.
+- Graph construction and querying.
+- JSON and DOT export functionality.
 
 ## Configuration
 
