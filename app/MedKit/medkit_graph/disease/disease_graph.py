@@ -4,30 +4,39 @@ from disease_models import DiseaseTripletExtractor, DiseaseGraphBuilder, GraphVi
 # 5️⃣ Main Runner
 # =========================
 if __name__ == "__main__":
-    text = """
-    Malaria is a life-threatening disease caused by Plasmodium parasites that are transmitted through the bites of infected female Anopheles mosquitoes.
-    Symptoms of malaria include fever, chills, headache, nausea, and vomiting.
-    It primarily affects the liver and red blood cells.
-    Standing water is a major risk factor as it serves as a breeding ground for mosquitoes.
-    Severe malaria can lead to complications such as cerebral malaria, anemia, and organ failure.
-    Treatment typically involves antimalarial medications like Artemisinin-based combination therapy (ACT).
-    Prevention strategies include using mosquito nets and indoor residual spraying.
-    """
+    import sys
+    
+    if len(sys.argv) > 1:
+        disease_name = " ".join(sys.argv[1:])
+    else:
+        disease_name = input("Enter disease name: ").strip()
+    
+    if not disease_name:
+        print("❌ No disease name provided.")
+        sys.exit(1)
 
     extractor = DiseaseTripletExtractor()  
-    triples = extractor.extract(text)
+    print(f"🔍 Generating knowledge graph for: {disease_name}...")
+    triples = extractor.extract_by_name(disease_name)
 
-    print("✅ Extracted Disease Triples:")
+    if not triples:
+        print(f"❌ Could not extract information for '{disease_name}'.")
+        sys.exit(1)
+
+    print(f"✅ Extracted {len(triples)} Disease Triples:")
     for t in triples:
         print(t.model_dump())
 
     builder = DiseaseGraphBuilder()
     builder.add_triples(triples)
 
-    print("\n🔹 Symptoms of Malaria:", builder.query_symptoms("Malaria"))
-    print("🔹 Treatments for Malaria:", builder.query_treatments("Malaria"))
+    # Use the first part of the disease name for query if it's long, or just the full name
+    q_name = disease_name.split()[0] if " " in disease_name else disease_name
+    
+    print(f"\n🔹 Symptoms of {disease_name}:", builder.query_symptoms(disease_name) or builder.query_symptoms(q_name))
+    print(f"🔹 Treatments for {disease_name}:", builder.query_treatments(disease_name) or builder.query_treatments(q_name))
 
-    builder.export_dot("malaria")
+    builder.export_dot(disease_name)
 
     visualizer = GraphVisualizer(builder)
     visualizer.show()

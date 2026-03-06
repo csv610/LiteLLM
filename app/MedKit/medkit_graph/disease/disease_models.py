@@ -182,6 +182,30 @@ class DiseaseTripletExtractor:
         
         return self._simulate_as_triples(text)
 
+    def extract_by_name(self, disease_name: str) -> List[Triple]:
+        """Directly generates triples from a disease name."""
+        if self.client is not None:
+            model_input = ModelInput(
+                user_prompt=prompts.DISEASE_NAME_PROMPT.format(disease_name=disease_name),
+                response_format=TripleList
+            )
+            try:
+                response = self.client.generate_text(model_input)
+                if isinstance(response, TripleList):
+                    return response.triples
+                elif isinstance(response, str):
+                    # Fallback if it returns a string
+                    data = json.loads(response)
+                    if isinstance(data, list):
+                        return [Triple(**t) for t in data]
+                    elif isinstance(data, dict) and "triples" in data:
+                        return [Triple(**t) for t in data["triples"]]
+            except Exception as e:
+                print(f"⚠️ Error during generation for '{disease_name}': {e}")
+                return self._simulate_as_triples(disease_name)
+        
+        return self._simulate_as_triples(disease_name)
+
     def _simulate_as_triples(self, text: str) -> List[Triple]:
         return [Triple(**t) for t in self._simulate(text)]
 

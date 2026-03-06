@@ -59,5 +59,15 @@ def test_extractor_simulation():
     assert any(t.source == "Heart" for t in triples)
     assert any(t.relation == "common_disease" for t in triples)
 
+def test_generate_from_name():
+    """Test generating triples directly from anatomy name."""
+    extractor = AnatomyTripletExtractor(model_name="test-model")
+    # Simulation should work for "Heart"
+    triples = extractor.generate_from_name("Heart")
+    assert len(triples) > 0
+    assert any(t.source == "Heart" for t in triples)
+    assert any(t.relation == "part_of" for t in triples)
+    assert any(t.target == "Circulatory System" for t in triples)
+
 if __name__ == "__main__":
     pytest.main([__file__])

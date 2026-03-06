@@ -144,26 +144,41 @@ class AnatomyTripletExtractor:
     def extract(self, text: str) -> List[Triple]:
         if self.client is not None:
             model_input = ModelInput(
-                user_prompt=text,
-                system_prompt=prompts.PROMPT,
+                user_prompt=prompts.PROMPT.format(text=text),
+                system_prompt="You are an anatomy expert extractor.",
                 response_format=TripleList
             )
-            try:
-                response = self.client.generate_text(model_input=model_input)
-                # LiteClient with response_format returns the Pydantic object directly
-                if isinstance(response, TripleList):
-                    return response.triples
-                elif isinstance(response, str):
-                    # Fallback if it somehow returns a string
-                    data = json.loads(response)
-                    if isinstance(data, list):
-                        return [Triple(**item) for item in data]
-                    elif isinstance(data, dict) and "triples" in data:
-                        return [Triple(**item) for item in data["triples"]]
-            except Exception as e:
-                print(f"⚠️ Extraction failed: {e}. Falling back to simulation.")
+            return self._call_client(model_input, text)
 
         return [Triple(**item) for item in self._simulate(text)]
+
+    def generate_from_name(self, anatomy_name: str) -> List[Triple]:
+        """Directly generates anatomical triples for a given name using LLM."""
+        if self.client is not None:
+            model_input = ModelInput(
+                user_prompt=prompts.GENERATION_PROMPT.format(anatomy_name=anatomy_name),
+                system_prompt="You are an anatomy expert.",
+                response_format=TripleList
+            )
+            return self._call_client(model_input, anatomy_name)
+        
+        return [Triple(**item) for item in self._simulate(anatomy_name)]
+
+    def _call_client(self, model_input: "ModelInput", fallback_text: str) -> List[Triple]:
+        try:
+            response = self.client.generate_text(model_input=model_input)
+            if isinstance(response, TripleList):
+                return response.triples
+            elif isinstance(response, str):
+                data = json.loads(response)
+                if isinstance(data, list):
+                    return [Triple(**item) for item in data]
+                elif isinstance(data, dict) and "triples" in data:
+                    return [Triple(**item) for item in data["triples"]]
+        except Exception as e:
+            print(f"⚠️ LLM call failed: {e}. Falling back to simulation.")
+        
+        return [Triple(**item) for item in self._simulate(fallback_text)]
 
     def _simulate(self, text: str):
         """Offline simulation for testing."""

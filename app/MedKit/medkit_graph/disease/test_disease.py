@@ -43,7 +43,7 @@ def test_graph_builder():
 
 def test_extractor_simulation():
     extractor = DiseaseTripletExtractor()
-    # Test simulation for Malaria
+    # Test simulation for Malaria from text
     triples = extractor._simulate_as_triples("This is about Malaria")
     
     assert len(triples) > 0
@@ -56,6 +56,19 @@ def test_extractor_simulation():
     
     has_liver = any(t.target == "Liver" and t.relation == "affects_organ" for t in triples)
     assert has_liver
+
+def test_extract_by_name():
+    extractor = DiseaseTripletExtractor()
+    # Test extraction by name for Diabetes (simulated)
+    triples = extractor.extract_by_name("Diabetes")
+    
+    assert len(triples) > 0
+    diabetes_triples = [t for t in triples if t.source == "Diabetes Mellitus"]
+    assert len(diabetes_triples) > 0
+    
+    # Check for specific simulated edges
+    has_thirst = any(t.target == "Increased thirst" and t.relation == "has_symptom" for t in triples)
+    assert has_thirst
 
 def test_graph_export(tmp_path):
     builder = DiseaseGraphBuilder()

@@ -29,14 +29,20 @@ This module extracts structured disease knowledge from text and builds a relatio
 ## Usage
 
 ### Running the Example
-To run the extraction and graph generation for Malaria:
+To generate a graph for a disease by name:
+```bash
+python3 disease_graph.py "Diabetes"
+```
+Or simply:
 ```bash
 python3 disease_graph.py
 ```
+And then enter the disease name when prompted.
+
 This will:
-1. Extract triples from a sample text about Malaria.
+1. Generate knowledge triples for the specified disease.
 2. Print the extracted knowledge.
-3. Export the graph to `outputs/malaria.dot`.
+3. Export the graph to `outputs/disease_name.dot`.
 4. Display a text representation of the graph.
 
 ### Running Tests

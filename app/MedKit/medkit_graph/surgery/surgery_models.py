@@ -1,18 +1,20 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Any
 from pydantic import BaseModel, Field, validator
 import networkx as nx
-import matplotlib.pyplot as plt
 import json
 import os
-import prompts
+import surgery_prompts as prompts
 
 try:
-    from google import genai
+    from lite.lite_client import LiteClient
+    from lite.config import ModelConfig, ModelInput
 except ImportError:
-    genai = None
+    LiteClient = None
+    ModelConfig = None
+    ModelInput = None
 
 
 # =========================
@@ -127,54 +129,48 @@ class Triple(BaseModel):
             return NODE_TYPE_ALIASES[key]
         return "Other"
 
+class TripleList(BaseModel):
+    triples: List[Triple]
 
 # =========================
-# 2️⃣ Gemini Surgery Extractor
+# 2️⃣ LiteClient Surgery Extractor
 # =========================
 class SurgeryTripletExtractor:
-    """Extracts structured triples from unstructured surgical text using Gemini."""
+    """Extracts structured triples from unstructured surgical text using LiteClient."""
 
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "gemini/gemini-2.0-flash"):
         self.model_name = model_name
         self.client = None
 
-        api_key = os.getenv("GEMINI_API_KEY")
-        if api_key and genai is not None:
-            self.client = genai.Client(api_key=api_key)
-        elif api_key and genai is None:
-            print("⚠️ GEMINI_API_KEY set but google.genai not installed. Using offline mode.")
+        if LiteClient is not None:
+            config = ModelConfig(model=self.model_name)
+            self.client = LiteClient(model_config=config)
+        else:
+            print("⚠️ LiteClient not found. Using offline mode.")
 
     def build_prompt(self, text: str) -> str:
         return prompts.PROMPT.format(text=text)
 
     def extract(self, text: str) -> List[Triple]:
-        raw_list = None
         if self.client is not None:
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=self.build_prompt(text),
-                config={"response_mime_type": "application/json"},
+            model_input = ModelInput(
+                user_prompt=self.build_prompt(text),
+                response_format=TripleList
             )
             try:
-                raw_list = response.parsed
-            except Exception:
-                raw_list = json.loads(response.text)
-        else:
-            raw_list = self._simulate(text)
-
-        triples = []
-        for item in raw_list:
-            try:
-                triples.append(Triple(**item))
+                response: TripleList = self.client.generate_text(model_input)
+                return response.triples
             except Exception as e:
-                print("⚠️ Skipped invalid triple:", item, "|", e)
-        return triples
+                print(f"❌ Extraction failed: {e}. Falling back to simulation.")
+                return [Triple(**item) for item in self._simulate(text)]
+        else:
+            return [Triple(**item) for item in self._simulate(text)]
 
     def _simulate(self, text: str):
         """Offline mock extractor for testing."""
         t = text.lower()
         triples = []
-        if "bypass surgery" in t:
+        if "bypass surgery" in t or "cabg" in t:
             triples.extend([
                 {"source": "Coronary Artery Bypass Surgery", "relation": "treats_disease", "target": "Coronary Artery Disease", "source_type": "Surgery", "target_type": "Disease"},
                 {"source": "Coronary Artery Bypass Surgery", "relation": "performed_on_organ", "target": "Heart", "source_type": "Surgery", "target_type": "Organ"},
@@ -233,50 +229,20 @@ class SurgeryGraphBuilder:
             json.dump(triples, f, indent=2)
         print(f"✅ Graph exported to {path}")
 
-
-# =========================
-# 4️⃣ Visualization
-# =========================
-class GraphVisualizer:
-    """Visualizes the surgical knowledge graph."""
-
-    def __init__(self, graph: nx.MultiDiGraph):
-        self.G = graph
-
-    def show(self, figsize=(10, 8)):
-        plt.figure(figsize=figsize)
-        pos = nx.spring_layout(self.G, k=0.6, iterations=40)
-        edge_labels = nx.get_edge_attributes(self.G, "relation")
-
-        color_map = {
-            "Surgery": "#80b1d3",
-            "Disease": "#fb8072",
-            "Organ": "#8dd3c7",
-            "Instrument": "#bebada",
-            "Specialist": "#b3de69",
-            "Risk": "#fccde5",
-            "Benefit": "#bc80bd",
-            "Complication": "#fdb462",
-            "AnesthesiaType": "#ffffb3",
-            "Preparation": "#ccebc5",
-            "FollowUp": "#ffed6f",
-            "Other": "#d9d9d9",
-        }
-
-        node_colors = [
-            color_map.get(self.G.nodes[n].get("type", "Other"), "#d9d9d9")
-            for n in self.G.nodes()
-        ]
-
-        nx.draw(
-            self.G,
-            pos,
-            with_labels=True,
-            node_color=node_colors,
-            node_size=2200,
-            font_size=9,
-            font_weight="bold",
-            arrows=True,
-        )
-        nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels)
-        plt.show()
+    def export_dot(self, surgery_name: str, output_dir: str = "outputs"):
+        """Exports the graph to a .dot file in the specified directory."""
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        safe_name = surgery_name.replace(" ", "_").lower()
+        path = os.path.join(output_dir, f"{safe_name}.dot")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(f'digraph "{surgery_name}" {{\n')
+            f.write('    rankdir=LR;\n')
+            f.write('    node [shape=box, style=filled, color=lightblue];\n')
+            for u, v, d in self.G.edges(data=True):
+                relation = d.get("relation", "related_to")
+                f.write(f'    "{u}" -> "{v}" [label="{relation}"];\n')
+            f.write("}\n")
+        print(f"✅ Graph exported to {path}")
