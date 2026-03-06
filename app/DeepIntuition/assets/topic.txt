@@ -40,4 +40,5 @@ Shannon's Information Theory
 RSA Encryption and Public Key Cryptography
 Nash Equilibrium (Game Theory)
 Artificial Neural Networks
+Kolmogorov Complexity Theory
 EOF

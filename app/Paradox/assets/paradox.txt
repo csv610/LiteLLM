@@ -2,23 +2,23 @@
   "Paradoxes": {
     "Logic": [
       "Barbershop paradox",
-      "What the Tortoise Said to Achilles",
       "Catch-22",
       "Drinker paradox",
+      "Lottery paradox",
       "Paradox of free choice",
       "Paradox of entailment",
-      "Lottery paradox",
       "Raven paradox",
       "Ross' paradox",
       "Temperature paradox",
-      "Unexpected hanging paradox"
+      "Unexpected hanging paradox",
+      "What the Tortoise Said to Achilles"
     ],
     "Self-reference": [
       "Barber paradox",
       "Bhartrhari's paradox",
       "Berry paradox",
+      "Card paradox",
       "Crocodile dilemma",
-      "Paradox of the Court",
       "Curry's paradox",
       "Epimenides paradox",
       "Grelling–Nelson paradox",
@@ -27,14 +27,14 @@
       "Kleene–Rosser paradox",
       "Knower paradox",
       "Liar paradox",
-      "Card paradox",
       "No-no paradox",
+      "Opposite Day",
+      "Paradox of the Court",
       "Pinocchio paradox",
       "Quine's paradox",
-      "Yablo's paradox",
-      "Opposite Day",
       "Richard's paradox",
-      "Russell's paradox"
+      "Russell's paradox",
+      "Yablo's paradox"
     ],
     "Vagueness": [
       "Ship of Theseus",
@@ -83,12 +83,12 @@
       "Galileo's paradox",
       "Hilbert's paradox of the Grand Hotel",
       "Skolem's paradox",
-      "Zeno's paradoxes",
       "Benardete's paradox",
       "Grim Reaper paradox",
       "Grandi's series",
       "Ross–Littlewood paradox",
-      "Thomson's lamp"
+      "Thomson's lamp",
+      "Zeno's paradoxes"
     ],
     "Geometry and Topology": [
       "Banach–Tarski paradox",
@@ -262,8 +262,8 @@
       "Mere addition paradox",
       "Moore's paradox",
       "Newcomb's paradox",
-      "Paradox of nihilism",
       "Omnipotence paradox",
+      "Paradox of nihilism",
       "Polanyi's paradox",
       "Preface paradox",
       "Problem of evil",
@@ -311,15 +311,15 @@
       "Tullock paradox"
     ],
     "Perception": [
-      "Tritone paradox",
       "Blub paradox",
-      "Optical illusion"
+      "Optical illusion paradox",
+      "Tritone paradox",
     ],
     "Politics": [
-      "Stability–instability paradox",
       "Paradox of tolerance",
       "Paradox of democracy",
       "Paradox of freedom",
+      "Stability–instability paradox",
       "Wollheim's paradox"
     ],
     "Psychology and Sociology": [
