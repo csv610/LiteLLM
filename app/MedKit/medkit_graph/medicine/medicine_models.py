@@ -7,12 +7,15 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import json
 import os
-import prompts
+import medicine_prompts as prompts
 
 try:
-    from google import genai
+    from lite import LiteClient
+    from lite.config import ModelConfig, ModelInput
 except ImportError:
-    genai = None
+    LiteClient = None
+    ModelConfig = None
+    ModelInput = None
 
 
 # =========================
@@ -129,50 +132,50 @@ class Triple(BaseModel):
         return "Other"
 
 
+class TripleList(BaseModel):
+    """Container for a list of triples."""
+    triples: List[Triple]
+
+
 # =========================
 # 2️⃣ Gemini Triplet Extractor
 # =========================
 class MedicineTripletExtractor:
-    """Uses Gemini or fallback simulation to extract biomedical triples."""
+    """Uses LiteClient or fallback simulation to extract biomedical triples."""
 
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "ollama/gemma3"):
         self.model_name = model_name
         self.client = None
 
-        api_key = os.getenv("GEMINI_API_KEY")
-        if api_key and genai is not None:
-            self.client = genai.Client(api_key=api_key)
-        elif api_key and genai is None:
-            print("⚠️ GEMINI_API_KEY set but google.genai not installed. Using offline mode.")
-
-    def build_prompt(self, text: str) -> str:
-        return prompts.PROMPT.format(text=text)
+        if LiteClient is not None:
+            config = ModelConfig(model=self.model_name)
+            self.client = LiteClient(model_config=config)
+        else:
+            print("⚠️ 'lite' package not installed. Using offline mode.")
 
     def extract(self, text: str) -> List[Triple]:
-        raw_list = None
         if self.client is not None:
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=self.build_prompt(text),
-                config={"response_mime_type": "application/json"},
+            model_input = ModelInput(
+                user_prompt=text,
+                system_prompt=prompts.PROMPT,
+                response_format=TripleList
             )
             try:
-                raw_list = response.parsed
-            except Exception:
-                try:
-                    raw_list = json.loads(response.text)
-                except Exception:
-                    raw_list = []
-        else:
-            raw_list = self._simulate(text)
-
-        triples = []
-        for item in raw_list:
-            try:
-                triples.append(Triple(**item))
+                response = self.client.generate_text(model_input=model_input)
+                # LiteClient with response_format returns the Pydantic object directly
+                if isinstance(response, TripleList):
+                    return response.triples
+                elif isinstance(response, str):
+                    # Fallback if it somehow returns a string
+                    data = json.loads(response)
+                    if isinstance(data, list):
+                        return [Triple(**item) for item in data]
+                    elif isinstance(data, dict) and "triples" in data:
+                        return [Triple(**item) for item in data["triples"]]
             except Exception as e:
-                print("⚠️ Skipped invalid triple:", item, "|", e)
-        return triples
+                print(f"⚠️ Extraction failed: {e}. Falling back to simulation.")
+
+        return [Triple(**item) for item in self._simulate(text)]
 
     def _simulate(self, text: str):
         """Fallback for offline testing."""
@@ -229,6 +232,33 @@ class MedicineGraphBuilder:
         ]
         with open(path, "w", encoding="utf-8") as f:
             json.dump(triples, f, indent=2)
+        print(f"✅ Graph exported to {path}")
+
+    def export_dot(self, path: str):
+        """Exports the graph to a Graphviz .dot file."""
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("digraph G {\n")
+            f.write('  rankdir=LR;\n')
+            f.write('  node [style=filled, shape=rect, fontname="Arial"];\n')
+            
+            color_map = {
+                "Drug": "#8dd3c7",
+                "Disease": "#fb8072",
+                "SideEffect": "#ffffb3",
+                "DrugClass": "#bebada",
+                "Condition": "#80b1d3",
+                "Other": "#fdb462",
+            }
+            
+            for n, d in self.G.nodes(data=True):
+                node_type = d.get("type", "Other")
+                color = color_map.get(node_type, "#fdb462")
+                f.write(f'  "{n}" [fillcolor="{color}", label="{n}\\n({node_type})"];\n')
+
+            for u, v, d in self.G.edges(data=True):
+                rel = d.get("relation", "other")
+                f.write(f'  "{u}" -> "{v}" [label="{rel}"];\n')
+            f.write("}\n")
         print(f"✅ Graph exported to {path}")
 
 

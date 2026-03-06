@@ -1,11 +1,13 @@
-from core import MedicineTripletExtractor, MedicineGraphBuilder, GraphVisualizer
+import os
+from medicine_models import MedicineTripletExtractor, MedicineGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Main Runner
 # =========================
 if __name__ == "__main__":
-    text = """
-    Paracetamol is an analgesic and antipyretic used to treat fever and mild pain.
+    medicine_name = "Paracetamol"
+    text = f"""
+    {medicine_name} is an analgesic and antipyretic used to treat fever and mild pain.
     It may cause liver toxicity and is contraindicated in patients with liver disease.
     """
 
@@ -14,7 +16,7 @@ if __name__ == "__main__":
 
     print("✅ Extracted & validated triples:")
     for t in triples:
-        print(t.dict())
+        print(t.model_dump())
 
     builder = MedicineGraphBuilder()
     builder.add_triples(triples)
@@ -22,7 +24,14 @@ if __name__ == "__main__":
     print("🔹 Drugs that treat Fever:", builder.query_treats("Fever"))
     print("🔹 Side effects of Paracetamol:", builder.query_side_effects("Paracetamol"))
 
-    builder.export_json("medicine_graph.json")
+    # Ensure outputs directory exists
+    output_dir = "outputs"
+    os.makedirs(output_dir, exist_ok=True)
 
-    visualizer = GraphVisualizer(builder.G)
-    visualizer.show()
+    dot_filename = os.path.join(output_dir, f"{medicine_name}.dot")
+    builder.export_dot(dot_filename)
+
+    builder.export_json(os.path.join(output_dir, "medicine_graph.json"))
+
+    # visualizer = GraphVisualizer(builder.G)
+    # visualizer.show()
