@@ -1,19 +1,26 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Dict, Union
 from pydantic import BaseModel, Field, validator
 import networkx as nx
 import matplotlib.pyplot as plt
 import json
 import os
-import prompts
+import sympton_prompts as prompts
 
 try:
     from google import genai
 except ImportError:
     genai = None
 
+try:
+    from lite.lite_client import LiteClient
+    from lite.config import ModelInput, ModelConfig
+except ImportError:
+    LiteClient = None
+    ModelInput = None
+    ModelConfig = None
 
 # =========================
 # 1️⃣ Define Schema with Pydantic
@@ -123,63 +130,67 @@ class Triple(BaseModel):
         return "Other"
 
 
+class TripleList(BaseModel):
+    triples: List[Triple]
+
+
 # =========================
-# 2️⃣ LLM Extractor (Gemini or Offline)
+# 2️⃣ LLM Extractor (LiteClient)
 # =========================
 class SymptomTripletExtractor:
-    """Extracts symptom knowledge triples using Gemini."""
+    """Extracts symptom knowledge triples using LiteClient."""
 
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "ollama/gemma3"):
         self.model_name = model_name
-        self.client = None
+        self.lite_client = None
 
-        api_key = os.getenv("GEMINI_API_KEY")
-        if api_key and genai is not None:
-            self.client = genai.Client(api_key=api_key)
-        elif api_key and genai is None:
-            print("⚠️ GEMINI_API_KEY set but google.genai not installed. Using offline mode.")
+        if LiteClient:
+            config = ModelConfig(model=model_name)
+            self.lite_client = LiteClient(model_config=config)
+        else:
+            print("⚠️ LiteClient not found. Using offline mode.")
 
     def build_prompt(self, text: str) -> str:
         return prompts.PROMPT.format(text=text)
 
     def extract(self, text: str) -> List[Triple]:
-        raw_list = None
-        if self.client is not None:
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=self.build_prompt(text),
-                config={"response_mime_type": "application/json"},
+        if self.lite_client is not None:
+            model_input = ModelInput(
+                user_prompt=self.build_prompt(text),
+                response_format=TripleList
             )
             try:
-                raw_list = response.parsed
-            except Exception:
-                raw_list = json.loads(response.text)
-        else:
-            raw_list = self._simulate(text)
-
-        triples = []
-        for item in raw_list:
-            try:
-                triples.append(Triple(**item))
+                # Use generate_text which returns the parsed Pydantic model
+                response = self.lite_client.generate_text(model_input=model_input)
+                if isinstance(response, TripleList):
+                    return response.triples
+                elif isinstance(response, str):
+                    # Fallback if it returns a string
+                    raw_list = json.loads(response)
+                    # Check if it's a list or a dict with 'triples' key
+                    if isinstance(raw_list, dict) and 'triples' in raw_list:
+                        return [Triple(**item) for item in raw_list['triples']]
+                    return [Triple(**item) for item in raw_list]
             except Exception as e:
-                print("⚠️ Skipped invalid triple:", item, "|", e)
-        return triples
+                print(f"⚠️ Error during extraction: {e}")
+                return self._simulate(text)
+        else:
+            return self._simulate(text)
 
     def _simulate(self, text: str):
         """Offline fallback for testing."""
-        t = text.lower()
-        triples = []
-        if "fever" in t:
-            triples.extend([
-                {"source": "Fever", "relation": "associated_with_disease", "target": "Infection", "source_type": "Symptom", "target_type": "Disease"},
-                {"source": "Fever", "relation": "indicates_disease", "target": "Malaria", "source_type": "Symptom", "target_type": "Disease"},
-                {"source": "Fever", "relation": "affects_body_part", "target": "Whole Body", "source_type": "Symptom", "target_type": "BodyPart"},
-                {"source": "Fever", "relation": "has_severity", "target": "Mild to High", "source_type": "Symptom", "target_type": "Severity"},
-                {"source": "Fever", "relation": "has_duration", "target": "Few hours to several days", "source_type": "Symptom", "target_type": "Duration"},
-                {"source": "Fever", "relation": "diagnosed_by_test", "target": "Blood Test", "source_type": "Symptom", "target_type": "Test"},
-                {"source": "Fever", "relation": "treated_with_drug", "target": "Paracetamol", "source_type": "Symptom", "target_type": "Drug"},
-                {"source": "Fever", "relation": "risk_factor_for", "target": "Dehydration", "source_type": "Symptom", "target_type": "RiskFactor"},
-            ])
+        symptom = "Symptom"
+        if "fever" in text.lower():
+            symptom = "Fever"
+        elif "cough" in text.lower():
+            symptom = "Cough"
+            
+        triples = [
+            Triple(source=symptom, relation="associated_with_disease", target="Common Cold", source_type="Symptom", target_type="Disease"),
+            Triple(source=symptom, relation="affects_body_part", target="Respiratory System", source_type="Symptom", target_type="BodyPart"),
+            Triple(source=symptom, relation="treated_with_drug", target="General Medicine", source_type="Symptom", target_type="Drug"),
+            Triple(source=symptom, relation="has_severity", target="Mild", source_type="Symptom", target_type="Severity"),
+        ]
         return triples
 
 
@@ -222,8 +233,24 @@ class SymptomGraphBuilder:
             }
             for u, v, d in self.G.edges(data=True)
         ]
+        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
         with open(path, "w", encoding="utf-8") as f:
             json.dump(triples, f, indent=2)
+        print(f"✅ Graph exported to {path}")
+
+    def export_dot(self, path: str):
+        """Export the graph in DOT format."""
+        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("digraph SymptomGraph {\n")
+            f.write("  node [shape=box, style=rounded, fontname=Arial];\n")
+            for n, d in self.G.nodes(data=True):
+                ntype = d.get("type", "Other")
+                f.write(f'  "{n}" [label="{n}\\n({ntype})"];\n')
+            for u, v, d in self.G.edges(data=True):
+                rel = d.get("relation", "other")
+                f.write(f'  "{u}" -> "{v}" [label="{rel}"];\n')
+            f.write("}\n")
         print(f"✅ Graph exported to {path}")
 
 
