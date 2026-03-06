@@ -1,5 +1,5 @@
 
-from .core import AnatomyTripletExtractor, AnatomyGraphBuilder, GraphVisualizer
+from anatomy_models import AnatomyTripletExtractor, AnatomyGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner
@@ -25,7 +25,8 @@ if __name__ == "__main__":
     print("🔹 Systems containing Heart:", builder.query_part_of("Heart"))
     print("🔹 Organs adjacent to Heart:", builder.query_connections("Heart"))
 
-    builder.export_json("anatomy_graph.json")
+    builder.export_dot("heart")
+    # builder.export_json("anatomy_graph.json")
 
     visualizer = GraphVisualizer(builder.G)
     visualizer.show()
