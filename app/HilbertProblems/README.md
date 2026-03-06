@@ -1,96 +1,60 @@
 # Hilbert's 23 Problems Reference Guide
 
-A dynamic, AI-powered reference tool designed to fetch, document, and explore the 23 mathematical problems proposed by David Hilbert in 1900. 
+A command-line tool that uses Large Language Models (LLMs) to generate a structured, verifiable reference for the 23 mathematical problems proposed by David Hilbert in 1900.
 
-## What This Project Does
+## Overview
 
-This tool provides a structured, command-line interface for exploring Hilbert's 23 problems. It leverages Large Language Models (LLMs) via the `LiteClient` (specifically optimized for `ollama/gemma3`) to retrieve comprehensive details, historical context, and current status for each problem. 
+This project provides an automated way to explore the status and history of Hilbert's foundational problems. Instead of manual research, it extracts precise mathematical details and historical context into a structured format, allowing users to quickly understand the trajectory of 20th-century mathematics.
 
-Key functionality includes:
-- **On-Demand Retrieval**: Fetches detailed information for any of Hilbert's 23 problems using advanced AI.
-- **Structured Documentation**: Organizes complex mathematical data into a consistent format (status, solver, year, solution method, etc.).
-- **Summary Views**: Provides a high-level overview of all problems for quick reference.
-- **Model Flexibility**: Supports multiple LLM backends to compare different perspectives on these mathematical challenges.
+## Information Provided
 
-## Why It Matters
+For each of the 23 problems, the tool retrieves and organizes the following data points:
 
-Hilbert's problems are more than just a list of questions; they served as a roadmap for 20th-century mathematics. Many of these problems have been solved, leading to significant breakthroughs, while others remain open challenges that continue to inspire researchers.
+- **Mathematical Formulation**: A precise and rigorous description of the problem's logic and objectives.
+- **Current Resolution Status**: Clear identification of whether the problem is **Solved**, **Unsolved**, or **Partially Solved**.
+- **Historical Attribution**: The names of the mathematicians who provided the solution or made significant breakthroughs.
+- **Chronology**: The specific year the problem was solved or reached a major milestone.
+- **Technical Methodology**: A detailed breakdown of the mathematical techniques and approaches used to address the problem.
+- **Cross-Disciplinary Links**: Connections to other branches of mathematics (e.g., Set Theory, Topology, Number Theory, Analysis).
+- **Contextual Insights**: Critical notes on the problem's broader impact, historical significance, and ongoing influence on modern research.
 
-This project matters because it:
-- **Bridges the Gap**: Makes dense mathematical history accessible through a modern, interactive interface.
-- **Demonstrates AI Utility**: Shows how structured LLM outputs can be used to build reliable educational and research tools.
-- **Centralizes Knowledge**: Instead of searching through fragmented resources, it provides a single, consistent source for exploring these foundational problems.
+## How it Works (Structured Extraction)
 
-## Structured Output: The Core Engine
+The application uses **Structured AI Output** to ensure that every response is complete and accurate. 
 
-A defining feature of this project is its use of **Structured AI Output**. Unlike typical chatbots that return free-form text, this tool enforces a strict data schema for every response.
+1. **Expert Context**: It uses specialized prompts to treat the AI as a mathematical historian, ensuring high-quality, professional-grade information.
+2. **Schema Enforcement**: It forces the LLM to provide data in a specific, pre-defined format. This prevents the model from omitting critical details like solution years or the names of solvers.
+3. **Data Integrity**: Every piece of information is validated before being displayed, ensuring that you receive consistent and machine-readable data across all 23 problems.
 
-### How it Works:
-1. **Pydantic Models**: We define the "shape" of a Hilbert Problem using Pydantic (see `hilbert_problems_models.py`). This includes specific types for problem numbers, titles, and even an enumeration for status (`SOLVED`, `UNSOLVED`, `PARTIALLY_SOLVED`).
-2. **Schema Enforcement**: The `LiteClient` transmits this schema to the LLM (optimized for `ollama/gemma3`), instructing it to return data that fits the model exactly.
-3. **Validation**: Before the data ever reaches the CLI, it is validated against the model. If the AI returns malformed data or missing fields, the system catches it, ensuring the application remains stable and the information remains reliable.
+## Why This Matters
 
-### Benefits:
-- **Consistency**: Every problem, regardless of which model generated it, follows the exact same format.
-- **Programmatic Use**: Because the output is structured (JSON-compatible), the data can be easily saved, searched, or integrated into other systems without complex parsing.
-- **Reliability**: It eliminates "AI hallucinations" where the model might otherwise omit critical details like the solution year or the mathematician involved.
-
-## Target Audience
-
-- **Mathematics Students & Educators**: A structured way to learn about the history and status of some of the most famous problems in math.
-- **Researchers & Enthusiasts**: A quick reference tool for checking the status and solution details of specific problems.
-- **AI Developers**: An example of how to use structured LLM outputs (Pydantic models) to build robust applications.
-
----
-
-## Features
-
-- **Dynamic Retrieval**: Fetches detailed information, status, and historical context.
-- **Persistent Logging**: Comprehensive logging for tracking operations and debugging.
-- **Command-Line Interface**: Intuitive CLI to browse summaries or dive into specific details.
-- **Structured Data**: Uses robust data models (Pydantic) to ensure consistency.
+- **Centralized Knowledge**: Consolidates fragmented historical and mathematical data into a single, accessible interface.
+- **Educational Utility**: Provides a structured roadmap for students and researchers to study the history of mathematics.
+- **Comparative Analysis**: Allows users to compare how different LLMs (e.g., `gemma3` vs `mistral`) interpret and summarize complex mathematical breakthroughs.
 
 ## Project Structure
 
-- `hilbert_problems_cli.py`: The main entry point for the command-line interface.
-- `hilbert_problems.py`: Core logic for fetching, parsing, and managing the problem guide.
-- `hilbert_problems_models.py`: Data models defining the structure of a Hilbert Problem.
-- `hilbert_problems_prompts.py`: Logic for building LLM prompts.
-- `logs/`: Directory containing application and CLI logs.
-
-## Prerequisites
-
-- Python 3.x
-- Access to an LLM provider (e.g., Ollama running `gemma3`)
-- `lite` package (internal dependency for LLM communication)
-- `tqdm` for progress tracking
-
-## Installation
-
-```bash
-pip install tqdm
-# Ensure the 'lite' package is available in your Python path
-```
+- `hilbert_problems_cli.py`: Main CLI for querying and displaying problems.
+- `hilbert_problems.py`: Logic for fetching and managing the problem guide.
+- `hilbert_problems_models.py`: Defines the structured data schema.
+- `hilbert_problems_prompts.py`: Expert-tuned mathematical prompts.
 
 ## Usage
 
-The guide can be accessed via the CLI script:
-
-### Display All Problems Summary
+### Summary of All Problems
 ```bash
 python hilbert_problems_cli.py
 ```
 
-### Display Details for a Specific Problem (e.g., Problem 1)
+### Detailed View (e.g., Riemann Hypothesis)
 ```bash
-python hilbert_problems_cli.py -p 1
+python hilbert_problems_cli.py -p 8
 ```
 
-### Specify a Custom Model
+### Compare with Different Models
 ```bash
-python hilbert_problems_cli.py -m ollama/mistral
+python hilbert_problems_cli.py -p 1 -m ollama/mistral
 ```
 
 ## License
-
-[Specify License, e.g., MIT]
+[MIT]

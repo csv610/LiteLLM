@@ -63,7 +63,7 @@ class HilbertProblemsGuide:
                 response_format=HilbertProblemModel
             )
 
-            problem = self.client.generate(model_input)
+            problem = self.client.generate_text(model_input)
 
             if isinstance(problem, HilbertProblemModel):
                 # Ensure number field is set correctly
@@ -147,11 +147,15 @@ class HilbertProblemsGuide:
         print("\nFetching summary information from AI...")
         
         try:
+            # Provide the titles mapping in the summary prompt for grounding
+            titles_context = "\n".join([f"#{n}: {t}" for n, t in PromptBuilder.PROBLEM_TITLES.items()])
+            user_prompt = f"Using this verified list of titles:\n{titles_context}\n\n{PromptBuilder.get_summary_prompt()}"
+
             model_input = ModelInput(
                 system_prompt=PromptBuilder.get_system_prompt(),
-                user_prompt=PromptBuilder.get_summary_prompt()
+                user_prompt=user_prompt
             )
-            summary_text = self.client.generate(model_input)
+            summary_text = self.client.generate_text(model_input)
             print(f"\n{summary_text}")
         except Exception as e:
             logger.error(f"Error fetching summary: {str(e)}")

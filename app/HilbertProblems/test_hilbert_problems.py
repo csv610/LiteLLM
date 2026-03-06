@@ -31,14 +31,14 @@ def sample_problem():
 def test_generate_text(mock_lite_client, sample_problem):
     # Setup mock
     instance = mock_lite_client.return_value
-    instance.generate.return_value = sample_problem
+    instance.generate_text.return_value = sample_problem
     
     guide = HilbertProblemsGuide()
     result = guide.generate_text(1)
     
     assert result.number == 1
     assert result.title == "The Continuum Hypothesis"
-    instance.generate.assert_called_once()
+    instance.generate_text.assert_called_once()
 
 def test_save_to_file(sample_problem, tmp_path):
     guide = HilbertProblemsGuide()
@@ -61,7 +61,7 @@ def test_display_problem(sample_problem, capsys):
 
 def test_display_summary(mock_lite_client, capsys):
     instance = mock_lite_client.return_value
-    instance.generate.return_value = "Summary of all problems..."
+    instance.generate_text.return_value = "Summary of all problems..."
     
     guide = HilbertProblemsGuide()
     guide.display_summary()
@@ -69,4 +69,4 @@ def test_display_summary(mock_lite_client, capsys):
     captured = capsys.readouterr()
     assert "SUMMARY OF HILBERT'S 23 PROBLEMS" in captured.out
     assert "Summary of all problems..." in captured.out
-    instance.generate.assert_called_once()
+    instance.generate_text.assert_called_once()
