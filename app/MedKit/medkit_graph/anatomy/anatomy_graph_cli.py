@@ -1,6 +1,11 @@
 import argparse
 
-from anatomy_models import AnatomyGraphBuilder, AnatomyTripletExtractor, GraphVisualizer
+from anatomy_models import AnatomyKnowledgeGraph, GraphVisualizer
+
+try:
+    from lite.config import ModelConfig
+except ImportError:
+    ModelConfig = None
 
 
 def main():
@@ -15,8 +20,8 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gemini-2.0-flash",
-        help="Model name to use (default: gemini-2.0-flash)",
+        default="ollama/gemma3:27b-cloud",
+        help="Model name to use (default: ollama/gemma3:27b-cloud)",
     )
     parser.add_argument(
         "--visualize", action="store_true", help="Show the graph visualization"
@@ -26,9 +31,10 @@ def main():
 
     print(f"🚀 Building anatomy graph for: {args.anatomy_name} using {args.model}")
 
-    # 1. Generate triples from name
-    extractor = AnatomyTripletExtractor(model_name=args.model)
-    triples = extractor.generate_from_name(args.anatomy_name)
+    # 1. Build graph from name
+    config = ModelConfig(model=args.model) if ModelConfig else None
+    builder = AnatomyKnowledgeGraph(model_config=config)
+    triples = builder.build_from_name(args.anatomy_name)
 
     if not triples:
         print("❌ No triples generated.")
@@ -36,16 +42,12 @@ def main():
 
     print(f"✅ Generated {len(triples)} anatomical triples.")
 
-    # 2. Build graph
-    builder = AnatomyGraphBuilder()
-    builder.add_triples(triples)
-
-    # 3. Export
+    # 2. Export
     builder.export_dot(args.anatomy_name)
     json_path = f"outputs/{args.anatomy_name.lower().replace(' ', '_')}.json"
     builder.export_json(json_path)
 
-    # 4. Optional Visualization
+    # 3. Optional Visualization
     if args.visualize:
         visualizer = GraphVisualizer(builder.G)
         visualizer.show()

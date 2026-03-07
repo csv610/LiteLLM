@@ -25,7 +25,7 @@ FAQ generation is often used for documentation, study materials, and content see
 - `faq_generator_cli.py`: command-line interface.
 - `faq_generator_models.py`: schemas and constants.
 - `faq_generator_prompts.py`: prompt construction.
-- `mock_test_faq_generator.py`: tests.
+- `test_faq_generator_mock.py`: tests.
 
 ## Installation
 
@@ -50,7 +50,7 @@ Defaults:
 ## Testing
 
 ```bash
-python -m unittest mock_test_faq_generator.py
+python -m unittest test_faq_generator_mock.py
 ```
 
 ## Limitations

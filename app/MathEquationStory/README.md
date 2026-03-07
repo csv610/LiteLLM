@@ -25,7 +25,7 @@ Equation summaries are often technically correct but pedagogically thin. This ap
 - `math_equation_story_models.py`: response schema.
 - `math_equation_story_prompts.py`: prompt construction.
 - `assets/`: equation datasets.
-- `mock_test_math_equation_story.py`: tests.
+- `test_math_equation_story_mock.py`: tests.
 
 ## Usage
 
@@ -39,7 +39,7 @@ Default model: `ollama/gemma3`
 ## Testing
 
 ```bash
-python -m unittest mock_test_math_equation_story.py
+python -m unittest test_math_equation_story_mock.py
 ```
 
 ## Limitations

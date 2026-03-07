@@ -24,7 +24,7 @@ Curriculum planning often starts with a level-appropriate sequence of topics rat
 - `bookchapters_generator.py`: generation and save logic.
 - `bookchapters_models.py`: typed input and output models.
 - `bookchapters_prompts.py`: level-specific prompting.
-- `mock_test_bookchapters.py`: tests.
+- `test_bookchapters_mock.py`: tests.
 
 ## Usage
 
@@ -43,7 +43,7 @@ Defaults:
 ## Testing
 
 ```bash
-python -m unittest mock_test_bookchapters.py
+python -m unittest test_bookchapters_mock.py
 ```
 
 ## Limitations

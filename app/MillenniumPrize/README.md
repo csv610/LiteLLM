@@ -23,7 +23,7 @@ The Millennium Prize Problems are a compact set of high-impact open problems. Th
 - `millennium_prize_problems_cli.py`: CLI entrypoint.
 - `millennium_prize_models.py`: schemas.
 - `millennium_prize_prompts.py`: prompt builder.
-- `mock_test_millennium_prize.py`: tests.
+- `test_millennium_prize_mock.py`: tests.
 
 ## Usage
 
@@ -40,7 +40,7 @@ Note: when a specific problem is requested, the current CLI attempts to generate
 ## Testing
 
 ```bash
-python -m unittest mock_test_millennium_prize.py
+python -m unittest test_millennium_prize_mock.py
 ```
 
 ## Limitations

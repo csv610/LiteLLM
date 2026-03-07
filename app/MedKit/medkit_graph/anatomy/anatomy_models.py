@@ -30,23 +30,8 @@ Relation = Literal[
     "associated_with_system",
     "common_disease",
     "rare_disease",
+    "derived_from",
     "other",
-]
-
-# Node (entity) types
-NodeType = Literal[
-    "Organ",
-    "Tissue",
-    "BodySystem",
-    "Vessel",
-    "Nerve",
-    "Bone",
-    "Muscle",
-    "Cavity",
-    "Region",
-    "Cell",
-    "Disease",
-    "Other",
 ]
 
 # Normalization dictionaries
@@ -66,33 +51,21 @@ RELATION_ALIASES = {
     "has_rare_disease": "rare_disease",
     "common_disease": "common_disease",
     "rare_disease": "rare_disease",
-}
-
-NODE_TYPE_ALIASES = {
-    "organ": "Organ",
-    "tissue": "Tissue",
-    "system": "BodySystem",
-    "vessel": "Vessel",
-    "artery": "Vessel",
-    "vein": "Vessel",
-    "nerve": "Nerve",
-    "bone": "Bone",
-    "muscle": "Muscle",
-    "cavity": "Cavity",
-    "region": "Region",
-    "cell": "Cell",
+    "originated_from": "derived_from",
+    "embryological_origin": "derived_from",
 }
 
 
 class Triple(BaseModel):
-    """Validated anatomical triple."""
+    """Validated anatomical triple with clinical context."""
 
-    source: str = Field(..., description="Anatomical entity")
-    relation: Relation = Field(..., description="Relationship type")
-    target: str = Field(..., description="Linked anatomical entity")
-    source_type: NodeType = "Other"
-    target_type: NodeType = "Other"
-    confidence: Optional[float] = None
+    source: str = Field(..., description="Anatomical entity", alias="subject")
+    relation: Relation = Field(..., description="Relationship type", alias="predicate")
+    target: str = Field(..., description="Linked anatomical entity", alias="object")
+    evidence: Optional[str] = Field(None, description="Brief medical justification or reference")
+
+    class Config:
+        populate_by_name = True
 
     @validator("source", "target")
     def not_empty(cls, v):
@@ -110,178 +83,63 @@ class Triple(BaseModel):
         allowed = set(Relation.__args__)
         return rv if rv in allowed else "other"
 
-    @validator("source_type", "target_type", pre=True)
-    def normalize_node_type(cls, v):
-        if not v:
-            return "Other"
-        key = str(v).strip().lower().replace(" ", "")
-        if key.capitalize() in NodeType.__args__:
-            return key.capitalize()
-        if key in NODE_TYPE_ALIASES:
-            return NODE_TYPE_ALIASES[key]
-        return "Other"
 
+class AnatomyReport(BaseModel):
+    """Full structured anatomical report."""
 
-class TripleList(BaseModel):
-    """Container for a list of triples."""
-
-    triples: List[Triple]
+    name: str = Field(..., description="Name of the anatomy")
+    system: str = Field(..., description="Primary body system")
+    description: str = Field(..., description="High-level medical description")
+    triples: List[Triple] = Field(..., description="List of anatomical triples")
 
 
 # =========================
-# 2️⃣ Anatomy Extractor
+# 2️⃣ Graph Builder
 # =========================
-class AnatomyTripletExtractor:
-    """Extracts anatomy triples using LiteClient or offline simulation."""
+class AnatomyKnowledgeGraph:
+    """Builds and queries the anatomy knowledge graph using LLM."""
 
-    def __init__(self, model_name: str = "gemini-2.0-flash"):
-        self.model_name = model_name
+    def __init__(self, model_config: Optional["ModelConfig"] = None):
+        self.G = nx.MultiDiGraph()
+        self.model_config = model_config
         self.client = None
+        self.last_report = None
 
         if LiteClient is not None:
-            config = ModelConfig(model=self.model_name)
-            self.client = LiteClient(model_config=config)
+            if self.model_config is None:
+                self.model_config = ModelConfig(
+                    model="ollama_chat/gemma3:27b-cloud", temperature=0.0
+                )
+            self.client = LiteClient(model_config=self.model_config)
         else:
             print("⚠️ 'lite' package not installed. Using offline mode.")
 
-    def extract(self, text: str) -> List[Triple]:
-        if self.client is not None:
-            model_input = ModelInput(
-                user_prompt=prompts.PROMPT.format(text=text),
-                system_prompt="You are an anatomy expert extractor.",
-                response_format=TripleList,
-            )
-            return self._call_client(model_input, text)
+    def build_from_name(self, anatomy_name: str):
+        """Generates a structured anatomical report and builds the graph."""
+        if not self.client:
+            raise RuntimeError("LLM client not initialized.")
 
-        return [Triple(**item) for item in self._simulate(text)]
+        model_input = ModelInput(
+            user_prompt=prompts.GENERATION_USER_PROMPT.format(anatomy_name=anatomy_name),
+            system_prompt=prompts.GENERATION_SYSTEM_PROMPT,
+            response_format=AnatomyReport,
+        )
+        report = self._ask_llm(model_input)
 
-    def generate_from_name(self, anatomy_name: str) -> List[Triple]:
-        """Directly generates anatomical triples for a given name using LLM."""
-        if self.client is not None:
-            model_input = ModelInput(
-                user_prompt=prompts.GENERATION_PROMPT.format(anatomy_name=anatomy_name),
-                system_prompt="You are an anatomy expert.",
-                response_format=TripleList,
-            )
-            return self._call_client(model_input, anatomy_name)
+        self.last_report = report
+        self.add_triples(report.triples)
+        return report.triples
 
-        return [Triple(**item) for item in self._simulate(anatomy_name)]
-
-    def _call_client(
-        self, model_input: "ModelInput", fallback_text: str
-    ) -> List[Triple]:
-        try:
-            response = self.client.generate_text(model_input=model_input)
-            if isinstance(response, TripleList):
-                return response.triples
-            elif isinstance(response, str):
-                data = json.loads(response)
-                if isinstance(data, list):
-                    return [Triple(**item) for item in data]
-                elif isinstance(data, dict) and "triples" in data:
-                    return [Triple(**item) for item in data["triples"]]
-        except Exception as e:
-            print(f"⚠️ LLM call failed: {e}. Falling back to simulation.")
-
-        return [Triple(**item) for item in self._simulate(fallback_text)]
-
-    def _simulate(self, text: str):
-        """Offline simulation for testing."""
-        t = text.lower()
-        triples = []
-        if "heart" in t:
-            triples.extend(
-                [
-                    {
-                        "source": "Heart",
-                        "relation": "part_of",
-                        "target": "Circulatory System",
-                        "source_type": "Organ",
-                        "target_type": "BodySystem",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "supplied_by",
-                        "target": "Coronary Arteries",
-                        "source_type": "Organ",
-                        "target_type": "Vessel",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "drained_by",
-                        "target": "Cardiac Veins",
-                        "source_type": "Organ",
-                        "target_type": "Vessel",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "innervated_by",
-                        "target": "Vagus Nerve",
-                        "source_type": "Organ",
-                        "target_type": "Nerve",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "located_in",
-                        "target": "Thoracic Cavity",
-                        "source_type": "Organ",
-                        "target_type": "Cavity",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "adjacent_to",
-                        "target": "Lungs",
-                        "source_type": "Organ",
-                        "target_type": "Organ",
-                    },
-                    {
-                        "source": "Rib Cage",
-                        "relation": "protects",
-                        "target": "Heart",
-                        "source_type": "Bone",
-                        "target_type": "Organ",
-                    },
-                    {
-                        "source": "Diaphragm",
-                        "relation": "supports",
-                        "target": "Heart",
-                        "source_type": "Muscle",
-                        "target_type": "Organ",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "common_disease",
-                        "target": "Coronary Artery Disease",
-                        "source_type": "Organ",
-                        "target_type": "Disease",
-                    },
-                    {
-                        "source": "Heart",
-                        "relation": "rare_disease",
-                        "target": "Cardiac Amyloidosis",
-                        "source_type": "Organ",
-                        "target_type": "Disease",
-                    },
-                ]
-            )
-        return triples
-
-
-# =========================
-# 3️⃣ Graph Builder
-# =========================
-class AnatomyGraphBuilder:
-    """Builds and queries the anatomy knowledge graph."""
-
-    def __init__(self):
-        self.G = nx.MultiDiGraph()
+    def _ask_llm(self, model_input: "ModelInput") -> AnatomyReport:
+        # Rely on LiteClient's native Pydantic validation
+        return self.client.generate_text(model_input=model_input)
 
     def add_triples(self, triples: List[Triple]):
         for t in triples:
-            self.G.add_node(t.source, type=t.source_type)
-            self.G.add_node(t.target, type=t.target_type)
+            self.G.add_node(t.source)
+            self.G.add_node(t.target)
             self.G.add_edge(
-                t.source, t.target, relation=t.relation, confidence=t.confidence
+                t.source, t.target, relation=t.relation
             )
 
     def query_part_of(self, organ: str):
@@ -306,28 +164,11 @@ class AnatomyGraphBuilder:
         os.makedirs("outputs", exist_ok=True)
         path = f"outputs/{anatomy.lower().replace(' ', '_')}.dot"
 
-        lines = ["digraph G {", '  node [style=filled, fontname="Arial"];']
+        lines = ["digraph G {", '  node [style=filled, fontname="Arial", fillcolor="#d9d9d9"];']
 
-        # Add nodes with colors
-        color_map = {
-            "Organ": "#8dd3c7",
-            "BodySystem": "#80b1d3",
-            "Vessel": "#bebada",
-            "Nerve": "#fb8072",
-            "Bone": "#fdb462",
-            "Muscle": "#b3de69",
-            "Cavity": "#bc80bd",
-            "Region": "#fccde5",
-            "Tissue": "#ffffb3",
-            "Cell": "#ccebc5",
-            "Disease": "#ffed6f",
-            "Other": "#d9d9d9",
-        }
-
-        for n, d in self.G.nodes(data=True):
-            node_type = d.get("type", "Other")
-            color = color_map.get(node_type, "#d9d9d9")
-            lines.append(f'  "{n}" [fillcolor="{color}", label="{n}\n({node_type})"];')
+        # Add nodes
+        for n in self.G.nodes():
+            lines.append(f'  "{n}" [label="{n}"];')
 
         # Add edges
         for u, v, d in self.G.edges(data=True):
@@ -341,20 +182,15 @@ class AnatomyGraphBuilder:
         print(f"✅ Graph exported to {path}")
 
     def export_json(self, path: str = "anatomy_graph.json"):
-        triples = [
-            {
-                "source": u,
-                "relation": d.get("relation"),
-                "target": v,
-                "source_type": self.G.nodes[u].get("type"),
-                "target_type": self.G.nodes[v].get("type"),
-                "confidence": d.get("confidence"),
-            }
-            for u, v, d in self.G.edges(data=True)
-        ]
+        """Export the full report including metadata and triples to JSON."""
+        if not self.last_report:
+            print("⚠️ No report to export.")
+            return
+
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(triples, f, indent=2)
-        print(f"✅ Graph exported to {path}")
+            f.write(self.last_report.model_dump_json(indent=2))
+        
+        print(f"✅ Full report exported to {path}")
 
 
 # =========================
@@ -371,31 +207,11 @@ class GraphVisualizer:
         pos = nx.spring_layout(self.G, k=0.6, iterations=40)
         edge_labels = nx.get_edge_attributes(self.G, "relation")
 
-        color_map = {
-            "Organ": "#8dd3c7",
-            "BodySystem": "#80b1d3",
-            "Vessel": "#bebada",
-            "Nerve": "#fb8072",
-            "Bone": "#fdb462",
-            "Muscle": "#b3de69",
-            "Cavity": "#bc80bd",
-            "Region": "#fccde5",
-            "Tissue": "#ffffb3",
-            "Cell": "#ccebc5",
-            "Disease": "#ffed6f",
-            "Other": "#d9d9d9",
-        }
-
-        node_colors = [
-            color_map.get(self.G.nodes[n].get("type", "Other"), "#d9d9d9")
-            for n in self.G.nodes()
-        ]
-
         nx.draw(
             self.G,
             pos,
             with_labels=True,
-            node_color=node_colors,
+            node_color="#d9d9d9",
             node_size=2200,
             font_size=9,
             font_weight="bold",

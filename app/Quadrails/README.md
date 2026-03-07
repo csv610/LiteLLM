@@ -25,7 +25,7 @@ Applications that call LLMs often need a reusable moderation layer before or aft
 - `guardrail_cli.py`: CLI interface.
 - `guardrail_models.py`: schemas and custom errors.
 - `guardrail_prompts.py`: moderation prompts.
-- `mock_test_guardrail.py`, `mock_test_guardrail_cli.py`: tests.
+- `test_guardrail_mock.py`, `test_guardrail_cli_mock.py`: tests.
 
 ## Usage
 
@@ -42,7 +42,7 @@ Defaults:
 ## Testing
 
 ```bash
-pytest mock_test_guardrail.py mock_test_guardrail_cli.py
+pytest test_guardrail_mock.py test_guardrail_cli_mock.py
 ```
 
 ## Limitations

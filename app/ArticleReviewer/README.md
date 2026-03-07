@@ -25,7 +25,7 @@ Many LLM review tools return free-form prose that is difficult to compare, sort,
 - `article_reviewer_cli.py`: command-line entrypoint.
 - `article_reviewer_models.py`: Pydantic schemas.
 - `article_reviewer_prompts.py`: review prompt construction.
-- `mock_test_article_reviewer.py`: tests.
+- `test_article_reviewer_mock.py`: tests.
 
 ## Installation
 
@@ -64,7 +64,7 @@ reviewer.print_review(review)
 ## Testing
 
 ```bash
-pytest mock_test_article_reviewer.py
+pytest test_article_reviewer_mock.py
 ```
 
 ## Limitations

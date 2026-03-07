@@ -24,7 +24,7 @@ Hilbert's problems remain a useful way to organize major themes in modern mathem
 - `hilbert_problems_cli.py`: CLI interface.
 - `hilbert_problems_models.py`: schemas.
 - `hilbert_problems_prompts.py`: prompt builder.
-- `mock_test_hilbert_problems.py`, `mock_test_hilbert_problems_cli.py`: tests.
+- `test_hilbert_problems_mock.py`, `test_hilbert_problems_cli_mock.py`: tests.
 
 ## Usage
 
@@ -39,7 +39,7 @@ Default model: `ollama/gemma3`
 ## Testing
 
 ```bash
-pytest mock_test_hilbert_problems.py mock_test_hilbert_problems_cli.py
+pytest test_hilbert_problems_mock.py test_hilbert_problems_cli_mock.py
 ```
 
 ## Limitations

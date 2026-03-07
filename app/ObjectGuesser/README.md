@@ -23,7 +23,7 @@ Within this repository, this app is primarily useful as a compact example of sta
 - `object_guessing_cli.py`: CLI entrypoint.
 - `object_guesser_game.py`: game state and guess extraction.
 - `object_guessing_prompts.py`: prompts.
-- `tests/mock_test_object_guesser.py`: tests.
+- `tests/test_object_guesser_mock.py`: tests.
 
 ## Usage
 
@@ -41,7 +41,7 @@ Defaults:
 ## Testing
 
 ```bash
-python -m unittest tests/mock_test_object_guesser.py
+python -m unittest tests/test_object_guesser_mock.py
 ```
 
 ## Limitations
