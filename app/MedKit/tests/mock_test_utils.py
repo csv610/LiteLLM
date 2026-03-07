@@ -8,9 +8,9 @@ Tests for:
 - File operations
 """
 
-import sys
 import json
 import logging
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,9 +22,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils import print_response
 from lite.utils.print_response import _format_value
 
+from utils import print_response
 
 # ==============================================================================
 # TEST MODELS
@@ -33,6 +33,7 @@ from lite.utils.print_response import _format_value
 
 class SampleModel(BaseModel):
     """Sample model for testing output formatting."""
+
     name: str = Field(description="Name field")
     description: str = Field(description="Description field")
     items: list = Field(default_factory=list, description="List of items")
@@ -137,7 +138,7 @@ class TestConfigurationValidation:
 
         # Temperature has default
         config = ModelConfig(model="test/model")
-        assert config.temperature == 0.7  # Default value
+        assert config.temperature == 0.2  # Default value
 
     def test_temperature_type(self):
         """Test temperature type validation."""
@@ -147,12 +148,7 @@ class TestConfigurationValidation:
 
     def test_model_name_format(self):
         """Test model name format."""
-        valid_names = [
-            "ollama/gemma3",
-            "gpt-4",
-            "claude-3",
-            "custom/model-name"
-        ]
+        valid_names = ["ollama/gemma3", "gpt-4", "claude-3", "custom/model-name"]
 
         for name in valid_names:
             config = ModelConfig(model=name)
@@ -169,35 +165,29 @@ class TestOutputFormatting:
 
     def test_print_response_with_model(self, suppress_logging):
         """Test printing BaseModel result."""
-        model = SampleModel(
-            name="Test",
-            description="A test model"
-        )
+        model = SampleModel(name="Test", description="A test model")
 
         # Should not raise
-        with patch('utils.print_response'):
+        with patch("utils.print_response"):
             print_response(model)
 
     def test_print_response_with_dict(self, suppress_logging):
         """Test printing dictionary result."""
-        data = {
-            "name": "Test",
-            "value": 123
-        }
+        data = {"name": "Test", "value": 123}
 
-        with patch('utils.print_response'):
+        with patch("utils.print_response"):
             print_response(data)
 
     def test_print_response_with_string(self, suppress_logging):
         """Test printing string result."""
         text = "Test result string"
 
-        with patch('utils.print_response'):
+        with patch("utils.print_response"):
             print_response(text)
 
     def test_print_response_with_none(self, suppress_logging):
         """Test printing None result."""
-        with patch('utils.print_response') as mock_print:
+        with patch("utils.print_response") as mock_print:
             print_response(None)
 
             # Should handle None gracefully
@@ -205,10 +195,7 @@ class TestOutputFormatting:
 
     def test_format_value_dict(self):
         """Test formatting dictionary values."""
-        data = {
-            "key1": "value1",
-            "key2": "value2"
-        }
+        data = {"key1": "value1", "key2": "value2"}
 
         # Should not raise
         _format_value(data)
@@ -229,11 +216,7 @@ class TestOutputFormatting:
 
     def test_format_value_nested_dict(self):
         """Test formatting nested dictionary."""
-        data = {
-            "outer": {
-                "inner": "value"
-            }
-        }
+        data = {"outer": {"inner": "value"}}
 
         # Should not raise
         _format_value(data)
@@ -286,7 +269,7 @@ class TestLoggingSetup:
 
     def test_logger_formatting(self, suppress_logging):
         """Test logger format string."""
-        fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         formatter = logging.Formatter(fmt)
 
         assert isinstance(formatter, logging.Formatter)
@@ -306,7 +289,7 @@ class TestLoggingSetup:
             1: logging.ERROR,
             2: logging.WARNING,
             3: logging.INFO,
-            4: logging.DEBUG
+            4: logging.DEBUG,
         }
 
         for verbosity, expected_level in levels.items():
@@ -316,7 +299,7 @@ class TestLoggingSetup:
                 logging.ERROR,
                 logging.WARNING,
                 logging.INFO,
-                logging.DEBUG
+                logging.DEBUG,
             ]
 
 
@@ -333,13 +316,13 @@ class TestFileOperations:
         data = {"key": "value", "number": 42}
         file_path = temp_output_dir / "test.json"
 
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             json.dump(data, f, indent=2)
 
         assert file_path.exists()
 
         # Verify content
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             loaded = json.load(f)
             assert loaded["key"] == "value"
 
@@ -418,6 +401,7 @@ class TestImportSafety:
         """Test that required modules can be imported."""
         try:
             from pathlib import Path as PathModule
+
             assert PathModule is not None
         except ImportError:
             pytest.fail("pathlib.Path should be available")
@@ -426,9 +410,10 @@ class TestImportSafety:
         """Test conditional import handling."""
         try:
             # Standard library imports should always work
-            import logging
             import json
+            import logging
             import sys
+
             assert logging and json and sys
         except ImportError:
             pytest.fail("Standard library imports failed")
@@ -474,10 +459,7 @@ class TestJSONHandling:
 
     def test_json_model_dump(self):
         """Test Pydantic model JSON dumping."""
-        model = SampleModel(
-            name="Test",
-            description="Test description"
-        )
+        model = SampleModel(name="Test", description="Test description")
 
         json_str = model.model_dump_json()
         assert isinstance(json_str, str)

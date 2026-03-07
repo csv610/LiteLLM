@@ -42,4 +42,3 @@ Rules:
             A formatted user prompt string.
         """
         return f"Generate a detailed, textbook-style medical reference entry for the topic: {topic}."
-

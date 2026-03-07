@@ -4,10 +4,9 @@ Live test for Disease Information CLI.
 This test runs the actual CLI app without mocking.
 """
 
-import subprocess
-import os
-from pathlib import Path
 import shutil
+import subprocess
+from pathlib import Path
 
 # Paths
 CUR_DIR = Path(__file__).parent
@@ -18,25 +17,28 @@ DISEASE_STRUCTURED = "malaria"
 EXPECTED_UNSTRUCTURED_FILE = TEST_OUTPUT_DIR / f"{DISEASE_UNSTRUCTURED}.md"
 EXPECTED_STRUCTURED_FILE = TEST_OUTPUT_DIR / f"{DISEASE_STRUCTURED}.json"
 
+
 def run_live_test():
     """Runs the live test by calling the CLI with real LLM."""
-    print(f"--- Starting Live Test ---")
-    
+    print("--- Starting Live Test ---")
+
     # Cleanup previous test outputs
     if TEST_OUTPUT_DIR.exists():
         shutil.rmtree(TEST_OUTPUT_DIR)
     TEST_OUTPUT_DIR.mkdir(exist_ok=True)
-    
+
     # --- Test Case 1: Unstructured Output ---
     print(f"\n1. Testing Unstructured Output for: {DISEASE_UNSTRUCTURED}")
     cmd_u = [
         "python3",
         str(CLI_PATH),
         DISEASE_UNSTRUCTURED,
-        "--output-dir", str(TEST_OUTPUT_DIR),
-        "--verbosity", "2"
+        "--output-dir",
+        str(TEST_OUTPUT_DIR),
+        "--verbosity",
+        "2",
     ]
-    
+
     try:
         subprocess.run(cmd_u, capture_output=True, text=True, check=True)
         if EXPECTED_UNSTRUCTURED_FILE.exists():
@@ -45,7 +47,7 @@ def run_live_test():
             if len(content) > 100:
                 print(f"✓ Success: Content found ({len(content)} chars).")
             else:
-                print(f"✗ Failure: Output file is too small.")
+                print("✗ Failure: Output file is too small.")
                 return False
         else:
             print(f"✗ Failure: Output file {EXPECTED_UNSTRUCTURED_FILE} not created.")
@@ -60,11 +62,13 @@ def run_live_test():
         "python3",
         str(CLI_PATH),
         DISEASE_STRUCTURED,
-        "--output-dir", str(TEST_OUTPUT_DIR),
+        "--output-dir",
+        str(TEST_OUTPUT_DIR),
         "--structured",
-        "--verbosity", "2"
+        "--verbosity",
+        "2",
     ]
-    
+
     try:
         subprocess.run(cmd_s, capture_output=True, text=True, check=True)
         # Note: save_model_response should add .json extension if it's structured
@@ -72,10 +76,13 @@ def run_live_test():
         if EXPECTED_STRUCTURED_FILE.exists():
             print(f"✓ Success: Output file generated at {EXPECTED_STRUCTURED_FILE}")
             import json
+
             with open(EXPECTED_STRUCTURED_FILE) as f:
                 data = json.load(f)
                 if "identity" in data and "name" in data["identity"]:
-                    print(f"✓ Success: Found structured data for {data['identity']['name']}")
+                    print(
+                        f"✓ Success: Found structured data for {data['identity']['name']}"
+                    )
                 else:
                     print("✗ Failure: JSON structure missing expected keys.")
                     return False
@@ -86,9 +93,10 @@ def run_live_test():
     except subprocess.CalledProcessError as e:
         print(f"✗ Failure: {e}")
         return False
-        
+
     print("\n--- All Live Tests Completed Successfully ---")
     return True
+
 
 if __name__ == "__main__":
     success = run_live_test()

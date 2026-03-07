@@ -51,4 +51,3 @@ Requirements:
 - Do not assume the procedure is surgical unless it truly is
 - Clearly state whether it is minimally invasive or surgical when relevant
 """
-

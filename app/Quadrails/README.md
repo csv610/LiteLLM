@@ -1,102 +1,52 @@
-# Quadrails: Advanced Multi-Modal Content Moderation System
+# Quadrails
 
-**Quadrails** is a production-grade content moderation and safety guardrail system designed to protect LLM applications from harmful inputs. It leverages Large Language Models (LLMs) via the `LiteClient` to provide structured, high-confidence safety assessments across 15+ industry-standard hazard categories for both **text and images**.
+`Quadrails` analyzes text or images for safety-related categories and returns a structured assessment.
 
-## 🚀 Key Features
+## What It Does
 
-- **Multi-Modal Safety**: Unified API for **Text** and **Image** analysis with vision-aware processing.
-- **Granular Vision Taxonomy**: Specialized detection for **Nudity** and **Violence** in imagery, moving beyond basic NSFW flags.
-- **Asynchronous & High-Performance**: Native `asyncio` support with non-blocking executors for production-grade throughput.
-- **Security-First Design**: Automated pre-processing including control-character stripping, null-byte removal, and length-limit enforcement.
-- **Intelligent Caching**: Hash-based in-memory result caching to optimize latency and reduce redundant inference costs.
-- **Deterministic Validation**: Built with **Pydantic** to ensure LLM outputs strictly adhere to a type-safe schema.
-- **MLCommons Aligned**: Comprehensive coverage of industry-standard safety domains.
-- **Robust Error Handling**: Domain-specific exception hierarchy (`PreprocessingError`, `AnalysisError`) for granular fault management.
+- Accepts either text or an image path.
+- Runs asynchronous analysis through `GuardrailAnalyzer`.
+- Covers multiple safety categories defined in the prompt and model schema.
+- Supports optional in-memory caching.
 
-## 🛡️ Safety Categories (MLCommons Aligned)
+## Why It Matters
 
-Quadrails provides deep analysis for 15+ critical safety domains:
+Applications that call LLMs often need a reusable moderation layer before or after generation. This app packages that step as a separate CLI and Python module.
 
-### 📸 Vision Categories
-- **Nudity**: Explicit sexual content, exposed intimate body parts, or sexually suggestive imagery.
-- **Violence**: Images depicting extreme physical harm, blood, gore, or weapons usage.
+## What Distinguishes It
 
-### ✍️ Text Categories
-- **Hate Speech & Harassment**: Discrimination or bullying based on protected characteristics.
-- **Illegal Activities**: Promotion or instructions for criminal acts or weapons (CBRNE).
-- **Self-Harm**: Encouraging or providing methods for self-injury.
-- **PII Detection**: Unauthorized disclosure of sensitive personal data (SSNs, Credit Cards).
-- **Jailbreak Detection**: Protection against prompt injection and safety bypass attempts.
-- **IP & Defamation**: Identification of copyright infringement and reputational harm.
-- **High-Risk Advice**: Specialized guidance in Medical, Legal, or Financial domains.
-- **Elections Integrity**: Misinformation regarding civic processes.
+- Handles both text and images.
+- Uses typed result schemas and a custom exception hierarchy.
+- Supports caching and length limits in the CLI layer.
 
-## 📂 Project Structure
+## Files
 
-- `guardrail.py`: Core logic featuring the `GuardrailAnalyzer` with async and caching support.
-- `guardrail_models.py`: Pydantic schemas and custom exception hierarchy.
-- `guardrail_prompts.py`: Optimized prompt engineering for both text and vision tasks.
-- `guardrail_cli.py`: Unified CLI for batch processing and testing.
-- `test_guardrail.py`: Automated test suite covering all safety categories.
+- `guardrail.py`: core analyzer.
+- `guardrail_cli.py`: CLI interface.
+- `guardrail_models.py`: schemas and custom errors.
+- `guardrail_prompts.py`: moderation prompts.
+- `mock_test_guardrail.py`, `mock_test_guardrail_cli.py`: tests.
 
-## 🛠️ Installation
+## Usage
 
 ```bash
-# Install package dependencies
-pip install pydantic tqdm
-# Ensure 'lite' package is in your PYTHONPATH
-```
-
-## 💻 Usage
-
-### Environment Configuration
-```bash
-# Optional: Set default model via env
-export GUARDRAIL_MODEL="ollama/gemma3"
-```
-
-### Analyze via CLI
-```bash
-# Text analysis example
 python guardrail_cli.py --text "Check this text for safety"
-
-# Image analysis example (Nudity/Violence)
-python guardrail_cli.py --image ./path/to/image.jpg
+python guardrail_cli.py --image ./sample.jpg
 ```
 
-### Programmatic Async Usage
-```python
-import asyncio
-from guardrail import GuardrailAnalyzer
-from lite.config import ModelConfig
+Defaults:
 
-async def main():
-    # Initialize with optional custom config
-    analyzer = GuardrailAnalyzer(ModelConfig(model="ollama/gemma3"))
-    
-    # 1. Text Analysis
-    try:
-        text_res = await analyzer.analyze_text("Hello world")
-        print(f"Text Safe: {text_res.is_safe}")
-        
-        # 2. Image Analysis (Vision)
-        img_res = await analyzer.analyze_image("./sample.jpg")
-        print(f"Image Safe: {img_res.is_safe}")
-        
-    except Exception as e:
-        print(f"Analysis Failed: {e}")
+- `--model`: `$GUARDRAIL_MODEL` or `ollama/gemma3`
+- `--max-length`: `4000`
 
-asyncio.run(main())
-```
-
-## 🧪 Testing
-
-The project includes 14+ automated tests covering the full hazard taxonomy and caching logic:
+## Testing
 
 ```bash
-pytest test_guardrail.py test_guardrail_cli.py
+pytest mock_test_guardrail.py mock_test_guardrail_cli.py
 ```
 
-## 📄 License
+## Limitations
 
-This project is licensed under the MIT License.
+- Safety classification depends on model behavior and prompt coverage.
+- The results are useful as a screening layer, not as a legal or policy determination.
+- Categories and thresholds should be validated against the deployment context.

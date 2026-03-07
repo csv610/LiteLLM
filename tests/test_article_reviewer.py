@@ -10,17 +10,21 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import tempfile
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add parent directories and app directory to path for imports
+root_path = Path(__file__).parent.parent
+sys.path.insert(0, str(root_path))
+sys.path.insert(0, str(root_path / "app" / "ArticleReviewer"))
 
 from article_reviewer import (
     DeleteModel,
     ModifyModel,
     InsertModel,
-    ArticleReviewResponse,
-    ArticleReviewer,
-    cli
+    ArticleReviewModel,
+    ArticleReviewer
 )
+from article_reviewer_cli import cli
+from article_reviewer_prompts import PromptBuilder
+from lite.config import ModelConfig
 
 
 class TestModels(unittest.TestCase):
@@ -61,22 +65,22 @@ class TestModels(unittest.TestCase):
         self.assertEqual(insert.section, "Introduction")
         self.assertEqual(insert.severity, "low")
 
-    def test_article_review_response_valid(self):
-        """Test ArticleReviewResponse with valid data"""
-        response = ArticleReviewResponse(
+    def test_article_review_model_valid(self):
+        """Test ArticleReviewModel with valid data"""
+        response = ArticleReviewModel(
             score=85,
             total_issues=3,
             summary="Well-written article with minor issues",
             deletions=[],
             modifications=[],
             insertions=[],
-            proofreading_rules_applied={"Grammar": {"rule1": "Check grammar"}}
+            proofreading_rules_applied=["Grammar"]
         )
         self.assertEqual(response.score, 85)
         self.assertEqual(response.total_issues, 3)
 
-    def test_article_review_response_with_issues(self):
-        """Test ArticleReviewResponse with all issue types"""
+    def test_article_review_model_with_issues(self):
+        """Test ArticleReviewModel with all issue types"""
         delete = DeleteModel(
             line_number=1,
             content="redundant",
@@ -97,15 +101,28 @@ class TestModels(unittest.TestCase):
             section="Conclusion",
             severity="high"
         )
+        
+        response = ArticleReviewModel(
+            score=85,
+            total_issues=3,
+            summary="Review with issues",
+            deletions=[delete],
+            modifications=[modify],
+            insertions=[insert],
+            proofreading_rules_applied=["Rule 1"]
+        )
+        self.assertEqual(len(response.deletions), 1)
+        self.assertEqual(len(response.modifications), 1)
+        self.assertEqual(len(response.insertions), 1)
 
-        response = ArticleReviewResponse(
+        response = ArticleReviewModel(
             score=72,
             total_issues=3,
             summary="Multiple issues to address",
             deletions=[delete],
             modifications=[modify],
             insertions=[insert],
-            proofreading_rules_applied={"Content": {"rule": "Check content"}}
+            proofreading_rules_applied=["Content"]
         )
         self.assertEqual(len(response.deletions), 1)
         self.assertEqual(len(response.modifications), 1)
@@ -135,7 +152,7 @@ class TestCLI(unittest.TestCase):
                 }
             ],
             "insertions": [],
-            "proofreading_rules_applied": {"Grammar": {"subject_verb": "Check agreement"}}
+            "proofreading_rules_applied": ["Grammar"]
         }
 
         mock_instance = MagicMock()
@@ -144,14 +161,17 @@ class TestCLI(unittest.TestCase):
 
         # Test with simple text
         with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
             os.chdir(tmpdir)
+            try:
+                article = "This is a test article for reviewing."
+                cli(article)
 
-            article = "This is a test article for reviewing."
-            cli(article)
-
-            # Verify client was called
-            mock_client_class.assert_called_once()
-            mock_instance.generate_text.assert_called_once()
+                # Verify client was called
+                mock_client_class.assert_called_once()
+                mock_instance.generate_text.assert_called_once()
+            finally:
+                os.chdir(original_cwd)
 
     @patch('article_reviewer.LiteClient')
     def test_cli_with_custom_model(self, mock_client_class):
@@ -163,7 +183,7 @@ class TestCLI(unittest.TestCase):
             "deletions": [],
             "modifications": [],
             "insertions": [],
-            "proofreading_rules_applied": {}
+            "proofreading_rules_applied": []
         }
 
         mock_instance = MagicMock()
@@ -171,21 +191,24 @@ class TestCLI(unittest.TestCase):
         mock_client_class.return_value = mock_instance
 
         with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
             os.chdir(tmpdir)
+            try:
+                article = "Test article"
+                cli(article, model_name="gpt-4")
 
-            article = "Test article"
-            cli(article, model_name="gpt-4")
-
-            # Verify correct model was specified
-            call_args = mock_client_class.call_args
-            self.assertEqual(call_args[1]['model_config'].model, "gpt-4")
+                # Verify correct model was specified
+                call_args = mock_client_class.call_args
+                self.assertEqual(call_args[1]['model_config'].model, "gpt-4")
+            finally:
+                os.chdir(original_cwd)
 
     @patch('article_reviewer.LiteClient')
     def test_cli_output_file_creation(self, mock_client_class):
         """Test that CLI creates output JSON file"""
         mock_response = {
             "score": 75,
-            "total_issues": 2,
+            "total_issues": 1,
             "summary": "Needs improvement",
             "deletions": [
                 {
@@ -197,28 +220,34 @@ class TestCLI(unittest.TestCase):
             ],
             "modifications": [],
             "insertions": [],
-            "proofreading_rules_applied": {}
+            "proofreading_rules_applied": []
         }
 
         mock_instance = MagicMock()
         mock_instance.generate_text.return_value = json.dumps(mock_response)
         mock_client_class.return_value = mock_instance
 
+        # Important: the current implementation saves to "outputs" directory by default
         with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
             os.chdir(tmpdir)
+            try:
+                article = "Test article for output"
+                cli(article)
 
-            article = "Test article for output"
-            cli(article)
+                # Check that output file was created in "outputs" directory
+                output_dir = os.path.join(tmpdir, "outputs")
+                self.assertTrue(os.path.exists(output_dir))
+                output_files = [f for f in os.listdir(output_dir) if f.startswith('article_review_')]
+                self.assertEqual(len(output_files), 1)
 
-            # Check that output file was created
-            output_files = [f for f in os.listdir(tmpdir) if f.startswith('article_review_')]
-            self.assertEqual(len(output_files), 1)
-
-            # Verify file contents
-            with open(output_files[0], 'r') as f:
-                saved_data = json.load(f)
-                self.assertEqual(saved_data['score'], 75)
-                self.assertEqual(saved_data['total_issues'], 2)
+                # Verify file contents
+                with open(os.path.join(output_dir, output_files[0]), 'r') as f:
+                    saved_data = json.load(f)
+                    self.assertEqual(saved_data['score'], 75)
+                    self.assertEqual(saved_data['total_issues'], 1)
+            finally:
+                os.chdir(original_cwd)
 
 
 class TestValidation(unittest.TestCase):
@@ -239,7 +268,8 @@ class TestValidation(unittest.TestCase):
 
     def test_line_number_required(self):
         """Test that line_number is required"""
-        with self.assertRaises(Exception):
+        from pydantic import ValidationError
+        with self.assertRaises(ValidationError):
             DeleteModel(
                 content="test",
                 reason="test",
@@ -248,7 +278,8 @@ class TestValidation(unittest.TestCase):
 
     def test_content_required(self):
         """Test that content is required"""
-        with self.assertRaises(Exception):
+        from pydantic import ValidationError
+        with self.assertRaises(ValidationError):
             DeleteModel(
                 line_number=1,
                 reason="test",
@@ -262,20 +293,20 @@ class TestArticleReviewer(unittest.TestCase):
     @patch('article_reviewer.LiteClient')
     def test_reviewer_initialization(self, mock_client_class):
         """Test ArticleReviewer initialization"""
-        reviewer = ArticleReviewer(model_name="gpt-4")
+        model_config = ModelConfig(model="gpt-4")
+        reviewer = ArticleReviewer(model_config=model_config)
         self.assertEqual(reviewer.model_name, "gpt-4")
         self.assertIsNotNone(reviewer.client)
-        self.assertIsNotNone(reviewer.PROOFREADING_RULES)
 
     @patch('article_reviewer.LiteClient')
     def test_reviewer_default_model(self, mock_client_class):
         """Test ArticleReviewer with default model"""
         reviewer = ArticleReviewer()
-        self.assertEqual(reviewer.model_name, "gemini/gemini-2.5-flash")
+        self.assertEqual(reviewer.model_name, "ollama/gemma3")
 
     @patch('article_reviewer.LiteClient')
     def test_review_method(self, mock_client_class):
-        """Test review method returns ArticleReviewResponse"""
+        """Test review method returns ArticleReviewModel"""
         mock_response = {
             "score": 85,
             "total_issues": 1,
@@ -291,7 +322,7 @@ class TestArticleReviewer(unittest.TestCase):
                 }
             ],
             "insertions": [],
-            "proofreading_rules_applied": {"Grammar": {"rule": "Check grammar"}}
+            "proofreading_rules_applied": ["Grammar"]
         }
 
         mock_instance = MagicMock()
@@ -301,7 +332,7 @@ class TestArticleReviewer(unittest.TestCase):
         reviewer = ArticleReviewer()
         result = reviewer.review("Test article")
 
-        self.assertIsInstance(result, ArticleReviewResponse)
+        self.assertIsInstance(result, ArticleReviewModel)
         self.assertEqual(result.score, 85)
         self.assertEqual(result.total_issues, 1)
         self.assertEqual(len(result.modifications), 1)
@@ -313,31 +344,36 @@ class TestArticleReviewer(unittest.TestCase):
         mock_client_class.return_value = mock_instance
 
         reviewer = ArticleReviewer()
-        review = ArticleReviewResponse(
+        review = ArticleReviewModel(
             score=80,
             total_issues=0,
             summary="Good",
             deletions=[],
             modifications=[],
             insertions=[],
-            proofreading_rules_applied={}
+            proofreading_rules_applied=[]
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
             os.chdir(tmpdir)
-            filename = reviewer.save_review(review)
+            try:
+                # By default it saves to 'outputs' subdirectory
+                filename = reviewer.save_review(review, output_dir=tmpdir)
 
-            # Check filename follows pattern
-            self.assertTrue(filename.startswith("article_review_"))
-            self.assertTrue(filename.endswith(".json"))
+                # Check filename follows pattern
+                self.assertTrue(os.path.basename(filename).startswith("article_review_"))
+                self.assertTrue(filename.endswith(".json"))
 
-            # Check file was created
-            self.assertTrue(os.path.exists(filename))
+                # Check file was created
+                self.assertTrue(os.path.exists(filename))
 
-            # Check file contents
-            with open(filename, 'r') as f:
-                data = json.load(f)
-                self.assertEqual(data['score'], 80)
+                # Check file contents
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+                    self.assertEqual(data['score'], 80)
+            finally:
+                os.chdir(original_cwd)
 
     @patch('article_reviewer.LiteClient')
     def test_save_review_with_custom_filename(self, mock_client_class):
@@ -346,29 +382,35 @@ class TestArticleReviewer(unittest.TestCase):
         mock_client_class.return_value = mock_instance
 
         reviewer = ArticleReviewer()
-        review = ArticleReviewResponse(
+        review = ArticleReviewModel(
             score=75,
             total_issues=2,
             summary="Fair",
             deletions=[],
             modifications=[],
             insertions=[],
-            proofreading_rules_applied={}
+            proofreading_rules_applied=[]
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
             os.chdir(tmpdir)
-            custom_filename = "my_review.json"
-            filename = reviewer.save_review(review, custom_filename)
+            try:
+                custom_filename = "my_review.json"
+                # reviewer.save_review appends _review.json if it doesn't end with it, 
+                # and places it in output_dir
+                filename = reviewer.save_review(review, output_filename=custom_filename, output_dir=tmpdir)
 
-            self.assertEqual(filename, custom_filename)
-            self.assertTrue(os.path.exists(custom_filename))
+                self.assertTrue(filename.endswith("my_review.json"))
+                self.assertTrue(os.path.exists(filename))
 
-            # Check file contents
-            with open(custom_filename, 'r') as f:
-                data = json.load(f)
-                self.assertEqual(data['score'], 75)
-                self.assertEqual(data['total_issues'], 2)
+                # Check file contents
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+                    self.assertEqual(data['score'], 75)
+                    self.assertEqual(data['total_issues'], 2)
+            finally:
+                os.chdir(original_cwd)
 
     @patch('article_reviewer.LiteClient')
     def test_print_review_output(self, mock_client_class):
@@ -377,14 +419,14 @@ class TestArticleReviewer(unittest.TestCase):
         mock_client_class.return_value = mock_instance
 
         reviewer = ArticleReviewer()
-        review = ArticleReviewResponse(
+        review = ArticleReviewModel(
             score=90,
             total_issues=0,
             summary="Excellent",
             deletions=[],
             modifications=[],
             insertions=[],
-            proofreading_rules_applied={}
+            proofreading_rules_applied=[]
         )
 
         # Capture print output
@@ -401,14 +443,13 @@ class TestArticleReviewer(unittest.TestCase):
         self.assertIn("Overall Score: 90/100", output)
         self.assertIn("Excellent", output)
 
-    @patch('article_reviewer.LiteClient')
-    def test_proofreading_rules_constant(self, mock_client_class):
-        """Test PROOFREADING_RULES is properly defined"""
-        self.assertIn("Grammar & Syntax", ArticleReviewer.PROOFREADING_RULES)
-        self.assertIn("Style & Clarity", ArticleReviewer.PROOFREADING_RULES)
-        self.assertIn("Formatting & Punctuation", ArticleReviewer.PROOFREADING_RULES)
-        self.assertIn("Content & Structure", ArticleReviewer.PROOFREADING_RULES)
-        self.assertIn("Consistency", ArticleReviewer.PROOFREADING_RULES)
+    def test_proofreading_rules_constant(self):
+        """Test PROOFREADING_RULES is properly defined in PromptBuilder"""
+        self.assertIn("Grammar & Syntax", PromptBuilder.PROOFREADING_RULES)
+        self.assertIn("Style & Clarity", PromptBuilder.PROOFREADING_RULES)
+        self.assertIn("Formatting & Punctuation", PromptBuilder.PROOFREADING_RULES)
+        self.assertIn("Content & Structure", PromptBuilder.PROOFREADING_RULES)
+        self.assertIn("Consistency", PromptBuilder.PROOFREADING_RULES)
 
 
 if __name__ == "__main__":

@@ -7,9 +7,8 @@ from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-
 from symptom_drugs import SymptomDrugs
-from symptom_drugs_prompts import SymptomInput, PromptStyle
+from symptom_drugs_prompts import PromptStyle, SymptomInput
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +71,7 @@ def get_user_arguments() -> argparse.Namespace:
         "--output-dir",
         "-od",
         default="outputs",
-        help="Directory for output files (default: outputs)."
+        help="Directory for output files (default: outputs).",
     )
 
     parser.add_argument(
@@ -89,7 +88,7 @@ def get_user_arguments() -> argparse.Namespace:
         "-t",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response"
+        help="Use structured output (Pydantic model) for the response",
     )
 
     parser.add_argument(
@@ -109,12 +108,12 @@ def create_symptom_drug_report(args) -> int:
     configure_logging(
         log_file=str(Path(__file__).parent / "logs" / "symptom_drugs.log"),
         verbosity=args.verbosity,
-        enable_console=True
+        enable_console=True,
     )
 
-    logger.info("="*80)
+    logger.info("=" * 80)
     logger.info("SYMPTOM-TO-DRUG CLI - Starting")
-    logger.info("="*80)
+    logger.info("=" * 80)
 
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
@@ -133,7 +132,7 @@ def create_symptom_drug_report(args) -> int:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = SymptomDrugs(model_config)
         result = analyzer.generate_text(config, structured=args.structured)
-        
+
         if result is None:
             logger.error("✗ Failed to analyze symptom and list medications.")
             return 1

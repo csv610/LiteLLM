@@ -9,11 +9,11 @@ and categorizing medical terms from text using LiteClient.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .medical_term_extractor_models import ModelOutput, MedicalTerms
+from .medical_term_extractor_models import MedicalTerms, ModelOutput
 from .medical_term_extractor_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
@@ -70,8 +70,8 @@ class MedicalTermExtractor:
         """Saves the medical term extraction information to a file."""
         if self.text is None:
             raise ValueError("No text information available. Call generate_text first.")
-        
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = "medical_terms_extraction"
-        
+
         return save_model_response(result, output_dir / base_filename)

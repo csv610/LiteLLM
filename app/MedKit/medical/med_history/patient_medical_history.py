@@ -9,12 +9,12 @@ patient medical history questions using LiteClient.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .patient_medical_history_models import PatientMedicalHistoryModel, ModelOutput
-from .patient_medical_history_prompts import PromptBuilder, MedicalHistoryInput
+from .patient_medical_history_models import ModelOutput, PatientMedicalHistoryModel
+from .patient_medical_history_prompts import MedicalHistoryInput, PromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,9 @@ class PatientMedicalHistoryGenerator:
         self.user_input = None  # Store the input for later use in save
         logger.debug("Initialized PatientMedicalHistoryGenerator")
 
-    def generate_text(self, user_input: MedicalHistoryInput, structured: bool = False) -> ModelOutput:
+    def generate_text(
+        self, user_input: MedicalHistoryInput, structured: bool = False
+    ) -> ModelOutput:
         """Generate patient medical history questions."""
         # Store the input for later use in save
         self.user_input = user_input
@@ -66,9 +68,13 @@ class PatientMedicalHistoryGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the patient medical history information to a file."""
         if self.user_input is None:
-            raise ValueError("No input information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No input information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
-        base_filename = f"{self.user_input.exam.lower().replace(' ', '_')}_medical_history"
-        
+        base_filename = (
+            f"{self.user_input.exam.lower().replace(' ', '_')}_medical_history"
+        )
+
         return save_model_response(result, output_dir / base_filename)

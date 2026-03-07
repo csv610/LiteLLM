@@ -1,17 +1,19 @@
 import logging
 from pathlib import Path
-from lite.lite_client import LiteClient
+
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
-    from .surgical_tray_info_models import SurgicalTrayModel, ModelOutput
+    from .surgical_tray_info_models import ModelOutput, SurgicalTrayModel
     from .surgical_tray_info_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from surgical_tray_info_models import SurgicalTrayModel, ModelOutput
+    from surgical_tray_info_models import ModelOutput, SurgicalTrayModel
     from surgical_tray_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
 
 class SurgicalTrayGenerator:
     """Generates comprehensive surgical tray information based on provided configuration."""

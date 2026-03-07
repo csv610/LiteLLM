@@ -5,10 +5,12 @@ from pathlib import Path
 from datetime import datetime
 from unittest.mock import Mock, patch, MagicMock
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root and MedKit path to sys.path
+root_path = Path(__file__).parent.parent
+sys.path.insert(0, str(root_path))
+sys.path.insert(0, str(root_path / "app" / "MedKit" / "drug" / "medicine" / "drugbank"))
 
-from app.cli.drugbank_medicine import (
+from drugbank_medicine_models import (
     DrugType,
     DrugGroup,
     RouteOfAdministration,
@@ -41,8 +43,8 @@ from app.cli.drugbank_medicine import (
     Regulation,
     References,
     MedicineInfo,
-    sanitize_filename,
 )
+from drugbank_medicine_cli import sanitize_filename
 
 
 class TestEnums:

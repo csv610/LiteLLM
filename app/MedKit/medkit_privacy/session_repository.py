@@ -1,11 +1,12 @@
 import json
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 
 # Use relative imports for models
 try:
-    from ..mental_health.models import ChatSession
     from lite.utils import save_model_response
+
+    from ..mental_health.models import ChatSession
 except (ImportError, ModuleNotFoundError):
     from pydantic import BaseModel
 

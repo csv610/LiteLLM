@@ -92,14 +92,28 @@ def _generate_dot_graph(guide: MedicalDecisionGuide) -> str:
         dot_edges.append(f'  "{node.node_id}" -> "{node.yes_node_id}" [label="Yes"];')
         dot_edges.append(f'  "{node.node_id}" -> "{node.no_node_id}" [label="No"];')
         if node.uncertain_node_id:
-            dot_edges.append(f'  "{node.node_id}" -> "{node.uncertain_node_id}" [label="Uncertain"];')
+            dot_edges.append(
+                f'  "{node.node_id}" -> "{node.uncertain_node_id}" [label="Uncertain"];'
+            )
 
     # Add outcome nodes
     for outcome in guide.outcomes:
-        color = "red" if "emergency" in outcome.severity_level.lower() else "orange" if "severe" in outcome.severity_level.lower() else "green"
-        dot_nodes.append(f'  "{outcome.outcome_id}" [label="Outcome: {outcome.severity_level}\n{outcome.recommendation}", shape=oval, style=filled, fillcolor={color}];')
+        color = (
+            "red"
+            if "emergency" in outcome.severity_level.lower()
+            else "orange"
+            if "severe" in outcome.severity_level.lower()
+            else "green"
+        )
+        dot_nodes.append(
+            f'  "{outcome.outcome_id}" [label="Outcome: {outcome.severity_level}\n{outcome.recommendation}", shape=oval, style=filled, fillcolor={color}];'
+        )
 
-    return "digraph MedicalDecisionTree {\n  rankdir=TB;\n" + "\n".join(dot_nodes + dot_edges) + "\n}"
+    return (
+        "digraph MedicalDecisionTree {\n  rankdir=TB;\n"
+        + "\n".join(dot_nodes + dot_edges)
+        + "\n}"
+    )
 
 
 def _generate_mermaid_graph(guide: MedicalDecisionGuide) -> str:
@@ -109,14 +123,18 @@ def _generate_mermaid_graph(guide: MedicalDecisionGuide) -> str:
 
     # Add decision nodes
     for node in guide.decision_nodes:
-        mermaid_nodes.append(f'  {node.node_id}[{node.question}]')
-        mermaid_edges.append(f'  {node.node_id} -- Yes --> {node.yes_node_id}')
-        mermaid_edges.append(f'  {node.node_id} -- No --> {node.no_node_id}')
+        mermaid_nodes.append(f"  {node.node_id}[{node.question}]")
+        mermaid_edges.append(f"  {node.node_id} -- Yes --> {node.yes_node_id}")
+        mermaid_edges.append(f"  {node.node_id} -- No --> {node.no_node_id}")
         if node.uncertain_node_id:
-            mermaid_edges.append(f'  {node.node_id} -- Uncertain --> {node.uncertain_node_id}')
+            mermaid_edges.append(
+                f"  {node.node_id} -- Uncertain --> {node.uncertain_node_id}"
+            )
 
     # Add outcome nodes
     for outcome in guide.outcomes:
-        mermaid_nodes.append(f'  {outcome.outcome_id}((Outcome: {outcome.severity_level}\n{outcome.recommendation}))')
+        mermaid_nodes.append(
+            f"  {outcome.outcome_id}((Outcome: {outcome.severity_level}\n{outcome.recommendation}))"
+        )
 
     return "graph TD\n" + "\n".join(mermaid_nodes + mermaid_edges)

@@ -1,78 +1,60 @@
 # FAQGenerator
 
-A production-grade, LLM-powered utility designed to generate academically rigorous and semantically diverse Frequently Asked Questions (FAQs) from either topical strings or existing document content.
+`FAQGenerator` produces structured question-answer pairs from either a short topic string or a local text file. It is intended for users who need reusable FAQ data rather than an ad hoc explanation.
 
-## Overview
+## What It Does
 
-FAQGenerator leverages Advanced Large Language Models (via the `lite` client) to transform complex subjects into structured, verifiable Q&A pairs. Unlike naive prompt wrappers, this system implements rigorous quality constraints, multi-stage validation, and production-ready safety mechanisms.
+- Accepts a topic or local file as input.
+- Generates a configurable number of FAQs.
+- Supports four difficulty levels: `simple`, `medium`, `hard`, and `research`.
+- Saves the result as JSON.
 
-## Key Features
+## Why It Matters
 
-- **Multi-Source Generation**: Generate FAQs from a simple topic (e.g., "Quantum Computing") or by analyzing local files (`.txt`, `.md`).
-- **Academic Standard Prompting**: Implements strict requirements for objectivity, interrogative structure, and peer-reviewed verifiability.
-- **Configurable Difficulty**: Supports four distinct cognitive levels: `simple`, `medium`, `hard`, and `research`.
-- **Production Reliability**: 
-    - **Transient Failure Recovery**: Automatic retry logic with exponential backoff for API flakiness.
-    - **Security-First Design**: Path sanitization to prevent directory traversal and strict file size limits (5MB) to prevent resource exhaustion.
-    - **Structured Data Integrity**: Uses Pydantic for schema validation of LLM outputs.
-- **Comprehensive Observability**: Integrated with `lite.logging_config` for detailed execution tracing and error diagnostics.
+FAQ generation is often used for documentation, study materials, and content seeding. A structured output format is useful when the result needs to be reviewed, filtered, or imported into another system.
 
-## Architecture
+## What Distinguishes It
 
-- `faq_generator.py`: Core engine implementing generation logic, retry mechanisms, and file I/O.
-- `faq_generator_cli.py`: Robust command-line interface with proactive argument validation.
-- `faq_generator_models.py`: Centralized Pydantic schemas and shared constants.
-- `faq_generator_prompts.py`: Component-based prompt engineering system.
+- Can treat the same CLI argument as either topic text or a file path.
+- Uses Pydantic schemas for validation.
+- Includes file-size checks and filename sanitization in the generation pipeline.
+
+## Files
+
+- `faq_generator.py`: generation logic and export helpers.
+- `faq_generator_cli.py`: command-line interface.
+- `faq_generator_models.py`: schemas and constants.
+- `faq_generator_prompts.py`: prompt construction.
+- `mock_test_faq_generator.py`: tests.
 
 ## Installation
 
-Ensure you have a Python 3.10+ environment and the `lite` package installed.
-
-```bash
-pip install -r requirements.txt # If available, otherwise ensure 'lite' is in path
-```
+This app depends on the local `lite` package and its model providers. Install any required Python packages in your environment before running it.
 
 ## Usage
 
-### Command Line Interface
-
 ```bash
-# Generate 10 research-level FAQs from a topic
 python faq_generator_cli.py --input "Distributed Systems" --num-faqs 10 --difficulty research
-
-# Generate simple FAQs from a content file
-python faq_generator_cli.py --input documentation.md --num-faqs 5 --difficulty simple --output ./results
+python faq_generator_cli.py --input assets/machine_learning.txt --num-faqs 5 --difficulty medium
+python faq_generator_cli.py --input documentation.md --difficulty simple --output ./results
 ```
 
-### Example Inputs
+Defaults:
 
-The project includes sample input files in the `assets/` directory to demonstrate content-based generation:
+- `--num-faqs`: `5`
+- `--difficulty`: `medium`
+- `--model`: `ollama/gemma3`
+- `--temperature`: `0.3`
+- `--output`: current directory
+
+## Testing
 
 ```bash
-# Generate FAQs based on the provided machine learning overview
-python faq_generator_cli.py --input assets/machine_learning.txt --difficulty medium
-
-# Generate advanced FAQs based on photosynthesis concepts
-python faq_generator_cli.py --input assets/photosynthesis.txt --difficulty hard
-
-# Generate research questions related to blockchain technology
-python faq_generator_cli.py --input assets/blockchain.txt --difficulty research
+python -m unittest mock_test_faq_generator.py
 ```
 
-## Security & Reliability
+## Limitations
 
-- **File Safety**: The system resolves absolute paths and enforces a 5MB limit to prevent Denial of Service (DoS) via large file inputs.
-- **Output Sanitization**: Filenames are sanitized using regex to prevent path injection during the archive process.
-- **Quality Assurance**: Implements a semantic check on generated content length to ensure the model does not return truncated or low-quality placeholders.
-
-## Development & Testing
-
-The project maintains a high-coverage test suite focusing on boundary conditions and failure recovery.
-
-```bash
-python -m unittest test_faq_generator.py
-```
-
-## License
-
-Standard project licensing applies. See `LICENSE` for details.
+- FAQ quality depends on the underlying model and the quality of the source text.
+- The `research` difficulty label affects prompting, not independent scholarly verification.
+- Generated answers should be reviewed before publication.

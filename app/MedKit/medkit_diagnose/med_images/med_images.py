@@ -9,8 +9,8 @@ comprehensive information for med image classifications using LiteClient.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .med_images_models import MedicalImageClassificationModel, ModelOutput
@@ -31,7 +31,9 @@ class MedImageClassifier:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.test_name = None  # Store the test name for later use in save
-        logger.debug(f"Initialized MedImageClassifier using model: {model_config.model}")
+        logger.debug(
+            f"Initialized MedImageClassifier using model: {model_config.model}"
+        )
 
     def classify_image(self, image_path: str, structured: bool = True) -> ModelOutput:
         """
@@ -50,7 +52,7 @@ class MedImageClassifier:
 
         system_prompt = PromptBuilder.create_image_classification_system_prompt()
         user_prompt = PromptBuilder.create_image_classification_user_prompt()
-        
+
         response_format = None
         if structured:
             response_format = MedicalImageClassificationModel
@@ -81,15 +83,19 @@ class MedImageClassifier:
         Returns:
             The generated results (MedicalImageClassificationModel or str).
         """
-        logger.debug(f"Sending request to LLM client for model: {self.model_config.model}")
+        logger.debug(
+            f"Sending request to LLM client for model: {self.model_config.model}"
+        )
         return self.client.generate_text(model_input=model_input)
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical image classification result to a file."""
         if self.test_name is None:
-            raise ValueError("No image information available. Call classify_image first.")
-        
+            raise ValueError(
+                "No image information available. Call classify_image first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.test_name.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

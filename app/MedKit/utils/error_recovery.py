@@ -25,7 +25,6 @@ from typing import Any, Callable, Dict, List
 
 from medkit_exceptions import LLMError, MedKitError
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -85,6 +84,7 @@ class RetryableError:
         Returns:
             Decorated function with retry logic
         """
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             """Wrapper function implementing retry logic.
@@ -99,7 +99,9 @@ class RetryableError:
                 try:
                     result = func(*args, **kwargs)
                     if attempt > 0:
-                        logger.info(f"✓ {func.__name__} succeeded on attempt {attempt + 1}")
+                        logger.info(
+                            f"✓ {func.__name__} succeeded on attempt {attempt + 1}"
+                        )
                     return result
                 except self.retriable_exceptions as e:
                     last_exception = e
@@ -173,12 +175,7 @@ class FallbackHandler:
         self.handlers[operation].append(handler)
         self.logger.debug(f"Registered fallback handler for operation: {operation}")
 
-    def execute(
-        self,
-        operation: str,
-        *args,
-        **kwargs
-    ) -> Any:
+    def execute(self, operation: str, *args, **kwargs) -> Any:
         """Execute operation with fallback handlers.
 
         Attempts to execute the primary handler, then fallback handlers
@@ -198,7 +195,7 @@ class FallbackHandler:
         if operation not in self.handlers or not self.handlers[operation]:
             raise MedKitError(
                 f"No handlers registered for operation: {operation}",
-                context="FallbackHandler.execute()"
+                context="FallbackHandler.execute()",
             )
 
         handlers = self.handlers[operation]

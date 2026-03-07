@@ -59,5 +59,3 @@ Guidelines:
             "Return ONLY a comma-separated list of the identified terms. "
             "Do not include any other text or explanation."
         )
-
-    

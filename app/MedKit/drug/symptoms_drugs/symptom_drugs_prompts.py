@@ -20,6 +20,7 @@ class PromptStyle(str, Enum):
 @dataclass
 class SymptomInput:
     """Configuration and input for symptom-to-drug analysis."""
+
     symptom_name: str
     age: Optional[int] = None
     other_conditions: Optional[str] = None
@@ -29,7 +30,7 @@ class SymptomInput:
         """Validate input parameters."""
         if not self.symptom_name or not self.symptom_name.strip():
             raise ValueError("Symptom name cannot be empty")
-            
+
         if self.age is not None and (self.age < 0 or self.age > 150):
             raise ValueError("Age must be between 0 and 150 years")
 
@@ -84,11 +85,13 @@ Base your response on current clinical guidelines (e.g., FDA labels, WHO Essenti
         """
         # Build context parts
         context_parts = [f"Listing medications for the symptom: {config.symptom_name}"]
-        
+
         if config.age is not None:
             context_parts.append(f"Patient age: {config.age} years")
         if config.other_conditions:
-            context_parts.append(f"Other medical conditions to consider: {config.other_conditions}")
+            context_parts.append(
+                f"Other medical conditions to consider: {config.other_conditions}"
+            )
 
         context = ". ".join(context_parts) + "."
         base_query = f"Provide a comprehensive and extensive list of drugs (generic, OTC, Rx, etc.) that may be prescribed or recommended by a doctor for {config.symptom_name}."

@@ -8,7 +8,6 @@ Identify whether a given name is a recognized medical device in medical literatu
 import argparse
 import sys
 
-
 from lite.config import ModelConfig
 from medical_device_identifier import MedicalDeviceIdentifier
 
@@ -24,29 +23,28 @@ Examples:
   %(prog)s "example_medical_device"
   %(prog)s "example_medical_device" --model ollama/llama2
   %(prog)s "example_medical_device" --temperature 0.1
-        """
+        """,
     )
-    
+
     # Positional argument
-    parser.add_argument(
-        "name",
-        help="Name of the medical device to identify"
-    )
-    
+    parser.add_argument("name", help="Name of the medical device to identify")
+
     # Model configuration options
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="ollama/gemma3",
-        help="Model to use for identification (default: ollama/gemma3)"
+        help="Model to use for identification (default: ollama/gemma3)",
     )
-    
+
     parser.add_argument(
-        "--temperature", "-t",
+        "--temperature",
+        "-t",
         type=float,
         default=0.2,
-        help="Temperature for model generation (default: 0.2)"
+        help="Temperature for model generation (default: 0.2)",
     )
-    
+
     return parser
 
 
@@ -54,23 +52,20 @@ def main():
     """Main CLI function."""
     parser = create_parser()
     args = parser.parse_args()
-    
+
     try:
         # Create model configuration
-        config = ModelConfig(
-            model=args.model,
-            temperature=args.temperature
-        )
-        
+        config = ModelConfig(model=args.model, temperature=args.temperature)
+
         # Initialize identifier
         identifier = MedicalDeviceIdentifier(config)
-        
+
         # Perform identification
         result = identifier.identify(args.name)
-        
+
         # Output JSON result
         print(result.model_dump_json(indent=2))
-        
+
     except KeyboardInterrupt:
         print("\nOperation cancelled by user", file=sys.stderr)
         sys.exit(1)

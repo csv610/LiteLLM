@@ -6,11 +6,11 @@ This module provides:
 3. Test utilities for assertions and comparisons
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
-from unittest.mock import patch
 from typing import Any, Dict, Optional
+from unittest.mock import patch
 
 import pytest
 from pydantic import BaseModel
@@ -28,6 +28,7 @@ if str(LITE_ROOT) not in sys.path:
 
 class MockModelResponse(BaseModel):
     """Mock response model for testing structured outputs."""
+
     status: str
     data: Dict[str, Any]
     metadata: Optional[Dict[str, Any]] = None
@@ -58,8 +59,9 @@ class MockLiteClient:
         """Set default response for unmapped inputs."""
         self.default_response = response
 
-    def set_error_mode(self, should_raise: bool = True,
-                      error: Optional[Exception] = None) -> None:
+    def set_error_mode(
+        self, should_raise: bool = True, error: Optional[Exception] = None
+    ) -> None:
         """Configure error mode for testing error handling."""
         self.should_raise_error = should_raise
         if error:
@@ -73,7 +75,7 @@ class MockLiteClient:
         if self.should_raise_error:
             raise self.error_to_raise
 
-        if model_input and hasattr(model_input, 'user_prompt'):
+        if model_input and hasattr(model_input, "user_prompt"):
             prompt_key = model_input.user_prompt[:50]
             if prompt_key in self.responses:
                 return self.responses[prompt_key]
@@ -195,6 +197,7 @@ def mock_file_system():
 def mock_model_config():
     """Provide a mock ModelConfig for testing."""
     from lite.config import ModelConfig
+
     return ModelConfig(model="test/model", temperature=0.7)
 
 
@@ -202,9 +205,9 @@ def mock_model_config():
 def mock_model_input():
     """Provide a mock ModelInput for testing."""
     from lite.config import ModelInput
+
     return ModelInput(
-        system_prompt="You are a test assistant.",
-        user_prompt="Test question?"
+        system_prompt="You are a test assistant.", user_prompt="Test question?"
     )
 
 
@@ -221,7 +224,7 @@ def sample_disease_data():
         "description": "A chronic condition with elevated blood pressure.",
         "symptoms": ["Headaches", "Dizziness", "Chest pain"],
         "causes": ["Genetics", "Obesity", "Stress"],
-        "treatment": "Medications and lifestyle changes"
+        "treatment": "Medications and lifestyle changes",
     }
 
 
@@ -234,7 +237,7 @@ def sample_drug_data():
         "indication": "Type 2 Diabetes",
         "dosage": "500mg-2000mg daily",
         "side_effects": ["Nausea", "Diarrhea"],
-        "contraindications": ["Kidney disease", "Heart failure"]
+        "contraindications": ["Kidney disease", "Heart failure"],
     }
 
 
@@ -247,7 +250,7 @@ def sample_interaction_data():
         "severity": "High",
         "interaction_type": "Pharmacodynamic",
         "mechanism": "Increased bleeding risk",
-        "recommendations": "Monitor INR levels closely"
+        "recommendations": "Monitor INR levels closely",
     }
 
 
@@ -256,11 +259,8 @@ def sample_structured_response():
     """Provide sample structured response model."""
     return MockModelResponse(
         status="success",
-        data={
-            "analysis": "Test analysis",
-            "findings": ["Finding 1", "Finding 2"]
-        },
-        metadata={"source": "test", "version": "1.0"}
+        data={"analysis": "Test analysis", "findings": ["Finding 1", "Finding 2"]},
+        metadata={"source": "test", "version": "1.0"},
     )
 
 
@@ -272,11 +272,7 @@ def sample_structured_response():
 @pytest.fixture
 def basic_cli_args():
     """Provide basic CLI arguments for testing."""
-    return [
-        "-m", "test/model",
-        "-t", "0.7",
-        "-v", "2"
-    ]
+    return ["-m", "test/model", "-t", "0.7", "-v", "2"]
 
 
 @pytest.fixture
@@ -284,10 +280,13 @@ def disease_cli_args():
     """Provide disease CLI arguments for testing."""
     return [
         "Hypertension",
-        "-m", "test/model",
-        "-t", "0.7",
-        "-v", "2",
-        "-s"  # structured output
+        "-m",
+        "test/model",
+        "-t",
+        "0.7",
+        "-v",
+        "2",
+        "-s",  # structured output
     ]
 
 
@@ -297,10 +296,14 @@ def drug_interaction_cli_args():
     return [
         "Warfarin",
         "Aspirin",
-        "-m", "test/model",
-        "-t", "0.7",
-        "-a", "65",
-        "-v", "2"
+        "-m",
+        "test/model",
+        "-t",
+        "0.7",
+        "-a",
+        "65",
+        "-v",
+        "2",
     ]
 
 
@@ -309,10 +312,13 @@ def medicine_cli_args():
     """Provide medicine CLI arguments for testing."""
     return [
         "Aspirin",
-        "-m", "test/model",
-        "-t", "0.7",
-        "-v", "2",
-        "-j"  # json output
+        "-m",
+        "test/model",
+        "-t",
+        "0.7",
+        "-v",
+        "2",
+        "-j",  # json output
     ]
 
 
@@ -324,14 +330,14 @@ def medicine_cli_args():
 @pytest.fixture
 def mock_liteclient_patch(mock_lite_client):
     """Patch LiteClient globally for tests."""
-    with patch('lite.lite_client.LiteClient', return_value=mock_lite_client):
+    with patch("lite.lite_client.LiteClient", return_value=mock_lite_client):
         yield mock_lite_client
 
 
 @pytest.fixture
 def mock_save_function():
     """Mock the save_model_response function."""
-    with patch('lite.utils.save_model_response') as mock_save:
+    with patch("lite.utils.save_model_response") as mock_save:
         mock_save.return_value = Path("test_output.json")
         yield mock_save
 
@@ -346,7 +352,7 @@ def mock_path_mkdir(tmp_path):
         if str(tmp_path) in str(self):
             original_mkdir(self, *args, **kwargs)
 
-    with patch.object(Path, 'mkdir', mock_mkdir):
+    with patch.object(Path, "mkdir", mock_mkdir):
         yield
 
 
@@ -366,25 +372,24 @@ def assert_model_response(response, expected_type=None):
     assert response is not None, "Response should not be None"
 
     if expected_type is not None:
-        assert isinstance(response, expected_type), \
+        assert isinstance(response, expected_type), (
             f"Response should be {expected_type.__name__}, got {type(response).__name__}"
+        )
 
 
 def assert_file_operations(mock_fs, min_writes=1, min_reads=0):
     """Assert expected file operations occurred."""
-    assert mock_fs.write_count >= min_writes, \
+    assert mock_fs.write_count >= min_writes, (
         f"Expected at least {min_writes} writes, got {mock_fs.write_count}"
-    assert mock_fs.read_count >= min_reads, \
+    )
+    assert mock_fs.read_count >= min_reads, (
         f"Expected at least {min_reads} reads, got {mock_fs.read_count}"
+    )
 
 
 def create_test_model(*args, **kwargs) -> MockModelResponse:
     """Create a test model instance."""
-    return MockModelResponse(
-        status="success",
-        data={"test": "data"},
-        **kwargs
-    )
+    return MockModelResponse(status="success", data={"test": "data"}, **kwargs)
 
 
 # ==============================================================================
@@ -394,15 +399,9 @@ def create_test_model(*args, **kwargs) -> MockModelResponse:
 
 def pytest_configure(config):
     """Configure pytest with custom markers."""
-    config.addinivalue_line(
-        "markers", "unit: mark test as a unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
+    config.addinivalue_line("markers", "unit: mark test as a unit test")
+    config.addinivalue_line("markers", "integration: mark test as an integration test")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
 
 
 # Suppress debug logging during tests by default

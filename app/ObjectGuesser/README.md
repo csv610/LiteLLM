@@ -1,77 +1,51 @@
-# Object Guesser Game
+# ObjectGuesser
 
-An interactive AI-powered guessing game where an LLM (Large Language Model) tries to identify an object you're thinking of by asking strategic yes/no questions.
+`ObjectGuesser` is an interactive CLI game in which the model asks questions and tries to infer the object chosen by the user.
 
-## 🎮 Overview
+## What It Does
 
-In this game, the roles are reversed from the traditional 20 Questions: **the AI is the guesser, and you are the one holding the secret.** Using the `LiteLLM` client, the game connects to powerful models (like Gemma 3) to narrow down possibilities through logical deduction.
+- Runs a question-and-answer loop in the terminal.
+- Tracks conversation history.
+- Attempts to detect when the model is making a guess rather than asking another question.
 
-## ✨ Features
+## Why It Matters
 
-- **Strategic Deduction**: The AI uses conversation history to avoid redundant questions and narrow down categories (e.g., "Is it living?", "Is it an electronic device?").
-- **Dynamic Guessing**: The system detect patterns in the AI's response to identify when it's making a formal guess versus asking a clarifying question.
-- **Flexible Backend**: Powered by `LiteLLM`, allowing you to swap between local models (Ollama) or cloud APIs (OpenAI, Anthropic, etc.) with a single flag.
-- **Clean Architecture**: Separated logic for game state, prompt engineering, and the command-line interface.
+Within this repository, this app is primarily useful as a compact example of stateful interactive prompting.
 
-## 🚀 Getting Started
+## What Distinguishes It
 
-### Prerequisites
+- Interactive loop rather than one-shot generation.
+- Simple guess extraction logic over model responses.
+- Minimal project structure suitable for experimentation.
 
-- Python 3.10 or higher
-- [Ollama](https://ollama.ai/) installed and running (for default local model support)
+## Files
 
-### Installation
+- `object_guessing_cli.py`: CLI entrypoint.
+- `object_guesser_game.py`: game state and guess extraction.
+- `object_guessing_prompts.py`: prompts.
+- `tests/mock_test_object_guesser.py`: tests.
 
-1. Clone the repository and navigate to the project:
-   ```bash
-   cd ObjectGuesser
-   ```
-
-2. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Usage
-
-Start the game using the CLI:
+## Usage
 
 ```bash
-# Using the default model (ollama/gemma3)
 python object_guessing_cli.py
-
-# Using a specific model and question limit
 python object_guessing_cli.py --model ollama/llama3 --max-questions 15 --temperature 0.5
 ```
 
-### Gameplay
+Defaults:
 
-1. Think of a physical object.
-2. The AI will ask a question.
-3. Respond with `yes`, `no`, or `somewhat`.
-4. The game ends when the AI correctly identifies the object or runs out of questions.
+- `--model`: `ollama/gemma3`
+- `--temperature`: `0.7`
+- `--max-questions`: `20`
 
-## 📁 Project Structure
-
-```text
-├── object_guessing_cli.py      # Entry point & CLI argument parsing
-├── object_guesser_game.py     # Game engine & guess extraction logic
-├── object_guessing_prompts.py # System & User prompt templates
-├── tests/                     # Unit tests for core logic
-└── README.md                  # Project documentation
-```
-
-## 🧪 Testing
-
-Ensure the game logic is functioning correctly by running the test suite:
+## Testing
 
 ```bash
-python -m unittest discover tests
+python -m unittest tests/mock_test_object_guesser.py
 ```
 
-## 🛠️ Configuration
+## Limitations
 
-The `object_guessing_cli.py` supports several flags:
-- `-m, --model`: The LLM model to use (default: `ollama/gemma3`).
-- `--temperature`: Controls randomness (default: `0.7`).
-- `--max-questions`: Maximum attempts for the AI (default: `20`).
+- Gameplay quality depends heavily on the model.
+- Guess extraction uses simple text heuristics and can miss or misread guesses.
+- There is no ranking or scoring system beyond the terminal interaction.

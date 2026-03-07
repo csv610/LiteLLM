@@ -1,45 +1,14 @@
-# Medical Specialty Identifier
+# Medical Specialty Recognizer
 
-Identifies whether a given name is a recognized medical specialty in medical literature.
+This module identifies medical-specialty mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medical_specialty_identifier.py`: recognition logic.
+- `medical_specialty_cli.py`: CLI interface.
+- `medical_specialty_models.py`: schemas.
+- `medical_specialty_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medical_specialty_cli.py "example medical_specialty"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Medical specialty",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Medical specialty is a recognized medical specialty in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medical_specialty_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Specialty names vary across healthcare systems and training structures.

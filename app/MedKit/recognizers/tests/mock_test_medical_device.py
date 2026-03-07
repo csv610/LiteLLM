@@ -1,24 +1,34 @@
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
-from pathlib import Path
+import sys
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+from lite.config import ModelConfig
 
 from ..medical_device.medical_device_identifier import MedicalDeviceIdentifier
-from ..medical_device.medical_device_models import ModelOutput, MedicalDeviceIdentifierModel, MedicalDeviceIdentificationModel
-from lite.config import ModelConfig
+from ..medical_device.medical_device_models import (
+    MedicalDeviceIdentificationModel,
+    MedicalDeviceIdentifierModel,
+    ModelOutput,
+)
+
 
 @pytest.fixture
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
+
 @pytest.fixture
 def device_identifier(mock_model_config):
-    with patch('lite.lite_client.LiteClient'):
+    with patch("lite.lite_client.LiteClient"):
         id_obj = MedicalDeviceIdentifier(mock_model_config)
         id_obj.client.generate_text = MagicMock()
         return id_obj
+
 
 def test_identify(device_identifier):
     # Setup mock response
@@ -35,20 +45,23 @@ def test_identify(device_identifier):
         clinical_indications=["Bradycardia"],
         safety_warnings=["Magnetic interference"],
         regulatory_approvals=["FDA", "CE"],
-        maintenance_requirements=["Regular battery checks"]
+        maintenance_requirements=["Regular battery checks"],
     )
-    mock_model = MedicalDeviceIdentifierModel(identification=mock_data, summary="Device info", data_available=True)
+    mock_model = MedicalDeviceIdentifierModel(
+        identification=mock_data, summary="Device info", data_available=True
+    )
     mock_output = ModelOutput(data=mock_model, data_available=True)
-    
+
     device_identifier.client.generate_text.return_value = mock_output
-    
+
     # Execute
     result = device_identifier.identify("Pacemaker")
-    
+
     # Assert
     assert result.data.identification.device_name == "Pacemaker"
     assert result.data.identification.is_well_known is True
     assert device_identifier.client.generate_text.called
+
 
 def test_identify_empty_name(device_identifier):
     with pytest.raises(ValueError, match=".+"):

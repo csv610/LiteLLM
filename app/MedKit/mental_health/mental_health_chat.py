@@ -1,15 +1,18 @@
 import json
-from typing import List, Dict, Optional, Tuple
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 try:
-    from lite.lite_client import LiteClient as GeminiClient
     from lite.config import ModelConfig, ModelInput
+    from lite.lite_client import LiteClient as GeminiClient
+
     from medkit_privacy.privacy_compliance import PrivacyManager
 except ImportError:
     # Fallback for standalone testing
     class ModelConfig:
-        def __init__(self, model_name="gemini-2.5-flash", temperature=0.8, max_output_tokens=1024):
+        def __init__(
+            self, model_name="gemini-2.5-flash", temperature=0.8, max_output_tokens=1024
+        ):
             self.model_name = model_name
             self.temperature = temperature
             self.max_output_tokens = max_output_tokens
@@ -29,23 +32,27 @@ except ImportError:
     class PrivacyManager:
         def create_session(self, patient_name, age, gender):
             return None
+
         def save_session(self, session):
             return None
+
         def load_session(self, session_id):
             return None
 
+
 try:
     from .mental_health_assessment import MentalHealthAssessment
-    from .models import ChatSession, ChatMessage
+    from .models import ChatMessage, ChatSession
 except ImportError:
     try:
         from medkit.mental_health.mental_health_assessment import MentalHealthAssessment
-        from medkit.mental_health.models import ChatSession, ChatMessage
+        from medkit.mental_health.models import ChatMessage, ChatSession
     except ImportError:
         from mental_health_assessment import MentalHealthAssessment
-        from models import ChatSession, ChatMessage
+        from models import ChatMessage, ChatSession
 
 # ==================== Prompt Builder ====================
+
 
 class PromptBuilder:
     """Builder class for creating prompts for mental health chat."""
@@ -172,6 +179,7 @@ Ensure all JSON is valid and complete."""
 
 # ==================== Configuration ====================
 
+
 class ChatConfig:
     """Chat engine configuration."""
 
@@ -189,7 +197,9 @@ class ChatConfig:
     # System prompt for adaptive questioning
     SYSTEM_PROMPT = PromptBuilder.create_system_prompt()
 
+
 # ==================== Mental Health Chat Engine ====================
+
 
 class MentalHealthChatEngine:
     """
@@ -201,39 +211,83 @@ class MentalHealthChatEngine:
     # Mental health red flags with emergency protocols
     RED_FLAGS = {
         "suicidal_ideation": {
-            "keywords": ["suicide", "kill myself", "don't want to live", "better off dead",
-                        "harm myself", "end my", "ending my", "take my own", "final goodbye",
-                        "should be dead", "want to die", "thinking about ending"],
+            "keywords": [
+                "suicide",
+                "kill myself",
+                "don't want to live",
+                "better off dead",
+                "harm myself",
+                "end my",
+                "ending my",
+                "take my own",
+                "final goodbye",
+                "should be dead",
+                "want to die",
+                "thinking about ending",
+            ],
             "severity": "emergency",
-            "follow_up": "How long have you been having these thoughts? Do you have a plan?"
+            "follow_up": "How long have you been having these thoughts? Do you have a plan?",
         },
         "self_harm": {
-            "keywords": ["cutting", "hurt myself", "harm myself", "burn myself", "pull hair",
-                        "bang head", "self injury", "cutting myself"],
+            "keywords": [
+                "cutting",
+                "hurt myself",
+                "harm myself",
+                "burn myself",
+                "pull hair",
+                "bang head",
+                "self injury",
+                "cutting myself",
+            ],
             "severity": "emergency",
-            "follow_up": "How often are you hurting yourself? Have you been injured recently?"
+            "follow_up": "How often are you hurting yourself? Have you been injured recently?",
         },
         "harm_to_others": {
-            "keywords": ["kill them", "hurt someone", "attack", "violent", "harm others",
-                        "going to hit", "planning to hurt"],
+            "keywords": [
+                "kill them",
+                "hurt someone",
+                "attack",
+                "violent",
+                "harm others",
+                "going to hit",
+                "planning to hurt",
+            ],
             "severity": "emergency",
-            "follow_up": "Are you thinking about hurting a specific person? Do you have access to weapons?"
+            "follow_up": "Are you thinking about hurting a specific person? Do you have access to weapons?",
         },
         "psychotic_symptoms": {
-            "keywords": ["hearing voices", "seeing things", "hallucinations", "conspiracy",
-                        "aliens", "mind reading", "thoughts not mine", "government tracking"],
+            "keywords": [
+                "hearing voices",
+                "seeing things",
+                "hallucinations",
+                "conspiracy",
+                "aliens",
+                "mind reading",
+                "thoughts not mine",
+                "government tracking",
+            ],
             "severity": "urgent",
-            "follow_up": "Can you describe what you're experiencing? How long has this been happening?"
+            "follow_up": "Can you describe what you're experiencing? How long has this been happening?",
         },
         "severe_depression": {
-            "keywords": ["hopeless", "nothing matters", "pointless", "can't get out of bed",
-                        "give up", "no point", "never get better", "completely empty"],
+            "keywords": [
+                "hopeless",
+                "nothing matters",
+                "pointless",
+                "can't get out of bed",
+                "give up",
+                "no point",
+                "never get better",
+                "completely empty",
+            ],
             "severity": "urgent",
-            "follow_up": "Have these feelings been overwhelming? How is this affecting your daily life?"
-        }
+            "follow_up": "Have these feelings been overwhelming? How is this affecting your daily life?",
+        },
     }
 
-    def __init__(self, session_id: Optional[str] = None, max_questions: Optional[int] = None):
+    def __init__(
+        self, session_id: Optional[str] = None, max_questions: Optional[int] = None
+    ):
         """
         Initialize chat engine.
 
@@ -245,7 +299,7 @@ class MentalHealthChatEngine:
         config = ModelConfig(
             model_name=ChatConfig.MODEL_NAME,
             temperature=ChatConfig.TEMPERATURE,
-            max_output_tokens=ChatConfig.MAX_OUTPUT_TOKENS
+            max_output_tokens=ChatConfig.MAX_OUTPUT_TOKENS,
         )
         self.client = GeminiClient(config=config)
 
@@ -265,8 +319,9 @@ class MentalHealthChatEngine:
 
     # ==================== Session Initialization ====================
 
-    def initialize_session(self, patient_name: str, age: int, gender: str,
-                          chief_complaint: str) -> ChatSession:
+    def initialize_session(
+        self, patient_name: str, age: int, gender: str, chief_complaint: str
+    ) -> ChatSession:
         """
         Initialize new chat session with patient.
 
@@ -282,8 +337,10 @@ class MentalHealthChatEngine:
         self.session = self.privacy_manager.create_session(patient_name, age, gender)
 
         # Store chief complaint in collected data
-        self.collected_data['chief_complaint'] = chief_complaint
-        self.collected_data['complaint_onset'] = "ongoing"  # Will be refined in conversation
+        self.collected_data["chief_complaint"] = chief_complaint
+        self.collected_data["complaint_onset"] = (
+            "ongoing"  # Will be refined in conversation
+        )
 
         # Clear conversation history
         self.conversation_history = []
@@ -306,10 +363,9 @@ class MentalHealthChatEngine:
             # Reconstruct conversation history from messages
             self.conversation_history = []
             for message in self.session.messages:
-                self.conversation_history.append({
-                    "role": message.role,
-                    "content": message.content
-                })
+                self.conversation_history.append(
+                    {"role": message.role, "content": message.content}
+                )
 
         return self.session
 
@@ -335,7 +391,10 @@ class MentalHealthChatEngine:
                     detected_flags.append(flag_name)
                     if flag_config["severity"] == "emergency":
                         max_severity = "emergency"
-                    elif flag_config["severity"] == "urgent" and max_severity != "emergency":
+                    elif (
+                        flag_config["severity"] == "urgent"
+                        and max_severity != "emergency"
+                    ):
                         max_severity = "urgent"
                     break
 
@@ -367,7 +426,7 @@ class MentalHealthChatEngine:
 Based on what you've shared, you're experiencing a mental health crisis.
 Your safety is our top priority.
 
-DETECTED CONCERNS: {', '.join(flags)}
+DETECTED CONCERNS: {", ".join(flags)}
 
 IMMEDIATE CRISIS RESOURCES:
 
@@ -422,16 +481,17 @@ Please reach out for help now. You matter and recovery is possible.
 
         if not conversation_summary:
             # First question - greet and ask about chief complaint
-            chief_complaint = self.collected_data.get('chief_complaint', 'mental health concerns')
+            chief_complaint = self.collected_data.get(
+                "chief_complaint", "mental health concerns"
+            )
             user_prompt = PromptBuilder.create_initial_question_prompt(chief_complaint)
         else:
-            user_prompt = PromptBuilder.create_followup_question_prompt(conversation_summary)
+            user_prompt = PromptBuilder.create_followup_question_prompt(
+                conversation_summary
+            )
 
         # Generate question from AI
-        model_input = ModelInput(
-            user_prompt=user_prompt,
-            sys_prompt=sys_prompt
-        )
+        model_input = ModelInput(user_prompt=user_prompt, sys_prompt=sys_prompt)
 
         response = self.client.generate_content(model_input)
 
@@ -488,11 +548,7 @@ Would you like me to generate a detailed mental health assessment based on our c
         has_flags, flags, severity = self.detect_red_flags(user_input)
 
         # Store message in session
-        message = ChatMessage(
-            role="user",
-            content=user_input,
-            red_flags_detected=flags
-        )
+        message = ChatMessage(role="user", content=user_input, red_flags_detected=flags)
 
         if self.session:
             self.session.messages.append(message)
@@ -501,42 +557,36 @@ Would you like me to generate a detailed mental health assessment based on our c
         if has_flags and severity == "emergency":
             response = self.handle_emergency(flags)
             if self.session:
-                self.session.messages.append(ChatMessage(
-                    role="assistant",
-                    content=response
-                ))
+                self.session.messages.append(
+                    ChatMessage(role="assistant", content=response)
+                )
             return {
                 "response": response,
                 "emergency": True,
                 "red_flags": flags,
-                "should_continue": False
+                "should_continue": False,
             }
 
         # Add to conversation history
-        self.conversation_history.append({
-            "role": "user",
-            "content": user_input
-        })
+        self.conversation_history.append({"role": "user", "content": user_input})
 
         # Check if question limit reached
         if self.question_count >= self.max_questions:
             conclusion_message = self._generate_conclusion()
             assistant_message = ChatMessage(
-                role="assistant",
-                content=conclusion_message
+                role="assistant", content=conclusion_message
             )
             if self.session:
                 self.session.messages.append(assistant_message)
-            self.conversation_history.append({
-                "role": "assistant",
-                "content": conclusion_message
-            })
+            self.conversation_history.append(
+                {"role": "assistant", "content": conclusion_message}
+            )
             return {
                 "response": conclusion_message,
                 "emergency": False,
                 "red_flags": flags,
                 "should_continue": False,
-                "reason": "max_questions_reached"
+                "reason": "max_questions_reached",
             }
 
         # Generate next question
@@ -544,18 +594,14 @@ Would you like me to generate a detailed mental health assessment based on our c
         self.question_count += 1
 
         # Store assistant message
-        assistant_message = ChatMessage(
-            role="assistant",
-            content=next_question
-        )
+        assistant_message = ChatMessage(role="assistant", content=next_question)
 
         if self.session:
             self.session.messages.append(assistant_message)
 
-        self.conversation_history.append({
-            "role": "assistant",
-            "content": next_question
-        })
+        self.conversation_history.append(
+            {"role": "assistant", "content": next_question}
+        )
 
         return {
             "response": next_question,
@@ -563,7 +609,7 @@ Would you like me to generate a detailed mental health assessment based on our c
             "red_flags": flags,
             "should_continue": True,
             "questions_asked": self.question_count,
-            "questions_remaining": self.max_questions - self.question_count
+            "questions_remaining": self.max_questions - self.question_count,
         }
 
     # ==================== Assessment Generation ====================
@@ -579,10 +625,12 @@ Would you like me to generate a detailed mental health assessment based on our c
             return None
 
         # Prepare conversation context
-        conversation_text = "\n".join([
-            f"{msg['role'].upper()}: {msg['content']}"
-            for msg in self.conversation_history
-        ])
+        conversation_text = "\n".join(
+            [
+                f"{msg['role'].upper()}: {msg['content']}"
+                for msg in self.conversation_history
+            ]
+        )
 
         # Prompt for assessment generation
         assessment_prompt = PromptBuilder.create_assessment_prompt(conversation_text)
@@ -590,8 +638,7 @@ Would you like me to generate a detailed mental health assessment based on our c
 
         try:
             model_input = ModelInput(
-                user_prompt=assessment_prompt,
-                sys_prompt=sys_prompt
+                user_prompt=assessment_prompt, sys_prompt=sys_prompt
             )
 
             response = self.client.generate_content(model_input)
@@ -639,7 +686,8 @@ Would you like me to generate a detailed mental health assessment based on our c
 
         # Try regex extraction
         import re
-        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+
+        json_match = re.search(r"\{.*\}", response, re.DOTALL)
         if json_match:
             return json.loads(json_match.group())
 
@@ -675,5 +723,5 @@ Would you like me to generate a detailed mental health assessment based on our c
             "created_at": self.session.created_at,
             "message_count": len(self.session.messages),
             "status": self.session.session_status,
-            "emergency_triggered": self.session.emergency_triggered
+            "emergency_triggered": self.session.emergency_triggered,
         }

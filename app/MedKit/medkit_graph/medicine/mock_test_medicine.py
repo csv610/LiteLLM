@@ -1,16 +1,17 @@
-import unittest
-import os
 import json
+import os
 import tempfile
+import unittest
+
 from medicine_models import (
-    Triple,
-    MedicineTripletExtractor,
     MedicineGraphBuilder,
+    MedicineTripletExtractor,
+    Triple,
 )
 from pydantic import ValidationError
 
-class TestMedicineModels(unittest.TestCase):
 
+class TestMedicineModels(unittest.TestCase):
     def test_triple_validation_valid(self):
         t = Triple(source="DrugA", relation="treats", target="DiseaseB")
         self.assertEqual(t.source, "DrugA")
@@ -27,7 +28,13 @@ class TestMedicineModels(unittest.TestCase):
         self.assertEqual(t2.relation, "has_side_effect")
 
     def test_triple_validation_node_type_alias(self):
-        t = Triple(source="DrugA", relation="treats", target="DiseaseB", source_type="drug", target_type="disorder")
+        t = Triple(
+            source="DrugA",
+            relation="treats",
+            target="DiseaseB",
+            source_type="drug",
+            target_type="disorder",
+        )
         self.assertEqual(t.source_type, "Drug")
         self.assertEqual(t.target_type, "Disease")
 
@@ -48,8 +55,20 @@ class TestMedicineModels(unittest.TestCase):
     def test_medicine_graph_builder_add_and_query(self):
         builder = MedicineGraphBuilder()
         triples = [
-            Triple(source="Paracetamol", relation="treats", target="Fever", source_type="Drug", target_type="Disease"),
-            Triple(source="Paracetamol", relation="has_side_effect", target="Nausea", source_type="Drug", target_type="SideEffect")
+            Triple(
+                source="Paracetamol",
+                relation="treats",
+                target="Fever",
+                source_type="Drug",
+                target_type="Disease",
+            ),
+            Triple(
+                source="Paracetamol",
+                relation="has_side_effect",
+                target="Nausea",
+                source_type="Drug",
+                target_type="SideEffect",
+            ),
         ]
         builder.add_triples(triples)
 
@@ -66,7 +85,13 @@ class TestMedicineModels(unittest.TestCase):
     def test_medicine_graph_builder_export(self):
         builder = MedicineGraphBuilder()
         triples = [
-            Triple(source="Paracetamol", relation="treats", target="Fever", source_type="Drug", target_type="Disease")
+            Triple(
+                source="Paracetamol",
+                relation="treats",
+                target="Fever",
+                source_type="Drug",
+                target_type="Disease",
+            )
         ]
         builder.add_triples(triples)
 
@@ -74,7 +99,7 @@ class TestMedicineModels(unittest.TestCase):
             json_path = os.path.join(tmpdir, "graph.json")
             builder.export_json(json_path)
             self.assertTrue(os.path.exists(json_path))
-            
+
             with open(json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 self.assertEqual(len(data), 1)
@@ -84,5 +109,6 @@ class TestMedicineModels(unittest.TestCase):
             builder.export_dot(dot_path)
             self.assertTrue(os.path.exists(dot_path))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

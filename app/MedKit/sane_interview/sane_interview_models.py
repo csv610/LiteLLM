@@ -5,10 +5,11 @@ Defines comprehensive data models for Sexual Assault Nurse Examiner (SANE) inter
 with trauma-informed approach and proper data validation.
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 
 class YesNoUnsure(str, Enum):
@@ -45,8 +46,12 @@ class ConsentSection(BaseModel):
     wants_advocate_present: Optional[YesNoUnsure] = None
     advocate_name: Optional[str] = None
     age: Optional[int] = Field(None, ge=0, le=150, description="Patient age in years")
-    sex: Optional[str] = Field(None, description="Biological sex for medical assessment")
-    gender_identity: Optional[str] = Field(None, description="Gender identity (optional)")
+    sex: Optional[str] = Field(
+        None, description="Biological sex for medical assessment"
+    )
+    gender_identity: Optional[str] = Field(
+        None, description="Gender identity (optional)"
+    )
 
 
 # 2. General Medical History
@@ -90,8 +95,8 @@ class SexualContactDetails(BaseModel):
     resistance_details: Optional[str] = None
     clothing_removed_torn: Optional[YesNoUnsure] = None
     post_incident_activities: Optional[List[str]] = Field(
-        None, 
-        description="bathed, changed clothes, urinated, eaten, brushed teeth, etc."
+        None,
+        description="bathed, changed clothes, urinated, eaten, brushed teeth, etc.",
     )
     items_cleaned_disposed: Optional[YesNoUnsure] = None
 
@@ -102,13 +107,11 @@ class InjuryAssessment(BaseModel):
     pain_locations: Optional[str] = None
     pain_level: Optional[int] = Field(None, ge=0, le=10)
     physical_assault_types: Optional[List[str]] = Field(
-        None,
-        description="hit, slap, kick, bite, strangle, etc."
+        None, description="hit, slap, kick, bite, strangle, etc."
     )
     visible_injuries: Optional[str] = None
     symptoms: Optional[List[str]] = Field(
-        None,
-        description="dizzy, nauseous, headache, etc."
+        None, description="dizzy, nauseous, headache, etc."
     )
     genital_anal_symptoms: Optional[str] = None
 
@@ -167,7 +170,7 @@ class SANEInterviewRecord(BaseModel):
     interview_date: datetime = Field(default_factory=datetime.now)
     interviewer_name: Optional[str] = None
     patient_id: Optional[str] = Field(None, description="Use anonymous identifier")
-    
+
     consent: ConsentSection = Field(default_factory=ConsentSection)
     medical_history: MedicalHistory = Field(default_factory=MedicalHistory)
     incident_history: IncidentHistory = Field(default_factory=IncidentHistory)
@@ -175,8 +178,10 @@ class SANEInterviewRecord(BaseModel):
     injury_assessment: InjuryAssessment = Field(default_factory=InjuryAssessment)
     forensic_evidence: ForensicEvidence = Field(default_factory=ForensicEvidence)
     treatment: TreatmentDiscussion = Field(default_factory=TreatmentDiscussion)
-    psychological: PsychologicalAssessment = Field(default_factory=PsychologicalAssessment)
+    psychological: PsychologicalAssessment = Field(
+        default_factory=PsychologicalAssessment
+    )
     legal_followup: LegalFollowUp = Field(default_factory=LegalFollowUp)
     closure: ClosureSupport = Field(default_factory=ClosureSupport)
-    
+
     additional_notes: Optional[str] = None

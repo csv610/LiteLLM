@@ -4,12 +4,16 @@ import argparse
 import logging
 from pathlib import Path
 
+from drug_disease_interaction import (
+    DrugDiseaseInput,
+    DrugDiseaseInteraction,
+    PromptStyle,
+)
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from drug_disease_interaction import DrugDiseaseInteraction, DrugDiseaseInput, PromptStyle
-
 logger = logging.getLogger(__name__)
+
 
 def parse_prompt_style(style_str: str) -> PromptStyle:
     """Parse prompt style string to PromptStyle enum."""
@@ -84,7 +88,7 @@ def get_user_arguments() -> argparse.Namespace:
         "--output-dir",
         "-od",
         default="outputs",
-        help="Directory for output files (default: outputs)."
+        help="Directory for output files (default: outputs).",
     )
 
     parser.add_argument(
@@ -101,7 +105,7 @@ def get_user_arguments() -> argparse.Namespace:
         "-t",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response"
+        help="Use structured output (Pydantic model) for the response",
     )
 
     parser.add_argument(
@@ -121,12 +125,12 @@ def create_drug_disease_interaction_report(args) -> int:
     configure_logging(
         log_file=str(Path(__file__).parent / "logs" / "drug_disease_interaction.log"),
         verbosity=args.verbosity,
-        enable_console=True
+        enable_console=True,
     )
 
-    logger.info("="*80)
+    logger.info("=" * 80)
     logger.info("DRUG-DISEASE INTERACTION CLI - Starting")
-    logger.info("="*80)
+    logger.info("=" * 80)
 
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
@@ -147,7 +151,7 @@ def create_drug_disease_interaction_report(args) -> int:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugDiseaseInteraction(model_config)
         result = analyzer.generate_text(user_input, structured=args.structured)
-        
+
         if result is None:
             logger.error("✗ Failed to analyze drug-disease interaction.")
             return 1
@@ -166,9 +170,11 @@ def create_drug_disease_interaction_report(args) -> int:
         logger.exception("Full exception details:")
         return 1
 
+
 def main():
     args = get_user_arguments()
     create_drug_disease_interaction_report(args)
 
+
 if __name__ == "__main__":
-   main()
+    main()

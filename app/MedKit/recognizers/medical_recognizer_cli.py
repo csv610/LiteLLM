@@ -15,55 +15,58 @@ if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
 from lite.config import ModelConfig
+
 from recognizers.recognizer_factory import RecognizerFactory
+
 
 def create_parser():
     # Force registration by listing available
     available_types = RecognizerFactory.list_available()
-    
+
     parser = argparse.ArgumentParser(
         prog="medical_recognizer_cli.py",
         description="Unified CLI for medical entity identification",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    
+
     parser.add_argument(
         "type",
         choices=available_types + ["list"],
-        help="Type of medical entity to identify or 'list' to see all available types"
+        help="Type of medical entity to identify or 'list' to see all available types",
     )
-    
+
     parser.add_argument(
         "name",
         nargs="?",
-        help="Name of the entity to identify (not required for 'list' command)"
+        help="Name of the entity to identify (not required for 'list' command)",
     )
-    
+
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="ollama/gemma3",
-        help="Model to use (default: ollama/gemma3)"
+        help="Model to use (default: ollama/gemma3)",
     )
-    
+
     parser.add_argument(
-        "--temperature", "-t",
+        "--temperature",
+        "-t",
         type=float,
         default=0.2,
-        help="Temperature for model generation (default: 0.2)"
+        help="Temperature for model generation (default: 0.2)",
     )
-    
+
     parser.add_argument(
-        "--structured", "-s",
-        action="store_true",
-        help="Use structured output (JSON)"
+        "--structured", "-s", action="store_true", help="Use structured output (JSON)"
     )
 
     return parser
 
+
 def main():
     parser = create_parser()
     args = parser.parse_args()
-    
+
     if args.type == "list":
         available_types = RecognizerFactory.list_available()
         print("\n🔍 Available Medical Entity Recognizers:\n")
@@ -76,33 +79,31 @@ def main():
         parser.error("the following arguments are required: name")
 
     try:
-        config = ModelConfig(
-            model=args.model,
-            temperature=args.temperature
-        )
-        
+        config = ModelConfig(model=args.model, temperature=args.temperature)
+
         recognizer = RecognizerFactory.get(args.type, config)
-        
+
         # All refactored recognizers now have the identify() method
         result = recognizer.identify(args.name, structured=args.structured)
 
-        if args.structured and hasattr(result, 'model_dump_json'):
+        if args.structured and hasattr(result, "model_dump_json"):
             print(result.model_dump_json(indent=2))
         else:
             # Handle ModelOutput with markdown/data
-            if hasattr(result, 'markdown') and result.markdown:
+            if hasattr(result, "markdown") and result.markdown:
                 print(result.markdown)
-            elif hasattr(result, 'data') and result.data:
-                if hasattr(result.data, 'model_dump_json'):
+            elif hasattr(result, "data") and result.data:
+                if hasattr(result.data, "model_dump_json"):
                     print(result.data.model_dump_json(indent=2))
                 else:
                     print(result.data)
             else:
                 print(result)
-            
+
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

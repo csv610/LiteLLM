@@ -5,7 +5,14 @@ Test script for the object guesser game with pre-programmed answers.
 
 import sys
 import io
-from app.cli.object_guesser_game import ObjectGuessingGame
+from pathlib import Path
+
+# Add project root and ObjectGuesser path to sys.path
+root_path = Path(__file__).parent.parent
+sys.path.insert(0, str(root_path))
+sys.path.insert(0, str(root_path / "app" / "ObjectGuesser"))
+
+from object_guesser_game import ObjectGuessingGame
 
 # Pre-programmed answers (think of a "lamp" as the object)
 answers = [

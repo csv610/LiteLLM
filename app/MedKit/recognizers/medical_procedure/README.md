@@ -1,45 +1,14 @@
-# Medical Procedure Identifier
+# Medical Procedure Recognizer
 
-Identifies whether a given name is a recognized medical procedure in medical literature.
+This module identifies procedure mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medical_procedure_identifier.py`: recognition logic.
+- `medical_procedure_cli.py`: CLI interface.
+- `medical_procedure_models.py`: schemas.
+- `medical_procedure_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medical_procedure_cli.py "example medical_procedure"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Medical procedure",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Medical procedure is a recognized medical procedure in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medical_procedure_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Procedure mentions can be abbreviated or embedded in narrative context.

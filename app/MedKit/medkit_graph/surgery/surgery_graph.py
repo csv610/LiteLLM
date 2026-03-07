@@ -1,12 +1,12 @@
-from surgery_models import SurgeryTripletExtractor, SurgeryGraphBuilder
-import os
+from surgery_models import SurgeryGraphBuilder, SurgeryTripletExtractor
+
 
 # =========================
 # 5️⃣ Runner
 # =========================
 def generate_surgery_graph(surgery_name: str, text: str):
     print(f"🚀 Generating Knowledge Graph for: {surgery_name}")
-    
+
     extractor = SurgeryTripletExtractor()
     triples = extractor.extract(text)
 
@@ -21,9 +21,10 @@ def generate_surgery_graph(surgery_name: str, text: str):
 
     # Export to .dot as requested
     builder.export_dot(surgery_name)
-    
+
     # Also export to JSON for utility
     builder.export_json(f"outputs/{surgery_name.replace(' ', '_').lower()}_graph.json")
+
 
 if __name__ == "__main__":
     surgery = "Coronary Artery Bypass Surgery"
@@ -34,5 +35,5 @@ if __name__ == "__main__":
     Risks include bleeding, infection, and heart attack.
     Patients undergo cardiac rehabilitation after surgery.
     """
-    
+
     generate_surgery_graph(surgery, description)

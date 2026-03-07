@@ -52,4 +52,3 @@ Generate output using ONLY the following section headings (use these exact headi
             A formatted user prompt string.
         """
         return f"Analyze the following patient legal rights topic or situation within the jurisdiction of {country} and provide a detailed legal reference entry: {topic}"
-

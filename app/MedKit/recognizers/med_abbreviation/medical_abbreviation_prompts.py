@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass
 class AbbreviationIdentifierInput:
     """Configuration and input for abbreviation identification."""
+
     abbreviation: str
 
     def __post_init__(self):

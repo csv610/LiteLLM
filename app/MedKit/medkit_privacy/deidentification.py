@@ -1,5 +1,6 @@
 from typing import Dict, Optional
-from .pii_utils import PIIMasker, PIIDetector
+
+from .pii_utils import PIIDetector, PIIMasker
 
 
 class Deidentifier:

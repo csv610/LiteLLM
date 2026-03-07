@@ -22,12 +22,12 @@ import sys
 from typing import Optional
 
 from medkit_exceptions import (
-    MedKitError,
-    ValidationError,
-    LLMError,
-    FileIOError,
     ConfigurationError,
+    FileIOError,
+    LLMError,
+    MedKitError,
     MedKitImportError,
+    ValidationError,
 )
 
 
@@ -73,9 +73,7 @@ class ErrorHandler:
         self.verbose = verbose
 
     def handle_validation_error(
-        self,
-        error: ValidationError,
-        exit: bool = False
+        self, error: ValidationError, exit: bool = False
     ) -> int:
         """Handle validation errors.
 
@@ -100,11 +98,7 @@ class ErrorHandler:
             sys.exit(exit_code)
         return exit_code
 
-    def handle_llm_error(
-        self,
-        error: LLMError,
-        exit: bool = False
-    ) -> int:
+    def handle_llm_error(self, error: LLMError, exit: bool = False) -> int:
         """Handle LLM generation errors.
 
         Args:
@@ -128,11 +122,7 @@ class ErrorHandler:
             sys.exit(exit_code)
         return exit_code
 
-    def handle_file_io_error(
-        self,
-        error: FileIOError,
-        exit: bool = False
-    ) -> int:
+    def handle_file_io_error(self, error: FileIOError, exit: bool = False) -> int:
         """Handle file I/O errors.
 
         Args:
@@ -157,9 +147,7 @@ class ErrorHandler:
         return exit_code
 
     def handle_configuration_error(
-        self,
-        error: ConfigurationError,
-        exit: bool = False
+        self, error: ConfigurationError, exit: bool = False
     ) -> int:
         """Handle configuration errors.
 
@@ -184,11 +172,7 @@ class ErrorHandler:
             sys.exit(exit_code)
         return exit_code
 
-    def handle_import_error(
-        self,
-        error: MedKitImportError,
-        exit: bool = False
-    ) -> int:
+    def handle_import_error(self, error: MedKitImportError, exit: bool = False) -> int:
         """Handle import errors.
 
         Args:
@@ -212,11 +196,7 @@ class ErrorHandler:
             sys.exit(exit_code)
         return exit_code
 
-    def handle_medkit_error(
-        self,
-        error: MedKitError,
-        exit: bool = False
-    ) -> int:
+    def handle_medkit_error(self, error: MedKitError, exit: bool = False) -> int:
         """Handle generic MedKit errors.
 
         Args:
@@ -254,10 +234,7 @@ class ErrorHandler:
         return exit_code
 
     def handle_unexpected_error(
-        self,
-        error: Exception,
-        context: Optional[str] = None,
-        exit: bool = False
+        self, error: Exception, context: Optional[str] = None, exit: bool = False
     ) -> int:
         """Handle unexpected/unclassified errors.
 
@@ -280,11 +257,7 @@ class ErrorHandler:
             sys.exit(exit_code)
         return exit_code
 
-    def format_error_message(
-        self,
-        error: Exception,
-        title: str = "Error"
-    ) -> str:
+    def format_error_message(self, error: Exception, title: str = "Error") -> str:
         """Format error message for display to user.
 
         Args:
@@ -299,10 +272,7 @@ class ErrorHandler:
         return f"{title}: {type(error).__name__}: {error}"
 
     def print_error_message(
-        self,
-        error: Exception,
-        title: str = "Error",
-        file=None
+        self, error: Exception, title: str = "Error", file=None
     ) -> None:
         """Print formatted error message to stderr.
 

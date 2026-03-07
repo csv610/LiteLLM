@@ -1,8 +1,9 @@
-import sys
 import argparse
 import json
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
 from tqdm import tqdm
 
 # Add parent directories to path
@@ -31,16 +32,12 @@ Examples:
 
 Output is saved to ./outputs/ directory as JSON.
         """,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     # Input options (mutually exclusive: either text or file)
     input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument(
-        "-t",
-        "--text",
-        help="Direct text input to summarize"
-    )
+    input_group.add_argument("-t", "--text", help="Direct text input to summarize")
     input_group.add_argument(
         "-f",
         "--file",
@@ -58,13 +55,13 @@ Output is saved to ./outputs/ directory as JSON.
         "--chunk-size",
         type=int,
         default=100000,
-        help="Maximum characters per chunk for summarization (default: %(default)s)"
+        help="Maximum characters per chunk for summarization (default: %(default)s)",
     )
     parser.add_argument(
         "--overlap",
         type=float,
         default=0.1,
-        help="Ratio of overlap between chunks (default: %(default)s)"
+        help="Ratio of overlap between chunks (default: %(default)s)",
     )
 
     args = parser.parse_args()
@@ -74,7 +71,11 @@ Output is saved to ./outputs/ directory as JSON.
         summarizer = ArticleSummarizer(model=args.model)
 
         # Load input items
-        items = summarizer.load_file(args.file) if args.file else [{"id": "1", "text": args.text}]
+        items = (
+            summarizer.load_file(args.file)
+            if args.file
+            else [{"id": "1", "text": args.text}]
+        )
 
         # Setup output directory
         output_dir = Path(__file__).parent / "outputs"
@@ -82,7 +83,7 @@ Output is saved to ./outputs/ directory as JSON.
 
         model_name = args.model.replace("/", "_")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # Decide output file path
         if args.file:
             base = Path(args.file).stem
@@ -100,7 +101,7 @@ Output is saved to ./outputs/ directory as JSON.
                     all_results = json.load(f)
             except (json.JSONDecodeError, IOError):
                 pass
-        
+
         existing_ids = {r["id"] for r in all_results}
 
         # Process items
@@ -111,16 +112,11 @@ Output is saved to ./outputs/ directory as JSON.
                 continue
 
             summary = summarizer.summarize_article(
-                item["text"], 
-                chunk_size=args.chunk_size, 
-                overlap_ratio=args.overlap
+                item["text"], chunk_size=args.chunk_size, overlap_ratio=args.overlap
             )
-            
+
             if summary:
-                result = {
-                    "id": item["id"],
-                    "summary": summary
-                }
+                result = {"id": item["id"], "summary": summary}
                 all_results.append(result)
 
                 # Print to console
@@ -129,7 +125,7 @@ Output is saved to ./outputs/ directory as JSON.
         # Save all results
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(all_results, f, indent=2, ensure_ascii=False)
-            
+
         print(f"\nResults saved to: {output_file}")
         return 0
 

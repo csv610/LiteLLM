@@ -8,10 +8,12 @@ if str(project_root) not in sys.path:
 
 from medical.med_media.med_media_prompts import PromptBuilder
 
+
 def test_create_system_prompt():
     prompt = PromptBuilder.create_system_prompt()
     assert "medical media specialist" in prompt
     assert "professional captions" in prompt
+
 
 def test_create_caption_prompt():
     topic = "chest X-ray"
@@ -19,6 +21,7 @@ def test_create_caption_prompt():
     assert topic in prompt
     assert "image" in prompt
     assert "medical caption" in prompt
+
 
 def test_create_summary_prompt():
     topic = "diabetes mellitus"

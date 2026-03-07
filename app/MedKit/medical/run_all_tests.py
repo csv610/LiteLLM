@@ -3,15 +3,16 @@
 Script to run all medical module tests using pytest.
 """
 
+import os
 import subprocess
 import sys
-import os
 from pathlib import Path
+
 
 def run_tests():
     # Get the absolute path of the current directory (medical)
     current_dir = Path(__file__).resolve().parent
-    
+
     # Add the parent directory (MedKit) to PYTHONPATH so imports like 'medical.xxx' work
     project_root = current_dir.parent
     env = os.environ.copy()
@@ -29,14 +30,14 @@ def run_tests():
     try:
         # Run pytest
         result = subprocess.run(cmd, env=env)
-        
+
         if result.returncode == 0:
             print("-" * 50)
             print("✅ All tests passed successfully!")
         else:
             print("-" * 50)
             print(f"❌ Some tests failed (exit code: {result.returncode})")
-        
+
         sys.exit(result.returncode)
 
     except FileNotFoundError:
@@ -45,6 +46,7 @@ def run_tests():
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     run_tests()

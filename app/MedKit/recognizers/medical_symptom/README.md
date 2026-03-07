@@ -1,45 +1,14 @@
-# Medical Symptom Identifier
+# Medical Symptom Recognizer
 
-Identifies whether a given name is a recognized symptom in medical literature.
+This module identifies symptom mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medical_symptom_identifier.py`: recognition logic.
+- `medical_symptom_cli.py`: CLI interface.
+- `medical_symptom_models.py`: schemas.
+- `medical_symptom_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medical_symptom_cli.py "example symptom"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Symptom",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Symptom is a recognized symptom in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medical_symptom_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Distinguishing symptoms from diagnoses or findings can be ambiguous.

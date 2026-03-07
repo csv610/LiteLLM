@@ -1,64 +1,52 @@
-# Math Theory Explainer
+# MathTheories
 
-This tool generates comprehensive explanations for mathematical theories tailored to different audience levels, from a general audience (no math background) to specialized researchers.
+`MathTheories` generates level-specific explanations for mathematical theories and saves them as Markdown.
 
-## Features
+## What It Does
 
-- **Multi-Level Explanations**: Provides content for:
-  - General (No math background)
-  - High School
-  - Undergrad (Default)
-  - Master
-  - PhD
-  - Researcher
-- **Comprehensive Coverage**: Each explanation includes:
-  - Introduction
-  - Key concepts (Fundamental building blocks)
-  - Historical context (Why it was created)
-  - Problems solved or simplified
-  - Modern usage and applications
-  - Foundational impact on other theories
-  - Current research and open questions
-  - Solution methods (Analytical and Numerical)
-- **Markdown Output**: Generates well-formatted Markdown files for easy reading and documentation.
+- Accepts a theory name and an audience level.
+- Generates an explanation covering introduction, key concepts, motivation, applications, and current research.
+- Writes the result to `outputs/theories/`.
 
-## Installation
+## Why It Matters
 
-Ensure you have the `lite` library and its dependencies installed.
+The same topic often needs different explanations for different audiences. This app provides one interface for that adaptation.
 
-```bash
-# From the project root
-pip install -e .
-```
+## What Distinguishes It
+
+- Audience-aware generation from `general` through `researcher`.
+- Markdown export suitable for notes or documentation.
+- Uses typed models for the generated structure.
+
+## Files
+
+- `math_theory_cli.py`: CLI interface.
+- `math_theory_element.py`: theory explanation logic.
+- `math_theory_models.py`: schemas and enums.
+- `assets/theories.txt`: list of supported theories.
+- `tests/`: test files.
 
 ## Usage
 
-### Fetch explanation for a specific theory (Undergrad default)
-
 ```bash
 python math_theory_cli.py --theory "Group theory"
-```
-
-### Fetch explanations for a general audience (No math background)
-
-```bash
 python math_theory_cli.py --theory "Knot theory" --level general
-```
-
-### Fetch explanations for a specific audience level
-
-```bash
 python math_theory_cli.py --theory "Chaos theory" --level phd
 ```
 
-## Code Structure
+Defaults:
 
-- `math_theory_cli.py`: Main CLI entry point. Handles arguments and output generation.
-- `math_theory_element.py`: Core logic for fetching and processing mathematical theory explanations.
-- `math_theory_models.py`: Pydantic data models for structured LLM interaction.
-- `assets/theories.txt`: Text file with a list of supported mathematical theories.
-- `tests/`: Directory containing test scripts for project validation.
+- `--theory`: `Group theory`
+- `--level`: `undergrad`
+- `--model`: `ollama/gemma3:12b`
+- `--output-dir`: `outputs/theories`
 
-## Supported Theories
+## Testing
 
-A pre-defined list of mathematical theories is maintained in `assets/theories.txt`.
+This folder contains test files under `tests/`.
+
+## Limitations
+
+- Audience adaptation is prompt-based and may still be uneven across topics.
+- The generated text is explanatory rather than source-cited.
+- Formal accuracy should be reviewed for advanced mathematical use.

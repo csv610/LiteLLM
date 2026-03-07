@@ -1,9 +1,10 @@
-"""rxnorm_client_cli - RxNorm Drug Database CLI tool.
-"""
+"""rxnorm_client_cli - RxNorm Drug Database CLI tool."""
 
 import argparse
 import json
+
 from rxnorm_client import RxNormClient
+
 
 def main():
     """
@@ -11,7 +12,9 @@ def main():
     """
     parser = argparse.ArgumentParser(description="RxNorm Drug Database Client")
     parser.add_argument("drug_name", help="Name of the drug to look up")
-    parser.add_argument("--json-output", "-j", action="store_true", help="Output results as JSON")
+    parser.add_argument(
+        "--json-output", "-j", action="store_true", help="Output results as JSON"
+    )
     args = parser.parse_args()
 
     drug_name = args.drug_name
@@ -35,6 +38,7 @@ def main():
             print(props)
         else:
             print(f"⚠️ No valid RxNorm entry found for '{drug_name}'.")
+
 
 if __name__ == "__main__":
     main()

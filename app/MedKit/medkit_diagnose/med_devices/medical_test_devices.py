@@ -9,8 +9,8 @@ comprehensive information for medical test devices using LiteClient.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
@@ -31,7 +31,9 @@ class MedicalTestDeviceGuide:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.device_name = None  # Store the device name for later use in save
-        logger.info(f"Initialized MedicalTestDeviceGuide using model: {model_config.model}")
+        logger.info(
+            f"Initialized MedicalTestDeviceGuide using model: {model_config.model}"
+        )
 
     def generate_text(self, device_name: str, structured: bool = False) -> ModelOutput:
         """
@@ -47,7 +49,9 @@ class MedicalTestDeviceGuide:
         # Store the device name for later use in save
         self.device_name = device_name
         mode = "structured" if structured else "unstructured"
-        logger.info(f"Generating {mode} medical device information for: '{device_name}'")
+        logger.info(
+            f"Generating {mode} medical device information for: '{device_name}'"
+        )
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(device_name)
@@ -83,13 +87,15 @@ class MedicalTestDeviceGuide:
         Returns:
             The generated results (MedicalDeviceInfo or str).
         """
-        logger.debug(f"Sending request to LLM client for model: {self.model_config.model}")
+        logger.debug(
+            f"Sending request to LLM client for model: {self.model_config.model}"
+        )
         return self.client.generate_text(model_input=model_input)
 
     def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Save the generated device information to a JSON or MD file."""
         if isinstance(result, str) and output_path.suffix == ".json":
             output_path = output_path.with_suffix(".md")
-        
+
         logger.info(f"Saving device information to: {output_path}")
         return save_model_response(result, output_path)

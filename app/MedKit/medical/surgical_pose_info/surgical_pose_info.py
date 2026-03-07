@@ -10,7 +10,7 @@ from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .surgical_pose_info_models import SurgicalPoseInfoModel, ModelOutput
+from .surgical_pose_info_models import ModelOutput, SurgicalPoseInfoModel
 from .surgical_pose_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ COMMON_SURGICAL_POSITIONS = [
     "Swaddled Supine",
     "Recovery Position",
     "Shock Position",
-    "Neutral Spine Immobilization Position"
+    "Neutral Spine Immobilization Position",
 ]
 
 
@@ -104,9 +104,11 @@ class SurgicalPoseInfoGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the surgical position information to a file."""
         if self.pose is None:
-            raise ValueError("No position information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No position information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.pose.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

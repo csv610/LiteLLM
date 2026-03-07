@@ -1,127 +1,19 @@
-# Medical Test Information Generator
+# Medical Tests
 
-## Pains of abundance 
-While there is no single "final" number because medical science is constantly evolving, there are thousands of individual medical tests. For context, the international standard used by hospitals and insurance companies (ICD-10-CM) contains over 70,000 codes for different medical tests and procedures. 
-Most tests fall into these primary categories:
-**Laboratory Tests:** These analyze samples of blood, urine, or tissue.
-**Blood Tests:** Common ones include the Complete Blood Count (CBC) and Lipid Panels for cholesterol.
-**Urinalysis:** Checks for kidney function, diabetes, and infections.
-**Genetic Testing:** Screens for inherited conditions or disease predispositions.
-**Diagnostic Imaging:** Non-invasive ways to look inside the body.
-**X-rays & CT Scans:** Used for bones and identifying internal structures.
-**MRI & Ultrasound:** Detailed imaging for soft tissues and organs.
-**PET Scans:** Often used to detect cancer or monitor organ function.
-Physical & Visual Examinations:
-**Endoscopy:** Using a camera to look inside the digestive tract.
-**Biopsy:** Removing a small tissue sample for laboratory analysis.
+This module generates structured descriptions of laboratory or diagnostic tests.
 
-## Why This Matters
+## Files
 
-Medical tests are ordered billions of times annually, yet patients and clinicians often lack accessible, standardized information about what these tests measure, how to prepare, and how to interpret results. This gap leads to:
+- `medical_test_info.py`: generation logic.
+- `medical_test_info_cli.py`: CLI interface.
+- `medical_test_info_models.py`: schemas.
+- `medical_test_info_prompts.py`: prompts.
 
-- **Patient anxiety** from unclear test procedures and expectations
-- **Clinical inefficiency** from repeated basic questions about common tests
-- **Medical errors** from improper test preparation or result interpretation
-- **Healthcare costs** from cancelled tests due to preparation failures
+## Why It Matters
 
-The Medical Test Information Generator addresses these problems by providing instant, comprehensive documentation for medical tests that serves both clinical decision support and patient education needs.
+Test descriptions often need to combine purpose, specimen, interpretation context, and limitations in a reusable format.
 
-## Overview
+## Limitations
 
-Generate medical test documentation using structured data models and the MedKit AI client with schema-aware prompting.
-
-This module creates detailed information about medical tests and diagnostics for clinicians and patient education, standardizing access to critical medical testing information.
-
-## Quick Start
-
-```python
-from medical_test_info import MedicalTestInfoGenerator
-from lite.config import ModelConfig
-from pathlib import Path
-
-# Generate test information
-model_config = ModelConfig(model="ollama/gemma3", temperature=0.2)
-generator = MedicalTestInfoGenerator(model_config)
-test_info = generator.generate_text("blood glucose test")
-
-# View the results
-print(test_info)
-
-# Generate and save to file
-saved_path = generator.save(test_info, Path("outputs/"))  # Directory, not file path
-```
-
-## Common Uses
-
-1. Generate patient education about upcoming tests
-2. Provide clinical reference for test interpretation
-3. Create test preparation instructions
-4. Understand normal and abnormal values
-5. Support clinical decision making
-6. Create test ordering guidance for clinicians
-
-## Coverage Areas
-
-- Test identification and names
-- Purpose and indications
-- When tests are ordered
-- Preparation requirements
-- Sample collection methods
-- Test procedures and techniques
-- Normal and abnormal values
-- Clinical interpretation
-- Complications and risks
-- Cost and availability
-
-## Command Line Interface
-
-```bash
-python medical_test_info_cli.py "test name" [-d "output_directory"]
-```
-
-### Arguments
-
-- `test` (required): The name of the medical test to generate information for, or a path to a file containing a list of tests (one per line).
-- `-d, --output-dir` (optional): Directory for output files (default: outputs)
-- `-m, --model` (optional): Model to use for generation (default: ollama/gemma3)
-- `-v, --verbosity` (optional): Logging verbosity level 0-4 (default: 2)
-- `-s, --structured` (optional): Use structured output format (default: False)
-
-## Configuration
-
-The generator uses `ModelConfig` from the LiteLLM framework:
-
-```python
-from lite.config import ModelConfig
-
-# Standard configuration
-model_config = ModelConfig(
-    model="ollama/gemma3",
-    temperature=0.7
-)
-
-# Use with the generator
-generator = MedicalTestInfoGenerator(model_config)
-```
-
-### Available Configuration Options
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `model` | str | `"ollama/gemma3"` | LLM model to use for generation |
-| `temperature` | float | `0.7` | Sampling temperature (0.0-2.0) |
-
-## Output
-
-Generated test information is saved as JSON and includes:
-
-- Test name and alternative names
-- Purpose and clinical use
-- Test indications and when it is ordered
-- Sample requirements and collection procedures
-- Test methodology and technology
-- Normal reference ranges and result interpretation
-- Preparatory requirements and restrictions
-- Risks, benefits, and limitations
-- Cost and availability information
-- Results interpretation and follow-up actions
+- Reference ranges and interpretation rules vary by lab, method, and patient context.
+- Output should be checked against current clinical references.

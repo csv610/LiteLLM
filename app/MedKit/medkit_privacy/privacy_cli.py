@@ -1,6 +1,6 @@
 import argparse
-import sys
 import json
+import sys
 from pathlib import Path
 
 # Add the project root to sys.path to support absolute imports

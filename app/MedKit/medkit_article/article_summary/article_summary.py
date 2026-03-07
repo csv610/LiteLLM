@@ -1,16 +1,17 @@
 """Summarize medical articles using chunked processing for long documents."""
 
-import sys
 import json
 import logging
+import sys
 from pathlib import Path
 
 # Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
+
 try:
     from .article_summary_models import ChunkSummary, FinalSummary
     from .article_summary_prompts import PromptBuilder
@@ -69,7 +70,9 @@ class ArticleSummarizer:
             items = []
             if isinstance(data, list):
                 for i, item in enumerate(data):
-                    items.append({"id": str(i + 1), "text": self._extract_text_from_object(item)})
+                    items.append(
+                        {"id": str(i + 1), "text": self._extract_text_from_object(item)}
+                    )
             else:
                 items.append({"id": "1", "text": self._extract_text_from_object(data)})
             return items
@@ -79,7 +82,9 @@ class ArticleSummarizer:
                 content = f.read()
             return [{"id": "1", "text": content}]
 
-    def _chunk_text(self, text: str, chunk_size: int = 100000, overlap_ratio: float = 0.1) -> list[str]:
+    def _chunk_text(
+        self, text: str, chunk_size: int = 100000, overlap_ratio: float = 0.1
+    ) -> list[str]:
         """Split text into chunks with specified overlap."""
         if not text:
             return []
@@ -94,12 +99,18 @@ class ArticleSummarizer:
             if i + chunk_size >= len(text):
                 break
 
-        logger.info(f"Split text into {len(chunks)} chunks with size {chunk_size} and overlap {overlap_size}")
+        logger.info(
+            f"Split text into {len(chunks)} chunks with size {chunk_size} and overlap {overlap_size}"
+        )
         return chunks
 
-    def summarize_article(self, text: str, chunk_size: int = 100000, overlap_ratio: float = 0.1) -> str:
+    def summarize_article(
+        self, text: str, chunk_size: int = 100000, overlap_ratio: float = 0.1
+    ) -> str:
         """Summarize a long article using chunking."""
-        chunks = self._chunk_text(text, chunk_size=chunk_size, overlap_ratio=overlap_ratio)
+        chunks = self._chunk_text(
+            text, chunk_size=chunk_size, overlap_ratio=overlap_ratio
+        )
 
         if not chunks:
             return ""
@@ -107,16 +118,15 @@ class ArticleSummarizer:
         chunk_summaries = []
         for i, chunk in enumerate(chunks):
             try:
-                logger.info(f"Summarizing chunk {i+1}/{len(chunks)}")
+                logger.info(f"Summarizing chunk {i + 1}/{len(chunks)}")
                 prompt = PromptBuilder.get_chunk_summary_prompt(chunk)
                 model_input = ModelInput(
-                    user_prompt=prompt,
-                    response_format=ChunkSummary
+                    user_prompt=prompt, response_format=ChunkSummary
                 )
                 response = self.client.generate_text(model_input=model_input)
                 chunk_summaries.append(response.summary)
             except Exception as e:
-                logger.error(f"Error summarizing chunk {i+1}: {e}")
+                logger.error(f"Error summarizing chunk {i + 1}: {e}")
 
         if not chunk_summaries:
             return "Failed to generate chunk summaries."
@@ -127,10 +137,7 @@ class ArticleSummarizer:
         try:
             logger.info("Generating final summary from chunks...")
             prompt = PromptBuilder.get_final_summary_prompt(chunk_summaries)
-            model_input = ModelInput(
-                user_prompt=prompt,
-                response_format=FinalSummary
-            )
+            model_input = ModelInput(user_prompt=prompt, response_format=FinalSummary)
             final_response = self.client.generate_text(model_input=model_input)
             return final_response.summary
         except Exception as e:

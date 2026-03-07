@@ -1,45 +1,14 @@
-# Medication Class Identifier
+# Medication Class Recognizer
 
-Identifies whether a given name is a recognized medication class in medical literature.
+This module identifies medication-class mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medication_class_recognizer.py`: recognition logic.
+- `medication_class_cli.py`: CLI interface.
+- `medication_class_models.py`: schemas.
+- `medication_class_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medication_class_cli.py "example medication_class"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Medication class",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Medication class is a recognized medication class in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medication_class_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Class labels may be broad, overlapping, or context-dependent.

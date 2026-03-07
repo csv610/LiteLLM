@@ -2,6 +2,7 @@
 
 import json
 import os
+
 from medkit_privacy.privacy_compliance import PrivacyManager
 
 

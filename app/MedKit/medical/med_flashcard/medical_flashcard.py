@@ -10,8 +10,8 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_flashcard_models import MedicalLabelInfoModel, ModelOutput
@@ -29,25 +29,23 @@ class MedicalLabelExtractor:
     def extract_terms(self, image_path: str) -> List[str]:
         """Extracts medical terms from an image."""
         logger.debug(f"Extracting terms from image: {image_path}")
-       
+
         prompt = PromptBuilder.create_text_extraction_prompt()
-        model_input = ModelInput(
-            user_prompt=prompt,
-            image_path=image_path
-        )
-        
+        model_input = ModelInput(user_prompt=prompt, image_path=image_path)
+
         try:
             response = self.client.generate_text(model_input=model_input)
             text = ""
             if isinstance(response, str):
                 text = response
-            elif hasattr(response, 'markdown') and response.markdown:
+            elif hasattr(response, "markdown") and response.markdown:
                 text = response.markdown
-            
+
             if text:
                 # Split by comma or newline and clean up
                 import re
-                terms = [t.strip() for t in re.split(r'[,\n]', text) if t.strip()]
+
+                terms = [t.strip() for t in re.split(r"[,\n]", text) if t.strip()]
                 return terms
             return []
         except Exception as e:
@@ -61,7 +59,9 @@ class MedicalTermExplainer:
     def __init__(self, config: ModelConfig):
         self.client = LiteClient(config)
 
-    def generate_text(self, labels: List[str], structured: bool = False) -> List[Tuple[str, ModelOutput]]:
+    def generate_text(
+        self, labels: List[str], structured: bool = False
+    ) -> List[Tuple[str, ModelOutput]]:
         """Generates comprehensive medical information for a list of terms."""
         results = []
         for label in labels:
@@ -84,12 +84,12 @@ class MedicalTermExplainer:
 
         response_format = None
         if structured:
-           response_format = MedicalLabelInfoModel
+            response_format = MedicalLabelInfoModel
 
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=response_format
+            response_format=response_format,
         )
 
         logger.debug("Calling LiteClient.generate_text()...")
@@ -105,8 +105,8 @@ class MedicalTermExplainer:
         """Saves the medical information to a file."""
         if not term:
             raise ValueError("Term name must be provided to save.")
-        
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{term.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

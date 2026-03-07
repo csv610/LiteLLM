@@ -1,35 +1,40 @@
 #!/usr/bin/env python3
 
-import sys
-import json
 import argparse
-from pathlib import Path
+import json
+import sys
 from difflib import SequenceMatcher
-from typing import List, Dict, Tuple
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 # Try to import rapidfuzz for better fuzzy matching, fall back to difflib
 try:
     from rapidfuzz import fuzz
+
     HAVE_RAPIDFUZZ = True
 except ImportError:
     HAVE_RAPIDFUZZ = False
 
+
 def load_dictionary(json_file: Path) -> List[Dict]:
     """Load medical dictionary from JSON file."""
     try:
-        with open(json_file, 'r', encoding='utf-8') as f:
+        with open(json_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Handle both list and dict formats
         if isinstance(data, dict):
             # Convert dict to list of entries
-            entries = [{"term": term, "definition": defn}
-                      for term, defn in data.items()]
+            entries = [
+                {"term": term, "definition": defn} for term, defn in data.items()
+            ]
             return entries
         elif isinstance(data, list):
             return data
         else:
-            print(f"Error: JSON file must contain a list or dictionary, got {type(data)}")
+            print(
+                f"Error: JSON file must contain a list or dictionary, got {type(data)}"
+            )
             return []
     except FileNotFoundError:
         print(f"Error: File not found: {json_file}")
@@ -49,8 +54,9 @@ def calculate_similarity_score(user_term: str, dict_term: str) -> float:
         return SequenceMatcher(None, user_term.lower(), dict_term.lower()).ratio()
 
 
-def find_closest_matches(user_term: str, dictionary: List[Dict],
-                         num_matches: int = 5) -> List[Tuple[str, str, float]]:
+def find_closest_matches(
+    user_term: str, dictionary: List[Dict], num_matches: int = 5
+) -> List[Tuple[str, str, float]]:
     """
     Find the closest matching terms in the dictionary.
 
@@ -133,7 +139,9 @@ def display_definition(entry: Dict) -> None:
         print(f"Specialties: {', '.join(entry['medical_specialty'])}")
 
 
-def display_closest_matches(user_term: str, matches: List[Tuple[str, str, float]]) -> None:
+def display_closest_matches(
+    user_term: str, matches: List[Tuple[str, str, float]]
+) -> None:
     """Display the closest matching terms when exact match not found."""
     print(f"\n✗ No exact match for '{user_term}'")
     print("Did you mean one of these?\n")
@@ -181,7 +189,7 @@ def search_dictionary(json_file: str, keys_pattern: str | None = None) -> None:
     # Handle non-interactive prefix search mode
     if keys_pattern is not None:
         # Strip the trailing * if present
-        prefix = keys_pattern.rstrip('*').strip()
+        prefix = keys_pattern.rstrip("*").strip()
         matches = search_prefix(prefix, dictionary)
         display_prefix_matches(prefix, matches)
         return  # Exit after displaying results
@@ -200,7 +208,7 @@ def search_dictionary(json_file: str, keys_pattern: str | None = None) -> None:
             user_input = input("\nEnter term: ").strip()
 
             # Check for exit commands
-            if user_input.lower() in ['quit', 'exit', 'q']:
+            if user_input.lower() in ["quit", "exit", "q"]:
                 print("\nExiting...")
                 break
 
@@ -232,19 +240,17 @@ def main():
     """Command-line interface."""
     parser = argparse.ArgumentParser(
         description="Explore medical dictionary with fuzzy matching for misspelled terms",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
-    parser.add_argument(
-        "dictionary",
-        help="Path to the medical dictionary JSON file"
-    )
+    parser.add_argument("dictionary", help="Path to the medical dictionary JSON file")
 
     parser.add_argument(
-        "-k", "--keys",
+        "-k",
+        "--keys",
         metavar="PATTERN",
         help="List all keys matching the prefix pattern (e.g., 'A*' or 'Ab*'). "
-             "Non-interactive mode - displays results and exits."
+        "Non-interactive mode - displays results and exits.",
     )
 
     args = parser.parse_args()

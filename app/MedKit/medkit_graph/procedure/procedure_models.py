@@ -1,15 +1,16 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, validator
-import networkx as nx
-import matplotlib.pyplot as plt
 import json
 import os
+from typing import List, Literal, Optional
+
+import matplotlib.pyplot as plt
+import networkx as nx
 import procedure_prompts as prompts
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
+from pydantic import BaseModel, Field, validator
 
 # =========================
 # 1️⃣ Pydantic Models
@@ -92,6 +93,7 @@ NODE_TYPE_ALIASES = {
 
 class Triple(BaseModel):
     """Represents one validated medical procedure relation."""
+
     source: str = Field(..., description="Subject entity")
     relation: Relation = Field(..., description="Relation type")
     target: str = Field(..., description="Object entity")
@@ -126,6 +128,7 @@ class Triple(BaseModel):
             return NODE_TYPE_ALIASES[key]
         return "Other"
 
+
 class TripleList(BaseModel):
     triples: List[Triple]
 
@@ -143,7 +146,7 @@ class ProcedureTripletExtractor:
     def extract(self, text: str) -> List[Triple]:
         model_input = ModelInput(
             user_prompt=prompts.PromptBuilder.build_extraction_prompt(text),
-            response_format=TripleList
+            response_format=TripleList,
         )
         try:
             response: TripleList = self.client.generate_text(model_input)
@@ -157,30 +160,96 @@ class ProcedureTripletExtractor:
         t = text.lower()
         triples = []
         if "appendectomy" in t:
-             triples.extend([
-                 Triple(source="Appendectomy", relation="treats_disease", target="Appendicitis", source_type="Procedure", target_type="Disease"),
-                 Triple(source="Appendectomy", relation="performed_on", target="Appendix", source_type="Procedure", target_type="Organ"),
-                 Triple(source="Appendectomy", relation="has_risk", target="Infection", source_type="Procedure", target_type="Risk"),
-                 Triple(source="Appendectomy", relation="requires_instrument", target="Scalpel", source_type="Procedure", target_type="Instrument"),
-                 Triple(source="Appendectomy", relation="performed_by_specialist", target="Surgeon", source_type="Procedure", target_type="Specialist"),
-             ])
+            triples.extend(
+                [
+                    Triple(
+                        source="Appendectomy",
+                        relation="treats_disease",
+                        target="Appendicitis",
+                        source_type="Procedure",
+                        target_type="Disease",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="performed_on",
+                        target="Appendix",
+                        source_type="Procedure",
+                        target_type="Organ",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="has_risk",
+                        target="Infection",
+                        source_type="Procedure",
+                        target_type="Risk",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="requires_instrument",
+                        target="Scalpel",
+                        source_type="Procedure",
+                        target_type="Instrument",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="performed_by_specialist",
+                        target="Surgeon",
+                        source_type="Procedure",
+                        target_type="Specialist",
+                    ),
+                ]
+            )
         elif "colonoscopy" in t:
-            triples.extend([
-                Triple(source="Colonoscopy", relation="used_for_diagnosis", target="Colon Cancer", source_type="Procedure", target_type="Disease"),
-                Triple(source="Colonoscopy", relation="performed_on", target="Colon", source_type="Procedure", target_type="Organ"),
-                Triple(source="Colonoscopy", relation="requires_instrument", target="Colonoscope", source_type="Procedure", target_type="Instrument"),
-                Triple(source="Colonoscopy", relation="has_risk", target="Perforation", source_type="Procedure", target_type="Risk"),
-                Triple(source="Colonoscopy", relation="performed_by_specialist", target="Gastroenterologist", source_type="Procedure", target_type="Specialist"),
-            ])
+            triples.extend(
+                [
+                    Triple(
+                        source="Colonoscopy",
+                        relation="used_for_diagnosis",
+                        target="Colon Cancer",
+                        source_type="Procedure",
+                        target_type="Disease",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="performed_on",
+                        target="Colon",
+                        source_type="Procedure",
+                        target_type="Organ",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="requires_instrument",
+                        target="Colonoscope",
+                        source_type="Procedure",
+                        target_type="Instrument",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="has_risk",
+                        target="Perforation",
+                        source_type="Procedure",
+                        target_type="Risk",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="performed_by_specialist",
+                        target="Gastroenterologist",
+                        source_type="Procedure",
+                        target_type="Specialist",
+                    ),
+                ]
+            )
         return triples
+
 
 # =========================
 # 3️⃣ Procedure Graph Builders
 # =========================
 
+
 class BaseProcedureGraphBuilder:
     """Base class for building medical procedure graphs."""
-    
+
     def __init__(self, model_config: ModelConfig):
         self.model_config = model_config
         self.G = nx.MultiDiGraph()
@@ -189,11 +258,14 @@ class BaseProcedureGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def query_treats(self, disease: str):
         return [
-            src for src, tgt, d in self.G.edges(data=True)
+            src
+            for src, tgt, d in self.G.edges(data=True)
             if tgt.lower() == disease.lower() and d.get("relation") == "treats_disease"
         ]
 
@@ -209,18 +281,22 @@ class BaseProcedureGraphBuilder:
             }
             for u, v, d in self.G.edges(data=True)
         ]
-        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
+        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(
+            path
+        ) else None
         with open(path, "w", encoding="utf-8") as f:
             json.dump(triples, f, indent=2)
         print(f"✅ Graph exported to {path}")
 
     def export_dot(self, path: str):
         """Exports the graph to a DOT file."""
-        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
+        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(
+            path
+        ) else None
         with open(path, "w", encoding="utf-8") as f:
             f.write("digraph G {\n")
             f.write('  node [shape=box, style=filled, fontname="Arial"];\n')
-            
+
             # Add nodes with colors
             color_map = {
                 "Procedure": "#80b1d3",
@@ -236,19 +312,22 @@ class BaseProcedureGraphBuilder:
                 "FollowUp": "#ffed6f",
                 "Other": "#d9d9d9",
             }
-            
+
             for node, data in self.G.nodes(data=True):
                 ntype = data.get("type", "Other")
                 color = color_map.get(ntype, "#d9d9d9")
-                f.write(f' "{node}" [fillcolor="{color}", label="{node}\\n({ntype})"];\n')
-            
+                f.write(
+                    f' "{node}" [fillcolor="{color}", label="{node}\\n({ntype})"];\n'
+                )
+
             # Add edges
             for u, v, data in self.G.edges(data=True):
                 rel = data.get("relation", "related_to")
                 f.write(f' "{u}" -> "{v}" [label="{rel}"];\n')
-                
+
             f.write("}\n")
         print(f"✅ Graph exported to {path}")
+
 
 class ProcedureGraphBuilder(BaseProcedureGraphBuilder):
     """Builds the procedure knowledge graph from a procedure name."""
@@ -261,15 +340,17 @@ class ProcedureGraphBuilder(BaseProcedureGraphBuilder):
         """Builds graph from scratch using LLM based on procedure name."""
         model_input = ModelInput(
             user_prompt=prompts.PromptBuilder.build_name_prompt(procedure_name),
-            response_format=TripleList
+            response_format=TripleList,
         )
         try:
             response: TripleList = self.client.generate_text(model_input)
             triples = response.triples
         except Exception as e:
-            print(f"⚠️ Graph build failed for '{procedure_name}': {e}. Using offline mode.")
+            print(
+                f"⚠️ Graph build failed for '{procedure_name}': {e}. Using offline mode."
+            )
             triples = self._simulate_name(procedure_name)
-        
+
         if triples:
             self.add_triples(triples)
         return triples
@@ -279,22 +360,87 @@ class ProcedureGraphBuilder(BaseProcedureGraphBuilder):
         t = name.lower()
         triples = []
         if "appendectomy" in t:
-             triples.extend([
-                 Triple(source="Appendectomy", relation="treats_disease", target="Appendicitis", source_type="Procedure", target_type="Disease"),
-                 Triple(source="Appendectomy", relation="performed_on", target="Appendix", source_type="Procedure", target_type="Organ"),
-                 Triple(source="Appendectomy", relation="has_risk", target="Infection", source_type="Procedure", target_type="Risk"),
-                 Triple(source="Appendectomy", relation="requires_instrument", target="Scalpel", source_type="Procedure", target_type="Instrument"),
-                 Triple(source="Appendectomy", relation="performed_by_specialist", target="Surgeon", source_type="Procedure", target_type="Specialist"),
-             ])
+            triples.extend(
+                [
+                    Triple(
+                        source="Appendectomy",
+                        relation="treats_disease",
+                        target="Appendicitis",
+                        source_type="Procedure",
+                        target_type="Disease",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="performed_on",
+                        target="Appendix",
+                        source_type="Procedure",
+                        target_type="Organ",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="has_risk",
+                        target="Infection",
+                        source_type="Procedure",
+                        target_type="Risk",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="requires_instrument",
+                        target="Scalpel",
+                        source_type="Procedure",
+                        target_type="Instrument",
+                    ),
+                    Triple(
+                        source="Appendectomy",
+                        relation="performed_by_specialist",
+                        target="Surgeon",
+                        source_type="Procedure",
+                        target_type="Specialist",
+                    ),
+                ]
+            )
         elif "colonoscopy" in t:
-            triples.extend([
-                Triple(source="Colonoscopy", relation="used_for_diagnosis", target="Colon Cancer", source_type="Procedure", target_type="Disease"),
-                Triple(source="Colonoscopy", relation="performed_on", target="Colon", source_type="Procedure", target_type="Organ"),
-                Triple(source="Colonoscopy", relation="requires_instrument", target="Colonoscope", source_type="Procedure", target_type="Instrument"),
-                Triple(source="Colonoscopy", relation="has_risk", target="Perforation", source_type="Procedure", target_type="Risk"),
-                Triple(source="Colonoscopy", relation="performed_by_specialist", target="Gastroenterologist", source_type="Procedure", target_type="Specialist"),
-            ])
+            triples.extend(
+                [
+                    Triple(
+                        source="Colonoscopy",
+                        relation="used_for_diagnosis",
+                        target="Colon Cancer",
+                        source_type="Procedure",
+                        target_type="Disease",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="performed_on",
+                        target="Colon",
+                        source_type="Procedure",
+                        target_type="Organ",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="requires_instrument",
+                        target="Colonoscope",
+                        source_type="Procedure",
+                        target_type="Instrument",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="has_risk",
+                        target="Perforation",
+                        source_type="Procedure",
+                        target_type="Risk",
+                    ),
+                    Triple(
+                        source="Colonoscopy",
+                        relation="performed_by_specialist",
+                        target="Gastroenterologist",
+                        source_type="Procedure",
+                        target_type="Specialist",
+                    ),
+                ]
+            )
         return triples
+
 
 class ProcedureExtractorGraphBuilder(BaseProcedureGraphBuilder):
     """Builds/Enriches the procedure knowledge graph using an extractor from text."""
@@ -309,6 +455,7 @@ class ProcedureExtractorGraphBuilder(BaseProcedureGraphBuilder):
         if triples:
             self.add_triples(triples)
         return triples
+
 
 # =========================
 # 4️⃣ Visualization

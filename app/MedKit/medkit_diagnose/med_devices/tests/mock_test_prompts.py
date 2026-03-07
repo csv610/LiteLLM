@@ -1,5 +1,7 @@
 import unittest
+
 from medical_test_devices_prompts import PromptBuilder
+
 
 class TestPromptBuilder(unittest.TestCase):
     def test_create_system_prompt(self):
@@ -14,6 +16,7 @@ class TestPromptBuilder(unittest.TestCase):
         self.assertIsInstance(user_prompt, str)
         self.assertIn(device_name, user_prompt)
         self.assertIn("Intended use and applications", user_prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

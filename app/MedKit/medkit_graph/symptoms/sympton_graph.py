@@ -1,6 +1,8 @@
-import sys
 import os
-from sympton_models import SymptomTripletExtractor, SymptomGraphBuilder, GraphVisualizer
+import sys
+
+from sympton_models import SymptomGraphBuilder, SymptomTripletExtractor
+
 
 def generate_symptom_graph(symptom_name: str, text: str = None):
     # Ensure outputs directory exists
@@ -15,12 +17,12 @@ def generate_symptom_graph(symptom_name: str, text: str = None):
         """
 
     print(f"🔍 Processing symptom: {symptom_name}")
-    
+
     extractor = SymptomTripletExtractor()
     triples = extractor.extract(text)
 
     print(f"✅ Extracted {len(triples)} triples.")
-    
+
     builder = SymptomGraphBuilder()
     builder.add_triples(triples)
 
@@ -35,12 +37,13 @@ def generate_symptom_graph(symptom_name: str, text: str = None):
     print(f"🚀 Graph for '{symptom_name}' generated successfully.")
     return dot_filename
 
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         symptom = sys.argv[1]
     else:
         symptom = "Fever"
-    
+
     # Example text for Fever if it's the default
     if symptom == "Fever":
         text = """

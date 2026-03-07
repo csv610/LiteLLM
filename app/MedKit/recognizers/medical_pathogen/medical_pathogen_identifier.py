@@ -1,6 +1,7 @@
 from ..base_recognizer import BaseRecognizer
-from .medical_pathogen_models import PathogenIdentifierModel, ModelOutput
-from .medical_pathogen_prompts import PromptBuilder, PathogenIdentifierInput
+from .medical_pathogen_models import ModelOutput, PathogenIdentifierModel
+from .medical_pathogen_prompts import PathogenIdentifierInput, PromptBuilder
+
 
 class MedicalPathogenIdentifier(BaseRecognizer):
     def identify(self, name: str, structured: bool = False) -> ModelOutput:
@@ -9,7 +10,7 @@ class MedicalPathogenIdentifier(BaseRecognizer):
             user_prompt=PromptBuilder.create_user_prompt(PathogenIdentifierInput(name)),
             response_format=PathogenIdentifierModel if structured else None,
         )
-        
+
         if structured:
             return ModelOutput(data=response)
         else:

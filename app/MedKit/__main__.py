@@ -20,5 +20,5 @@ For programmatic usage, import from medkit packages:
     from drug.drug_cli import main as drug_cli
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(__doc__)

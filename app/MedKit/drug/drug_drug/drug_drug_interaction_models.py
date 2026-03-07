@@ -6,8 +6,9 @@ interaction details, patient summaries, and result aggregation.
 """
 
 from enum import Enum
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class DrugInteractionSeverity(str, Enum):
@@ -27,6 +28,7 @@ class DrugInteractionSeverity(str, Enum):
     Example:
         severity = DrugInteractionSeverity.SIGNIFICANT
     """
+
     NONE = "NONE"
     MINOR = "MINOR"
     MILD = "MILD"
@@ -49,6 +51,7 @@ class ConfidenceLevel(str, Enum):
     Example:
         confidence = ConfidenceLevel.HIGH
     """
+
     HIGH = "HIGH"
     MODERATE = "MODERATE"
     LOW = "LOW"
@@ -70,6 +73,7 @@ class DataSourceType(str, Enum):
     Example:
         source = DataSourceType.CLINICAL_STUDIES
     """
+
     CLINICAL_STUDIES = "Clinical Studies"
     PHARMACOKINETIC_ANALYSIS = "Pharmacokinetic Analysis"
     AI_GENERATED = "AI-Generated"
@@ -102,6 +106,7 @@ class DrugInteractionDetailsModel(BaseModel):
             management_recommendations="Monitor INR, avoid if possible"
         )
     """
+
     drug1_name: str = Field(description="Name of the first medicine")
     drug2_name: str = Field(description="Name of the second medicine")
     severity_level: DrugInteractionSeverity = Field(
@@ -127,12 +132,13 @@ class DrugInteractionDetailsModel(BaseModel):
     )
     references: Optional[str] = Field(
         default=None,
-        description="Citations or references supporting this interaction data, comma-separated"
+        description="Citations or references supporting this interaction data, comma-separated",
     )
 
 
 class PatientFriendlySummaryModel(BaseModel):
     """Patient-friendly explanation of the interaction."""
+
     simple_explanation: str = Field(
         description="Simple, non-technical explanation of what happens when these medicines interact"
     )
@@ -149,12 +155,11 @@ class PatientFriendlySummaryModel(BaseModel):
 
 class DataAvailabilityInfoModel(BaseModel):
     """Information about data availability."""
-    data_available: bool = Field(
-        description="Whether interaction data is available"
-    )
+
+    data_available: bool = Field(description="Whether interaction data is available")
     reason: Optional[str] = Field(
         default=None,
-        description="Explanation if data is not available (e.g., 'No interactions found in database', 'Limited research available', etc.)"
+        description="Explanation if data is not available (e.g., 'No interactions found in database', 'Limited research available', etc.)",
     )
 
 
@@ -165,16 +170,17 @@ class DrugInteractionModel(BaseModel):
     Combines clinical data, patient education, and availability information
     in a structured format for healthcare professionals and patients.
     """
+
     interaction_details: Optional[DrugInteractionDetailsModel] = Field(
         default=None,
-        description="Detailed interaction information (None if no interaction or data not available)"
+        description="Detailed interaction information (None if no interaction or data not available)",
     )
     technical_summary: str = Field(
         description="Technical summary of the interaction suitable for healthcare professionals"
     )
     patient_friendly_summary: Optional[PatientFriendlySummaryModel] = Field(
         default=None,
-        description="Patient-friendly explanation (None if no interaction)"
+        description="Patient-friendly explanation (None if no interaction)",
     )
     data_availability: DataAvailabilityInfoModel = Field(
         description="Status of data availability for this interaction check"

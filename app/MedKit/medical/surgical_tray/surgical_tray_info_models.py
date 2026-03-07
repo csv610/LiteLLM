@@ -5,8 +5,9 @@ This module defines the data models used to represent comprehensive surgical tra
 and instrument information with validation and structured schema generation.
 """
 
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from typing import Optional, List
 
 
 class TrayInstrument(BaseModel):
@@ -19,9 +20,15 @@ class TrayInstrument(BaseModel):
 class SurgicalTrayModel(BaseModel):
     surgery_name: str = Field(description="Name of the surgery")
     specialty: str = Field(description="Surgical specialty")
-    instruments: List[TrayInstrument] = Field(description="List of instruments in the tray")
-    sterilization_method: str = Field(description="Recommended sterilization method for the whole tray")
-    setup_instructions: str = Field(description="Brief setup instructions for the scrub nurse")
+    instruments: List[TrayInstrument] = Field(
+        description="List of instruments in the tray"
+    )
+    sterilization_method: str = Field(
+        description="Recommended sterilization method for the whole tray"
+    )
+    setup_instructions: str = Field(
+        description="Brief setup instructions for the scrub nurse"
+    )
 
 
 class ModelOutput(BaseModel):

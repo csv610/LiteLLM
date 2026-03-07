@@ -9,8 +9,8 @@ comprehensive medical topic information based on provided configuration.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_topic_models import MedicalTopicModel, ModelOutput
@@ -68,9 +68,11 @@ class MedicalTopicGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical topic information to a file."""
         if self.topic is None:
-            raise ValueError("No topic information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No topic information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.topic.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

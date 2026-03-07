@@ -7,8 +7,9 @@ comprehensive interaction details.
 """
 
 from enum import Enum
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class InteractionSeverity(str, Enum):
@@ -30,6 +31,7 @@ class InteractionSeverity(str, Enum):
         if severity in [InteractionSeverity.SIGNIFICANT, InteractionSeverity.CONTRAINDICATED]:
             print("High-risk interaction detected")
     """
+
     NONE = "NONE"
     MINOR = "MINOR"
     MILD = "MILD"
@@ -53,6 +55,7 @@ class ConfidenceLevel(str, Enum):
         if interaction.confidence == ConfidenceLevel.LOW:
             print("Use caution - limited evidence for this interaction")
     """
+
     HIGH = "HIGH"
     MODERATE = "MODERATE"
     LOW = "LOW"
@@ -74,6 +77,7 @@ class DataSourceType(str, Enum):
     Example:
         source = DataSourceType.FDA_WARNINGS
     """
+
     CLINICAL_STUDIES = "Clinical Studies"
     PHARMACOKINETIC_ANALYSIS = "Pharmacokinetic Analysis"
     FDA_WARNINGS = "FDA Warnings"
@@ -99,6 +103,7 @@ class ImpactType(str, Enum):
     Example:
         impact = ImpactType.ALTERED_METABOLISM
     """
+
     EFFICACY_REDUCTION = "Reduced Drug Efficacy"
     EFFICACY_ENHANCEMENT = "Enhanced Drug Efficacy"
     INCREASED_TOXICITY = "Increased Toxicity Risk"
@@ -110,61 +115,63 @@ class ImpactType(str, Enum):
 
 class EfficacyImpactModel(BaseModel):
     """Information about how the condition affects drug effectiveness."""
+
     has_impact: bool = Field(description="Whether the condition affects drug efficacy")
     impact_description: Optional[str] = Field(
         default=None,
-        description="How the condition reduces, enhances, or otherwise affects drug effectiveness"
+        description="How the condition reduces, enhances, or otherwise affects drug effectiveness",
     )
     clinical_significance: Optional[str] = Field(
-        default=None,
-        description="The clinical importance of the efficacy impact"
+        default=None, description="The clinical importance of the efficacy impact"
     )
     monitoring_for_efficacy: Optional[str] = Field(
         default=None,
-        description="How to monitor for adequate drug response, comma-separated"
+        description="How to monitor for adequate drug response, comma-separated",
     )
 
 
 class SafetyImpactModel(BaseModel):
     """Information about how the condition affects drug safety."""
+
     has_impact: bool = Field(description="Whether the condition increases safety risks")
     impact_description: Optional[str] = Field(
         default=None,
-        description="How the condition increases adverse effects or toxicity"
+        description="How the condition increases adverse effects or toxicity",
     )
     increased_side_effects: Optional[str] = Field(
         default=None,
-        description="Specific side effects more likely to occur, comma-separated"
+        description="Specific side effects more likely to occur, comma-separated",
     )
     risk_level: Optional[InteractionSeverity] = Field(
         default=None,
-        description="Risk severity (MINOR, MILD, MODERATE, SIGNIFICANT, CONTRAINDICATED)"
+        description="Risk severity (MINOR, MILD, MODERATE, SIGNIFICANT, CONTRAINDICATED)",
     )
     monitoring_for_safety: Optional[str] = Field(
         default=None,
-        description="Safety monitoring parameters and labs to check, comma-separated"
+        description="Safety monitoring parameters and labs to check, comma-separated",
     )
 
 
 class DosageAdjustmentModel(BaseModel):
     """Dosage adjustment recommendations based on the condition."""
+
     adjustment_needed: bool = Field(description="Whether dose adjustment is necessary")
     adjustment_type: Optional[str] = Field(
         default=None,
-        description="Type of adjustment (e.g., 'dose reduction', 'dose increase', 'dosing interval change')"
+        description="Type of adjustment (e.g., 'dose reduction', 'dose increase', 'dosing interval change')",
     )
     specific_recommendations: Optional[str] = Field(
-        default=None,
-        description="Specific dosage adjustment guidance and rationale"
+        default=None, description="Specific dosage adjustment guidance and rationale"
     )
     monitoring_parameters: Optional[str] = Field(
         default=None,
-        description="Labs or parameters to check when adjusting dose, comma-separated"
+        description="Labs or parameters to check when adjusting dose, comma-separated",
     )
 
 
 class ManagementStrategyModel(BaseModel):
     """Overall management strategy for the drug-disease interaction."""
+
     impact_types: list[ImpactType] = Field(
         description="Types of impacts (efficacy, safety, metabolism, etc.)"
     )
@@ -173,16 +180,17 @@ class ManagementStrategyModel(BaseModel):
     )
     contraindication_status: Optional[str] = Field(
         default=None,
-        description="Whether drug is contraindicated, relatively contraindicated, or safe with precautions"
+        description="Whether drug is contraindicated, relatively contraindicated, or safe with precautions",
     )
     alternative_treatments: Optional[str] = Field(
         default=None,
-        description="Alternative medications or approaches for patients with this condition, comma-separated"
+        description="Alternative medications or approaches for patients with this condition, comma-separated",
     )
 
 
 class DrugDiseaseInteractionDetailsModel(BaseModel):
     """Comprehensive drug-disease interaction analysis."""
+
     medicine_name: str = Field(description="Name of the medicine")
     condition_name: str = Field(description="Name of the medical condition")
     overall_severity: InteractionSeverity = Field(
@@ -211,12 +219,13 @@ class DrugDiseaseInteractionDetailsModel(BaseModel):
     )
     references: Optional[str] = Field(
         default=None,
-        description="Citations or references supporting this interaction data, comma-separated"
+        description="Citations or references supporting this interaction data, comma-separated",
     )
 
 
 class PatientFriendlySummaryModel(BaseModel):
     """Patient-friendly explanation of drug-disease interactions."""
+
     simple_explanation: str = Field(
         description="Simple explanation of how the condition affects this medicine"
     )
@@ -236,12 +245,10 @@ class PatientFriendlySummaryModel(BaseModel):
 
 class DataAvailabilityModel(BaseModel):
     """Information about data availability."""
-    data_available: bool = Field(
-        description="Whether interaction data is available"
-    )
+
+    data_available: bool = Field(description="Whether interaction data is available")
     reason: Optional[str] = Field(
-        default=None,
-        description="Explanation if data is not available"
+        default=None, description="Explanation if data is not available"
     )
 
 
@@ -255,14 +262,13 @@ class DrugDiseaseInteractionModel(BaseModel):
 
     interaction_details: Optional[DrugDiseaseInteractionDetailsModel] = Field(
         default=None,
-        description="Detailed interaction information (None if data not available)"
+        description="Detailed interaction information (None if data not available)",
     )
     technical_summary: str = Field(
         description="Technical summary suitable for healthcare professionals"
     )
     patient_friendly_summary: Optional[PatientFriendlySummaryModel] = Field(
-        default=None,
-        description="Patient-friendly explanation"
+        default=None, description="Patient-friendly explanation"
     )
     data_availability: DataAvailabilityModel = Field(
         description="Status of data availability"
@@ -272,4 +278,3 @@ class DrugDiseaseInteractionModel(BaseModel):
 class ModelOutput(BaseModel):
     data: Optional[DrugDiseaseInteractionModel] = None
     markdown: Optional[str] = None
-

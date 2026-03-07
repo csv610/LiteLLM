@@ -36,19 +36,19 @@ Ensure all information is accurate, evidence-based, and includes important clini
     @staticmethod
     def create_user_prompt(medicine_name: str, context: str = "") -> str:
         """Create the user prompt for finding similar medicines.
-        
+
         Args:
             medicine_name: Name of the medicine to find alternatives for
             context: Additional context or requirements
-            
+
         Returns:
             Formatted user prompt
         """
         base_prompt = f"Find the top 10-15 most similar medicines to {medicine_name}"
-        
+
         if context:
             base_prompt += f" - {context}"
-        
+
         base_prompt += """
         
 Please provide a comprehensive analysis including:
@@ -60,20 +60,20 @@ Please provide a comprehensive analysis including:
 6. Availability and cost considerations where relevant
 
 Organize the results by similarity priority and include both prescription and OTC options where applicable."""
-        
+
         return base_prompt
 
     @staticmethod
     def create_contextual_prompt(medicine_name: str, requirements: List[str]) -> str:
         """Create a contextual prompt with specific requirements.
-        
+
         Args:
             medicine_name: Name of the medicine to find alternatives for
             requirements: List of specific requirements or constraints
-            
+
         Returns:
             Formatted contextual prompt
         """
         context = ". ".join(requirements) if requirements else ""
-        
+
         return PromptBuilder.create_user_prompt(medicine_name, context)

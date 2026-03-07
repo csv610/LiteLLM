@@ -7,22 +7,31 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
     from .ddg_images import DuckDuckImages
     from .ddg_videos import DuckDuckVideos
-    from .med_media_models import MedicalMediaModel, MediaCaptionModel, MediaSummaryModel, ModelOutput
+    from .med_media_models import (
+        MediaCaptionModel,
+        MediaSummaryModel,
+        ModelOutput,
+    )
     from .med_media_prompts import PromptBuilder
 except (ImportError, ValueError):
     from medical.med_media.ddg_images import DuckDuckImages
     from medical.med_media.ddg_videos import DuckDuckVideos
-    from medical.med_media.med_media_models import MediaCaptionModel, MediaSummaryModel, ModelOutput
+    from medical.med_media.med_media_models import (
+        MediaCaptionModel,
+        MediaSummaryModel,
+        ModelOutput,
+    )
     from medical.med_media.med_media_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
 
 class MedicalMediaGenerator:
     """Generates medical media information, downloads content, and provides AI analysis."""
@@ -34,13 +43,21 @@ class MedicalMediaGenerator:
         self.video_searcher = DuckDuckVideos()
         self.last_topic = None
 
-    def download_images(self, query: str, num_images: int = 3, size: str = "Medium", output_dir: Path = Path("outputs/images")):
+    def download_images(
+        self,
+        query: str,
+        num_images: int = 3,
+        size: str = "Medium",
+        output_dir: Path = Path("outputs/images"),
+    ):
         """Search and download medical images."""
         logger.info(f"Searching for images: {query}")
         urls = self.image_searcher.get_urls(query, size, num_images)
         downloaded = []
         for i, url in enumerate(urls):
-            filename = self.image_searcher.download_image(url, str(output_dir), query, i)
+            filename = self.image_searcher.download_image(
+                url, str(output_dir), query, i
+            )
             if filename:
                 downloaded.append(output_dir / filename)
         return downloaded
@@ -50,31 +67,37 @@ class MedicalMediaGenerator:
         logger.info(f"Searching for videos: {query}")
         return self.video_searcher.get_urls(query, max_results)
 
-    def generate_caption(self, topic: str, media_type: str = "image", structured: bool = False) -> ModelOutput:
+    def generate_caption(
+        self, topic: str, media_type: str = "image", structured: bool = False
+    ) -> ModelOutput:
         """Generate a professional medical caption for a topic."""
         self.last_topic = topic
         model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=PromptBuilder.create_caption_prompt(topic, media_type),
-            response_format=MediaCaptionModel if structured else None
+            response_format=MediaCaptionModel if structured else None,
         )
         return self.client.generate_text(model_input)
 
-    def generate_summary(self, topic: str, media_type: str = "video", structured: bool = False) -> ModelOutput:
+    def generate_summary(
+        self, topic: str, media_type: str = "video", structured: bool = False
+    ) -> ModelOutput:
         """Generate a medical summary for a topic."""
         self.last_topic = topic
         model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
             user_prompt=PromptBuilder.create_summary_prompt(topic, media_type),
-            response_format=MediaSummaryModel if structured else None
+            response_format=MediaSummaryModel if structured else None,
         )
         return self.client.generate_text(model_input)
 
-    def save(self, result: ModelOutput, output_dir: Path, suffix: str = "analysis") -> Path:
+    def save(
+        self, result: ModelOutput, output_dir: Path, suffix: str = "analysis"
+    ) -> Path:
         """Saves the AI analysis to a file."""
         if not self.last_topic:
             filename = "media_analysis"
         else:
             filename = f"{self.last_topic.lower().replace(' ', '_')}_{suffix}"
-        
+
         return save_model_response(result, output_dir / filename)

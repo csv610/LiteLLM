@@ -5,11 +5,11 @@ Tests for the Anatomy Report Evaluator.
 Tests the strict evaluation system with sample anatomy reports.
 """
 
-import unittest
-import tempfile
 import json
-from pathlib import Path
 import sys
+import tempfile
+import unittest
+from pathlib import Path
 
 # Add the project root to sys.path
 project_root = Path(__file__).parent.parent.parent
@@ -17,12 +17,12 @@ if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
 from medical.anatomy.evaluate_anatomy_report import (
-    AnatomyReportEvaluator,
     AccuracyRating,
-    TerminologyRating,
-    EmbryologyRating,
+    AnatomyReportEvaluator,
     ClinicalReliabilityRating,
+    EmbryologyRating,
     StructuralOrganizationRating,
+    TerminologyRating,
 )
 
 
@@ -111,16 +111,18 @@ The femoral nerve (L2-L4) innervates muscles in the anterior thigh.
         result = self.evaluator.evaluate_file(file_path)
 
         # Verify reasonable positive ratings
-        self.assertIn(result.anatomical_accuracy[0], [
-            AccuracyRating.EXCELLENT,
-            AccuracyRating.GOOD,
-            AccuracyRating.ACCEPTABLE
-        ])
-        self.assertIn(result.clinical_reliability[0], [
-            ClinicalReliabilityRating.SAFE_RELIABLE,
-            ClinicalReliabilityRating.CLINICALLY_SOUND,
-            ClinicalReliabilityRating.SAFE_ACCURATE
-        ])
+        self.assertIn(
+            result.anatomical_accuracy[0],
+            [AccuracyRating.EXCELLENT, AccuracyRating.GOOD, AccuracyRating.ACCEPTABLE],
+        )
+        self.assertIn(
+            result.clinical_reliability[0],
+            [
+                ClinicalReliabilityRating.SAFE_RELIABLE,
+                ClinicalReliabilityRating.CLINICALLY_SOUND,
+                ClinicalReliabilityRating.SAFE_ACCURATE,
+            ],
+        )
         self.assertGreater(result.overall_quality_score, 60)
 
     def test_report_with_critical_errors(self):
@@ -146,7 +148,9 @@ Various structures contribute to the anatomy of the femoral region.
         result = self.evaluator.evaluate_file(file_path)
 
         # These critical errors should be caught
-        self.assertEqual(result.clinical_reliability[0], ClinicalReliabilityRating.DANGEROUS)
+        self.assertEqual(
+            result.clinical_reliability[0], ClinicalReliabilityRating.DANGEROUS
+        )
         self.assertEqual(result.pass_fail_status, "FAIL")
         self.assertGreater(len(result.critical_issues), 0)
         self.assertLess(result.overall_quality_score, 50)
@@ -163,7 +167,9 @@ It develops from mesoderm.
         result = self.evaluator.evaluate_file(file_path)
 
         # Incomplete reports have lower scores
-        self.assertLess(result.overall_quality_score, 85)  # Incomplete report should score below excellent
+        self.assertLess(
+            result.overall_quality_score, 85
+        )  # Incomplete report should score below excellent
 
     def test_report_with_vague_terminology(self):
         """Test evaluation of report with imprecise terminology."""
@@ -182,16 +188,22 @@ Clinical significance may include various cardiac conditions.
         result = self.evaluator.evaluate_file(file_path)
 
         # Should flag vague terminology
-        self.assertIn(result.terminology_precision[0], [
-            TerminologyRating.IMPRECISE,
-            TerminologyRating.VAGUE,
-            TerminologyRating.ACCEPTABLE
-        ])
+        self.assertIn(
+            result.terminology_precision[0],
+            [
+                TerminologyRating.IMPRECISE,
+                TerminologyRating.VAGUE,
+                TerminologyRating.ACCEPTABLE,
+            ],
+        )
         # Vague information affects reliability but not critical unless factually wrong
-        self.assertIn(result.clinical_reliability[0], [
-            ClinicalReliabilityRating.ACCEPTABLE_WITH_CAUTION,
-            ClinicalReliabilityRating.MISLEADING
-        ])
+        self.assertIn(
+            result.clinical_reliability[0],
+            [
+                ClinicalReliabilityRating.ACCEPTABLE_WITH_CAUTION,
+                ClinicalReliabilityRating.MISLEADING,
+            ],
+        )
 
     def test_report_organization(self):
         """Test evaluation of structural organization."""
@@ -220,11 +232,14 @@ The heart receives blood from coronary arteries.
         result = self.evaluator.evaluate_file(file_path)
 
         # Should recognize good organization
-        self.assertIn(result.structural_organization[0], [
-            StructuralOrganizationRating.EXCELLENT,
-            StructuralOrganizationRating.WELL_ORGANIZED,
-            StructuralOrganizationRating.LOGICAL
-        ])
+        self.assertIn(
+            result.structural_organization[0],
+            [
+                StructuralOrganizationRating.EXCELLENT,
+                StructuralOrganizationRating.WELL_ORGANIZED,
+                StructuralOrganizationRating.LOGICAL,
+            ],
+        )
 
     def test_evaluation_result_serialization(self):
         """Test that evaluation results can be serialized to JSON."""
@@ -297,11 +312,14 @@ Innervated by the deep fibular (peroneal) nerve.
         result = self.evaluator.evaluate_file(file_path)
 
         # Should flag missing embryology
-        self.assertIn(result.embryology[0], [
-            EmbryologyRating.ABSENT,
-            EmbryologyRating.VAGUE,
-            EmbryologyRating.ACCEPTABLE
-        ])
+        self.assertIn(
+            result.embryology[0],
+            [
+                EmbryologyRating.ABSENT,
+                EmbryologyRating.VAGUE,
+                EmbryologyRating.ACCEPTABLE,
+            ],
+        )
 
 
 class TestKnowledgeBase(unittest.TestCase):

@@ -1,47 +1,31 @@
-# Feynman Style AI Tutor
+# FeynmanTutor
 
-A Python-based AI tutor that helps you learn complex topics using the Feynman Technique. It leverages Richard Feynman’s approach of breaking down ideas into simple, intuitive truths through analogy, questioning, and iterative refinement.
+`FeynmanTutor` is an interactive tutor that explains a topic in progressively simpler terms and asks follow-up questions to check understanding.
 
-## Features
+## What It Does
 
-- **Prompt Management:** Centralized `PromptBuilder` class for easy prompt maintenance.
-- **Core Engine:** `FeynmanTutorQuestionGenerator` class handles the conversation logic and state.
-- **CLI Interface:** Interactive command-line interface for the learning loop.
-- **LiteClient Integration:** Compatible with multiple LLMs via `LiteClient` (defaults to `ollama/gemma3`).
+- Runs a CLI conversation around a user-selected topic.
+- Uses prompt templates designed for simplification and iterative clarification.
+- Maintains conversational state through the tutoring session.
 
-## Project Structure
+## Why It Matters
 
-- `feynman_tutor_cli.py`: The entry point for the interactive CLI application.
-- `feynman_tutor.py`: Contains the `FeynmanTutorQuestionGenerator` class that manages the learning logic.
-- `feynman_tutor_prompts.py`: Contains the `PromptBuilder` class that stores all system and user prompts.
-- `tests/`: Directory containing unit tests.
+This tutor is useful when the learning goal is explanation and self-checking rather than reference lookup.
 
-## Setup
+## Files
 
-1. **Install Dependencies:**
-   Ensure the `lite` package is installed.
-
-2. **Configure Model:**
-   The default model is set to `ollama/gemma3`. Ensure you have Ollama running or change the `MODEL` variable in `feynman_tutor.py` to your preferred provider (e.g., `gpt-4`, `claude-3-opus`).
+- `feynman_tutor.py`: tutoring logic.
+- `feynman_tutor_cli.py`: CLI entrypoint.
+- `feynman_tutor_prompts.py`: prompts.
 
 ## Usage
 
-Run the CLI application:
 ```bash
-python cli.py
+python feynman_tutor_cli.py
 ```
 
-Follow the prompts to:
-1. Enter a topic you want to learn.
-2. State your current understanding level.
-3. Review the initial explanation and analogies.
-4. Provide feedback on what's unclear.
-5. Take the "Understanding Challenge."
-6. Receive your final "Teaching Snapshot."
+## Limitations
 
-## Development
-
-### Running Tests
-```bash
-python -m unittest discover tests
-```
+- Teaching quality depends on the model.
+- The tutor does not independently verify correctness.
+- Explanations may prioritize accessibility over technical completeness.

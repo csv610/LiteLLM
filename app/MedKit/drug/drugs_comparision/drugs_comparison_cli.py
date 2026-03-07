@@ -8,11 +8,9 @@ import argparse
 import logging
 from pathlib import Path
 
-
+from drugs_comparison import DrugsComparison, DrugsComparisonInput
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-
-from drugs_comparison import DrugsComparison, DrugsComparisonInput
 
 logger = logging.getLogger(__name__)
 
@@ -97,19 +95,22 @@ def get_user_arguments():
     )
 
     parser.add_argument(
-        "-s", "--structured",
+        "-s",
+        "--structured",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response."
+        help="Use structured output (Pydantic model) for the response.",
     )
 
     parser.add_argument(
-        "-d", "--output-dir",
+        "-d",
+        "--output-dir",
         default="outputs",
-        help="Directory for output files (default: outputs)."
+        help="Directory for output files (default: outputs).",
     )
 
     return parser.parse_args()
+
 
 def create_drugs_comparision_report(args) -> int:
 
@@ -117,7 +118,7 @@ def create_drugs_comparision_report(args) -> int:
     configure_logging(
         log_file=str(Path(__file__).parent / "logs" / "drugs_comparison.log"),
         verbosity=args.verbosity,
-        enable_console=True
+        enable_console=True,
     )
     logger.debug("CLI Arguments:")
     logger.debug(f"  Medicine 1: {args.medicine1}")
@@ -166,7 +167,6 @@ def create_drugs_comparision_report(args) -> int:
         logger.error(f"Unexpected error: {e}")
         logger.exception("Full exception details:")
         return 1
-
 
 
 if __name__ == "__main__":

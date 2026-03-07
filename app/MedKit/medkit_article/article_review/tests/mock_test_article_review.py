@@ -1,9 +1,8 @@
-import pytest
 import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+import pytest
 from article_review.article_review import ArticleReviewer
-from article_review.article_review_models import ArticleReview
 
 
 @pytest.fixture
@@ -22,7 +21,7 @@ def test_load_file_text(reviewer, tmp_path):
     txt_file = tmp_path / "test.txt"
     content = "Sample article content."
     txt_file.write_text(content)
-    
+
     text = reviewer.load_file(str(txt_file))
     assert text == content
 
@@ -33,7 +32,7 @@ def test_load_file_json(reviewer, tmp_path):
     data = {"text": "Nested content", "details": ["More text"]}
     with open(json_file, "w") as f:
         json.dump(data, f)
-    
+
     text = reviewer.load_file(str(json_file))
     assert "Nested content" in text
     assert "More text" in text
@@ -51,7 +50,7 @@ def test_review_article_success(reviewer):
     reviewer.client.generate_text.return_value = mock_response
 
     result = reviewer.review_article("Text to review")
-    
+
     assert result == mock_response
     reviewer.client.generate_text.assert_called_once()
 
@@ -59,6 +58,6 @@ def test_review_article_success(reviewer):
 def test_review_article_failure(reviewer):
     """Test failure during article review."""
     reviewer.client.generate_text.side_effect = Exception("API Error")
-    
+
     result = reviewer.review_article("Text to review")
     assert result is None

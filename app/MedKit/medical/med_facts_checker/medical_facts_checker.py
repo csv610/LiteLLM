@@ -10,8 +10,8 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_facts_checker_models import MedicalFactFictionAnalysisModel, ModelOutput
@@ -40,7 +40,7 @@ class MedicalFactsChecker:
 
         Returns:
             The generated FactFictionAnalysis object.
-        
+
         Raises:
             ValueError: If statement is empty.
         """
@@ -84,9 +84,11 @@ class MedicalFactsChecker:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical facts analysis to a file."""
         if self.statement is None:
-            raise ValueError("No statement information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No statement information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.statement.lower().replace(' ', '_')}_facts_analysis"
-        
+
         return save_model_response(result, output_dir / base_filename)

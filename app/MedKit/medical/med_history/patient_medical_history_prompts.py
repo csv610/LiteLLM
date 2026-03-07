@@ -23,7 +23,7 @@ class PromptBuilder:
     @staticmethod
     def create_system_prompt() -> str:
         """Create the system prompt for medical history question generation.
-        
+
         Returns:
             str: System prompt defining the AI's role and guidelines
         """
@@ -32,10 +32,10 @@ class PromptBuilder:
     @staticmethod
     def create_user_prompt(medical_history_input: MedicalHistoryInput) -> str:
         """Create the user prompt for medical history question generation.
-        
+
         Args:
             medical_history_input: Input parameters for medical history generation
-            
+
         Returns:
             str: Formatted user prompt
         """

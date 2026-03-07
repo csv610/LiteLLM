@@ -49,74 +49,81 @@ import os
 def update_json_file(file_path):
     """Update a single JSON file to replace 'question_number' with 'id'."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        
+
         # Check if this is a questions file with the expected structure
-        if 'questions_data' in data and 'questions' in data['questions_data']:
+        if "questions_data" in data and "questions" in data["questions_data"]:
             updated = False
-            for question in data['questions_data']['questions']:
+            for question in data["questions_data"]["questions"]:
                 # Rename fields if they exist
-                if 'question_number' in question:
-                    question['id'] = question.pop('question_number')
+                if "question_number" in question:
+                    question["id"] = question.pop("question_number")
                     updated = True
-                if 'answer_method' in question:
-                    question['responder'] = question.pop('answer_method')
+                if "answer_method" in question:
+                    question["responder"] = question.pop("answer_method")
                     updated = True
                 # Handle follow-up questions
-                if 'follow_up_prompts' in question:
+                if "follow_up_prompts" in question:
                     # If there are existing follow-up prompts, use them as followup_questions
-                    if question['follow_up_prompts'] and len(question['follow_up_prompts']) > 0:
-                        question['followup_questions'] = question.pop('follow_up_prompts')
+                    if (
+                        question["follow_up_prompts"]
+                        and len(question["follow_up_prompts"]) > 0
+                    ):
+                        question["followup_questions"] = question.pop(
+                            "follow_up_prompts"
+                        )
                     else:
                         # Generate 5 generic follow-up questions if none exist
-                        question['followup_questions'] = [
+                        question["followup_questions"] = [
                             "Can you tell me more about that?",
                             "How does this affect your daily activities?",
                             "When did you first notice this?",
                             "What makes it better or worse?",
-                            "Have you discussed this with your healthcare provider before?"
+                            "Have you discussed this with your healthcare provider before?",
                         ]
-                        question.pop('follow_up_prompts', None)
+                        question.pop("follow_up_prompts", None)
                     updated = True
-                elif 'followup_questions' not in question:
+                elif "followup_questions" not in question:
                     # If neither follow_up_prompts nor followup_questions exist, add default ones
-                    question['followup_questions'] = [
+                    question["followup_questions"] = [
                         "Can you tell me more about that?",
                         "How does this affect your daily activities?",
                         "When did you first notice this?",
                         "What makes it better or worse?",
-                        "Have you discussed this with your healthcare provider before?"
+                        "Have you discussed this with your healthcare provider before?",
                     ]
                     updated = True
-            
+
             if updated:
                 # Save the updated data back to the file
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
                 return True
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Error processing {file_path}: {e}")
     return False
 
+
 def cli():
     # Get the outputs directory path
-    outputs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outputs')
-    
+    outputs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs")
+
     if not os.path.exists(outputs_dir):
         print(f"Error: Outputs directory not found at {outputs_dir}")
         return
-    
+
     # Process all JSON files in the outputs directory
     updated_count = 0
     for filename in os.listdir(outputs_dir):
-        if filename.endswith('.json'):
+        if filename.endswith(".json"):
             file_path = os.path.join(outputs_dir, filename)
             if update_json_file(file_path):
                 print(f"Updated: {filename}")
                 updated_count += 1
-    
+
     print(f"\nUpdate complete. {updated_count} files were updated.")
+
 
 if __name__ == "__main__":
     cli()

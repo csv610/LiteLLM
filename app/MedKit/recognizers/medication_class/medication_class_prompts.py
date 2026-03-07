@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass
 class MedicationClassIdentifierInput:
     """Configuration and input for medication class identification."""
+
     class_name: str
 
     def __post_init__(self):

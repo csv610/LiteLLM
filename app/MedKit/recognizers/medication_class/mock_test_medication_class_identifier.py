@@ -5,16 +5,27 @@ Test suite for MedicationClassIdentifier Module.
 This script validates the medication class identifier functionality without using mock libraries.
 """
 
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
+import sys
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
 import random
 from pathlib import Path
 
-
-from app.MedKit.recognizers.medication_class.medication_class_models import MedicationClassIdentifierModel, MedicationClassIdentificationModel, ModelOutput
-from app.MedKit.recognizers.medication_class.medication_class_prompts import PromptBuilder, MedicationClassIdentifierInput
-from app.MedKit.recognizers.medication_class.medication_class_recognizer import MedicationClassIdentifier
+from app.MedKit.recognizers.medication_class.medication_class_models import (
+    MedicationClassIdentificationModel,
+    MedicationClassIdentifierModel,
+    ModelOutput,
+)
+from app.MedKit.recognizers.medication_class.medication_class_prompts import (
+    MedicationClassIdentifierInput,
+    PromptBuilder,
+)
+from app.MedKit.recognizers.medication_class.medication_class_recognizer import (
+    MedicationClassIdentifier,
+)
 from lite.config import ModelConfig
 
 
@@ -22,30 +33,32 @@ def read_random_example_from_assets():
     """Read a random example from assets folder."""
     assets_file = Path(__file__).parent / "assets" / "example_inputs.txt"
     examples = []
-    
+
     if assets_file.exists():
-        with open(assets_file, 'r') as f:
+        with open(assets_file, "r") as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip()
-                if line and not line.startswith('#') and not line.startswith('##'):
+                if line and not line.startswith("#") and not line.startswith("##"):
                     examples.append(line)
-    
+
     # Return a random example if available, otherwise fallback
     if examples:
         return random.choice(examples)
     else:
         return "beta_blockers"  # fallback
+
+
 def test_prompt_builder():
     """Validate the PromptBuilder class functionality."""
     print("Validating PromptBuilder...")
-    
+
     # Validate system prompt generation
     system_prompt = PromptBuilder.create_system_prompt()
     assert isinstance(system_prompt, str)
     assert len(system_prompt) > 0
     print("✓ System prompt generated successfully")
-    
+
     # Validate user prompt generation
     example = read_random_example_from_assets()
     test_input = MedicationClassIdentifierInput(example)
@@ -53,7 +66,7 @@ def test_prompt_builder():
     assert isinstance(user_prompt, str)
     assert example in user_prompt
     print("✓ User prompt generated successfully")
-    
+
     # Validate empty input handling
     try:
         MedicationClassIdentifierInput("")
@@ -65,7 +78,7 @@ def test_prompt_builder():
 def test_models():
     """Validate the Pydantic model structures."""
     print("\nValidating Models...")
-    
+
     # Validate identification model structure
     example = read_random_example_from_assets()
     identification = MedicationClassIdentificationModel(
@@ -73,18 +86,18 @@ def test_models():
         is_well_known=True,
         mechanism_of_action="Works by inhibiting enzyme activity",
         common_examples=["example_drug_1", "example_drug_2"],
-        therapeutic_uses=["condition_1", "condition_2"]
+        therapeutic_uses=["condition_1", "condition_2"],
     )
     print("✓ IdentificationModel instantiated successfully")
-    
+
     # Validate identifier model structure
     identifier_model = MedicationClassIdentifierModel(
         identification=identification,
         summary="Beta Blockers is a recognized medication class in medical literature",
-        data_available=True
+        data_available=True,
     )
     print("✓ IdentifierModel instantiated successfully")
-    
+
     # Validate ModelOutput structure
     model_output = ModelOutput(data=identifier_model)
     assert model_output.data.identification.class_name == example
@@ -94,10 +107,10 @@ def test_models():
 def test_identifier_initialization():
     """Validate MedicationClassIdentifier initialization."""
     print("\nValidating MedicationClassIdentifier Initialization...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = MedicationClassIdentifier(config)
-    
+
     assert identifier.client is not None
     print("✓ MedicationClassIdentifier initialized successfully")
 
@@ -105,10 +118,10 @@ def test_identifier_initialization():
 def test_identifier_validation():
     """Validate MedicationClassIdentifier input validation."""
     print("\nValidating MedicationClassIdentifier Input Validation...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     MedicationClassIdentifier(config)
-    
+
     # Validate empty input handling
     try:
         MedicationClassIdentifierInput("")
@@ -127,14 +140,14 @@ def test_identifier_validation():
 def test_method_name_consistency():
     """Validate that the identify method exists and works correctly."""
     print("\nValidating Method Name Consistency...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = MedicationClassIdentifier(config)
-    
+
     # Validate that the identify method exists and can be called
-    assert hasattr(identifier, 'identify'), "identify method should exist"
-    assert callable(getattr(identifier, 'identify')), "identify should be callable"
-    
+    assert hasattr(identifier, "identify"), "identify method should exist"
+    assert callable(getattr(identifier, "identify")), "identify should be callable"
+
     # Validate method signature
     try:
         read_random_example_from_assets()
@@ -148,21 +161,22 @@ def main():
     print("=" * 60)
     print("MEDICATION CLASS IDENTIFIER MODULE TESTS")
     print("=" * 60)
-    
+
     try:
         test_prompt_builder()
         test_models()
         test_identifier_initialization()
         test_identifier_validation()
         test_method_name_consistency()
-        
+
         print("\n" + "=" * 60)
         print("ALL TESTS COMPLETED SUCCESSFULLY!")
         print("=" * 60)
-        
+
     except Exception as e:
         print(f"\n❌ TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

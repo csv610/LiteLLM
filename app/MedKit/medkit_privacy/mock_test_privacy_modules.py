@@ -1,10 +1,12 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import unittest
-from medkit_privacy.deidentification import Deidentifier
+
 from medkit_privacy.anonymization import Anonymizer
+from medkit_privacy.deidentification import Deidentifier
 
 
 class TestPrivacyModules(unittest.TestCase):
@@ -34,7 +36,7 @@ class TestPrivacyModules(unittest.TestCase):
         """Verify that ages are generalized rather than just removed for GDPR."""
         text = "Patient is 25 years old."
         anonymized = self.anonymizer.anonymize_text(text)
-        
+
         # Implementation specific - check for age range
         self.assertNotIn("25", anonymized)
         # Assuming your anonymizer produces ranges like 'age 20-30' or [AGE_RANGE]
@@ -50,7 +52,9 @@ class TestPrivacyModules(unittest.TestCase):
         deidentified = self.deidentifier.deidentify_record(record)
 
         self.assertNotEqual(record["patient"], deidentified["patient"])
-        self.assertNotEqual(record["contact"]["phone"], deidentified["contact"]["phone"])
+        self.assertNotEqual(
+            record["contact"]["phone"], deidentified["contact"]["phone"]
+        )
 
 
 if __name__ == "__main__":

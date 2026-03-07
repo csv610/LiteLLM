@@ -6,7 +6,14 @@ Test object: Dog
 
 import sys
 import builtins
-from app.cli.object_guesser_game import ObjectGuessingGame
+from pathlib import Path
+
+# Add project root and ObjectGuesser path to sys.path
+root_path = Path(__file__).parent.parent
+sys.path.insert(0, str(root_path))
+sys.path.insert(0, str(root_path / "app" / "ObjectGuesser"))
+
+from object_guesser_game import ObjectGuessingGame
 
 # Pre-programmed answers for "dog"
 answers = [

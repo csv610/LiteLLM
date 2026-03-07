@@ -42,7 +42,7 @@ class MedKitError(Exception):
         self,
         message: str,
         context: Optional[str] = None,
-        original_exception: Optional[Exception] = None
+        original_exception: Optional[Exception] = None,
     ):
         """Initialize MedKitError with message, context, and original exception.
 

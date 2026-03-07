@@ -1,16 +1,17 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional, Any
-from pydantic import BaseModel, Field, validator
-import networkx as nx
 import json
 import os
+from typing import List, Literal, Optional
+
+import networkx as nx
 import surgery_prompts as prompts
+from pydantic import BaseModel, Field, validator
 
 try:
-    from lite.lite_client import LiteClient
     from lite.config import ModelConfig, ModelInput
+    from lite.lite_client import LiteClient
 except ImportError:
     LiteClient = None
     ModelConfig = None
@@ -95,6 +96,7 @@ NODE_TYPE_ALIASES = {
 
 class Triple(BaseModel):
     """Represents one validated surgical relation."""
+
     source: str = Field(..., description="Subject entity")
     relation: Relation = Field(..., description="Type of relationship")
     target: str = Field(..., description="Object entity")
@@ -129,8 +131,10 @@ class Triple(BaseModel):
             return NODE_TYPE_ALIASES[key]
         return "Other"
 
+
 class TripleList(BaseModel):
     triples: List[Triple]
+
 
 # =========================
 # 2️⃣ LiteClient Surgery Extractor
@@ -154,8 +158,7 @@ class SurgeryTripletExtractor:
     def extract(self, text: str) -> List[Triple]:
         if self.client is not None:
             model_input = ModelInput(
-                user_prompt=self.build_prompt(text),
-                response_format=TripleList
+                user_prompt=self.build_prompt(text), response_format=TripleList
             )
             try:
                 response: TripleList = self.client.generate_text(model_input)
@@ -171,18 +174,80 @@ class SurgeryTripletExtractor:
         t = text.lower()
         triples = []
         if "bypass surgery" in t or "cabg" in t:
-            triples.extend([
-                {"source": "Coronary Artery Bypass Surgery", "relation": "treats_disease", "target": "Coronary Artery Disease", "source_type": "Surgery", "target_type": "Disease"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "performed_on_organ", "target": "Heart", "source_type": "Surgery", "target_type": "Organ"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "requires_instrument", "target": "Heart-Lung Machine", "source_type": "Surgery", "target_type": "Instrument"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "performed_by_specialist", "target": "Cardiothoracic Surgeon", "source_type": "Surgery", "target_type": "Specialist"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "requires_anesthesia", "target": "General Anesthesia", "source_type": "Surgery", "target_type": "AnesthesiaType"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "has_risk", "target": "Heart Attack", "source_type": "Surgery", "target_type": "Risk"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "has_complication", "target": "Arrhythmia", "source_type": "Surgery", "target_type": "Complication"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "has_benefit", "target": "Improved Blood Flow", "source_type": "Surgery", "target_type": "Benefit"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "requires_preparation", "target": "Preoperative Fasting", "source_type": "Surgery", "target_type": "Preparation"},
-                {"source": "Coronary Artery Bypass Surgery", "relation": "follow_up_by", "target": "Cardiac Rehabilitation", "source_type": "Surgery", "target_type": "FollowUp"},
-            ])
+            triples.extend(
+                [
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "treats_disease",
+                        "target": "Coronary Artery Disease",
+                        "source_type": "Surgery",
+                        "target_type": "Disease",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "performed_on_organ",
+                        "target": "Heart",
+                        "source_type": "Surgery",
+                        "target_type": "Organ",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "requires_instrument",
+                        "target": "Heart-Lung Machine",
+                        "source_type": "Surgery",
+                        "target_type": "Instrument",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "performed_by_specialist",
+                        "target": "Cardiothoracic Surgeon",
+                        "source_type": "Surgery",
+                        "target_type": "Specialist",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "requires_anesthesia",
+                        "target": "General Anesthesia",
+                        "source_type": "Surgery",
+                        "target_type": "AnesthesiaType",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "has_risk",
+                        "target": "Heart Attack",
+                        "source_type": "Surgery",
+                        "target_type": "Risk",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "has_complication",
+                        "target": "Arrhythmia",
+                        "source_type": "Surgery",
+                        "target_type": "Complication",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "has_benefit",
+                        "target": "Improved Blood Flow",
+                        "source_type": "Surgery",
+                        "target_type": "Benefit",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "requires_preparation",
+                        "target": "Preoperative Fasting",
+                        "source_type": "Surgery",
+                        "target_type": "Preparation",
+                    },
+                    {
+                        "source": "Coronary Artery Bypass Surgery",
+                        "relation": "follow_up_by",
+                        "target": "Cardiac Rehabilitation",
+                        "source_type": "Surgery",
+                        "target_type": "FollowUp",
+                    },
+                ]
+            )
         return triples
 
 
@@ -199,17 +264,21 @@ class SurgeryGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def query_treats(self, disease: str):
         return [
-            src for src, tgt, d in self.G.edges(data=True)
+            src
+            for src, tgt, d in self.G.edges(data=True)
             if tgt.lower() == disease.lower() and d.get("relation") == "treats_disease"
         ]
 
     def query_risks(self, surgery: str):
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
             if src.lower() == surgery.lower() and d.get("relation") == "has_risk"
         ]
 
@@ -233,14 +302,14 @@ class SurgeryGraphBuilder:
         """Exports the graph to a .dot file in the specified directory."""
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        
+
         safe_name = surgery_name.replace(" ", "_").lower()
         path = os.path.join(output_dir, f"{safe_name}.dot")
-        
+
         with open(path, "w", encoding="utf-8") as f:
             f.write(f'digraph "{surgery_name}" {{\n')
-            f.write('    rankdir=LR;\n')
-            f.write('    node [shape=box, style=filled, color=lightblue];\n')
+            f.write("    rankdir=LR;\n")
+            f.write("    node [shape=box, style=filled, color=lightblue];\n")
             for u, v, d in self.G.edges(data=True):
                 relation = d.get("relation", "related_to")
                 f.write(f'    "{u}" -> "{v}" [label="{relation}"];\n')

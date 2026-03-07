@@ -3,13 +3,14 @@ Musculoskeletal Telemedicine Exam - MVP
 Simplified version for rapid testing and iteration.
 """
 
-from pydantic import BaseModel
 from datetime import datetime
 
+from pydantic import BaseModel
 
 # ============================================================================
 # DATA MODELS (Simplified)
 # ============================================================================
+
 
 class Exam(BaseModel):
     patient_name: str = "Unknown"
@@ -37,7 +38,10 @@ QUESTIONS = {
         ("swelling_unilateral", "Severe one-sided leg swelling with calf pain? "),
         ("pain_rest", "Severe pain at rest that doesn't improve? "),
         ("trauma_high", "High-energy trauma, major fall, or MVA? "),
-        ("systemic", "Rash, sore throat, recent infection, or constitutional symptoms? "),
+        (
+            "systemic",
+            "Rash, sore throat, recent infection, or constitutional symptoms? ",
+        ),
     ],
     "medications": [
         ("allergies", "Drug allergies or intolerances? "),
@@ -82,6 +86,7 @@ PATIENT_QUESTIONS = [
 # QUESTION COLLECTION
 # ============================================================================
 
+
 def collect_responses(question_dict: dict) -> dict:
     """Collect patient responses to a dictionary of questions."""
     responses = {}
@@ -100,13 +105,19 @@ def collect_exam() -> dict:
     exam = {}
 
     # Inspection
-    exam["inspection"] = input("\nInspection findings (swelling, redness, deformity): ").strip()
+    exam["inspection"] = input(
+        "\nInspection findings (swelling, redness, deformity): "
+    ).strip()
 
     # Palpation
-    exam["palpation"] = input("Palpation findings (tenderness, warmth, crepitus): ").strip()
+    exam["palpation"] = input(
+        "Palpation findings (tenderness, warmth, crepitus): "
+    ).strip()
 
     # Range of motion
-    exam["range_of_motion"] = input("Range of motion (active/passive, joints tested): ").strip()
+    exam["range_of_motion"] = input(
+        "Range of motion (active/passive, joints tested): "
+    ).strip()
 
     # Strength
     exam["strength"] = input("Strength testing (0-5 grading, muscle groups): ").strip()
@@ -115,7 +126,9 @@ def collect_exam() -> dict:
     exam["gait"] = input("Gait observation (walking pattern, posture): ").strip()
 
     # Special tests
-    exam["special_tests"] = input("Special tests performed (Lachman, McMurray, etc.): ").strip()
+    exam["special_tests"] = input(
+        "Special tests performed (Lachman, McMurray, etc.): "
+    ).strip()
 
     return exam
 
@@ -140,7 +153,7 @@ def generate_assessment(answers: dict, exam: dict) -> dict:
             "Physical therapy evaluation",
             "Activity modification as tolerated",
             "Follow-up in 2 weeks",
-        ]
+        ],
     }
 
     return assessment
@@ -151,16 +164,36 @@ def generate_patient_education(assessment: dict) -> dict:
     assessment.get("urgency", "monitor")
 
     education = {}
-    education["diagnosis"] = f"Based on exam: {assessment.get('primary_impression')}. Your physician will provide specific diagnosis."
-    education["timeline"] = "Recovery varies (typically 2-6 weeks). Your physician will give specific timeline."
-    education["permanent"] = "Most musculoskeletal conditions are manageable. Permanent disability is rare with proper treatment."
-    education["treatment"] = f"Recommendations: {', '.join(assessment.get('recommendations', []))}"
-    education["alternatives"] = "Physical therapy is excellent. Discuss supplements with your physician."
-    education["activity"] = "Avoid activities that significantly increase pain. Gradually return as tolerated."
-    education["prevention"] = "Regular exercise, good posture, proper ergonomics, weight management."
-    education["lifestyle"] = "Exercise regularly, sleep 7-9 hours, manage stress, eat anti-inflammatory foods."
-    education["complications"] = "Rare with proper treatment. Your physician will monitor you."
-    education["specialist"] = "Appropriate if symptoms don't improve in 4 weeks. Ask your physician for referral."
+    education["diagnosis"] = (
+        f"Based on exam: {assessment.get('primary_impression')}. Your physician will provide specific diagnosis."
+    )
+    education["timeline"] = (
+        "Recovery varies (typically 2-6 weeks). Your physician will give specific timeline."
+    )
+    education["permanent"] = (
+        "Most musculoskeletal conditions are manageable. Permanent disability is rare with proper treatment."
+    )
+    education["treatment"] = (
+        f"Recommendations: {', '.join(assessment.get('recommendations', []))}"
+    )
+    education["alternatives"] = (
+        "Physical therapy is excellent. Discuss supplements with your physician."
+    )
+    education["activity"] = (
+        "Avoid activities that significantly increase pain. Gradually return as tolerated."
+    )
+    education["prevention"] = (
+        "Regular exercise, good posture, proper ergonomics, weight management."
+    )
+    education["lifestyle"] = (
+        "Exercise regularly, sleep 7-9 hours, manage stress, eat anti-inflammatory foods."
+    )
+    education["complications"] = (
+        "Rare with proper treatment. Your physician will monitor you."
+    )
+    education["specialist"] = (
+        "Appropriate if symptoms don't improve in 4 weeks. Ask your physician for referral."
+    )
 
     return education
 
@@ -251,6 +284,7 @@ def run_exam() -> Exam:
     # Save option
     if input("\nSave exam to JSON? (y/n): ").lower() == "y":
         import json
+
         filename = f"exam_{exam.encounter_id}.json"
         with open(filename, "w") as f:
             json.dump(exam.model_dump(mode="json"), f, indent=2, default=str)

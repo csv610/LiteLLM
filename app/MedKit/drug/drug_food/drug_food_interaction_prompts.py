@@ -13,22 +13,23 @@ from typing import Optional
 @dataclass
 class DrugFoodInput:
     """Configuration and input for drug-food interaction analysis."""
+
     medicine_name: str
     diet_type: Optional[str] = None
     medical_conditions: Optional[str] = None
     age: Optional[int] = None
     specific_food: Optional[str] = None
     prompt_style: str = "detailed"
-    
+
     def validate(self) -> None:
         """Validate the input parameters.
-        
+
         Raises:
             ValueError: If any parameter is invalid
         """
         if not self.medicine_name or not self.medicine_name.strip():
             raise ValueError("Medicine name cannot be empty or just whitespace")
-        
+
         if self.age is not None and (self.age < 0 or self.age > 150):
             raise ValueError("Age must be between 0 and 150 years")
 
@@ -70,15 +71,17 @@ Always prioritize patient safety while providing practical, evidence-based guida
             str: Formatted user prompt with context
         """
         context = cls._build_context(config)
-        return f"{config.medicine_name} food and beverage interactions analysis. {context}"
-    
+        return (
+            f"{config.medicine_name} food and beverage interactions analysis. {context}"
+        )
+
     @staticmethod
     def _build_context(config: DrugFoodInput) -> str:
         """Build the analysis context string from input parameters.
-        
+
         Args:
             config: Configuration containing the medicine and patient information
-            
+
         Returns:
             str: Formatted context string
         """

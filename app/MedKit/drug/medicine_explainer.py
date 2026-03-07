@@ -1,4 +1,3 @@
-
 from litellm import completion
 
 SYSTEM_BLOCK = """
@@ -54,6 +53,7 @@ Apply Theory of Mind to analyze the user's request, considering both logical int
 
 import argparse
 
+
 def explain_medicine(medicine_name: str) -> str:
     messages = [
         {"role": "system", "content": SYSTEM_BLOCK},
@@ -65,19 +65,18 @@ def explain_medicine(medicine_name: str) -> str:
         {"role": "user", "content": medicine_name},
     ]
 
-    response = completion(
-        model="ollama/gemma3",
-        messages=messages,
-        temperature=0.4
-    )
+    response = completion(model="ollama/gemma3", messages=messages, temperature=0.4)
 
     return response["choices"][0]["message"]["content"]
 
 
 def main():
     parser = argparse.ArgumentParser(description="MedKit Medicine Explainer.")
-    parser.add_argument("medicine", help="The generic name of the medicine (e.g., acetaminophen, ibuprofen).")
-    
+    parser.add_argument(
+        "medicine",
+        help="The generic name of the medicine (e.g., acetaminophen, ibuprofen).",
+    )
+
     args = parser.parse_args()
 
     try:
@@ -90,4 +89,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

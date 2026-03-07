@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass
 class MedicalAnatomyIdentifierInput:
     """Configuration and input for medical anatomy identification."""
+
     structure_name: str
 
     def __post_init__(self):

@@ -1,6 +1,7 @@
 from ..base_recognizer import BaseRecognizer
-from .medical_vaccine_models import VaccineIdentifierModel, ModelOutput
+from .medical_vaccine_models import ModelOutput, VaccineIdentifierModel
 from .medical_vaccine_prompts import PromptBuilder
+
 
 class MedicalVaccineIdentifier(BaseRecognizer):
     def identify(self, name: str, structured: bool = False) -> ModelOutput:
@@ -9,7 +10,7 @@ class MedicalVaccineIdentifier(BaseRecognizer):
             user_prompt=PromptBuilder.create_user_prompt(name),
             response_format=VaccineIdentifierModel if structured else None,
         )
-        
+
         if structured:
             return ModelOutput(data=response)
         else:

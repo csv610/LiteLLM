@@ -1,13 +1,27 @@
 import argparse
-from anatomy_models import AnatomyTripletExtractor, AnatomyGraphBuilder, GraphVisualizer
-import os
+
+from anatomy_models import AnatomyGraphBuilder, AnatomyTripletExtractor, GraphVisualizer
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Build anatomy graph from name using LLM.")
-    parser.add_argument("anatomy_name", type=str, help="Name of the anatomy (e.g., Liver, Kidney, Brain)")
-    parser.add_argument("--model", type=str, default="gemini-2.0-flash", help="Model name to use (default: gemini-2.0-flash)")
-    parser.add_argument("--visualize", action="store_true", help="Show the graph visualization")
-    
+    parser = argparse.ArgumentParser(
+        description="Build anatomy graph from name using LLM."
+    )
+    parser.add_argument(
+        "anatomy_name",
+        type=str,
+        help="Name of the anatomy (e.g., Liver, Kidney, Brain)",
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="gemini-2.0-flash",
+        help="Model name to use (default: gemini-2.0-flash)",
+    )
+    parser.add_argument(
+        "--visualize", action="store_true", help="Show the graph visualization"
+    )
+
     args = parser.parse_args()
 
     print(f"🚀 Building anatomy graph for: {args.anatomy_name} using {args.model}")
@@ -35,6 +49,7 @@ def main():
     if args.visualize:
         visualizer = GraphVisualizer(builder.G)
         visualizer.show()
+
 
 if __name__ == "__main__":
     main()

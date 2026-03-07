@@ -1,4 +1,3 @@
-
 class PromptBuilder:
     """Builder class for creating prompts for medical procedure evaluation."""
 

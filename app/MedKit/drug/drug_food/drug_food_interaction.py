@@ -9,12 +9,11 @@ how food and beverages interact with medicines.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-from lite.utils import save_model_response
-
 from drug_food_interaction_models import DrugFoodInteractionModel, ModelOutput
-from drug_food_interaction_prompts import PromptBuilder, DrugFoodInput
+from drug_food_interaction_prompts import DrugFoodInput, PromptBuilder
+from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
+from lite.utils import save_model_response
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,9 @@ class DrugFoodInteraction:
         self.user_input = None  # Store the configuration for later use in save
         logger.debug("Initialized DrugFoodInteraction")
 
-    def generate_text(self, user_input: DrugFoodInput, structured: bool = False) -> ModelOutput:
+    def generate_text(
+        self, user_input: DrugFoodInput, structured: bool = False
+    ) -> ModelOutput:
         """Analyzes how food and beverages interact with a medicine."""
         # Store the configuration for later use in save
         self.user_input = user_input
@@ -71,8 +72,8 @@ class DrugFoodInteraction:
         """Saves the drug-food interaction information to a file."""
         if self.config is None:
             raise ValueError("No configuration available. Call generate_text first.")
-        
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.user_input.medicine_name.lower().replace(' ', '_')}_food_interaction"
-        
+
         return save_model_response(result, output_dir / base_filename)

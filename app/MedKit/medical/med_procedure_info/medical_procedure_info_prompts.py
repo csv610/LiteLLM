@@ -1,4 +1,3 @@
-
 class PromptBuilder:
     """Builder class for creating prompts for medical procedure documentation."""
 
@@ -49,4 +48,3 @@ Requirements:
 - Do not assume this is surgery unless it truly is
 - Do not include conversational language or commentary
 """
-

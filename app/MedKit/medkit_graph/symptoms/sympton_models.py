@@ -1,13 +1,14 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional, Dict, Union
-from pydantic import BaseModel, Field, validator
-import networkx as nx
-import matplotlib.pyplot as plt
 import json
 import os
+from typing import List, Literal, Optional
+
+import matplotlib.pyplot as plt
+import networkx as nx
 import sympton_prompts as prompts
+from pydantic import BaseModel, Field, validator
 
 try:
     from google import genai
@@ -15,8 +16,8 @@ except ImportError:
     genai = None
 
 try:
+    from lite.config import ModelConfig, ModelInput
     from lite.lite_client import LiteClient
-    from lite.config import ModelInput, ModelConfig
 except ImportError:
     LiteClient = None
     ModelInput = None
@@ -95,6 +96,7 @@ NODE_TYPE_ALIASES = {
 
 class Triple(BaseModel):
     """Validated knowledge triple for medical symptoms."""
+
     source: str = Field(..., description="Subject entity (e.g. Symptom)")
     relation: Relation = Field(..., description="Relation type")
     target: str = Field(..., description="Object entity (e.g. Disease)")
@@ -156,8 +158,7 @@ class SymptomTripletExtractor:
     def extract(self, text: str) -> List[Triple]:
         if self.lite_client is not None:
             model_input = ModelInput(
-                user_prompt=self.build_prompt(text),
-                response_format=TripleList
+                user_prompt=self.build_prompt(text), response_format=TripleList
             )
             try:
                 # Use generate_text which returns the parsed Pydantic model
@@ -168,8 +169,8 @@ class SymptomTripletExtractor:
                     # Fallback if it returns a string
                     raw_list = json.loads(response)
                     # Check if it's a list or a dict with 'triples' key
-                    if isinstance(raw_list, dict) and 'triples' in raw_list:
-                        return [Triple(**item) for item in raw_list['triples']]
+                    if isinstance(raw_list, dict) and "triples" in raw_list:
+                        return [Triple(**item) for item in raw_list["triples"]]
                     return [Triple(**item) for item in raw_list]
             except Exception as e:
                 print(f"⚠️ Error during extraction: {e}")
@@ -184,12 +185,36 @@ class SymptomTripletExtractor:
             symptom = "Fever"
         elif "cough" in text.lower():
             symptom = "Cough"
-            
+
         triples = [
-            Triple(source=symptom, relation="associated_with_disease", target="Common Cold", source_type="Symptom", target_type="Disease"),
-            Triple(source=symptom, relation="affects_body_part", target="Respiratory System", source_type="Symptom", target_type="BodyPart"),
-            Triple(source=symptom, relation="treated_with_drug", target="General Medicine", source_type="Symptom", target_type="Drug"),
-            Triple(source=symptom, relation="has_severity", target="Mild", source_type="Symptom", target_type="Severity"),
+            Triple(
+                source=symptom,
+                relation="associated_with_disease",
+                target="Common Cold",
+                source_type="Symptom",
+                target_type="Disease",
+            ),
+            Triple(
+                source=symptom,
+                relation="affects_body_part",
+                target="Respiratory System",
+                source_type="Symptom",
+                target_type="BodyPart",
+            ),
+            Triple(
+                source=symptom,
+                relation="treated_with_drug",
+                target="General Medicine",
+                source_type="Symptom",
+                target_type="Drug",
+            ),
+            Triple(
+                source=symptom,
+                relation="has_severity",
+                target="Mild",
+                source_type="Symptom",
+                target_type="Severity",
+            ),
         ]
         return triples
 
@@ -207,18 +232,24 @@ class SymptomGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def query_diseases(self, symptom: str):
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
-            if src.lower() == symptom.lower() and d.get("relation") in ["associated_with_disease", "indicates_disease"]
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
+            if src.lower() == symptom.lower()
+            and d.get("relation") in ["associated_with_disease", "indicates_disease"]
         ]
 
     def query_treatments(self, symptom: str):
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
-            if src.lower() == symptom.lower() and d.get("relation") in ["treated_with_drug", "treated_with_procedure"]
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
+            if src.lower() == symptom.lower()
+            and d.get("relation") in ["treated_with_drug", "treated_with_procedure"]
         ]
 
     def export_json(self, path: str = "symptom_graph.json"):
@@ -233,14 +264,18 @@ class SymptomGraphBuilder:
             }
             for u, v, d in self.G.edges(data=True)
         ]
-        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
+        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(
+            path
+        ) else None
         with open(path, "w", encoding="utf-8") as f:
             json.dump(triples, f, indent=2)
         print(f"✅ Graph exported to {path}")
 
     def export_dot(self, path: str):
         """Export the graph in DOT format."""
-        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
+        os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(
+            path
+        ) else None
         with open(path, "w", encoding="utf-8") as f:
             f.write("digraph SymptomGraph {\n")
             f.write("  node [shape=box, style=rounded, fontname=Arial];\n")

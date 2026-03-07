@@ -287,6 +287,10 @@ class LLMJudge:
             return result.format_output()
 
 
+# Alias for backward compatibility
+GeminiLLMJudge = LLMJudge
+
+
 # ============================================================
 # ========================= Utilities =========================
 # ============================================================

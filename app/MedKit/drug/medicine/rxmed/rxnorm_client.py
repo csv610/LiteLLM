@@ -4,12 +4,16 @@ Provides a lightweight, object-oriented client for interacting with the U.S. Nat
 RxNorm API. RxNorm is a standardized naming system for clinical drugs and drug delivery mechanisms.
 """
 
+from typing import Any, Dict, Optional
+
 import requests
-from typing import Optional, Dict, Any
+
 
 class RxNormError(Exception):
     """Custom exception for RxNorm API errors."""
+
     pass
+
 
 class RxNormClient:
     """

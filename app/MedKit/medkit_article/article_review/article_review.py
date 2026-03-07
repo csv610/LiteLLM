@@ -5,8 +5,9 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
+
 try:
     from .article_review_models import ArticleReview
     from .article_review_prompts import PromptBuilder
@@ -28,7 +29,7 @@ class ArticleReviewer:
             model: LiteClient model to use for review
         """
         self.model = model
-        
+
         try:
             model_config = ModelConfig(model=model, temperature=0.2)
             self.client = LiteClient(model_config=model_config)
@@ -42,7 +43,7 @@ class ArticleReviewer:
         path = Path(file_path).expanduser()
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
-        
+
         ext = path.suffix.lower()
 
         if ext == ".json":
@@ -66,10 +67,7 @@ class ArticleReviewer:
             texts.append(obj)
         return " ".join(filter(None, texts))
 
-    def review_article(
-        self, 
-        article_text: str
-    ) -> Optional[ArticleReview]:
+    def review_article(self, article_text: str) -> Optional[ArticleReview]:
         """
         Review a single medical article.
 
@@ -82,10 +80,7 @@ class ArticleReviewer:
         try:
             logger.info("Generating article review...")
             prompt = PromptBuilder.get_review_prompt(article_text)
-            model_input = ModelInput(
-                user_prompt=prompt,
-                response_format=ArticleReview
-            )
+            model_input = ModelInput(user_prompt=prompt, response_format=ArticleReview)
             response = self.client.generate_text(model_input=model_input)
             return response
         except Exception as e:

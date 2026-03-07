@@ -1,10 +1,11 @@
 import json
-from datetime import datetime
-from typing import List, Dict, Optional, Tuple, Union
-from pydantic import BaseModel, Field
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+from pydantic import BaseModel, Field
 
 # Add project root to sys.path to access lite module
 project_root = str(Path(__file__).resolve().parents[4])
@@ -12,14 +13,15 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 try:
-    from lite.lite_client import LiteClient
     from lite.config import ModelConfig, ModelInput
+    from lite.lite_client import LiteClient
 except ImportError:
     # Fallback to local imports or mock if necessary, though LiteClient is preferred
-    from lite_client import LiteClient
     from config import ModelConfig, ModelInput
+    from lite_client import LiteClient
 
 # ==================== Data Models ====================
+
 
 class PatientDemographics(BaseModel):
     name: str
@@ -27,22 +29,35 @@ class PatientDemographics(BaseModel):
     gender: str
     occupation: Optional[str] = None
 
+
 class ChiefComplaint(BaseModel):
     primary_complaint: str
     duration: str
     severity: str  # mild, moderate, severe
     onset: str  # sudden, gradual
 
+
 class SystemReview(BaseModel):
-    constitutional: List[str] = Field(description="Fever, weight loss, fatigue, night sweats")
+    constitutional: List[str] = Field(
+        description="Fever, weight loss, fatigue, night sweats"
+    )
     cardiovascular: List[str] = Field(description="Chest pain, palpitations, edema")
     respiratory: List[str] = Field(description="Cough, shortness of breath, wheezing")
-    gastrointestinal: List[str] = Field(description="Nausea, vomiting, diarrhea, constipation, abdominal pain")
+    gastrointestinal: List[str] = Field(
+        description="Nausea, vomiting, diarrhea, constipation, abdominal pain"
+    )
     genitourinary: List[str] = Field(description="Dysuria, frequency, hematuria")
-    musculoskeletal: List[str] = Field(description="Joint pain, muscle weakness, stiffness")
-    neurological: List[str] = Field(description="Headache, dizziness, numbness, tingling, seizures")
-    psychiatric: List[str] = Field(description="Anxiety, depression, sleep disturbances")
+    musculoskeletal: List[str] = Field(
+        description="Joint pain, muscle weakness, stiffness"
+    )
+    neurological: List[str] = Field(
+        description="Headache, dizziness, numbness, tingling, seizures"
+    )
+    psychiatric: List[str] = Field(
+        description="Anxiety, depression, sleep disturbances"
+    )
     skin: List[str] = Field(description="Rash, itching, lesions")
+
 
 class MedicalHistory(BaseModel):
     past_medical_conditions: List[str]
@@ -50,27 +65,46 @@ class MedicalHistory(BaseModel):
     allergies: List[str]
     surgical_history: List[str]
     family_history: List[str]
-    social_history: Dict[str, str] = Field(description="Smoking, alcohol, drug use, occupation")
+    social_history: Dict[str, str] = Field(
+        description="Smoking, alcohol, drug use, occupation"
+    )
+
 
 class PhysicalExamFindings(BaseModel):
     vital_signs: Dict[str, str] = Field(description="BP, HR, RR, Temp, SpO2")
     general_appearance: str
-    specific_findings: List[str] = Field(description="Relevant positive and negative findings")
+    specific_findings: List[str] = Field(
+        description="Relevant positive and negative findings"
+    )
+
 
 class ClinicalAssessment(BaseModel):
-    differential_diagnosis: List[str] = Field(description="Ranked list of possible diagnoses with brief reasoning")
+    differential_diagnosis: List[str] = Field(
+        description="Ranked list of possible diagnoses with brief reasoning"
+    )
     most_likely_diagnosis: str
     diagnostic_confidence: str = Field(description="High, moderate, low")
-    red_flags: List[str] = Field(description="Warning signs requiring immediate attention")
-    thinking_process: List[str] = Field(description="Internal medical reasoning captured during consultation", default_factory=list)
+    red_flags: List[str] = Field(
+        description="Warning signs requiring immediate attention"
+    )
+    thinking_process: List[str] = Field(
+        description="Internal medical reasoning captured during consultation",
+        default_factory=list,
+    )
+
 
 class ManagementPlan(BaseModel):
-    investigations_ordered: List[str] = Field(description="Lab tests, imaging, other diagnostic tests")
-    treatment_prescribed: List[str] = Field(description="Medications with dosage, non-pharmacological interventions")
+    investigations_ordered: List[str] = Field(
+        description="Lab tests, imaging, other diagnostic tests"
+    )
+    treatment_prescribed: List[str] = Field(
+        description="Medications with dosage, non-pharmacological interventions"
+    )
     patient_education: List[str] = Field(description="Key points explained to patient")
     follow_up_plan: str
     referrals: Optional[List[str]] = None
     precautions: List[str] = Field(description="When to return immediately")
+
 
 class EmergencyAlert(BaseModel):
     is_emergency: bool
@@ -78,11 +112,14 @@ class EmergencyAlert(BaseModel):
     recommendation: str
     action_required: bool
 
+
 class MedicalSummary(BaseModel):
     consultation_date: str
     patient_demographics: PatientDemographics
     chief_complaint: ChiefComplaint
-    history_of_present_illness: str = Field(description="Detailed narrative of symptom progression")
+    history_of_present_illness: str = Field(
+        description="Detailed narrative of symptom progression"
+    )
     review_of_systems: SystemReview
     past_medical_history: MedicalHistory
     physical_examination: PhysicalExamFindings
@@ -91,8 +128,10 @@ class MedicalSummary(BaseModel):
     clinical_notes: str = Field(description="Additional observations or concerns")
     emergency_alert: Optional[EmergencyAlert] = None
 
+
 class EmergencyException(Exception):
     """Exception raised when emergency red flags are detected."""
+
     def __init__(self, red_flags: List[str], patient_name: str = ""):
         self.red_flags = red_flags
         self.patient_name = patient_name
@@ -103,32 +142,89 @@ from symptom_detection_prompts import PromptBuilder
 
 # ==================== Main Consultation Class ====================
 
+
 class MedicalConsultation:
     """Enhanced medical consultation system using LiteClient and structured branching."""
 
     def __init__(self, model: str = "ollama/gemma3"):
-        self.config = ModelConfig(
-            model=model,
-            temperature=0.7
-        )
+        self.config = ModelConfig(model=model, temperature=0.7)
         self.client = LiteClient(model_config=self.config)
         self.conversation_history = []
         self.transcript = []
 
         # Red flag keywords for immediate escalation
         self.red_flag_keywords = {
-            "chest_pain": ["chest pain", "chest pressure", "chest tightness", "heart attack"],
-            "respiratory_distress": ["shortness of breath", "short of breath", "trouble breathing", "difficulty breathing",
-                                     "can't breathe", "gasping", "severe cough", "can't catch my breath", "breathing hard"],
-            "neurological": ["stroke", "seizure", "loss of consciousness", "severe headache", "sudden weakness", "paralysis",
-                            "slurred speech", "unconscious", "passed out", "loss of consciousness"],
-            "severe_bleeding": ["severe bleeding", "can't stop bleeding", "can't stop the bleeding", "blood loss", "hemorrhage",
-                               "bleeding won't stop", "profuse bleeding"],
-            "severe_abdominal": ["severe abdominal pain", "acute abdomen", "belly bursting", "sharp pain", "severe stomach pain"],
-            "signs_of_shock": ["fainting", "dizzy", "dizziness", "pale", "cold sweat", "rapid heart rate", "confusion",
-                              "altered mental status", "confused", "feeling faint"],
-            "allergic_reaction": ["anaphylaxis", "severe allergic", "throat closing", "can't swallow", "severe allergy"],
-            "severe_trauma": ["severe injury", "major accident", "severe trauma", "severe fall", "severe injury"]
+            "chest_pain": [
+                "chest pain",
+                "chest pressure",
+                "chest tightness",
+                "heart attack",
+            ],
+            "respiratory_distress": [
+                "shortness of breath",
+                "short of breath",
+                "trouble breathing",
+                "difficulty breathing",
+                "can't breathe",
+                "gasping",
+                "severe cough",
+                "can't catch my breath",
+                "breathing hard",
+            ],
+            "neurological": [
+                "stroke",
+                "seizure",
+                "loss of consciousness",
+                "severe headache",
+                "sudden weakness",
+                "paralysis",
+                "slurred speech",
+                "unconscious",
+                "passed out",
+                "loss of consciousness",
+            ],
+            "severe_bleeding": [
+                "severe bleeding",
+                "can't stop bleeding",
+                "can't stop the bleeding",
+                "blood loss",
+                "hemorrhage",
+                "bleeding won't stop",
+                "profuse bleeding",
+            ],
+            "severe_abdominal": [
+                "severe abdominal pain",
+                "acute abdomen",
+                "belly bursting",
+                "sharp pain",
+                "severe stomach pain",
+            ],
+            "signs_of_shock": [
+                "fainting",
+                "dizzy",
+                "dizziness",
+                "pale",
+                "cold sweat",
+                "rapid heart rate",
+                "confusion",
+                "altered mental status",
+                "confused",
+                "feeling faint",
+            ],
+            "allergic_reaction": [
+                "anaphylaxis",
+                "severe allergic",
+                "throat closing",
+                "can't swallow",
+                "severe allergy",
+            ],
+            "severe_trauma": [
+                "severe injury",
+                "major accident",
+                "severe trauma",
+                "severe fall",
+                "severe injury",
+            ],
         }
 
     def _parse_json_from_response(self, response_text: str) -> dict:
@@ -146,7 +242,7 @@ class MedicalConsultation:
             json_text = response_text.split("```")[1].split("```")[0].strip()
             return json.loads(json_text)
 
-        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
         if json_match:
             return json.loads(json_match.group())
 
@@ -176,9 +272,9 @@ class MedicalConsultation:
                 return None, None, None
 
             # Collect prelimary info
-            print("\n" + "="*80)
+            print("\n" + "=" * 80)
             print("PATIENT REGISTRATION")
-            print("="*80)
+            print("=" * 80)
 
             name = input("Patient Name: ").strip()
             age = int(input("Age: ").strip())
@@ -186,16 +282,20 @@ class MedicalConsultation:
             occupation = input("Occupation (optional): ").strip() or None
 
             # Store demographics
-            demographics = PatientDemographics(name=name, age=age, gender=gender, occupation=occupation)
-            
+            demographics = PatientDemographics(
+                name=name, age=age, gender=gender, occupation=occupation
+            )
+
             # Initial context
             context = self._build_context(demographics)
             self.conversation_history.append({"role": "user", "content": context})
 
-            print("\n" + "="*80)
+            print("\n" + "=" * 80)
             print("CONSULTATION (Branching Mode)")
-            print("="*80)
-            print(f"\nDoctor: Thank you for coming in, {name}. Let me take a moment to understand your situation.\n")
+            print("=" * 80)
+            print(
+                f"\nDoctor: Thank you for coming in, {name}. Let me take a moment to understand your situation.\n"
+            )
 
             # First question as requested: "What is troubling you?"
             thinking_proc = "[THINKING: I am starting the initial assessment of the chief complaint.]"
@@ -204,31 +304,38 @@ class MedicalConsultation:
             self.transcript.append(f"Doctor:1 {thinking_proc} {question_text}")
             first_answer = input("Patient: ").strip()
             self.transcript.append(f"Patient: {first_answer}")
-            
+
             # Check for red flags in first answer
             is_emergency, red_flags = self.detect_red_flags(first_answer)
             if is_emergency:
                 raise EmergencyException(red_flags, patient_name=name)
 
-            self.conversation_history.extend([
-                {"role": "model", "content": f"Doctor:1 {thinking_proc} {question_text}"},
-                {"role": "user", "content": first_answer}
-            ])
+            self.conversation_history.extend(
+                [
+                    {
+                        "role": "model",
+                        "content": f"Doctor:1 {thinking_proc} {question_text}",
+                    },
+                    {"role": "user", "content": first_answer},
+                ]
+            )
 
             # Initialize conversation log with the first question
-            initial_log = [{"question": f"{thinking_proc} {question_text}", "answer": first_answer}]
-            
+            initial_log = [
+                {"question": f"{thinking_proc} {question_text}", "answer": first_answer}
+            ]
+
             conversation_log = self._conduct_qa(
-                demographics=demographics, 
-                initial_log=initial_log, 
-                max_questions=max_questions, 
-                patient_name=name
+                demographics=demographics,
+                initial_log=initial_log,
+                max_questions=max_questions,
+                patient_name=name,
             )
 
             # Generate medical summary
-            print("\n" + "="*80)
+            print("\n" + "=" * 80)
             print("Generating medical summary...")
-            print("="*80 + "\n")
+            print("=" * 80 + "\n")
 
             summary_dict = self._generate_summary(demographics, conversation_log)
             summary = MedicalSummary(**summary_dict)
@@ -252,9 +359,9 @@ class MedicalConsultation:
 
     def _print_disclaimers(self):
         """Print medical disclaimers."""
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("IMPORTANT MEDICAL DISCLAIMERS".center(80))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
         print("""
 This is an AI-based consultation system and should NOT be used as a substitute
@@ -272,12 +379,16 @@ ALWAYS SEEK PROFESSIONAL MEDICAL CARE FOR:
 • Prescription medications
 • Professional medical examination
 """)
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
     def _get_consent(self) -> bool:
         """Get patient consent."""
-        response = input("Do you acknowledge and accept these disclaimers? (yes/no): ").strip().lower()
-        return response in ['yes', 'y']
+        response = (
+            input("Do you acknowledge and accept these disclaimers? (yes/no): ")
+            .strip()
+            .lower()
+        )
+        return response in ["yes", "y"]
 
     def _build_context(self, demographics: PatientDemographics) -> str:
         """Build initial context for AI doctor."""
@@ -286,13 +397,19 @@ PATIENT INFORMATION:
 Name: {demographics.name}
 Age: {demographics.age}
 Gender: {demographics.gender}
-Occupation: {demographics.occupation or 'Not specified'}
+Occupation: {demographics.occupation or "Not specified"}
 
 The doctor is starting the interview. The first question asked was 'What is troubling you?'.
 Follow the branching rules and thinking process strictly.
 """
 
-    def _conduct_qa(self, demographics: PatientDemographics, initial_log: list, max_questions: int = 15, patient_name: str = "") -> list:
+    def _conduct_qa(
+        self,
+        demographics: PatientDemographics,
+        initial_log: list,
+        max_questions: int = 15,
+        patient_name: str = "",
+    ) -> list:
         """Conduct question-answer cycle with thinking process and branching."""
         conversation_log = list(initial_log)
 
@@ -300,7 +417,9 @@ Follow the branching rules and thinking process strictly.
             # Format history for the prompt
             history_str = ""
             for entry in conversation_log:
-                history_str += f"Doctor: {entry['question']}\nPatient: {entry['answer']}\n\n"
+                history_str += (
+                    f"Doctor: {entry['question']}\nPatient: {entry['answer']}\n\n"
+                )
 
             # Create detailed context for the LLM
             context_str = f"PATIENT: {demographics.name}, {demographics.age}yo {demographics.gender}, {demographics.occupation or 'Not specified'}\n\n"
@@ -308,18 +427,18 @@ Follow the branching rules and thinking process strictly.
 
             # Generate question using LiteClient
             user_prompt = f"{context_str}\n\nContinue the consultation (Question {q_num + 2}). Categorize the previous response into the decision tree (YES/NO/UNCERTAIN/REFUSED/VAGUE), state your thinking (especially if repeating a question for a VAGUE response), and ask the next question. IMPORTANT: Do NOT repeat the same question if the previous response was clear and sufficient."
-            
+
             model_input = ModelInput(
                 system_prompt=PromptBuilder.create_system_prompt(),
-                user_prompt=user_prompt
+                user_prompt=user_prompt,
             )
-            
+
             # LiteClient usage: generate_text
             response = self.client.generate_text(model_input)
             full_question = response.strip()
 
             # Remove [THINKING: ...] for console display
-            display_question = re.sub(r'\[THINKING:.*?\]', '', full_question).strip()
+            display_question = re.sub(r"\[THINKING:.*?\]", "", full_question).strip()
 
             print(f"Doctor:{q_num + 2} {display_question}")
             self.transcript.append(f"Doctor:{q_num + 2} {full_question}")
@@ -328,7 +447,7 @@ Follow the branching rules and thinking process strictly.
             answer = input("Patient: ").strip()
             self.transcript.append(f"Patient: {answer}")
 
-            if answer.lower() in ['done', 'finish', 'complete']:
+            if answer.lower() in ["done", "finish", "complete"]:
                 break
 
             # Check for red flags
@@ -337,23 +456,25 @@ Follow the branching rules and thinking process strictly.
                 raise EmergencyException(red_flags, patient_name=patient_name)
 
             conversation_log.append({"question": full_question, "answer": answer})
-            self.conversation_history.extend([
-                {"role": "model", "content": f"Doctor:{q_num + 2} {full_question}"},
-                {"role": "user", "content": answer}
-            ])
+            self.conversation_history.extend(
+                [
+                    {"role": "model", "content": f"Doctor:{q_num + 2} {full_question}"},
+                    {"role": "user", "content": answer},
+                ]
+            )
 
             print()
 
         return conversation_log
 
-    def _generate_summary(self, demographics: PatientDemographics,
-                         conversation_log: list) -> dict:
+    def _generate_summary(
+        self, demographics: PatientDemographics, conversation_log: list
+    ) -> dict:
         """Generate medical summary using LiteClient."""
         prompt = PromptBuilder.create_summary_prompt(demographics, conversation_log)
 
         model_input = ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=prompt
+            system_prompt=PromptBuilder.create_system_prompt(), user_prompt=prompt
         )
         response = self.client.generate_text(model_input)
 
@@ -365,7 +486,7 @@ Follow the branching rules and thinking process strictly.
         name = summary.patient_demographics.name.replace(" ", "_")
         filename = f"medical_summary_{name}_{timestamp}.json"
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(summary.model_dump(), f, indent=2)
 
         return filename
@@ -377,9 +498,9 @@ Follow the branching rules and thinking process strictly.
         filename = f"medical_report_{name}_{timestamp}.txt"
 
         lines = []
-        lines.append("\n" + "="*80)
+        lines.append("\n" + "=" * 80)
         lines.append("MEDICAL CONSULTATION REPORT".center(80))
-        lines.append("="*80 + "\n")
+        lines.append("=" * 80 + "\n")
 
         # Patient info
         demo = summary.patient_demographics
@@ -396,7 +517,9 @@ Follow the branching rules and thinking process strictly.
         lines.append("-" * 80)
         cc = summary.chief_complaint
         lines.append(f"Complaint: {cc.primary_complaint}")
-        lines.append(f"Duration: {cc.duration} | Severity: {cc.severity} | Onset: {cc.onset}\n")
+        lines.append(
+            f"Duration: {cc.duration} | Severity: {cc.severity} | Onset: {cc.onset}\n"
+        )
 
         # History
         lines.append("HISTORY OF PRESENT ILLNESS")
@@ -454,7 +577,7 @@ Follow the branching rules and thinking process strictly.
             lines.append("\n⚠ RED FLAGS:")
             for flag in ca.red_flags:
                 lines.append(f"  • {flag}")
-        
+
         if ca.thinking_process:
             lines.append("\nINTERNAL REASONING (THINKING PROCESS):")
             for thought in ca.thinking_process:
@@ -487,9 +610,9 @@ Follow the branching rules and thinking process strictly.
         lines.append("-" * 80)
         lines.append(f"{summary.clinical_notes}\n")
 
-        lines.append("="*80 + "\n")
+        lines.append("=" * 80 + "\n")
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write("\n".join(lines))
 
         return filename
@@ -500,30 +623,38 @@ Follow the branching rules and thinking process strictly.
         name = patient_name.replace(" ", "_")
         filename = f"consultation_transcript_{name}_{timestamp}.txt"
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write("\n".join(self.transcript))
 
         return filename
 
     def _handle_emergency(self, red_flags: List[str], patient_name: str):
         """Handle emergency escalation."""
-        self.transcript.append("\n" + "="*80)
-        self.transcript.append("⚠️  EMERGENCY ALERT - IMMEDIATE ACTION REQUIRED".center(80))
-        self.transcript.append("="*80 + "\n")
+        self.transcript.append("\n" + "=" * 80)
+        self.transcript.append(
+            "⚠️  EMERGENCY ALERT - IMMEDIATE ACTION REQUIRED".center(80)
+        )
+        self.transcript.append("=" * 80 + "\n")
         self.transcript.append(f"Dear {patient_name},\n")
-        self.transcript.append("Based on what you've shared, I've identified serious warning signs")
+        self.transcript.append(
+            "Based on what you've shared, I've identified serious warning signs"
+        )
         self.transcript.append("that require immediate medical attention.\n")
         self.transcript.append("RED FLAGS DETECTED:")
         for flag in red_flags:
             self.transcript.append(f"  • {flag}")
         self.transcript.append("\n⚠️  STOP THIS CONSULTATION")
-        self.transcript.append("⚠️  CALL 911 IMMEDIATELY or go to the nearest Emergency Room")
-        self.transcript.append("This is a medical emergency. Professional emergency care is required.")
-        self.transcript.append("="*80 + "\n")
+        self.transcript.append(
+            "⚠️  CALL 911 IMMEDIATELY or go to the nearest Emergency Room"
+        )
+        self.transcript.append(
+            "This is a medical emergency. Professional emergency care is required."
+        )
+        self.transcript.append("=" * 80 + "\n")
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("⚠️  EMERGENCY ALERT - IMMEDIATE ACTION REQUIRED".center(80))
-        print("="*80)
+        print("=" * 80)
         print(f"\nDear {patient_name},\n")
         print("Based on what you've shared, I've identified serious warning signs")
         print("that require immediate medical attention.\n")
@@ -532,4 +663,4 @@ Follow the branching rules and thinking process strictly.
             print(f"  • {flag}")
         print("\n⚠️  STOP THIS CONSULTATION")
         print("⚠️  CALL 911 IMMEDIATELY or go to the nearest Emergency Room")
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")

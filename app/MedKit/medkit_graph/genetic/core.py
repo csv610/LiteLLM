@@ -1,13 +1,14 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional
-from pydantic import BaseModel, validator
-import networkx as nx
-import matplotlib.pyplot as plt
 import json
 import os
+from typing import List, Literal, Optional
+
+import matplotlib.pyplot as plt
+import networkx as nx
 import prompts
+from pydantic import BaseModel, validator
 
 try:
     from google import genai
@@ -134,7 +135,9 @@ class GeneticsTripletExtractor:
         if api_key and genai is not None:
             self.client = genai.Client(api_key=api_key)
         elif api_key and genai is None:
-            print("⚠️ GEMINI_API_KEY set but google.genai not installed. Using offline mode.")
+            print(
+                "⚠️ GEMINI_API_KEY set but google.genai not installed. Using offline mode."
+            )
 
     def build_prompt(self, text: str) -> str:
         return prompts.PROMPT.format(text=text)
@@ -167,13 +170,45 @@ class GeneticsTripletExtractor:
         t = text.lower()
         triples = []
         if "brca1" in t:
-            triples.extend([
-                {"source": "BRCA1", "relation": "encodes", "target": "BRCA1 Protein", "source_type": "Gene", "target_type": "Protein"},
-                {"source": "BRCA1", "relation": "mutated_in", "target": "Breast Cancer", "source_type": "Gene", "target_type": "Disease"},
-                {"source": "BRCA1 Protein", "relation": "involved_in", "target": "DNA Repair Pathway", "source_type": "Protein", "target_type": "Pathway"},
-                {"source": "BRCA1", "relation": "associated_with", "target": "Ovarian Cancer", "source_type": "Gene", "target_type": "Disease"},
-                {"source": "BRCA1 Variant", "relation": "pathogenic_in", "target": "Hereditary Breast Cancer", "source_type": "Variant", "target_type": "Disease"},
-            ])
+            triples.extend(
+                [
+                    {
+                        "source": "BRCA1",
+                        "relation": "encodes",
+                        "target": "BRCA1 Protein",
+                        "source_type": "Gene",
+                        "target_type": "Protein",
+                    },
+                    {
+                        "source": "BRCA1",
+                        "relation": "mutated_in",
+                        "target": "Breast Cancer",
+                        "source_type": "Gene",
+                        "target_type": "Disease",
+                    },
+                    {
+                        "source": "BRCA1 Protein",
+                        "relation": "involved_in",
+                        "target": "DNA Repair Pathway",
+                        "source_type": "Protein",
+                        "target_type": "Pathway",
+                    },
+                    {
+                        "source": "BRCA1",
+                        "relation": "associated_with",
+                        "target": "Ovarian Cancer",
+                        "source_type": "Gene",
+                        "target_type": "Disease",
+                    },
+                    {
+                        "source": "BRCA1 Variant",
+                        "relation": "pathogenic_in",
+                        "target": "Hereditary Breast Cancer",
+                        "source_type": "Variant",
+                        "target_type": "Disease",
+                    },
+                ]
+            )
         return triples
 
 
@@ -188,20 +223,26 @@ class GeneticsGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def find_disease_genes(self, disease: str):
         """Return all genes linked to a disease."""
         return [
-            src for src, tgt, d in self.G.edges(data=True)
-            if tgt.lower() == disease.lower() and self.G.nodes[src].get("type") == "Gene"
+            src
+            for src, tgt, d in self.G.edges(data=True)
+            if tgt.lower() == disease.lower()
+            and self.G.nodes[src].get("type") == "Gene"
         ]
 
     def find_gene_pathways(self, gene: str):
         """Return pathways involving a gene."""
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
-            if src.lower() == gene.lower() and d.get("relation") in ["involved_in", "participates_in"]
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
+            if src.lower() == gene.lower()
+            and d.get("relation") in ["involved_in", "participates_in"]
         ]
 
     def export_json(self, path="genetics_graph.json"):

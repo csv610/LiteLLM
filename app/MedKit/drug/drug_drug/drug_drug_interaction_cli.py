@@ -2,11 +2,10 @@ import argparse
 import logging
 from pathlib import Path
 
-from lite.config import ModelConfig
-from lite.logging_config import configure_logging
-
 from drug_drug_interaction import DrugDrugInteractionGenerator
 from drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
+from lite.config import ModelConfig
+from lite.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
 
@@ -17,69 +16,66 @@ def get_user_arguments() -> argparse.Namespace:
         description="Drug-Drug Interaction Analyzer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument("medicine1", type=str, help="Name of the first medicine")
+    parser.add_argument("medicine2", type=str, help="Name of the second medicine")
     parser.add_argument(
-        "medicine1",
-        type=str,
-        help="Name of the first medicine"
+        "--age", "-a", type=int, default=None, help="Patient's age in years (0-150)"
     )
     parser.add_argument(
-        "medicine2",
-        type=str,
-        help="Name of the second medicine"
-    )
-    parser.add_argument(
-        "--age", "-a",
-        type=int,
-        default=None,
-        help="Patient's age in years (0-150)"
-    )
-    parser.add_argument(
-        "--dosage1", "-d1",
+        "--dosage1",
+        "-d1",
         type=str,
         default=None,
-        help="Dosage information for first medicine"
+        help="Dosage information for first medicine",
     )
     parser.add_argument(
-        "--dosage2", "-d2",
+        "--dosage2",
+        "-d2",
         type=str,
         default=None,
-        help="Dosage information for second medicine"
+        help="Dosage information for second medicine",
     )
     parser.add_argument(
-        "--conditions", "-c",
+        "--conditions",
+        "-c",
         type=str,
         default=None,
-        help="Patient's medical conditions (comma-separated)"
+        help="Patient's medical conditions (comma-separated)",
     )
     parser.add_argument(
-        "--style", "-s",
+        "--style",
+        "-s",
         type=str,
         choices=["detailed", "concise", "balanced"],
         default="detailed",
-        help="Prompt style for analysis (default: detailed)"
+        help="Prompt style for analysis (default: detailed)",
     )
     parser.add_argument(
-        "-d", "--output-dir",
+        "-d",
+        "--output-dir",
         default="outputs",
-        help="Directory for output files (default: outputs)."
+        help="Directory for output files (default: outputs).",
     )
     parser.add_argument(
-        "-m", "--model",
+        "-m",
+        "--model",
         default="ollama/gemma3",
-        help="Model to use for generation (default: ollama/gemma3)."
+        help="Model to use for generation (default: ollama/gemma3).",
     )
     parser.add_argument(
-        "-v", "--verbosity",
+        "-v",
+        "--verbosity",
         type=int,
         default=2,
         choices=[0, 1, 2, 3, 4],
-        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
+        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).",
     )
     parser.add_argument(
-        "-t", "--structured",
+        "-t",
+        "--structured",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response."
+        help="Use structured output (Pydantic model) for the response.",
     )
 
     return parser.parse_args()
@@ -91,7 +87,7 @@ def create_drug_drug_interaction_report(args) -> int:
     configure_logging(
         log_file=str(Path(__file__).parent / "logs" / "drug_drug_interaction.log"),
         verbosity=args.verbosity,
-        enable_console=True
+        enable_console=True,
     )
     logger.debug("CLI Arguments:")
     logger.debug(f"  Medicine 1: {args.medicine1}")
@@ -107,7 +103,7 @@ def create_drug_drug_interaction_report(args) -> int:
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
         generator = DrugDrugInteractionGenerator(model_config)
-        
+
         # Create input configuration
         user_input = DrugDrugInput(
             medicine1=args.medicine1,
@@ -116,9 +112,9 @@ def create_drug_drug_interaction_report(args) -> int:
             dosage1=args.dosage1,
             dosage2=args.dosage2,
             medical_conditions=args.conditions,
-            prompt_style=PromptStyle(args.style)
+            prompt_style=PromptStyle(args.style),
         )
-        
+
         result = generator.generate_text(config=user_input, structured=args.structured)
 
         if result is None:

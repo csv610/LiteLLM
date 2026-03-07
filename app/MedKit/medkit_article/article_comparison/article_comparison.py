@@ -5,8 +5,9 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
+
 try:
     from .article_comparison_models import ComparisonResult
     from .article_comparison_prompts import PromptBuilder

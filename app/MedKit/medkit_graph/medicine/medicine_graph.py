@@ -1,5 +1,6 @@
 import os
-from medicine_models import MedicineTripletExtractor, MedicineGraphBuilder, GraphVisualizer
+
+from medicine_models import MedicineGraphBuilder, MedicineTripletExtractor
 
 # =========================
 # 5️⃣ Main Runner

@@ -1,6 +1,7 @@
 """Main entry point for surgical tool info package."""
 
 import sys
+
 try:
     from .surgical_tool_info_cli import main
 except (ImportError, ValueError):

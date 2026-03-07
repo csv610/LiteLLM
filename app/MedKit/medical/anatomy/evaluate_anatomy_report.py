@@ -6,12 +6,13 @@ This module evaluates anatomical reports against rigorous medical and scientific
 Zero tolerance for inaccuracies in clinical reliability and anatomical accuracy.
 """
 
-import logging
 import json
+import logging
 import sys
-from pathlib import Path
-from typing import Optional, Dict, List, Tuple
 from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 from pydantic import BaseModel
 
 # Add the project root to sys.path
@@ -19,8 +20,8 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class AccuracyRating(Enum):
     """Anatomical accuracy ratings."""
+
     EXCELLENT = "✓ Excellent"
     GOOD = "✓ Good"
     ACCEPTABLE = "⚠️ Acceptable"
@@ -40,6 +42,7 @@ class AccuracyRating(Enum):
 
 class TerminologyRating(Enum):
     """Terminology precision ratings."""
+
     EXCELLENT = "✓ Excellent"
     ACCURATE = "✓ Accurate"
     ACCEPTABLE = "⚠️ Acceptable with minor issues"
@@ -51,6 +54,7 @@ class TerminologyRating(Enum):
 
 class EmbryologyRating(Enum):
     """Embryology accuracy ratings."""
+
     CORRECT = "✓ Correct"
     ACCURATE = "✓ Accurate"
     ACCEPTABLE = "⚠️ Acceptable but incomplete"
@@ -62,6 +66,7 @@ class EmbryologyRating(Enum):
 
 class ClinicalReliabilityRating(Enum):
     """Clinical reliability ratings - ZERO TOLERANCE for unsafe info."""
+
     SAFE_RELIABLE = "✓ Safe and reliable"
     SAFE_ACCURATE = "✓ Safe and accurate"
     CLINICALLY_SOUND = "✓ Clinically sound"
@@ -74,6 +79,7 @@ class ClinicalReliabilityRating(Enum):
 
 class StructuralOrganizationRating(Enum):
     """Structural organization ratings."""
+
     EXCELLENT = "✓ Excellent organization"
     WELL_ORGANIZED = "✓ Well-organized"
     LOGICAL = "✓ Logically structured"
@@ -104,28 +110,28 @@ class AnatomyEvaluationResult(BaseModel):
             "structure_name": self.structure_name,
             "anatomical_accuracy": {
                 "rating": self.anatomical_accuracy[0].value,
-                "issues": self.anatomical_accuracy[1]
+                "issues": self.anatomical_accuracy[1],
             },
             "terminology_precision": {
                 "rating": self.terminology_precision[0].value,
-                "issues": self.terminology_precision[1]
+                "issues": self.terminology_precision[1],
             },
             "embryology": {
                 "rating": self.embryology[0].value,
-                "issues": self.embryology[1]
+                "issues": self.embryology[1],
             },
             "clinical_reliability": {
                 "rating": self.clinical_reliability[0].value,
-                "issues": self.clinical_reliability[1]
+                "issues": self.clinical_reliability[1],
             },
             "structural_organization": {
                 "rating": self.structural_organization[0].value,
-                "issues": self.structural_organization[1]
+                "issues": self.structural_organization[1],
             },
             "overall_quality_score": self.overall_quality_score,
             "pass_fail_status": self.pass_fail_status,
             "critical_issues": self.critical_issues,
-            "recommendations": self.recommendations
+            "recommendations": self.recommendations,
         }
 
 
@@ -144,8 +150,16 @@ class KnowledgeBase:
 
     # Regional artery branches (prevent misplacement)
     FOREARM_ARTERIES = {"ulnar_artery", "radial_artery", "anterior_interosseous_artery"}
-    THIGH_ARTERIES = {"femoral_artery", "profunda_femoris_artery", "superficial_femoral_artery"}
-    LEG_ARTERIES = {"popliteal_artery", "anterior_tibial_artery", "posterior_tibial_artery"}
+    THIGH_ARTERIES = {
+        "femoral_artery",
+        "profunda_femoris_artery",
+        "superficial_femoral_artery",
+    }
+    LEG_ARTERIES = {
+        "popliteal_artery",
+        "anterior_tibial_artery",
+        "posterior_tibial_artery",
+    }
 
     # Vein characteristics
     SUPERFICIAL_VEINS = {"saphenous_vein", "cephalic_vein", "basilic_vein"}
@@ -153,7 +167,12 @@ class KnowledgeBase:
 
     # Embryological origins (germ layers)
     MESODERM_DERIVATIVES = {
-        "musculoskeletal": ["skeletal_muscle", "bone", "cartilage", "connective_tissue"],
+        "musculoskeletal": [
+            "skeletal_muscle",
+            "bone",
+            "cartilage",
+            "connective_tissue",
+        ],
         "vascular": ["arteries", "veins", "lymphatics"],
         "blood": ["blood_cells", "blood_vessels"],
     }
@@ -162,7 +181,7 @@ class KnowledgeBase:
         "peripheral_nerves",
         "sensory_neurons",
         "sympathetic_neurons",
-        "cranial_nerve_ganglia"
+        "cranial_nerve_ganglia",
     }
 
     # Common anatomical errors
@@ -170,18 +189,18 @@ class KnowledgeBase:
         "ulnar_artery": {
             "error": "Mistakenly placing in thigh instead of forearm",
             "location": "Forearm (formed from brachial artery)",
-            "severity": "CRITICAL"
+            "severity": "CRITICAL",
         },
         "saphenous_vein": {
             "error": "Described as deep when it is superficial",
             "location": "Superficial (between skin and fascia)",
-            "severity": "CRITICAL"
+            "severity": "CRITICAL",
         },
         "radial_artery": {
             "error": "Mistakenly placing outside forearm",
             "location": "Forearm (formed from brachial artery)",
-            "severity": "CRITICAL"
-        }
+            "severity": "CRITICAL",
+        },
     }
 
 
@@ -194,11 +213,11 @@ class AnatomyReportEvaluator:
         self.issues = []
         self.critical_issues = []
         self.client = None
-        
+
         if model:
             config = ModelConfig(model=model, temperature=0.0)
             self.client = LiteClient(config)
-            
+
         logger.debug(f"Initialized AnatomyReportEvaluator (model: {model})")
 
     def evaluate_file(self, file_path: Path) -> AnatomyEvaluationResult:
@@ -207,11 +226,11 @@ class AnatomyReportEvaluator:
             raise FileNotFoundError(f"File not found: {file_path}")
 
         # Read file content
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Extract structure name from filename or content
-        structure_name = file_path.stem.replace('_', ' ').title()
+        structure_name = file_path.stem.replace("_", " ").title()
 
         if self.client:
             logger.info(f"Evaluating {structure_name} using LLM ({self.model})")
@@ -220,7 +239,9 @@ class AnatomyReportEvaluator:
             logger.info(f"Evaluating {structure_name} using rule-based system")
             return self._evaluate_with_rules(content, structure_name)
 
-    def _evaluate_with_rules(self, content: str, structure_name: str) -> AnatomyEvaluationResult:
+    def _evaluate_with_rules(
+        self, content: str, structure_name: str
+    ) -> AnatomyEvaluationResult:
         """Evaluate an anatomy report using rule-based system."""
         # Reset issues
         self.issues = []
@@ -236,13 +257,19 @@ class AnatomyReportEvaluator:
         organization = self._evaluate_structural_organization(content)
 
         # Calculate overall score
-        overall_score = self._calculate_overall_score(accuracy, terminology, embryology, clinical, organization)
+        overall_score = self._calculate_overall_score(
+            accuracy, terminology, embryology, clinical, organization
+        )
 
         # Determine pass/fail status
-        pass_fail = self._determine_pass_fail(accuracy, terminology, embryology, clinical, organization)
+        pass_fail = self._determine_pass_fail(
+            accuracy, terminology, embryology, clinical, organization
+        )
 
         # Generate recommendations
-        recommendations = self._generate_recommendations(accuracy, terminology, embryology, clinical, organization)
+        recommendations = self._generate_recommendations(
+            accuracy, terminology, embryology, clinical, organization
+        )
 
         result = AnatomyEvaluationResult(
             structure_name=structure_name,
@@ -254,12 +281,14 @@ class AnatomyReportEvaluator:
             overall_quality_score=overall_score,
             pass_fail_status=pass_fail,
             critical_issues=self.critical_issues,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
         return result
 
-    def _evaluate_with_llm(self, content: str, structure_name: str) -> AnatomyEvaluationResult:
+    def _evaluate_with_llm(
+        self, content: str, structure_name: str
+    ) -> AnatomyEvaluationResult:
         """Evaluate an anatomy report using an LLM."""
         logger.debug(f"Evaluating anatomy report with LLM for: {structure_name}")
 
@@ -316,7 +345,9 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             logger.error(f"Error during LLM evaluation: {e}")
             raise
 
-    def _evaluate_anatomical_accuracy(self, content: str, structure_name: str) -> Tuple[AccuracyRating, List[str]]:
+    def _evaluate_anatomical_accuracy(
+        self, content: str, structure_name: str
+    ) -> Tuple[AccuracyRating, List[str]]:
         """Evaluate anatomical accuracy with ZERO tolerance for errors."""
         issues = []
         severity_count = {"critical": 0, "major": 0, "minor": 0}
@@ -325,12 +356,18 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         if "femoral" in structure_name.lower():
             # Check for incorrect artery placements
             if "ulnar_artery" in content.lower() and "thigh" in content.lower():
-                issues.append("CRITICAL: Ulnar artery incorrectly placed in thigh (should be in forearm)")
+                issues.append(
+                    "CRITICAL: Ulnar artery incorrectly placed in thigh (should be in forearm)"
+                )
                 severity_count["critical"] += 1
-                self.critical_issues.append("Ulnar artery mislocalization in femoral artery report")
+                self.critical_issues.append(
+                    "Ulnar artery mislocalization in femoral artery report"
+                )
 
             if "saphenous vein" in content.lower() and "deep" in content.lower():
-                issues.append("CRITICAL: Saphenous vein described as deep (should be superficial)")
+                issues.append(
+                    "CRITICAL: Saphenous vein described as deep (should be superficial)"
+                )
                 severity_count["critical"] += 1
                 self.critical_issues.append("Saphenous vein mischaracterization")
 
@@ -338,7 +375,9 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         vague_terms = ["approximately", "roughly", "somewhat", "fairly", "kind of"]
         vague_count = sum(1 for term in vague_terms if f" {term} " in content.lower())
         if vague_count > 5:
-            issues.append(f"Multiple vague anatomical descriptions detected ({vague_count} instances)")
+            issues.append(
+                f"Multiple vague anatomical descriptions detected ({vague_count} instances)"
+            )
             severity_count["major"] += 1
 
         # Check for missing critical anatomical details
@@ -359,7 +398,9 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         logger.debug(f"Anatomical accuracy: {rating.value}")
         return (rating, issues)
 
-    def _evaluate_terminology_precision(self, content: str, structure_name: str) -> Tuple[TerminologyRating, List[str]]:
+    def _evaluate_terminology_precision(
+        self, content: str, structure_name: str
+    ) -> Tuple[TerminologyRating, List[str]]:
         """Evaluate terminology precision and correctness."""
         issues = []
         severity_count = {"critical": 0, "major": 0, "minor": 0}
@@ -377,14 +418,34 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
                 severity_count["major"] += 1
 
         # Check for vague qualifiers that indicate imprecise language
-        vague_qualifiers = [" kind of ", " fairly ", " possibly ", " might ", " roughly ", " somewhat ", " could be ", " not entirely sure"]
+        vague_qualifiers = [
+            " kind of ",
+            " fairly ",
+            " possibly ",
+            " might ",
+            " roughly ",
+            " somewhat ",
+            " could be ",
+            " not entirely sure",
+        ]
         vague_count = sum(1 for q in vague_qualifiers if q in content.lower())
         if vague_count > 3:
-            issues.append(f"Excessive vague qualifiers detected ({vague_count} instances)")
+            issues.append(
+                f"Excessive vague qualifiers detected ({vague_count} instances)"
+            )
             severity_count["major"] += 1
 
         # Check for anatomical position terminology
-        position_terms = ["anterior", "posterior", "medial", "lateral", "superior", "inferior", "deep", "superficial"]
+        position_terms = [
+            "anterior",
+            "posterior",
+            "medial",
+            "lateral",
+            "superior",
+            "inferior",
+            "deep",
+            "superficial",
+        ]
         position_count = sum(1 for term in position_terms if term in content.lower())
 
         if position_count < 3:
@@ -414,20 +475,28 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         logger.debug(f"Terminology precision: {rating.value}")
         return (rating, issues)
 
-    def _evaluate_embryology(self, content: str, structure_name: str) -> Tuple[EmbryologyRating, List[str]]:
+    def _evaluate_embryology(
+        self, content: str, structure_name: str
+    ) -> Tuple[EmbryologyRating, List[str]]:
         """Evaluate embryological information accuracy."""
         issues = []
         severity_count = {"critical": 0, "major": 0, "minor": 0}
 
         # Check if embryology section exists
-        has_embryology = any(term in content.lower() for term in ["embryological", "embryology", "development", "origin", "germ"])
+        has_embryology = any(
+            term in content.lower()
+            for term in ["embryological", "embryology", "development", "origin", "germ"]
+        )
 
         if not has_embryology:
             issues.append("Missing embryological information")
             severity_count["major"] += 1
         else:
             # Check for correct germ layer origins
-            if "femoral" in structure_name.lower() and "artery" in structure_name.lower():
+            if (
+                "femoral" in structure_name.lower()
+                and "artery" in structure_name.lower()
+            ):
                 # Arteries come from mesoderm
                 if "mesoderm" not in content.lower():
                     issues.append("Missing mesoderm origin for arterial structure")
@@ -436,8 +505,13 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             # Check for vague embryological statements
             vague_embryo = ["develops from", "comes from", "arises from"]
             if any(term in content.lower() for term in vague_embryo):
-                if "germ layer" not in content.lower() and "mesoderm" not in content.lower():
-                    issues.append("Embryological description lacks specific germ layer information")
+                if (
+                    "germ layer" not in content.lower()
+                    and "mesoderm" not in content.lower()
+                ):
+                    issues.append(
+                        "Embryological description lacks specific germ layer information"
+                    )
                     severity_count["minor"] += 1
 
         # Check for specific developmental timeline
@@ -464,7 +538,9 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         logger.debug(f"Embryology: {rating.value}")
         return (rating, issues)
 
-    def _evaluate_clinical_reliability(self, content: str, structure_name: str) -> Tuple[ClinicalReliabilityRating, List[str]]:
+    def _evaluate_clinical_reliability(
+        self, content: str, structure_name: str
+    ) -> Tuple[ClinicalReliabilityRating, List[str]]:
         """Evaluate clinical reliability - ZERO TOLERANCE for unsafe information."""
         issues = []
         severity_count = {"critical": 0, "major": 0, "minor": 0}
@@ -474,25 +550,43 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         # Check for critical anatomical errors that could lead to clinical harm
         if "femoral" in structure_name.lower():
             if "ulnar artery" in content and "thigh" in content:
-                issues.append("UNSAFE: Ulnar artery misplacement could lead to clinical misidentification")
+                issues.append(
+                    "UNSAFE: Ulnar artery misplacement could lead to clinical misidentification"
+                )
                 severity_count["critical"] += 1
-                self.critical_issues.append("Clinical safety issue: Arterial mislocalization")
+                self.critical_issues.append(
+                    "Clinical safety issue: Arterial mislocalization"
+                )
 
         # Check for unclear clinical descriptions
         vague_clinical = ["may", "might", "could", "possibly"]
-        vague_count = sum(1 for term in vague_clinical if f" {term} " in content.lower())
+        vague_count = sum(
+            1 for term in vague_clinical if f" {term} " in content.lower()
+        )
         if vague_count > 5:
-            issues.append(f"Excessive clinical uncertainty ('{' '.join(vague_clinical)}' used {vague_count} times)")
+            issues.append(
+                f"Excessive clinical uncertainty ('{' '.join(vague_clinical)}' used {vague_count} times)"
+            )
             severity_count["major"] += 1
 
         # Check for presence of clinical significance section
-        has_clinical_section = any(term in content.lower() for term in ["clinical significance", "clinical importance", "clinical application"])
+        has_clinical_section = any(
+            term in content.lower()
+            for term in [
+                "clinical significance",
+                "clinical importance",
+                "clinical application",
+            ]
+        )
         if not has_clinical_section:
             issues.append("Missing clinical significance information")
             severity_count["minor"] += 1
 
         # Check for warnings about variations
-        has_variation_warning = any(term in content.lower() for term in ["variation", "variant", "anatomical variation"])
+        has_variation_warning = any(
+            term in content.lower()
+            for term in ["variation", "variant", "anatomical variation"]
+        )
         if not has_variation_warning:
             issues.append("Missing information about anatomical variations")
             severity_count["minor"] += 1
@@ -515,7 +609,9 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         logger.debug(f"Clinical reliability: {rating.value}")
         return (rating, issues)
 
-    def _evaluate_structural_organization(self, content: str) -> Tuple[StructuralOrganizationRating, List[str]]:
+    def _evaluate_structural_organization(
+        self, content: str
+    ) -> Tuple[StructuralOrganizationRating, List[str]]:
         """Evaluate structural organization and logical flow."""
         issues = []
         severity_count = {"critical": 0, "major": 0, "minor": 0}
@@ -526,7 +622,13 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             "functional": ["function", "role", "mechanism"],
             "clinical": ["clinical", "pathology", "significance"],
             "embryological": ["embryo", "development"],
-            "relationships": ["branch", "connection", "relationship", "innervation", "supply"]
+            "relationships": [
+                "branch",
+                "connection",
+                "relationship",
+                "innervation",
+                "supply",
+            ],
         }
 
         found_sections = 0
@@ -535,11 +637,20 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
                 found_sections += 1
 
         if found_sections < 3:
-            issues.append(f"Incomplete organizational structure (only {found_sections} out of {len(expected_sections)} major sections)")
+            issues.append(
+                f"Incomplete organizational structure (only {found_sections} out of {len(expected_sections)} major sections)"
+            )
             severity_count["major"] += 1
 
         # Check for logical flow indicators
-        flow_words = ["then", "therefore", "consequently", "as a result", "furthermore", "in addition"]
+        flow_words = [
+            "then",
+            "therefore",
+            "consequently",
+            "as a result",
+            "furthermore",
+            "in addition",
+        ]
         flow_count = sum(1 for word in flow_words if word in content.lower())
 
         if flow_count < 2:
@@ -579,7 +690,7 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         terminology: Tuple[TerminologyRating, List[str]],
         embryology: Tuple[EmbryologyRating, List[str]],
         clinical: Tuple[ClinicalReliabilityRating, List[str]],
-        organization: Tuple[StructuralOrganizationRating, List[str]]
+        organization: Tuple[StructuralOrganizationRating, List[str]],
     ) -> float:
         """Calculate overall quality score (0-100)."""
 
@@ -594,7 +705,6 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             AccuracyRating.VERY_POOR: 10,
             AccuracyRating.INCORRECT: 0,
             AccuracyRating.UNSAFE: 0,
-
             # Terminology
             TerminologyRating.EXCELLENT: 100,
             TerminologyRating.ACCURATE: 95,
@@ -603,7 +713,6 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             TerminologyRating.POOR: 20,
             TerminologyRating.VAGUE: 10,
             TerminologyRating.INCORRECT: 0,
-
             # Embryology
             EmbryologyRating.CORRECT: 100,
             EmbryologyRating.ACCURATE: 95,
@@ -612,7 +721,6 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             EmbryologyRating.PARTIALLY_INCORRECT: 25,
             EmbryologyRating.INCORRECT: 0,
             EmbryologyRating.ABSENT: 10,
-
             # Clinical
             ClinicalReliabilityRating.SAFE_RELIABLE: 100,
             ClinicalReliabilityRating.SAFE_ACCURATE: 100,
@@ -622,7 +730,6 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
             ClinicalReliabilityRating.UNSAFE_CLINICAL: 10,
             ClinicalReliabilityRating.CONTRADICTS_STANDARDS: 5,
             ClinicalReliabilityRating.DANGEROUS: 0,
-
             # Organization
             StructuralOrganizationRating.EXCELLENT: 100,
             StructuralOrganizationRating.WELL_ORGANIZED: 90,
@@ -635,10 +742,10 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
 
         # Weights: Clinical reliability is most critical (50%), then accuracy (25%), rest (25%)
         scores = [
-            rating_scores[accuracy[0]] * 0.25,      # Accuracy: 25%
-            rating_scores[terminology[0]] * 0.10,   # Terminology: 10%
-            rating_scores[embryology[0]] * 0.10,    # Embryology: 10%
-            rating_scores[clinical[0]] * 0.50,      # Clinical: 50% (CRITICAL)
+            rating_scores[accuracy[0]] * 0.25,  # Accuracy: 25%
+            rating_scores[terminology[0]] * 0.10,  # Terminology: 10%
+            rating_scores[embryology[0]] * 0.10,  # Embryology: 10%
+            rating_scores[clinical[0]] * 0.50,  # Clinical: 50% (CRITICAL)
             rating_scores[organization[0]] * 0.05,  # Organization: 5%
         ]
 
@@ -651,13 +758,17 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         terminology: Tuple[TerminologyRating, List[str]],
         embryology: Tuple[EmbryologyRating, List[str]],
         clinical: Tuple[ClinicalReliabilityRating, List[str]],
-        organization: Tuple[StructuralOrganizationRating, List[str]]
+        organization: Tuple[StructuralOrganizationRating, List[str]],
     ) -> str:
         """Determine pass/fail status with ZERO tolerance for critical issues."""
 
         # FAIL conditions (zero tolerance)
         fail_conditions = [
-            clinical[0] in [ClinicalReliabilityRating.DANGEROUS, ClinicalReliabilityRating.CONTRADICTS_STANDARDS],
+            clinical[0]
+            in [
+                ClinicalReliabilityRating.DANGEROUS,
+                ClinicalReliabilityRating.CONTRADICTS_STANDARDS,
+            ],
             accuracy[0] in [AccuracyRating.UNSAFE, AccuracyRating.INCORRECT],
             len(self.critical_issues) > 0,
         ]
@@ -667,10 +778,30 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
 
         # PASS conditions - must meet minimum standards
         pass_conditions = [
-            clinical[0] in [ClinicalReliabilityRating.SAFE_RELIABLE, ClinicalReliabilityRating.CLINICALLY_SOUND, ClinicalReliabilityRating.SAFE_ACCURATE],
-            accuracy[0] in [AccuracyRating.EXCELLENT, AccuracyRating.GOOD, AccuracyRating.ACCEPTABLE],
-            terminology[0] in [TerminologyRating.ACCURATE, TerminologyRating.EXCELLENT, TerminologyRating.ACCEPTABLE],
-            organization[0] in [StructuralOrganizationRating.LOGICAL, StructuralOrganizationRating.WELL_ORGANIZED, StructuralOrganizationRating.EXCELLENT],
+            clinical[0]
+            in [
+                ClinicalReliabilityRating.SAFE_RELIABLE,
+                ClinicalReliabilityRating.CLINICALLY_SOUND,
+                ClinicalReliabilityRating.SAFE_ACCURATE,
+            ],
+            accuracy[0]
+            in [
+                AccuracyRating.EXCELLENT,
+                AccuracyRating.GOOD,
+                AccuracyRating.ACCEPTABLE,
+            ],
+            terminology[0]
+            in [
+                TerminologyRating.ACCURATE,
+                TerminologyRating.EXCELLENT,
+                TerminologyRating.ACCEPTABLE,
+            ],
+            organization[0]
+            in [
+                StructuralOrganizationRating.LOGICAL,
+                StructuralOrganizationRating.WELL_ORGANIZED,
+                StructuralOrganizationRating.EXCELLENT,
+            ],
         ]
 
         if all(pass_conditions):
@@ -684,34 +815,68 @@ Output format MUST be a structured object matching AnatomyEvaluationResult:
         terminology: Tuple[TerminologyRating, List[str]],
         embryology: Tuple[EmbryologyRating, List[str]],
         clinical: Tuple[ClinicalReliabilityRating, List[str]],
-        organization: Tuple[StructuralOrganizationRating, List[str]]
+        organization: Tuple[StructuralOrganizationRating, List[str]],
     ) -> List[str]:
         """Generate recommendations for improvement."""
         recommendations = []
 
         # Accuracy recommendations
-        if accuracy[0] in [AccuracyRating.UNSAFE, AccuracyRating.INCORRECT, AccuracyRating.VERY_POOR, AccuracyRating.POOR]:
-            recommendations.append("CRITICAL: Verify all anatomical information against Gray's Anatomy and standard references")
+        if accuracy[0] in [
+            AccuracyRating.UNSAFE,
+            AccuracyRating.INCORRECT,
+            AccuracyRating.VERY_POOR,
+            AccuracyRating.POOR,
+        ]:
+            recommendations.append(
+                "CRITICAL: Verify all anatomical information against Gray's Anatomy and standard references"
+            )
             recommendations.extend(accuracy[1][:2])  # Add up to 2 specific issues
 
         # Terminology recommendations
-        if terminology[0] in [TerminologyRating.INCORRECT, TerminologyRating.POOR, TerminologyRating.IMPRECISE, TerminologyRating.VAGUE]:
-            recommendations.append("Standardize terminology using Terminologia Anatomica (TA) and proper anatomical nomenclature")
+        if terminology[0] in [
+            TerminologyRating.INCORRECT,
+            TerminologyRating.POOR,
+            TerminologyRating.IMPRECISE,
+            TerminologyRating.VAGUE,
+        ]:
+            recommendations.append(
+                "Standardize terminology using Terminologia Anatomica (TA) and proper anatomical nomenclature"
+            )
             recommendations.extend(terminology[1][:2])  # Add up to 2 specific issues
 
         # Embryology recommendations
-        if embryology[0] in [EmbryologyRating.ABSENT, EmbryologyRating.INCORRECT, EmbryologyRating.VAGUE, EmbryologyRating.PARTIALLY_INCORRECT]:
-            recommendations.append("Add comprehensive embryological information with specific germ layer origins and developmental timeline")
+        if embryology[0] in [
+            EmbryologyRating.ABSENT,
+            EmbryologyRating.INCORRECT,
+            EmbryologyRating.VAGUE,
+            EmbryologyRating.PARTIALLY_INCORRECT,
+        ]:
+            recommendations.append(
+                "Add comprehensive embryological information with specific germ layer origins and developmental timeline"
+            )
             recommendations.extend(embryology[1][:1])  # Add specific issue
 
         # Clinical recommendations
-        if clinical[0] in [ClinicalReliabilityRating.DANGEROUS, ClinicalReliabilityRating.UNSAFE_CLINICAL, ClinicalReliabilityRating.CONTRADICTS_STANDARDS, ClinicalReliabilityRating.MISLEADING]:
-            recommendations.append("CRITICAL: Review clinical information for accuracy and safety before publication")
+        if clinical[0] in [
+            ClinicalReliabilityRating.DANGEROUS,
+            ClinicalReliabilityRating.UNSAFE_CLINICAL,
+            ClinicalReliabilityRating.CONTRADICTS_STANDARDS,
+            ClinicalReliabilityRating.MISLEADING,
+        ]:
+            recommendations.append(
+                "CRITICAL: Review clinical information for accuracy and safety before publication"
+            )
             recommendations.extend(clinical[1][:2])  # Add up to 2 specific issues
 
         # Organization recommendations
-        if organization[0] in [StructuralOrganizationRating.INCOHERENT, StructuralOrganizationRating.POOR, StructuralOrganizationRating.FLAWED]:
-            recommendations.append("Reorganize content with clear sections: Anatomy → Embryology → Function → Clinical Significance")
+        if organization[0] in [
+            StructuralOrganizationRating.INCOHERENT,
+            StructuralOrganizationRating.POOR,
+            StructuralOrganizationRating.FLAWED,
+        ]:
+            recommendations.append(
+                "Reorganize content with clear sections: Anatomy → Embryology → Function → Clinical Significance"
+            )
 
         return recommendations
 
@@ -724,35 +889,29 @@ def main():
         description="Strict Anatomy Report Evaluator with Zero Tolerance for Inaccuracies"
     )
     parser.add_argument(
-        "input_file",
-        type=Path,
-        help="Path to anatomy report file (.md or .txt)"
+        "input_file", type=Path, help="Path to anatomy report file (.md or .txt)"
     )
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         type=Path,
         default=None,
-        help="Output JSON file for evaluation results"
+        help="Output JSON file for evaluation results",
     )
     parser.add_argument(
-        "-m", "--model",
-        type=str,
-        default=None,
-        help="Model to use for evaluation"
+        "-m", "--model", type=str, default=None, help="Model to use for evaluation"
     )
     parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
+        "-v", "--verbose", action="store_true", help="Enable verbose logging"
     )
 
     args = parser.parse_args()
 
     # Configure logging
     configure_logging(
-        log_file="evaluate_anatomy_report.log", 
-        verbosity=4 if args.verbose else 3, 
-        enable_console=args.verbose
+        log_file="evaluate_anatomy_report.log",
+        verbosity=4 if args.verbose else 3,
+        enable_console=args.verbose,
     )
 
     # Evaluate report
@@ -789,10 +948,10 @@ def main():
             for issue in result.structural_organization[1]:
                 print(f"  • {issue}")
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"Overall Quality Score: {result.overall_quality_score}/100")
         print(f"Status: {result.pass_fail_status}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         if result.critical_issues:
             print("\nCRITICAL ISSUES (MUST FIX):")
@@ -806,7 +965,7 @@ def main():
 
     # Save to JSON if output specified
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(result.to_dict(), f, indent=2)
         if args.verbose:
             print(f"\n✓ Results saved to: {args.output}")

@@ -1,7 +1,8 @@
 """Example demonstrating HIPAA-compliant De-identification."""
 
-from medkit_privacy.deidentification import Deidentifier
 import json
+
+from medkit_privacy.deidentification import Deidentifier
 
 
 def run_deidentification_example():

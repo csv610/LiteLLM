@@ -10,8 +10,8 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_procedure_info_models import MedicalProcedureInfoModel, ModelOutput
@@ -37,7 +37,9 @@ class MedicalProcedureInfoGenerator:
 
         # Store the procedure for later use in save
         self.procedure_name = procedure
-        logger.debug(f"Starting medical procedure information generation for: {procedure}")
+        logger.debug(
+            f"Starting medical procedure information generation for: {procedure}"
+        )
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(procedure)
@@ -70,9 +72,11 @@ class MedicalProcedureInfoGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical procedure information to a file."""
         if self.procedure_name is None:
-            raise ValueError("No procedure information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No procedure information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.procedure_name.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

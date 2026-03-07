@@ -3,17 +3,26 @@
 Test script for Drug Identifier Module.
 """
 
-import sys
-import random
-from pathlib import Path
-
 # Add project root to sys.path
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../")))
+import random
+import sys
+from pathlib import Path
 
-from app.MedKit.recognizers.drug.drug_recognizer_model import DrugIdentifierModel, DrugIdentificationModel, ModelOutput
-from app.MedKit.recognizers.drug.drug_recognizer_prompts import PromptBuilder, DrugIdentifierInput
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+
 from app.MedKit.recognizers.drug.drug_recognizer import DrugIdentifier
+from app.MedKit.recognizers.drug.drug_recognizer_model import (
+    DrugIdentificationModel,
+    DrugIdentifierModel,
+    ModelOutput,
+)
+from app.MedKit.recognizers.drug.drug_recognizer_prompts import (
+    DrugIdentifierInput,
+    PromptBuilder,
+)
 from lite.config import ModelConfig
 
 
@@ -21,15 +30,15 @@ def read_random_example_from_assets():
     """Read a random example from assets folder."""
     assets_file = Path(__file__).parent / "assets" / "example_inputs.txt"
     examples = []
-    
+
     if assets_file.exists():
-        with open(assets_file, 'r') as f:
+        with open(assets_file, "r") as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip()
-                if line and not line.startswith('#') and not line.startswith('##'):
+                if line and not line.startswith("#") and not line.startswith("##"):
                     examples.append(line)
-    
+
     # Return a random example if available, otherwise fallback
     if examples:
         return random.choice(examples)
@@ -40,16 +49,16 @@ def read_random_example_from_assets():
 def test_prompt_builder():
     """Validate the PromptBuilder class functionality."""
     print("Validating PromptBuilder...")
-    
+
     # Read random example from assets
     example_drug = read_random_example_from_assets()
-    
+
     # Validate system prompt generation
     system_prompt = PromptBuilder.create_system_prompt()
     assert isinstance(system_prompt, str)
     assert len(system_prompt) > 0
     print("✓ System prompt generated successfully")
-    
+
     # Validate user prompt generation
     drug_input = DrugIdentifierInput(example_drug)
     user_prompt = PromptBuilder.create_user_prompt(drug_input)
@@ -61,28 +70,28 @@ def test_prompt_builder():
 def test_drug_identifier_models():
     """Validate the Pydantic model structures."""
     print("\nValidating Drug Identifier Models...")
-    
+
     # Read random example from assets
     example_drug = read_random_example_from_assets()
-    
+
     # Validate DrugIdentificationModel structure
     identification = DrugIdentificationModel(
         drug_name=example_drug,
         is_well_known=True,
         common_uses=["pain", "inflammation"],
         regulatory_status="FDA approved",
-        industry_significance="Common"
+        industry_significance="Common",
     )
     print("✓ DrugIdentificationModel instantiated successfully")
-    
+
     # Validate DrugIdentifierModel structure
     drug_model = DrugIdentifierModel(
         identification=identification,
         summary=f"{example_drug} is a recognized drug",
-        data_available=True
+        data_available=True,
     )
     print("✓ DrugIdentifierModel instantiated successfully")
-    
+
     # Validate ModelOutput structure
     model_output = ModelOutput(data=drug_model)
     assert model_output.data.identification.drug_name == example_drug
@@ -92,10 +101,10 @@ def test_drug_identifier_models():
 def test_drug_identifier_initialization():
     """Validate DrugIdentifier initialization."""
     print("\nValidating DrugIdentifier Initialization...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = DrugIdentifier(config)
-    
+
     assert identifier.client is not None
     print("✓ DrugIdentifier initialized successfully")
 
@@ -108,8 +117,8 @@ def test_method_name_consistency():
     identifier = DrugIdentifier(config)
 
     # Validate that the identify method exists and can be called
-    assert hasattr(identifier, 'identify'), "identify method should exist"
-    assert callable(getattr(identifier, 'identify')), "identify should be callable"
+    assert hasattr(identifier, "identify"), "identify method should exist"
+    assert callable(getattr(identifier, "identify")), "identify should be callable"
     print("✓ identify method has correct signature")
 
 
@@ -118,20 +127,21 @@ def main():
     print("=" * 60)
     print("DRUG IDENTIFIER MODULE VALIDATIONS")
     print("=" * 60)
-    
+
     try:
         test_prompt_builder()
         test_drug_identifier_models()
         test_drug_identifier_initialization()
         test_method_name_consistency()
-        
+
         print("\n" + "=" * 60)
         print("ALL VALIDATIONS COMPLETED SUCCESSFULLY!")
         print("=" * 60)
-        
+
     except Exception as e:
         print(f"\n❌ VALIDATION FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

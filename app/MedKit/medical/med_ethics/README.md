@@ -1,34 +1,19 @@
-# Medical Ethics Analysis Generator
+# Medical Ethics
 
-This tool generates professional medical ethics analysis for various questions or scenarios. It uses an AI model to provide structured or markdown-based analysis based on clinical ethics principles.
+This module generates structured analyses of medical-ethics questions.
 
-## Features
+## Files
 
-- **Professional Analysis**: Evaluates scenarios using core ethical principles (Autonomy, Beneficence, Non-maleficence, Justice).
-- **Structured Output**: Can generate structured Pydantic-validated data or formatted markdown.
-- **Batch Processing**: Supports analyzing multiple scenarios from a file.
-- **Customizable**: Works with various LLMs (default: `ollama/gemma3`).
+- `med_ethics.py`: analysis logic.
+- `med_ethics_cli.py`: CLI interface.
+- `med_ethics_models.py`: schemas.
+- `med_ethics_prompts.py`: prompts.
 
-## Usage
+## Why It Matters
 
-### Individual Analysis
-```bash
-python -m medkit.medical.med_ethics.med_ethics_cli "Is it ethical to use AI for diagnostic purposes without informing the patient?"
-```
+Ethics questions often need a structured framing rather than a short opinionated answer.
 
-### Batch Analysis
-```bash
-python -m medkit.medical.med_ethics.med_ethics_cli assets/medical_ethics_questions.txt
-```
+## Limitations
 
-### Options
-- `-s`, `--structured`: Generate structured JSON output.
-- `-m`, `--model`: Specify the LLM model to use.
-- `-d`, `--output-dir`: Specify where to save the reports.
-
-## Structure
-- `med_ethics.py`: Core generation logic.
-- `med_ethics_cli.py`: Command-line interface.
-- `med_ethics_models.py`: Pydantic data models for structured output.
-- `med_ethics_prompts.py`: Prompt templates for the AI.
-- `test_med_ethics.py`: Unit tests.
+- Ethical reasoning may vary across frameworks and jurisdictions.
+- The module supports analysis, not policy determination.

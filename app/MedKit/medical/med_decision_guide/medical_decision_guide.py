@@ -9,8 +9,8 @@ medical decision guides for symptom assessment.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_decision_guide_models import MedicalDecisionGuideModel, ModelOutput
@@ -33,7 +33,7 @@ class MedicalDecisionGuideGenerator:
         """Generates a medical decision guide for symptom assessment."""
         # Store the symptom for later use in save
         self.symptom = symptom
-        
+
         if not symptom or not str(symptom).strip():
             raise ValueError("Symptom name cannot be empty")
 
@@ -70,9 +70,11 @@ class MedicalDecisionGuideGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical decision guide information to a file."""
         if self.symptom is None:
-            raise ValueError("No symptom information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No symptom information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.symptom.lower().replace(' ', '_')}_decision_guide"
-        
+
         return save_model_response(result, output_dir / base_filename)

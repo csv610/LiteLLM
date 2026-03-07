@@ -15,8 +15,8 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
@@ -78,9 +78,11 @@ class MedicalAnatomyGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the anatomical information to a file."""
         if self.body_part is None:
-            raise ValueError("No body part information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No body part information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.body_part.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

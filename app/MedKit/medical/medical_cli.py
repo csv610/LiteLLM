@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+
 from tqdm import tqdm
 
 # Add the project root to sys.path to support absolute imports
@@ -17,44 +18,59 @@ from medical.anatomy.medical_anatomy import MedicalAnatomyGenerator
 from medical.disease_info.disease_info import DiseaseInfoGenerator
 from medical.herbal_info.herbal_info import HerbalInfoGenerator
 from medical.med_advise.primary_health_care import PrimaryHealthCareProvider
-from medical.med_decision_guide.medical_decision_guide import MedicalDecisionGuideGenerator
+from medical.med_decision_guide.medical_decision_guide import (
+    MedicalDecisionGuideGenerator,
+)
+from medical.med_ethics.med_ethics import MedEthicalQA
 from medical.med_facts_checker.medical_facts_checker import MedicalFactsChecker
 from medical.med_faqs.medical_faq import MedicalFAQGenerator
+from medical.med_flashcard.medical_flashcard import (
+    MedicalLabelExtractor,
+    MedicalTermExplainer,
+)
+from medical.med_history.patient_medical_history import PatientMedicalHistoryGenerator
+from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
 from medical.med_implant.medical_implant import MedicalImplantGenerator
+from medical.med_media.med_media import MedicalMediaGenerator
 from medical.med_myths_checker.medical_myth_checker import MedicalMythsChecker
-from medical.med_procedure_info.medical_procedure_info import MedicalProcedureInfoGenerator
-from medical.med_procedure_info.eval_medical_procedure_output import MedicalProcedureEvaluator
+from medical.med_procedure_info.eval_medical_procedure_output import (
+    MedicalProcedureEvaluator,
+)
+from medical.med_procedure_info.medical_procedure_info import (
+    MedicalProcedureInfoGenerator,
+)
 from medical.med_quiz.medical_quiz import MedicalQuizGenerator
 from medical.med_refer.med_refer import MedReferral
 from medical.med_speciality_roles.med_speciality_roles import MedSpecialityRoles
 from medical.med_topic.medical_topic import MedicalTopicGenerator
-from medical.organ_diseases.organ_disease_info import DiseaseInfoGenerator as OrganDiseaseGenerator
-from medical.surgical_info.surgical_info import SurgeryInfoGenerator 
+from medical.organ_diseases.organ_disease_info import (
+    DiseaseInfoGenerator as OrganDiseaseGenerator,
+)
+from medical.surgical_info.surgical_info import SurgeryInfoGenerator
 from medical.surgical_pose_info.surgical_pose_info import SurgicalPoseInfoGenerator
 from medical.surgical_tool_info.surgical_tool_info import SurgicalToolInfoGenerator
 from medical.surgical_tray.surgical_tray_info import SurgicalTrayGenerator
-from medical.synthetic_case_report.synthetic_case_report import SyntheticCaseReportGenerator
-from medical.med_history.patient_medical_history import PatientMedicalHistoryGenerator
-from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
-from medical.med_ethics.med_ethics import MedEthicalQA
-from medical.med_flashcard.medical_flashcard import MedicalLabelExtractor, MedicalTermExplainer
-from medical.med_media.med_media import MedicalMediaGenerator
+from medical.synthetic_case_report.synthetic_case_report import (
+    SyntheticCaseReportGenerator,
+)
 
 logger = logging.getLogger(__name__)
+
 
 def handle_batch_input(input_val: str, desc: str):
     input_path = Path(input_val)
     if input_path.is_file():
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             items = [line.strip() for line in f if line.strip()]
         logger.debug(f"Read {len(items)} items from file: {input_path}")
         return items
     return [input_val]
 
+
 def display_module_list():
     """Display a beautiful, categorized list of medical modules."""
     print("\n🏥 MedKit Medical Module Catalog\n")
-    
+
     categories = {
         "General Reference": {
             "anatomy": "Body structures, innervation, and blood supply.",
@@ -62,7 +78,7 @@ def display_module_list():
             "organ": "Organ-specific physiology and systemic disease roles.",
             "topic": "Synthesis of general medical subjects.",
             "herbal": "Evidence-based info on natural remedies and safety.",
-            "media": "Search, download, and analyze medical media (images/videos)."
+            "media": "Search, download, and analyze medical media (images/videos).",
         },
         "Clinical Support": {
             "advise": "Primary health care guidance and home management.",
@@ -71,13 +87,13 @@ def display_module_list():
             "myth": "Scientific debunking of common medical misconceptions.",
             "refer": "Identifying the correct specialty for clinical presentations.",
             "history": "Standardized history-taking and intake questions.",
-            "faq": "Plain-language patient education materials."
+            "faq": "Plain-language patient education materials.",
         },
         "Surgical Suite": {
             "surgery": "Exhaustive procedural monographs and recovery benchmarks.",
             "pose": "Standard patient positioning and associated nerve/pressure risks.",
             "tool": "Reference for surgical instruments and sterilization needs.",
-            "tray": "Standardized setup lists for surgical instrument trays."
+            "tray": "Standardized setup lists for surgical instrument trays.",
         },
         "Education & Ethics": {
             "ethics": "Structured pillar-based analysis of bioethical dilemmas.",
@@ -86,8 +102,8 @@ def display_module_list():
             "flashcard": "Terminology extraction and explanation from labels.",
             "roles": "Scope of practice and responsibilities for medical specialties.",
             "procedure": "Step-by-step educational breakdown of clinical procedures.",
-            "eval-procedure": "Auditing and evaluating medical procedure documentation."
-        }
+            "eval-procedure": "Auditing and evaluating medical procedure documentation.",
+        },
     }
 
     for category, modules in categories.items():
@@ -95,22 +111,40 @@ def display_module_list():
         for cmd, desc in modules.items():
             print(f"  - {cmd.ljust(15)}: {desc}")
         print()
-    
-    print("Usage: medkit-medical <subcommand> \"Input Text\"")
+
+    print('Usage: medkit-medical <subcommand> "Input Text"')
+
 
 def main():
-    parser = argparse.ArgumentParser(description="MedKit Unified CLI - Access all medical AI tools.")
-    
+    parser = argparse.ArgumentParser(
+        description="MedKit Unified CLI - Access all medical AI tools."
+    )
+
     # Global arguments
     parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
-    parser.add_argument("-d", "--output-dir", default="outputs", help="Output directory.")
-    parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")
-    parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
+    parser.add_argument(
+        "-d", "--output-dir", default="outputs", help="Output directory."
+    )
+    parser.add_argument(
+        "-v",
+        "--verbosity",
+        type=int,
+        default=2,
+        choices=[0, 1, 2, 3, 4],
+        help="Verbosity level.",
+    )
+    parser.add_argument(
+        "-s", "--structured", action="store_true", help="Use structured output."
+    )
 
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Medical tool subcommands")
+    subparsers = parser.add_subparsers(
+        dest="command", required=True, help="Medical tool subcommands"
+    )
 
     # List Modules
-    subparsers.add_parser("list", help="List all available medical modules and descriptions")
+    subparsers.add_parser(
+        "list", help="List all available medical modules and descriptions"
+    )
 
     # Anatomy
     anatomy_p = subparsers.add_parser("anatomy", help="Generate anatomical info")
@@ -153,22 +187,36 @@ def main():
     proc_p.add_argument("procedure", help="Procedure name or file path")
 
     # Eval Procedure
-    eval_proc_p = subparsers.add_parser("eval-procedure", help="Evaluate procedure documentation")
-    eval_proc_p.add_argument("file", help="File path to evaluate or file containing paths")
+    eval_proc_p = subparsers.add_parser(
+        "eval-procedure", help="Evaluate procedure documentation"
+    )
+    eval_proc_p.add_argument(
+        "file", help="File path to evaluate or file containing paths"
+    )
 
     # Quiz
     quiz_p = subparsers.add_parser("quiz", help="Generate medical quiz")
     quiz_p.add_argument("topic", help="Topic or file path")
-    quiz_p.add_argument("--difficulty", default="Intermediate", help="Difficulty level (e.g., Beginner, Intermediate, Advanced)")
-    quiz_p.add_argument("--num-questions", type=int, default=5, help="Number of questions to generate")
-    quiz_p.add_argument("--num-options", type=int, default=4, help="Number of options per question")
+    quiz_p.add_argument(
+        "--difficulty",
+        default="Intermediate",
+        help="Difficulty level (e.g., Beginner, Intermediate, Advanced)",
+    )
+    quiz_p.add_argument(
+        "--num-questions", type=int, default=5, help="Number of questions to generate"
+    )
+    quiz_p.add_argument(
+        "--num-options", type=int, default=4, help="Number of options per question"
+    )
 
     # Refer
     refer_p = subparsers.add_parser("refer", help="Recommend specialists")
     refer_p.add_argument("question", help="Symptoms or file path")
 
     # Roles
-    roles_p = subparsers.add_parser("roles", help="Speciality roles and responsibilities")
+    roles_p = subparsers.add_parser(
+        "roles", help="Speciality roles and responsibilities"
+    )
     roles_p.add_argument("speciality", help="Speciality or file path")
 
     # Topic
@@ -190,7 +238,9 @@ def main():
     # Pose
     pose_p = subparsers.add_parser("pose", help="Surgical positioning info")
     pose_p.add_argument("pose", nargs="?", help="Position name or file path")
-    pose_p.add_argument("-l", "--list", action="store_true", help="List all common surgical positions")
+    pose_p.add_argument(
+        "-l", "--list", action="store_true", help="List all common surgical positions"
+    )
 
     # Tool
     tool_p = subparsers.add_parser("tool", help="Surgical tool info")
@@ -209,20 +259,30 @@ def main():
     ethics_p.add_argument("question", help="Ethics question or file path")
 
     # Flashcard
-    flashcard_p = subparsers.add_parser("flashcard", help="Explain medical labels from an image")
+    flashcard_p = subparsers.add_parser(
+        "flashcard", help="Explain medical labels from an image"
+    )
     flashcard_p.add_argument("image", help="Path to medical image or label")
 
     # Medical History
-    history_p = subparsers.add_parser("history", help="Patient medical history questions")
-    history_p.add_argument("-e", "--exam", required=True, help="Exam type (e.g., neurological_exam)")
+    history_p = subparsers.add_parser(
+        "history", help="Patient medical history questions"
+    )
+    history_p.add_argument(
+        "-e", "--exam", required=True, help="Exam type (e.g., neurological_exam)"
+    )
     history_p.add_argument("-a", "--age", type=int, required=True, help="Patient age")
     history_p.add_argument("-g", "--gender", required=True, help="Patient gender")
-    history_p.add_argument("-p", "--purpose", default="physical_exam", help="Purpose of the history taking")
+    history_p.add_argument(
+        "-p", "--purpose", default="physical_exam", help="Purpose of the history taking"
+    )
 
     args = parser.parse_args()
 
     # Logging config
-    configure_logging(log_file="medkit_unified.log", verbosity=args.verbosity, enable_console=True)
+    configure_logging(
+        log_file="medkit_unified.log", verbosity=args.verbosity, enable_console=True
+    )
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     model_config = ModelConfig(model=args.model, temperature=0.2)
@@ -233,14 +293,18 @@ def main():
 
         elif args.command == "anatomy":
             gen = MedicalAnatomyGenerator(model_config)
-            for item in tqdm(handle_batch_input(args.body_part, "anatomy"), desc="Anatomy"):
+            for item in tqdm(
+                handle_batch_input(args.body_part, "anatomy"), desc="Anatomy"
+            ):
                 res = gen.generate_text(body_part=item, structured=args.structured)
                 if res:
                     gen.save(res, output_dir)
 
         elif args.command == "disease":
             gen = DiseaseInfoGenerator(model_config)
-            for item in tqdm(handle_batch_input(args.disease, "disease"), desc="Disease"):
+            for item in tqdm(
+                handle_batch_input(args.disease, "disease"), desc="Disease"
+            ):
                 res = gen.generate_text(disease=item, structured=args.structured)
                 if res:
                     gen.save(res, output_dir)
@@ -261,19 +325,26 @@ def main():
 
         elif args.command == "decision":
             gen = MedicalDecisionGuideGenerator(model_config)
-            for item in tqdm(handle_batch_input(args.symptom, "decision"), desc="Decision"):
+            for item in tqdm(
+                handle_batch_input(args.symptom, "decision"), desc="Decision"
+            ):
                 res = gen.generate_text(symptom=item, structured=args.structured)
                 if res:
-                    path = output_dir / f"{item.lower().replace(' ', '_')}_decision.json"
+                    path = (
+                        output_dir / f"{item.lower().replace(' ', '_')}_decision.json"
+                    )
                     gen.save(res, path)
 
         elif args.command == "facts":
             gen = MedicalFactsChecker(model_config)
             from lite.utils import save_model_response
+
             for item in tqdm(handle_batch_input(args.statement, "facts"), desc="Facts"):
                 res = gen.generate_text(statement=item, structured=args.structured)
                 if res:
-                    fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[:50]
+                    fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[
+                        :50
+                    ]
                     save_model_response(res, output_dir / f"{fname}.json")
 
         elif args.command == "faq":
@@ -285,7 +356,9 @@ def main():
 
         elif args.command == "implant":
             gen = MedicalImplantGenerator(model_config)
-            for item in tqdm(handle_batch_input(args.implant, "implant"), desc="Implant"):
+            for item in tqdm(
+                handle_batch_input(args.implant, "implant"), desc="Implant"
+            ):
                 res = gen.generate_text(implant=item, structured=args.structured)
                 if res:
                     gen.save(res, output_dir)
@@ -299,14 +372,18 @@ def main():
 
         elif args.command == "procedure":
             gen = MedicalProcedureInfoGenerator(model_config)
-            for item in tqdm(handle_batch_input(args.procedure, "procedure"), desc="Procedure"):
+            for item in tqdm(
+                handle_batch_input(args.procedure, "procedure"), desc="Procedure"
+            ):
                 res = gen.generate_text(procedure=item, structured=args.structured)
                 if res:
                     gen.save(res, output_dir)
 
         elif args.command == "eval-procedure":
             gen = MedicalProcedureEvaluator(model_config)
-            for item in tqdm(handle_batch_input(args.file, "eval-procedure"), desc="Eval Proc"):
+            for item in tqdm(
+                handle_batch_input(args.file, "eval-procedure"), desc="Eval Proc"
+            ):
                 res = gen.generate_text(file_path=item)
                 if res:
                     gen.save(res, output_dir)
@@ -314,7 +391,13 @@ def main():
         elif args.command == "quiz":
             gen = MedicalQuizGenerator(model_config)
             for item in tqdm(handle_batch_input(args.topic, "quiz"), desc="Quiz"):
-                res = gen.generate_text(topic=item, difficulty=args.difficulty, num_questions=args.num_questions, num_options=args.num_options, structured=True)
+                res = gen.generate_text(
+                    topic=item,
+                    difficulty=args.difficulty,
+                    num_questions=args.num_questions,
+                    num_options=args.num_options,
+                    structured=True,
+                )
                 if res:
                     gen.save(res, output_dir)
 
@@ -323,17 +406,23 @@ def main():
             for item in tqdm(handle_batch_input(args.question, "refer"), desc="Refer"):
                 res = gen.generate_text(item)
                 if res:
-                    fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[:50]
-                    with open(output_dir / "{}.md".format(fname), 'w') as f:
+                    fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[
+                        :50
+                    ]
+                    with open(output_dir / "{}.md".format(fname), "w") as f:
                         f.write(res)
 
         elif args.command == "roles":
             gen = MedSpecialityRoles(model_config)
-            for item in tqdm(handle_batch_input(args.speciality, "roles"), desc="Roles"):
+            for item in tqdm(
+                handle_batch_input(args.speciality, "roles"), desc="Roles"
+            ):
                 res = gen.generate_text(item)
                 if res:
-                    fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[:50]
-                    with open(output_dir / "{}.md".format(fname), 'w') as f:
+                    fname = "".join([c if c.isalnum() else "_" for c in item.lower()])[
+                        :50
+                    ]
+                    with open(output_dir / "{}.md".format(fname), "w") as f:
                         f.write(res)
 
         elif args.command == "topic":
@@ -347,8 +436,8 @@ def main():
             gen = MedicalMediaGenerator(model_config)
             for item in tqdm(handle_batch_input(args.topic, "media"), desc="Media"):
                 res = gen.generate_caption(topic=item, structured=args.structured)
-                if res: gen.save(res, output_dir, suffix="caption")
-
+                if res:
+                    gen.save(res, output_dir, suffix="caption")
 
         elif args.command == "organ":
             gen = OrganDiseaseGenerator(model_config)
@@ -359,15 +448,21 @@ def main():
 
         elif args.command == "surgery":
             gen = SurgeryInfoGenerator(model_config)
-            for item in tqdm(handle_batch_input(args.surgery, "surgery"), desc="Surgery"):
+            for item in tqdm(
+                handle_batch_input(args.surgery, "surgery"), desc="Surgery"
+            ):
                 res = gen.generate_text(surgery=item, structured=args.structured)
                 if res:
                     gen.save(res, output_dir)
 
         elif args.command == "pose":
             if args.list:
-                from surgical_pose_info.surgical_pose_info import COMMON_SURGICAL_POSITIONS
-                for p in COMMON_SURGICAL_POSITIONS: print(f"- {p}")
+                from surgical_pose_info.surgical_pose_info import (
+                    COMMON_SURGICAL_POSITIONS,
+                )
+
+                for p in COMMON_SURGICAL_POSITIONS:
+                    print(f"- {p}")
             elif args.pose:
                 gen = SurgicalPoseInfoGenerator(model_config)
                 for item in tqdm(handle_batch_input(args.pose, "pose"), desc="Pose"):
@@ -398,7 +493,9 @@ def main():
 
         elif args.command == "ethics":
             gen = MedEthicalQA(model_config)
-            for item in tqdm(handle_batch_input(args.question, "ethics"), desc="Ethics"):
+            for item in tqdm(
+                handle_batch_input(args.question, "ethics"), desc="Ethics"
+            ):
                 res = gen.generate_text(question=item, structured=args.structured)
                 if res:
                     gen.save(res, output_dir)
@@ -406,10 +503,10 @@ def main():
         elif args.command == "flashcard":
             extractor = MedicalLabelExtractor(model_config)
             explainer = MedicalTermExplainer(model_config)
-            
+
             input_path = Path(args.image)
-            is_image = input_path.suffix.lower() in ['.jpg', '.jpeg', '.png', '.webp']
-            
+            is_image = input_path.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp"]
+
             if is_image:
                 terms = extractor.extract_terms(str(input_path))
                 if not terms:
@@ -417,21 +514,27 @@ def main():
                 else:
                     for term in tqdm(terms, desc="Explaining Labels"):
                         res = explainer.explain_label(term, structured=args.structured)
-                        if res: explainer.save(res, output_dir, term=term)
+                        if res:
+                            explainer.save(res, output_dir, term=term)
             else:
                 # Treat as a direct term
                 res = explainer.explain_label(args.image, structured=args.structured)
-                if res: explainer.save(res, output_dir, term=args.image)
+                if res:
+                    explainer.save(res, output_dir, term=args.image)
 
         elif args.command == "history":
             gen = PatientMedicalHistoryGenerator(model_config)
-            input_data = MedicalHistoryInput(exam=args.exam, age=args.age, gender=args.gender, purpose=args.purpose)
+            input_data = MedicalHistoryInput(
+                exam=args.exam, age=args.age, gender=args.gender, purpose=args.purpose
+            )
             res = gen.generate_text(input_data, structured=args.structured)
-            if res: gen.save(res, output_dir)
+            if res:
+                gen.save(res, output_dir)
 
     except Exception as e:
         logger.error(f"Error in command {args.command}: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

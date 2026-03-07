@@ -1,26 +1,7 @@
 import unittest
-from medical_test_devices_models import (
-    DeviceBasicInfoModel,
-    DevicePurposeAndApplicationsModel,
-    PhysicalSpecificationsModel,
-    TechnicalSpecificationsModel,
-    SafetyAndRisksModel,
-    OperationalProceduresModel,
-    MaintenanceAndCalibrationModel,
-    CleaningAndSterilizationModel,
-    PatientPrepAndConsiderationsModel,
-    DataAndResultsHandlingModel,
-    IndicationsAndContraindicationsModel,
-    PerformanceCharacteristicsModel,
-    ComparisonWithAlternativesModel,
-    CostAndReimbursementModel,
-    RegulatoryAndCertificationModel,
-    ManufacturerAndSupportModel,
-    SpecialConsiderationsModel,
-    TrendsDevelopmentsModel,
-    MedicalDeviceInfoModel,
-    ModelOutput
-)
+
+from medical_test_devices_models import DeviceBasicInfoModel, ModelOutput
+
 
 class TestModels(unittest.TestCase):
     def test_basic_info_model(self):
@@ -30,7 +11,7 @@ class TestModels(unittest.TestCase):
             device_category="Diagnostic Imaging",
             device_classification="Class II",
             intended_use="Diagnostic imaging",
-            medical_specialties="Radiology"
+            medical_specialties="Radiology",
         )
         self.assertEqual(basic_info.device_name, "Ultrasound Machine")
 
@@ -42,7 +23,7 @@ class TestModels(unittest.TestCase):
             device_category="Diagnostic Imaging",
             device_classification="Class II",
             intended_use="Diagnostic imaging",
-            medical_specialties="Radiology"
+            medical_specialties="Radiology",
         )
         # For simplicity, just test that we can instantiate it with required fields
         # Note: MedicalDeviceInfoModel has many fields that are required by default (no default value)
@@ -53,6 +34,7 @@ class TestModels(unittest.TestCase):
         output = ModelOutput(markdown="Some markdown content")
         self.assertEqual(output.markdown, "Some markdown content")
         self.assertIsNone(output.data)
+
 
 if __name__ == "__main__":
     unittest.main()

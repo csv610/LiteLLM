@@ -1,4 +1,3 @@
-
 class PromptBuilder:
     """Prompt builder for medical media analysis."""
 

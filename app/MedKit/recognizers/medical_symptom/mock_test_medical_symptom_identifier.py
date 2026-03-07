@@ -6,35 +6,46 @@ This script tests the medical symptom identifier functionality with various symp
 without using mock libraries.
 """
 
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
+import sys
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
 from pathlib import Path
 
-
-from app.MedKit.recognizers.medical_symptom.medical_symptom_models import MedicalSymptomIdentifierModel, MedicalSymptomIdentificationModel, ModelOutput
-from app.MedKit.recognizers.medical_symptom.medical_symptom_prompts import PromptBuilder, MedicalSymptomIdentifierInput
-from app.MedKit.recognizers.medical_symptom.medical_symptom_identifier import MedicalSymptomIdentifier
+from app.MedKit.recognizers.medical_symptom.medical_symptom_identifier import (
+    MedicalSymptomIdentifier,
+)
+from app.MedKit.recognizers.medical_symptom.medical_symptom_models import (
+    MedicalSymptomIdentificationModel,
+    MedicalSymptomIdentifierModel,
+    ModelOutput,
+)
+from app.MedKit.recognizers.medical_symptom.medical_symptom_prompts import (
+    MedicalSymptomIdentifierInput,
+    PromptBuilder,
+)
 from lite.config import ModelConfig
 
 
 def test_prompt_builder():
     """Test the PromptBuilder class."""
     print("Testing PromptBuilder...")
-    
+
     # Test system prompt
     system_prompt = PromptBuilder.create_system_prompt()
     assert isinstance(system_prompt, str)
     assert len(system_prompt) > 0
     print("✓ System prompt created successfully")
-    
+
     # Test user prompt
     symptom_input = MedicalSymptomIdentifierInput("chest_pain")
     user_prompt = PromptBuilder.create_user_prompt(symptom_input)
     assert isinstance(user_prompt, str)
     assert "chest_pain" in user_prompt
     print("✓ User prompt created successfully")
-    
+
     # Test empty symptom name
     try:
         MedicalSymptomIdentifierInput("")
@@ -46,25 +57,25 @@ def test_prompt_builder():
 def test_medical_symptom_models():
     """Test the Pydantic models."""
     print("\nTesting Medical Symptom Models...")
-    
+
     # Test MedicalSymptomIdentificationModel
     identification = MedicalSymptomIdentificationModel(
         symptom_name="chest_pain",
         is_well_known=True,
         associated_conditions=["heart_attack", "angina", "muscle_strain", "anxiety"],
         severity_indicators="Sudden onset, radiation to left arm or jaw",
-        clinical_description="Chest pain can indicate serious cardiac conditions requiring immediate attention"
+        clinical_description="Chest pain can indicate serious cardiac conditions requiring immediate attention",
     )
     print("✓ MedicalSymptomIdentificationModel created successfully")
-    
+
     # Test MedicalSymptomIdentifierModel
     symptom_model = MedicalSymptomIdentifierModel(
         identification=identification,
         summary="Chest pain is a well-known symptom that requires urgent medical evaluation",
-        data_available=True
+        data_available=True,
     )
     print("✓ MedicalSymptomIdentifierModel created successfully")
-    
+
     # Test ModelOutput
     model_output = ModelOutput(data=symptom_model)
     assert model_output.data.identification.symptom_name == "chest_pain"
@@ -74,10 +85,10 @@ def test_medical_symptom_models():
 def test_medical_symptom_identifier_initialization():
     """Test MedicalSymptomIdentifier initialization."""
     print("\nTesting MedicalSymptomIdentifier Initialization...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = MedicalSymptomIdentifier(config)
-    
+
     assert identifier.client is not None
     print("✓ MedicalSymptomIdentifier initialized successfully")
 
@@ -85,17 +96,17 @@ def test_medical_symptom_identifier_initialization():
 def test_medical_symptom_identifier_validation():
     """Test MedicalSymptomIdentifier input validation."""
     print("\nTesting MedicalSymptomIdentifier Validation...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     MedicalSymptomIdentifier(config)
-    
+
     # Test empty symptom name
     try:
         MedicalSymptomIdentifierInput("")
         assert False, "Should have raised ValueError for empty symptom name"
     except ValueError:
         print("✓ Empty symptom name validation works correctly")
-    
+
     # Test whitespace-only symptom name
     try:
         MedicalSymptomIdentifierInput("   ")
@@ -107,27 +118,27 @@ def test_medical_symptom_identifier_validation():
 def test_with_example_symptoms():
     """Test with example symptoms from assets."""
     print("\nTesting with Example Symptoms...")
-    
+
     # Read example symptoms from assets
     assets_file = Path(__file__).parent / "assets" / "example_inputs.txt"
     if assets_file.exists():
-        with open(assets_file, 'r') as f:
+        with open(assets_file, "r") as f:
             content = f.read()
-        
+
         # Extract symptom names (skip comments and empty lines)
         symptoms = []
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             line = line.strip()
-            if line and not line.startswith('#') and not line.startswith('##'):
+            if line and not line.startswith("#") and not line.startswith("##"):
                 symptoms.append(line)
-        
+
         print(f"Found {len(symptoms)} example symptoms")
-        
+
         # Test a few examples
         test_symptoms = symptoms[:5]  # Test first 5 symptoms
         config = ModelConfig(model="ollama/gemma3", temperature=0.2)
         MedicalSymptomIdentifier(config)
-        
+
         for symptom in test_symptoms:
             try:
                 MedicalSymptomIdentifierInput(symptom)
@@ -141,10 +152,10 @@ def test_with_example_symptoms():
 def test_symptom_categories():
     """Test different categories of symptoms."""
     print("\nTesting Symptom Categories...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     MedicalSymptomIdentifier(config)
-    
+
     # Test common symptoms
     common_symptoms = ["headache", "fever", "cough", "fatigue"]
     for symptom in common_symptoms:
@@ -153,7 +164,7 @@ def test_symptom_categories():
             print(f"✓ Common symptom input created for: {symptom}")
         except Exception as e:
             print(f"✗ Error with common symptom {symptom}: {e}")
-    
+
     # Test neurological symptoms
     neuro_symptoms = ["seizure", "memory_loss", "weakness", "numbness"]
     for symptom in neuro_symptoms:
@@ -162,7 +173,7 @@ def test_symptom_categories():
             print(f"✓ Neurological symptom input created for: {symptom}")
         except Exception as e:
             print(f"✗ Error with neurological symptom {symptom}: {e}")
-    
+
     # Test cardiovascular symptoms
     cardio_symptoms = ["chest_pain", "palpitations", "shortness_of_breath"]
     for symptom in cardio_symptoms:
@@ -178,7 +189,7 @@ def main():
     print("=" * 60)
     print("MEDICAL SYMPTOM IDENTIFIER MODULE TESTS")
     print("=" * 60)
-    
+
     try:
         test_prompt_builder()
         test_medical_symptom_models()
@@ -186,14 +197,15 @@ def main():
         test_medical_symptom_identifier_validation()
         test_with_example_symptoms()
         test_symptom_categories()
-        
+
         print("\n" + "=" * 60)
         print("ALL TESTS COMPLETED SUCCESSFULLY!")
         print("=" * 60)
-        
+
     except Exception as e:
         print(f"\n❌ TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

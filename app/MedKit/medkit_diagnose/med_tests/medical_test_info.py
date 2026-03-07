@@ -9,8 +9,8 @@ comprehensive information for medical tests using LiteClient.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_test_info_models import MedicalTestInfoModel, ModelOutput
@@ -31,7 +31,9 @@ class MedicalTestInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config)
         self.test_name = None  # Store the test name for later use in save
-        logger.debug(f"Initialized MedicalTestInfoGenerator using model: {model_config.model}")
+        logger.debug(
+            f"Initialized MedicalTestInfoGenerator using model: {model_config.model}"
+        )
 
     def generate_text(self, test_name: str, structured: bool = False) -> ModelOutput:
         """
@@ -82,15 +84,19 @@ class MedicalTestInfoGenerator:
         Returns:
             The generated results (MedicalTestInfo or str).
         """
-        logger.debug(f"Sending request to LLM client for model: {self.model_config.model}")
+        logger.debug(
+            f"Sending request to LLM client for model: {self.model_config.model}"
+        )
         return self.client.generate_text(model_input=model_input)
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical test information to a file."""
         if self.test_name is None:
-            raise ValueError("No test name information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No test name information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.test_name.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

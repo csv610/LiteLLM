@@ -10,14 +10,12 @@ Tests for:
 import sys
 from pathlib import Path
 
-
 import pytest
 from pydantic import BaseModel, Field, ValidationError
 
 # Setup paths
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig, ModelInput
-
 
 # ==============================================================================
 # TEST MODELS
@@ -26,6 +24,7 @@ from lite.config import ModelConfig, ModelInput
 
 class DrugInteractionModel(BaseModel):
     """Mock drug interaction model."""
+
     interaction_type: str = Field(description="Type of interaction")
     severity: str = Field(description="Severity level")
     mechanism: str = Field(description="Mechanism of interaction")
@@ -34,7 +33,8 @@ class DrugInteractionModel(BaseModel):
 
 class DiseaseInfoModel(BaseModel):
     """Mock disease information model."""
-    disease_name: str = Field(description="Disease name")
+
+    disease_name: str = Field(min_length=1, description="Disease name")
     description: str = Field(description="Disease description")
     symptoms: list = Field(default_factory=list, description="List of symptoms")
     treatment: str = Field(description="Treatment options")
@@ -42,7 +42,8 @@ class DiseaseInfoModel(BaseModel):
 
 class MedicineInfoModel(BaseModel):
     """Mock medicine information model."""
-    medicine_name: str = Field(description="Medicine name")
+
+    medicine_name: str = Field(min_length=1, description="Medicine name")
     indication: str = Field(description="Primary indication")
     dosage: str = Field(description="Standard dosage")
     side_effects: list = Field(default_factory=list, description="Side effects")
@@ -50,7 +51,8 @@ class MedicineInfoModel(BaseModel):
 
 class FAQModel(BaseModel):
     """Mock FAQ model."""
-    question: str = Field(description="Question")
+
+    question: str = Field(min_length=1, description="Question")
     answer: str = Field(description="Answer")
     references: list = Field(default_factory=list, description="Reference links")
 
@@ -68,12 +70,18 @@ class TestDrugDrugInteractionCLI:
         try:
             sys.path.insert(0, str(Path(__file__).parent.parent / "drug" / "drug_drug"))
             # We don't actually import to avoid dependency issues, but test structure
-            assert Path(__file__).parent.parent / "drug" / "drug_drug" / "drug_drug_interaction_cli.py"
+            assert (
+                Path(__file__).parent.parent
+                / "drug"
+                / "drug_drug"
+                / "drug_drug_interaction_cli.py"
+            )
         except Exception as e:
             pytest.skip(f"Module structure issue: {e}")
 
     def test_medicine_argument_validation(self):
         """Test medicine name validation."""
+
         class DrugInput(BaseModel):
             medicine1: str
             medicine2: str
@@ -95,6 +103,7 @@ class TestDrugDrugInteractionCLI:
 
     def test_age_argument_validation(self):
         """Test age argument validation."""
+
         class AgeInput(BaseModel):
             age: int
 
@@ -118,7 +127,7 @@ class TestDrugDrugInteractionCLI:
             interaction_type="Pharmacodynamic",
             severity="High",
             mechanism="Increased anticoagulation effect",
-            management="Monitor INR, adjust dosages"
+            management="Monitor INR, adjust dosages",
         )
 
         assert result.interaction_type == "Pharmacodynamic"
@@ -159,8 +168,9 @@ class TestDiseaseInfoCLI:
 
     def test_disease_name_validation(self):
         """Test disease name validation."""
+
         class DiseaseInput(BaseModel):
-            disease: str
+            disease: str = Field(min_length=1)
 
         # Valid disease name
         input_data = DiseaseInput(disease="Hypertension")
@@ -176,7 +186,7 @@ class TestDiseaseInfoCLI:
             disease_name="Hypertension",
             description="Elevated blood pressure",
             symptoms=["Headaches", "Dizziness"],
-            treatment="Antihypertensive medications"
+            treatment="Antihypertensive medications",
         )
 
         assert disease.disease_name == "Hypertension"
@@ -198,7 +208,7 @@ class TestDiseaseInfoCLI:
         structured = DiseaseInfoModel(
             disease_name="Diabetes",
             description="Metabolic disorder",
-            treatment="Insulin"
+            treatment="Insulin",
         )
         assert isinstance(structured, DiseaseInfoModel)
 
@@ -222,8 +232,9 @@ class TestMedicineInfoCLI:
 
     def test_medicine_name_validation(self):
         """Test medicine name validation."""
+
         class MedicineInput(BaseModel):
-            medicine: str
+            medicine: str = Field(min_length=1)
 
         # Valid
         med = MedicineInput(medicine="Aspirin")
@@ -239,7 +250,7 @@ class TestMedicineInfoCLI:
             medicine_name="Metformin",
             indication="Type 2 Diabetes",
             dosage="500-2000mg daily",
-            side_effects=["Nausea", "Diarrhea"]
+            side_effects=["Nausea", "Diarrhea"],
         )
 
         assert medicine.medicine_name == "Metformin"
@@ -256,11 +267,7 @@ class TestMedicineInfoCLI:
 
     def test_dosage_format_validation(self):
         """Test dosage format."""
-        valid_dosages = [
-            "500mg twice daily",
-            "1-2 tablets per day",
-            "10-20mg daily"
-        ]
+        valid_dosages = ["500mg twice daily", "1-2 tablets per day", "10-20mg daily"]
 
         for dosage in valid_dosages:
             assert len(dosage) > 0
@@ -285,7 +292,7 @@ class TestMedicalFAQCLI:
         faq = FAQModel(
             question="What is hypertension?",
             answer="Hypertension is elevated blood pressure...",
-            references=["WHO Guidelines", "AHA Recommendations"]
+            references=["WHO Guidelines", "AHA Recommendations"],
         )
 
         assert len(faq.question) > 0
@@ -294,8 +301,9 @@ class TestMedicalFAQCLI:
 
     def test_topic_argument_validation(self):
         """Test topic argument validation."""
+
         class TopicInput(BaseModel):
-            topic: str
+            topic: str = Field(min_length=1)
 
         # Valid topic
         input_data = TopicInput(topic="Diabetes")
@@ -317,16 +325,8 @@ class TestMedicalFAQCLI:
     def test_multiple_faq_items(self):
         """Test handling multiple FAQ items."""
         faqs = [
-            FAQModel(
-                question="Q1",
-                answer="A1",
-                references=["Ref1"]
-            ),
-            FAQModel(
-                question="Q2",
-                answer="A2",
-                references=["Ref2"]
-            )
+            FAQModel(question="Q1", answer="A1", references=["Ref1"]),
+            FAQModel(question="Q2", answer="A2", references=["Ref2"]),
         ]
 
         assert len(faqs) == 2
@@ -359,8 +359,7 @@ class TestModelConfigurationValidation:
     def test_model_input_creation(self):
         """Test ModelInput creation."""
         model_input = ModelInput(
-            system_prompt="System message",
-            user_prompt="User message"
+            system_prompt="System message", user_prompt="User message"
         )
 
         assert model_input.system_prompt == "System message"
@@ -379,10 +378,7 @@ class TestModelConfigurationValidation:
     def test_response_format_specification(self):
         """Test specifying response format."""
         ModelConfig(model="test/model")
-        model_input = ModelInput(
-            user_prompt="Test",
-            response_format=DiseaseInfoModel
-        )
+        model_input = ModelInput(user_prompt="Test", response_format=DiseaseInfoModel)
 
         assert model_input.response_format == DiseaseInfoModel
 
@@ -397,6 +393,7 @@ class TestPromptBuilderPatterns:
 
     def test_system_prompt_consistency(self):
         """Test system prompt consistency."""
+
         class ConsistentPromptBuilder:
             @staticmethod
             def create_system_prompt():
@@ -407,6 +404,7 @@ class TestPromptBuilderPatterns:
 
     def test_user_prompt_variable_substitution(self):
         """Test user prompt variable substitution."""
+
         def build_user_prompt(disease: str, symptom: str = None) -> str:
             prompt = f"Analyze {disease}"
             if symptom:
@@ -427,7 +425,7 @@ class TestPromptBuilderPatterns:
         prompts = [
             "Short prompt",
             "This is a medium length prompt with some detail.",
-            "This is a longer prompt " * 10  # Longer prompt
+            "This is a longer prompt " * 10,  # Longer prompt
         ]
 
         for prompt in prompts:
@@ -446,16 +444,9 @@ class TestCLIArgumentPatterns:
     def test_required_vs_optional_arguments(self):
         """Test required vs optional argument handling."""
         # Simulate argument parsing
-        required_args = {
-            "disease": "Hypertension",
-            "medicine1": "Aspirin"
-        }
+        required_args = {"disease": "Hypertension", "medicine1": "Aspirin"}
 
-        optional_args = {
-            "age": None,
-            "dosage": None,
-            "custom_option": "default"
-        }
+        optional_args = {"age": None, "dosage": None, "custom_option": "default"}
 
         assert required_args["disease"] is not None
         assert optional_args["age"] is None  # Can be None
@@ -483,7 +474,7 @@ class TestCLIArgumentPatterns:
             "-o": "--output",
             "-v": "--verbosity",
             "-j": "--json-output",
-            "-s": "--structured"
+            "-s": "--structured",
         }
 
         for short, long in arguments.items():
@@ -498,7 +489,7 @@ class TestCLIArgumentPatterns:
             "verbosity": 2,
             "output_dir": Path("outputs"),
             "json_output": False,
-            "structured": False
+            "structured": False,
         }
 
         for key, value in defaults.items():
@@ -515,11 +506,7 @@ class TestErrorCases:
 
     def test_invalid_model_name(self):
         """Test invalid model name handling."""
-        invalid_models = [
-            "",
-            "   ",
-            None
-        ]
+        invalid_models = ["", "   ", None]
 
         for model in invalid_models:
             if model is None or not str(model).strip():
@@ -541,11 +528,12 @@ class TestErrorCases:
             DiseaseInfoModel(
                 disease_name="",  # Empty required field
                 description="Test",
-                treatment="Test"
+                treatment="Test",
             )
 
     def test_invalid_enum_choice(self):
         """Test invalid enum choice handling."""
+
         class SeverityLevel(BaseModel):
             severity: str
 

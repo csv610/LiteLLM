@@ -1,7 +1,8 @@
 import random
 import re
 from typing import Optional
-from .pii_utils import PIIMasker, PIIDetector
+
+from .pii_utils import PIIDetector, PIIMasker
 
 
 class Anonymizer:

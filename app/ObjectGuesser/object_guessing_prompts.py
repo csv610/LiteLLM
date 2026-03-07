@@ -35,13 +35,10 @@ Remember: You have {self.max_questions} questions to identify the object. Make t
 
         if not conversation_history:
             # First question
-            return f"{system_prompt}
-
-Start the game by asking your first yes/no question to identify the object."
+            return f"{system_prompt}\n\nStart the game by asking your first yes/no question to identify the object."
 
         # Build conversation context
-        conversation_context = "
-".join(
+        conversation_context = "\n".join(
             [f"{msg['role'].upper()}: {msg['content']}" for msg in conversation_history]
         )
 

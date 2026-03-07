@@ -5,9 +5,9 @@ CLI interface for Anatomy Report Evaluator.
 Provides command-line access to evaluate anatomy reports with strict quality standards.
 """
 
+import json
 import logging
 import sys
-import json
 from pathlib import Path
 from typing import Optional
 
@@ -17,9 +17,9 @@ if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
 try:
-    from .evaluate_anatomy_report import AnatomyReportEvaluator, AnatomyEvaluationResult
+    from .evaluate_anatomy_report import AnatomyEvaluationResult, AnatomyReportEvaluator
 except (ImportError, ValueError):
-    from evaluate_anatomy_report import AnatomyReportEvaluator, AnatomyEvaluationResult
+    from evaluate_anatomy_report import AnatomyEvaluationResult, AnatomyReportEvaluator
 
 from lite.logging_config import configure_logging
 
@@ -34,7 +34,9 @@ class EvaluationCLI:
         self.verbose = verbose
         logger.debug("Initialized EvaluationCLI")
 
-    def evaluate_single(self, file_path: Path, output_json: Optional[Path] = None) -> AnatomyEvaluationResult:
+    def evaluate_single(
+        self, file_path: Path, output_json: Optional[Path] = None
+    ) -> AnatomyEvaluationResult:
         """Evaluate a single anatomy report file."""
         if not file_path.exists():
             logger.error(f"File not found: {file_path}")
@@ -53,7 +55,9 @@ class EvaluationCLI:
 
         return result
 
-    def evaluate_directory(self, directory: Path, output_dir: Optional[Path] = None) -> dict:
+    def evaluate_directory(
+        self, directory: Path, output_dir: Optional[Path] = None
+    ) -> dict:
         """Evaluate all anatomy report files in a directory."""
         if not directory.is_dir():
             logger.error(f"Directory not found: {directory}")
@@ -136,7 +140,9 @@ class EvaluationCLI:
         # Summary
         print(f"\n{border}")
         print(f"Overall Quality Score: {result.overall_quality_score}/100")
-        print(f"Status: {self._status_emoji(result.pass_fail_status)} {result.pass_fail_status}")
+        print(
+            f"Status: {self._status_emoji(result.pass_fail_status)} {result.pass_fail_status}"
+        )
         print(border)
 
         # Critical Issues
@@ -164,10 +170,24 @@ class EvaluationCLI:
         print("=" * 90)
 
         # Count results
-        passed = sum(1 for r in results.values() if isinstance(r, dict) and r.get("pass_fail_status") == "PASS")
-        failed = sum(1 for r in results.values() if isinstance(r, dict) and r.get("pass_fail_status") == "FAIL")
-        conditional = sum(1 for r in results.values() if isinstance(r, dict) and r.get("pass_fail_status") == "CONDITIONAL_PASS")
-        errors = sum(1 for r in results.values() if isinstance(r, dict) and "error" in r)
+        passed = sum(
+            1
+            for r in results.values()
+            if isinstance(r, dict) and r.get("pass_fail_status") == "PASS"
+        )
+        failed = sum(
+            1
+            for r in results.values()
+            if isinstance(r, dict) and r.get("pass_fail_status") == "FAIL"
+        )
+        conditional = sum(
+            1
+            for r in results.values()
+            if isinstance(r, dict) and r.get("pass_fail_status") == "CONDITIONAL_PASS"
+        )
+        errors = sum(
+            1 for r in results.values() if isinstance(r, dict) and "error" in r
+        )
 
         print(f"\nTotal Files: {len(results)}")
         print(f"  ✓ PASSED: {passed}")
@@ -176,7 +196,11 @@ class EvaluationCLI:
         print(f"  🔴 ERRORS: {errors}")
 
         # Score distribution
-        scores = [r["overall_quality_score"] for r in results.values() if isinstance(r, dict) and "overall_quality_score" in r]
+        scores = [
+            r["overall_quality_score"]
+            for r in results.values()
+            if isinstance(r, dict) and "overall_quality_score" in r
+        ]
         if scores:
             avg_score = sum(scores) / len(scores)
             max_score = max(scores)
@@ -192,15 +216,19 @@ class EvaluationCLI:
         for filename, result in sorted(results.items()):
             if isinstance(result, dict) and "overall_quality_score" in result:
                 status = self._status_emoji(result["pass_fail_status"])
-                print(f"{status} {filename:40s} {result['overall_quality_score']:6.1f}/100 {result['pass_fail_status']}")
+                print(
+                    f"{status} {filename:40s} {result['overall_quality_score']:6.1f}/100 {result['pass_fail_status']}"
+                )
             else:
                 print(f"🔴 {filename:40s} ERROR")
 
-    def _save_json_results(self, result: AnatomyEvaluationResult, output_path: Path) -> None:
+    def _save_json_results(
+        self, result: AnatomyEvaluationResult, output_path: Path
+    ) -> None:
         """Save evaluation results to JSON file."""
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(result.to_dict(), f, indent=2)
 
         logger.info(f"Results saved to: {output_path}")
@@ -214,16 +242,13 @@ class EvaluationCLI:
         for filename, result in results.items():
             if isinstance(result, dict) and "overall_quality_score" in result:
                 output_file = output_dir / f"{Path(filename).stem}_evaluation.json"
-                with open(output_file, 'w') as f:
+                with open(output_file, "w") as f:
                     json.dump(result, f, indent=2)
 
         # Save summary report
-        summary = {
-            "total_files": len(results),
-            "results": results
-        }
+        summary = {"total_files": len(results), "results": results}
         summary_file = output_dir / "evaluation_summary.json"
-        with open(summary_file, 'w') as f:
+        with open(summary_file, "w") as f:
             json.dump(summary, f, indent=2)
 
         logger.info(f"Batch results saved to: {output_dir}")
@@ -232,11 +257,7 @@ class EvaluationCLI:
     @staticmethod
     def _status_emoji(status: str) -> str:
         """Return emoji for status."""
-        status_map = {
-            "PASS": "✅",
-            "CONDITIONAL_PASS": "⚠️",
-            "FAIL": "❌"
-        }
+        status_map = {"PASS": "✅", "CONDITIONAL_PASS": "⚠️", "FAIL": "❌"}
         return status_map.get(status, "❓")
 
 
@@ -260,44 +281,41 @@ Examples:
 
   # Verbose output
   python evaluate_anatomy_cli.py path/to/report.md -v
-        """
+        """,
     )
 
+    parser.add_argument("path", type=Path, help="File or directory to evaluate")
     parser.add_argument(
-        "path",
-        type=Path,
-        help="File or directory to evaluate"
-    )
-    parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         type=Path,
         default=None,
-        help="Output file/directory for results (JSON format)"
+        help="Output file/directory for results (JSON format)",
     )
     parser.add_argument(
-        "-m", "--model",
+        "-m",
+        "--model",
         type=str,
         default="ollama/gemma3",
-        help="Model to use for evaluation"
+        help="Model to use for evaluation",
     )
     parser.add_argument(
-        "-b", "--batch",
+        "-b",
+        "--batch",
         action="store_true",
-        help="Evaluate all files in directory (if path is directory)"
+        help="Evaluate all files in directory (if path is directory)",
     )
     parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
+        "-v", "--verbose", action="store_true", help="Enable verbose logging"
     )
 
     args = parser.parse_args()
 
     # Configure logging
     configure_logging(
-        log_file="evaluate_anatomy.log", 
-        verbosity=4 if args.verbose else 3, 
-        enable_console=args.verbose
+        log_file="evaluate_anatomy.log",
+        verbosity=4 if args.verbose else 3,
+        enable_console=args.verbose,
     )
 
     try:

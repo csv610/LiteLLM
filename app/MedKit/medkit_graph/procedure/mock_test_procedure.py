@@ -1,8 +1,14 @@
 import unittest
-from procedure_models import Triple, ProcedureGraphBuilder, ProcedureTripletExtractor, ModelConfig
+
+from procedure_models import (
+    ModelConfig,
+    ProcedureGraphBuilder,
+    ProcedureTripletExtractor,
+    Triple,
+)
+
 
 class TestProcedureKnowledgeGraph(unittest.TestCase):
-
     def setUp(self):
         self.model_config = ModelConfig(model="ollama/gemma3")
 
@@ -14,7 +20,7 @@ class TestProcedureKnowledgeGraph(unittest.TestCase):
             relation="treats",
             target="Appendicitis",
             source_type="surgery",
-            target_type="disease"
+            target_type="disease",
         )
         self.assertEqual(t.relation, "treats_disease")
         self.assertEqual(t.source_type, "Procedure")
@@ -29,15 +35,27 @@ class TestProcedureKnowledgeGraph(unittest.TestCase):
         """Test building and querying the graph."""
         builder = ProcedureGraphBuilder(model_config=self.model_config)
         triples = [
-            Triple(source="Appendectomy", relation="treats_disease", target="Appendicitis", source_type="Procedure", target_type="Disease"),
-            Triple(source="Cholecystectomy", relation="treats_disease", target="Gallstones", source_type="Procedure", target_type="Disease")
+            Triple(
+                source="Appendectomy",
+                relation="treats_disease",
+                target="Appendicitis",
+                source_type="Procedure",
+                target_type="Disease",
+            ),
+            Triple(
+                source="Cholecystectomy",
+                relation="treats_disease",
+                target="Gallstones",
+                source_type="Procedure",
+                target_type="Disease",
+            ),
         ]
         builder.add_triples(triples)
-        
+
         # Test nodes
         self.assertIn("Appendectomy", builder.G.nodes)
         self.assertEqual(builder.G.nodes["Appendectomy"]["type"], "Procedure")
-        
+
         # Test query
         results = builder.query_treats("Appendicitis")
         self.assertIn("Appendectomy", results)
@@ -68,10 +86,12 @@ class TestProcedureKnowledgeGraph(unittest.TestCase):
     def test_graph_builder_extractor_separation(self):
         """Test that extractor-based building is separated into its own class."""
         from procedure_models import ProcedureExtractorGraphBuilder
+
         builder = ProcedureExtractorGraphBuilder(model_config=self.model_config)
         triples = builder.build_from_text("Appendectomy is for appendicitis.")
         self.assertTrue(len(triples) > 0)
         self.assertIn("Appendectomy", builder.G.nodes)
+
 
 if __name__ == "__main__":
     unittest.main()

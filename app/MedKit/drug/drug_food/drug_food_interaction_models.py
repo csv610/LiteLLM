@@ -2,11 +2,13 @@
 
 from enum import Enum
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
 class FoodCategory(str, Enum):
     """Food and beverage categories for interaction analysis."""
+
     CITRUS_FRUITS = "Citrus Fruits"
     BERRIES_OTHER_FRUITS = "Berries & Other Fruits"
     DAIRY_CALCIUM = "Dairy & Calcium-rich Foods"
@@ -21,6 +23,7 @@ class FoodCategory(str, Enum):
 
 class InteractionSeverity(str, Enum):
     """Severity levels for drug-food interactions."""
+
     NONE = "NONE"
     MINOR = "MINOR"
     MILD = "MILD"
@@ -31,6 +34,7 @@ class InteractionSeverity(str, Enum):
 
 class ConfidenceLevel(str, Enum):
     """Confidence levels in interaction assessment."""
+
     HIGH = "HIGH"
     MODERATE = "MODERATE"
     LOW = "LOW"
@@ -38,6 +42,7 @@ class ConfidenceLevel(str, Enum):
 
 class DataSourceType(str, Enum):
     """Types of data sources for interaction information."""
+
     CLINICAL_STUDIES = "Clinical Studies"
     PHARMACOKINETIC_ANALYSIS = "Pharmacokinetic Analysis"
     FDA_WARNINGS = "FDA Warnings"
@@ -47,8 +52,11 @@ class DataSourceType(str, Enum):
 
 class FoodCategoryInteractionModel(BaseModel):
     """Detailed interaction information for a specific food category."""
+
     category: FoodCategory = Field(description="Food category being analyzed")
-    has_interaction: bool = Field(description="Whether an interaction exists with this food category")
+    has_interaction: bool = Field(
+        description="Whether an interaction exists with this food category"
+    )
     severity: InteractionSeverity = Field(
         description="Severity of interaction if present (NONE if no interaction)"
     )
@@ -57,16 +65,17 @@ class FoodCategoryInteractionModel(BaseModel):
     )
     mechanism: Optional[str] = Field(
         default=None,
-        description="How the food affects the medicine (absorption, metabolism, elimination)"
+        description="How the food affects the medicine (absorption, metabolism, elimination)",
     )
     timing_recommendation: Optional[str] = Field(
         default=None,
-        description="Recommended timing (e.g., 'take 2 hours before food', 'take with meals')"
+        description="Recommended timing (e.g., 'take 2 hours before food', 'take with meals')",
     )
 
 
 class DrugFoodInteractionDetailsModel(BaseModel):
     """Comprehensive drug-food interaction analysis."""
+
     medicine_name: str = Field(description="Name of the medicine")
     overall_severity: InteractionSeverity = Field(
         description="Overall severity considering all food interactions"
@@ -97,12 +106,13 @@ class DrugFoodInteractionDetailsModel(BaseModel):
     )
     references: Optional[str] = Field(
         default=None,
-        description="Citations or references supporting this interaction data, comma-separated"
+        description="Citations or references supporting this interaction data, comma-separated",
     )
 
 
 class PatientFriendlySummaryModel(BaseModel):
     """Patient-friendly explanation of drug-food interactions."""
+
     simple_explanation: str = Field(
         description="Simple, non-technical explanation of how food affects this medicine"
     )
@@ -122,12 +132,12 @@ class PatientFriendlySummaryModel(BaseModel):
 
 class DataAvailabilityInfoModel(BaseModel):
     """Information about data availability."""
+
     data_available: bool = Field(
         description="Whether food interaction data is available"
     )
     reason: Optional[str] = Field(
-        default=None,
-        description="Explanation if data is not available"
+        default=None, description="Explanation if data is not available"
     )
 
 
@@ -138,16 +148,17 @@ class DrugFoodInteractionModel(BaseModel):
     Combines clinical data, patient education, and detailed category information
     in a structured format for healthcare professionals and patients.
     """
+
     interaction_details: Optional[DrugFoodInteractionDetailsModel] = Field(
         default=None,
-        description="Detailed interaction information (None if data not available)"
+        description="Detailed interaction information (None if data not available)",
     )
     technical_summary: str = Field(
         description="Technical summary of the interactions suitable for healthcare professionals"
     )
     patient_friendly_summary: Optional[PatientFriendlySummaryModel] = Field(
         default=None,
-        description="Patient-friendly explanation (None if no interactions)"
+        description="Patient-friendly explanation (None if no interactions)",
     )
     data_availability: DataAvailabilityInfoModel = Field(
         description="Status of data availability for this interaction check"
@@ -157,4 +168,3 @@ class DrugFoodInteractionModel(BaseModel):
 class ModelOutput(BaseModel):
     data: Optional[DrugFoodInteractionModel] = None
     markdown: Optional[str] = None
-

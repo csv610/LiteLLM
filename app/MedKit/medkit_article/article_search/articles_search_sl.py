@@ -1,4 +1,5 @@
 import streamlit as st
+
 try:
     from .biomcp_articles_search import MedicalArticleSearch
 except (ImportError, ValueError):
@@ -6,6 +7,7 @@ except (ImportError, ValueError):
 
 # Set layout to wide
 st.set_page_config(layout="wide")
+
 
 def display_articles(articles):
     """Display articles in a formatted way"""
@@ -15,9 +17,12 @@ def display_articles(articles):
 
     # Display each article in a simple format
     for i, article in enumerate(articles, 1):
-        st.markdown(f"""{i}. {article['title']}, {article['authors']}. {article['journal']}, {article['year']}. PMID: {article['pmid']}""", 
-                        unsafe_allow_html=True)
-            
+        st.markdown(
+            f"""{i}. {article["title"]}, {article["authors"]}. {article["journal"]}, {article["year"]}. PMID: {article["pmid"]}""",
+            unsafe_allow_html=True,
+        )
+
+
 def st_medial_articles_search():
     """Main function for the BioMCP Article Search Streamlit app"""
     st.title("🧬 BioMCP Article Search")
@@ -25,7 +30,7 @@ def st_medial_articles_search():
     disease = st.text_input("Enter disease name")
 
     if st.button("Search"):
-       with st.spinner("🔍 Searching articles..."):
+        with st.spinner("🔍 Searching articles..."):
             search = MedicalArticleSearch()
             articles = search.search_articles(disease)
             display_articles(articles)

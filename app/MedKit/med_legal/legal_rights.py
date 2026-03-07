@@ -9,8 +9,8 @@ comprehensive patient legal rights information based on provided configuration.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
@@ -32,7 +32,9 @@ class LegalRightsGenerator:
         self.topic = None  # Store the topic being analyzed
         logger.debug("Initialized LegalRightsGenerator for Patient Legal Rights")
 
-    def generate_text(self, topic: str, country: str, structured: bool = False) -> ModelOutput:
+    def generate_text(
+        self, topic: str, country: str, structured: bool = False
+    ) -> ModelOutput:
         """Generates comprehensive patient legal rights information for a specific country."""
         if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
@@ -41,7 +43,9 @@ class LegalRightsGenerator:
 
         # Store the topic for later use in save
         self.topic = topic
-        logger.debug(f"Starting patient legal rights information generation for: {topic} in {country}")
+        logger.debug(
+            f"Starting patient legal rights information generation for: {topic} in {country}"
+        )
 
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(topic, country)
@@ -71,19 +75,24 @@ class LegalRightsGenerator:
         """Call the LLM client to generate content."""
         return self.client.generate_text(model_input=model_input)
 
-    def save(self, result: ModelOutput, output_dir: Path, user_name: str = "anonymous") -> Path:
+    def save(
+        self, result: ModelOutput, output_dir: Path, user_name: str = "anonymous"
+    ) -> Path:
         """Saves the legal rights information to a file with a specific naming convention."""
         from datetime import datetime
+
         if self.topic is None:
-            raise ValueError("No topic information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No topic information available. Call generate_text first."
+            )
+
         # Use simple name for user, lowercase
-        safe_user = "".join([c for c in user_name.lower() if c.isalnum() or c == '_'])
-        
+        safe_user = "".join([c for c in user_name.lower() if c.isalnum() or c == "_"])
+
         # Format date like 'oct102026'
         date_str = datetime.now().strftime("%b%d%Y").lower()
-        
+
         # New filename format: {user_name}_complain_{date}
         base_filename = f"{safe_user}_complain_{date_str}"
-        
+
         return save_model_response(result, output_dir / base_filename)

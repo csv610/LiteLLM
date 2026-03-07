@@ -1,12 +1,23 @@
-import os
 import argparse
-from procedure_models import ProcedureTripletExtractor, ProcedureGraphBuilder, ModelConfig
+import os
+
+from procedure_models import ModelConfig, ProcedureGraphBuilder
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Build a medical procedure knowledge graph using LLM.")
-    parser.add_argument("--procedure", type=str, required=True, help="Name of the medical procedure (e.g., 'Appendectomy').")
-    parser.add_argument("--model", type=str, default="ollama/gemma3", help="LLM model name to use.")
-    
+    parser = argparse.ArgumentParser(
+        description="Build a medical procedure knowledge graph using LLM."
+    )
+    parser.add_argument(
+        "--procedure",
+        type=str,
+        required=True,
+        help="Name of the medical procedure (e.g., 'Appendectomy').",
+    )
+    parser.add_argument(
+        "--model", type=str, default="ollama/gemma3", help="LLM model name to use."
+    )
+
     args = parser.parse_args()
 
     procedure_name = args.procedure
@@ -31,7 +42,7 @@ def main():
 
     output_dir = "outputs"
     os.makedirs(output_dir, exist_ok=True)
-    
+
     dot_path = os.path.join(output_dir, f"{filename}.dot")
     builder.export_dot(dot_path)
 
@@ -41,6 +52,7 @@ def main():
     print(f"\n📂 Outputs saved in {output_dir}/")
     print(f"   - DOT file: {dot_path}")
     print(f"   - JSON file: {json_path}")
+
 
 if __name__ == "__main__":
     main()

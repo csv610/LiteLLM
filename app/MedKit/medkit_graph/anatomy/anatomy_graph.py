@@ -1,5 +1,4 @@
-
-from anatomy_models import AnatomyTripletExtractor, AnatomyGraphBuilder, GraphVisualizer
+from anatomy_models import AnatomyGraphBuilder, AnatomyTripletExtractor, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner

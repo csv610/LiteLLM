@@ -9,15 +9,15 @@ comprehensive disease information based on provided configuration.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
-    from .organ_disease_info_models import OrganDiseasesModel, ModelOutput
+    from .organ_disease_info_models import ModelOutput, OrganDiseasesModel
     from .organ_disease_info_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from organ_disease_info_models import OrganDiseasesModel, ModelOutput
+    from organ_disease_info_models import ModelOutput, OrganDiseasesModel
     from organ_disease_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class DiseaseInfoGenerator:
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.disease = None  # Store the disease being analyzed
-        self.organ = None    # Store the organ being analyzed
+        self.organ = None  # Store the organ being analyzed
         logger.debug("Initialized DiseaseInfoGenerator")
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:
@@ -66,7 +66,7 @@ class DiseaseInfoGenerator:
         try:
             result = self.ask_llm(model_input)
             logger.debug("✓ Successfully generated organ diseases information")
-            
+
             # If structured, wrap the result in ModelOutput
             if structured and isinstance(result, OrganDiseasesModel):
                 return ModelOutput(data=result)
@@ -82,6 +82,8 @@ class DiseaseInfoGenerator:
         elif self.organ:
             base_filename = f"{self.organ.lower().replace(' ', '_')}_diseases"
         else:
-            raise ValueError("No disease or organ information available. Call generate_text or generate_organ_diseases first.")
-        
+            raise ValueError(
+                "No disease or organ information available. Call generate_text or generate_organ_diseases first."
+            )
+
         return save_model_response(result, output_dir / base_filename)

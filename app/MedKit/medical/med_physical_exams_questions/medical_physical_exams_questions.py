@@ -1,36 +1,79 @@
 """medical_physical_exams_questions - Generate structured physical examination questions."""
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 from typing import Optional
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
+
 from utils import print_response
 
 from .medical_physical_exams_questions_models import ExamQuestions
 
 EXAMS_WITH_REPRODUCTIVE_RELEVANCE = {
-    "Skin Exam", "Eye Exam", "Gynecological Exam", "Obstetric Exam",
-    "Genitourinary Exam", "Infectious Disease Assessment", "Endocrine Exam"
+    "Skin Exam",
+    "Eye Exam",
+    "Gynecological Exam",
+    "Obstetric Exam",
+    "Genitourinary Exam",
+    "Infectious Disease Assessment",
+    "Endocrine Exam",
 }
 
 EXAMS_WITH_STRESS_RELEVANCE = {
-    "Skin Exam", "Eye Exam", "Abdominal Exam", "Respiratory Exam",
-    "Cardiovascular Exam", "Neurological Exam", "Musculoskeletal Exam",
-    "Mental Health Assessment"
+    "Skin Exam",
+    "Eye Exam",
+    "Abdominal Exam",
+    "Respiratory Exam",
+    "Cardiovascular Exam",
+    "Neurological Exam",
+    "Musculoskeletal Exam",
+    "Mental Health Assessment",
 }
 
 EXAM_SPECIFIC_FOCUS = {
-    "Skin Exam": ["face and acne distribution patterns", "intertriginous areas (folds)", "extremities and nails", "scalp and hairline"],
-    "Respiratory Exam": ["upper lobes bilaterally", "lower lobes bilaterally", "breath sound distribution and character", "accessory muscle use"],
-    "Cardiovascular Exam": ["precordium and point of maximal impulse", "murmur location and radiation", "peripheral pulses bilaterally", "jugular venous pressure"],
-    "Abdominal Exam": ["right upper quadrant", "left upper quadrant", "right lower quadrant", "left lower quadrant", "periumbilical region"],
-    "Neurological Exam": ["cranial nerve distributions", "motor strength by extremity", "sensory levels and dermatomes", "reflex asymmetries"],
-    "Musculoskeletal Exam": ["bilateral joint comparison", "range of motion limitations", "muscle atrophy or hypertrophy", "joint swelling and warmth"]
+    "Skin Exam": [
+        "face and acne distribution patterns",
+        "intertriginous areas (folds)",
+        "extremities and nails",
+        "scalp and hairline",
+    ],
+    "Respiratory Exam": [
+        "upper lobes bilaterally",
+        "lower lobes bilaterally",
+        "breath sound distribution and character",
+        "accessory muscle use",
+    ],
+    "Cardiovascular Exam": [
+        "precordium and point of maximal impulse",
+        "murmur location and radiation",
+        "peripheral pulses bilaterally",
+        "jugular venous pressure",
+    ],
+    "Abdominal Exam": [
+        "right upper quadrant",
+        "left upper quadrant",
+        "right lower quadrant",
+        "left lower quadrant",
+        "periumbilical region",
+    ],
+    "Neurological Exam": [
+        "cranial nerve distributions",
+        "motor strength by extremity",
+        "sensory levels and dermatomes",
+        "reflex asymmetries",
+    ],
+    "Musculoskeletal Exam": [
+        "bilateral joint comparison",
+        "range of motion limitations",
+        "muscle atrophy or hypertrophy",
+        "joint swelling and warmth",
+    ],
 }
+
 
 class ExamQuestionGenerator:
     """Generates comprehensive physical examination questions using LiteClient."""
@@ -64,7 +107,9 @@ class ExamQuestionGenerator:
         """Generate the prompt for question generation."""
         patient_context = f"\n\nPATIENT CONTEXT:\n- Age: {self.age} years old\n- Gender: {self.gender}\n"
         if self.age < 18:
-            patient_context += "- Patient is a pediatric patient - consider developmental stage.\n"
+            patient_context += (
+                "- Patient is a pediatric patient - consider developmental stage.\n"
+            )
         elif self.age >= 65:
             patient_context += "- Patient is an elderly patient - consider geriatric-specific conditions.\n"
 
@@ -75,7 +120,9 @@ class ExamQuestionGenerator:
             exam_considerations += "\nSTRESS AND PSYCHOLOGICAL FACTORS: Inquire about current stress levels and impact on health.\n"
 
         if self.exam_type in EXAM_SPECIFIC_FOCUS:
-            exam_considerations += f"\nEXAM-SPECIFIC FOCUS AREAS FOR {self.exam_type.upper()}:\n"
+            exam_considerations += (
+                f"\nEXAM-SPECIFIC FOCUS AREAS FOR {self.exam_type.upper()}:\n"
+            )
             for area in EXAM_SPECIFIC_FOCUS[self.exam_type]:
                 exam_considerations += f"- {area}\n"
 
@@ -94,14 +141,27 @@ Create detailed, clinically-relevant questions organized by technique:
 Ensure all questions are clinically appropriate, clear, and age/gender sensitive."""
 
 
-
 def main():
-    parser = argparse.ArgumentParser(description="Generate comprehensive physical examination questions.")
-    parser.add_argument("-i", "--exam", required=True, help="Type of physical exam (e.g., 'Cardiovascular Exam')")
-    parser.add_argument("-a", "--age", type=int, required=True, help="Age of the patient in years")
+    parser = argparse.ArgumentParser(
+        description="Generate comprehensive physical examination questions."
+    )
+    parser.add_argument(
+        "-i",
+        "--exam",
+        required=True,
+        help="Type of physical exam (e.g., 'Cardiovascular Exam')",
+    )
+    parser.add_argument(
+        "-a", "--age", type=int, required=True, help="Age of the patient in years"
+    )
     parser.add_argument("-g", "--gender", required=True, help="Gender of the patient")
     parser.add_argument("-o", "--output", type=Path, help="Path to save JSON output.")
-    parser.add_argument("-m", "--model", default="gemini-1.5-pro", help="Model to use (default: gemini-1.5-pro)")
+    parser.add_argument(
+        "-m",
+        "--model",
+        default="gemini-1.5-pro",
+        help="Model to use (default: gemini-1.5-pro)",
+    )
 
     args = parser.parse_args()
 
@@ -109,10 +169,12 @@ def main():
         model_config = ModelConfig(model=args.model, temperature=0.7)
         generator = ExamQuestionGenerator(model_config=model_config)
         print("Generating physical exam questions...")
-        result = generator.generate_text(exam_type=args.exam, age=args.age, gender=args.gender)
-        
+        result = generator.generate_text(
+            exam_type=args.exam, age=args.age, gender=args.gender
+        )
+
         print_response(result, title="Medical Physical Exam Questions")
-        
+
         if args.output:
             save_model_response(result, args.output)
             print(f"✓ Questions saved to {args.output}")
@@ -121,5 +183,6 @@ def main():
         print(f"✗ Error: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

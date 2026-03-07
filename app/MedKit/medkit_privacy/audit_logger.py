@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
 # Use relative imports for models
 try:

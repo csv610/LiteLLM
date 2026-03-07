@@ -1,13 +1,15 @@
 import logging
 from pathlib import Path
-from lite.lite_client import LiteClient
+
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .surgery_info_models import SurgeryInfoModel, ModelOutput
+from .surgery_info_models import ModelOutput, SurgeryInfoModel
 from .surgery_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
 
 class SurgeryInfoGenerator:
     """Generates comprehensive surgery information based on provided configuration."""
@@ -23,7 +25,9 @@ class SurgeryInfoGenerator:
             raise ValueError("Surgery name cannot be empty")
 
         self.surgery = surgery
-        logger.debug(f"Starting surgical procedure information generation for: {surgery}")
+        logger.debug(
+            f"Starting surgical procedure information generation for: {surgery}"
+        )
 
         model_input = ModelInput(
             system_prompt=PromptBuilder.create_system_prompt(),
@@ -41,6 +45,8 @@ class SurgeryInfoGenerator:
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         if self.surgery is None:
-            raise ValueError("No surgery information available. Call generate_text first.")
+            raise ValueError(
+                "No surgery information available. Call generate_text first."
+            )
         base_filename = f"{self.surgery.lower().replace(' ', '_')}"
         return save_model_response(result, output_dir / base_filename)

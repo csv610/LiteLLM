@@ -5,7 +5,7 @@ from pathlib import Path
 # Current file is in /Users/csv610/Projects/LiteLLM/app/MedKit/drug/med_prescription
 # We want to add /Users/csv610/Projects/LiteLLM/app to the path
 current_dir = Path(__file__).resolve().parent
-app_dir = current_dir.parent.parent.parent # drug -> MedKit -> app
+app_dir = current_dir.parent.parent.parent  # drug -> MedKit -> app
 sys.path.append(str(app_dir))
 
 print(f"Added to sys.path: {app_dir}")
@@ -13,19 +13,22 @@ print(f"Added to sys.path: {app_dir}")
 try:
     # Try importing medkit (since it's macOS, MedKit should match medkit)
     print("✓ Successfully imported MedKit")
-    
-    from MedKit.drug.med_prescription.prescription_extractor import PrescriptionExtractor
+
     from lite.config import ModelConfig
-    
+    from MedKit.drug.med_prescription.prescription_extractor import (
+        PrescriptionExtractor,
+    )
+
     print("✓ Successfully imported prescription modules")
-    
+
     # Simple test of instantiation
     config = ModelConfig(model="gemini-1.5-flash")
     extractor = PrescriptionExtractor(config=config)
     print("✓ Successfully instantiated PrescriptionExtractor")
-    
+
 except Exception as e:
     print(f"✗ Error during import or instantiation: {e}")
     import traceback
+
     traceback.print_exc()
     sys.exit(1)

@@ -1,10 +1,10 @@
-import os
 import logging
+import os
 from io import BytesIO
 
 import requests
-from PIL import Image
 from ddgs import DDGS
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -49,13 +49,13 @@ class DuckDuckImages:
         """
         image_urls = []
         try:
-            kwargs = {'max_results': max_results * 2}
+            kwargs = {"max_results": max_results * 2}
             if size:
-                kwargs['size'] = size
-                
+                kwargs["size"] = size
+
             with DDGS() as ddgs:
                 for result in ddgs.images(query, **kwargs):
-                    url = result.get('image')
+                    url = result.get("image")
                     if not url:
                         continue
 
@@ -117,11 +117,12 @@ class DuckDuckImages:
             True if URL is a valid image, False otherwise
         """
         try:
-            response = requests.head(url, allow_redirects=True, timeout=IMAGE_VALIDATION_TIMEOUT)
+            response = requests.head(
+                url, allow_redirects=True, timeout=IMAGE_VALIDATION_TIMEOUT
+            )
             response.raise_for_status()
-            content_type = response.headers.get('Content-Type', '')
-            return content_type.startswith('image/')
+            content_type = response.headers.get("Content-Type", "")
+            return content_type.startswith("image/")
         except Exception as e:
             logger.debug(f"Image URL validation failed for {url}: {e}")
             return False
-

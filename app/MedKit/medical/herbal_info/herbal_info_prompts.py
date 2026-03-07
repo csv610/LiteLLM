@@ -50,4 +50,3 @@ Formatting rules:
 - Do not invent clinical evidence.
 - If data is unknown or insufficient, write: "Insufficient reliable data available."
 """
-

@@ -7,35 +7,39 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 from io import StringIO
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root and MedKit path to sys.path
+root_path = Path(__file__).parent.parent
+sys.path.insert(0, str(root_path))
+sys.path.insert(0, str(root_path / "app" / "MedKit" / "drug" / "medicine" / "drugbank"))
 
-from app.cli.drugbank_medicine import cli, MedicineInfo, BasicInfo
+from drugbank_medicine_cli import cli
+from drugbank_medicine_models import MedicineInfo, BasicInfo
 
 
 class TestCLIIntegration:
     """Integration tests for CLI functionality"""
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_successful_execution(self, mock_client_class):
-        """Test successful CLI execution with mocked LiteClient"""
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_cli_successful_execution(self, mock_analyzer_class):
+        """Test successful CLI execution with mocked DrugBankMedicine"""
         # Create sample medicine data
-        sample_response = json.dumps({
-            "basic_info": {
-                "name": "Aspirin",
-                "drugbank_id": "DB00945",
-                "synonyms": ["Acetylsalicylic acid"],
-            },
-            "classification": {
+        sample_response = MedicineInfo(
+            basic_info=BasicInfo(
+                name="Aspirin",
+                drugbank_id="DB00945",
+                synonyms=["Acetylsalicylic acid"],
+            ),
+            classification={
                 "drug_type": "small_molecule",
                 "groups": ["approved"],
                 "categories": ["Analgesics"],
             },
-        })
+        )
 
-        # Mock LiteClient
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = sample_response
-        mock_client_class.return_value = mock_client
+        # Mock DrugBankMedicine
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.return_value = sample_response
+        mock_analyzer_class.return_value = mock_analyzer
 
         # Change to temp directory to avoid file conflicts
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -45,30 +49,31 @@ class TestCLIIntegration:
             try:
                 cli("Aspirin", "gemini/gemini-2.5-flash", 0.2)
 
-                # Verify LiteClient was called correctly
-                mock_client_class.assert_called_once()
+                # Verify DrugBankMedicine was called correctly
+                mock_analyzer_class.assert_called_once()
 
-                # Check that file was created
-                assert os.path.exists("Aspirin.json")
+                # Check that file was created in outputs/aspirin.json
+                expected_path = Path("outputs/aspirin.json")
+                assert expected_path.exists()
 
                 # Verify file contents
-                with open("Aspirin.json", "r") as f:
+                with open(expected_path, "r") as f:
                     data = json.load(f)
                     assert data["basic_info"]["name"] == "Aspirin"
                     assert data["basic_info"]["drugbank_id"] == "DB00945"
             finally:
                 os.chdir(original_cwd)
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_with_special_characters_in_medicine_name(self, mock_client_class):
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_cli_with_special_characters_in_medicine_name(self, mock_analyzer_class):
         """Test CLI with special characters in medicine name"""
-        sample_response = json.dumps({
-            "basic_info": {"name": "Drug Name", "synonyms": []},
-        })
+        sample_response = MedicineInfo(
+            basic_info=BasicInfo(name="Drug Name", synonyms=[]),
+        )
 
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = sample_response
-        mock_client_class.return_value = mock_client
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.return_value = sample_response
+        mock_analyzer_class.return_value = mock_analyzer
 
         with tempfile.TemporaryDirectory() as tmpdir:
             original_cwd = os.getcwd()
@@ -77,57 +82,40 @@ class TestCLIIntegration:
             try:
                 cli("Drug<>Name|Test", "gemini/gemini-2.5-flash", 0.2)
 
-                # Check sanitized filename
-                assert os.path.exists("DrugNameTest.json")
+                # Check sanitized filename in outputs/
+                expected_path = Path("outputs/drugnametest.json")
+                assert expected_path.exists()
             finally:
                 os.chdir(original_cwd)
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_with_invalid_json_response(self, mock_client_class):
-        """Test CLI error handling for invalid JSON"""
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = "Invalid JSON {{"
-        mock_client_class.return_value = mock_client
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_cli_with_invalid_json_response(self, mock_analyzer_class):
+        """Test CLI error handling for invalid JSON (though now it handles non-JSON if not structured)"""
+        # If generate_text returns a string, it's saved as .md
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.side_effect = Exception("Analysis failed")
+        mock_analyzer_class.return_value = mock_analyzer
 
         with tempfile.TemporaryDirectory() as tmpdir:
             original_cwd = os.getcwd()
             os.chdir(tmpdir)
 
             try:
-                with pytest.raises(SystemExit) as exc_info:
-                    cli("Aspirin", "gemini/gemini-2.5-flash", 0.2)
-                assert exc_info.value.code == 1
+                result = cli("Aspirin", "gemini/gemini-2.5-flash", 0.2)
+                assert result == 1
             finally:
                 os.chdir(original_cwd)
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_with_non_string_response(self, mock_client_class):
-        """Test CLI error handling for non-string response"""
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = {"not": "string"}
-        mock_client_class.return_value = mock_client
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            os.chdir(tmpdir)
-
-            try:
-                with pytest.raises(SystemExit) as exc_info:
-                    cli("Aspirin", "gemini/gemini-2.5-flash", 0.2)
-                assert exc_info.value.code == 1
-            finally:
-                os.chdir(original_cwd)
-
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_custom_model_parameter(self, mock_client_class):
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_cli_custom_model_parameter(self, mock_analyzer_class):
         """Test CLI with custom model parameter"""
-        sample_response = json.dumps({
-            "basic_info": {"name": "Test Drug", "synonyms": []},
-        })
+        sample_response = MedicineInfo(
+            basic_info=BasicInfo(name="Test Drug", synonyms=[]),
+        )
 
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = sample_response
-        mock_client_class.return_value = mock_client
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.return_value = sample_response
+        mock_analyzer_class.return_value = mock_analyzer
 
         with tempfile.TemporaryDirectory() as tmpdir:
             original_cwd = os.getcwd()
@@ -137,22 +125,22 @@ class TestCLIIntegration:
                 cli("Test Drug", "gpt-4", 0.5)
 
                 # Verify ModelConfig was created with correct parameters
-                call_args = mock_client_class.call_args
-                assert call_args[1]["model_config"].model == "gpt-4"
-                assert call_args[1]["model_config"].temperature == 0.5
+                call_args = mock_analyzer_class.call_args
+                assert call_args[0][0].model == "gpt-4"
+                assert call_args[0][0].temperature == 0.5
             finally:
                 os.chdir(original_cwd)
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_temperature_parameter(self, mock_client_class):
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_cli_temperature_parameter(self, mock_analyzer_class):
         """Test CLI with different temperature values"""
-        sample_response = json.dumps({
-            "basic_info": {"name": "Test Drug", "synonyms": []},
-        })
+        sample_response = MedicineInfo(
+            basic_info=BasicInfo(name="Test Drug", synonyms=[]),
+        )
 
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = sample_response
-        mock_client_class.return_value = mock_client
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.return_value = sample_response
+        mock_analyzer_class.return_value = mock_analyzer
 
         with tempfile.TemporaryDirectory() as tmpdir:
             original_cwd = os.getcwd()
@@ -161,41 +149,28 @@ class TestCLIIntegration:
             try:
                 cli("Test Drug", "gemini/gemini-2.5-flash", 0.8)
 
-                call_args = mock_client_class.call_args
-                assert call_args[1]["model_config"].temperature == 0.8
+                call_args = mock_analyzer_class.call_args
+                assert call_args[0][0].temperature == 0.8
             finally:
                 os.chdir(original_cwd)
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    def test_cli_output_file_structure(self, mock_client_class):
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_cli_output_file_structure(self, mock_analyzer_class):
         """Test that output JSON has correct structure"""
-        sample_response = json.dumps({
-            "basic_info": {
-                "name": "Ibuprofen",
-                "drugbank_id": "DB01050",
-                "synonyms": ["Brufen", "Advil"],
-                "description": "A nonsteroidal anti-inflammatory drug",
-            },
-            "classification": {
-                "drug_type": "small_molecule",
-                "groups": ["approved"],
-                "categories": ["Anti-inflammatory", "Analgesic"],
-                "atc_codes": [],
-                "taxonomy": None,
-            },
-            "pharmacology": None,
-            "indications": None,
-            "administration": None,
-            "interactions": None,
-            "safety": None,
-            "regulation": None,
-            "references": None,
-        })
+        from drugbank_medicine_models import MedicineInfo, BasicInfo, Classification
 
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = sample_response
-        mock_client_class.return_value = mock_client
-
+        sample_response = MedicineInfo(
+            basic_info=BasicInfo(
+                name="Ibuprofen",
+                drugbank_id="DB01050",
+                synonyms=["Brufen", "Advil"],
+                description="A nonsteroidal anti-inflammatory drug",
+            ),
+            classification=Classification()
+        )
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.return_value = sample_response
+        mock_analyzer_class.return_value = mock_analyzer
         with tempfile.TemporaryDirectory() as tmpdir:
             original_cwd = os.getcwd()
             os.chdir(tmpdir)
@@ -203,7 +178,8 @@ class TestCLIIntegration:
             try:
                 cli("Ibuprofen", "gemini/gemini-2.5-flash", 0.2)
 
-                with open("Ibuprofen.json", "r") as f:
+                expected_path = Path("outputs/ibuprofen.json")
+                with open(expected_path, "r") as f:
                     data = json.load(f)
 
                 # Verify structure
@@ -217,9 +193,6 @@ class TestCLIIntegration:
 
     def test_cli_argparse_integration(self):
         """Test CLI argument parsing"""
-        from app.cli.drugbank_medicine import (
-            __name__ as module_name,
-        )
         import argparse
 
         # Simulate argparse for the CLI
@@ -261,21 +234,21 @@ class TestCLIIntegration:
 class TestErrorHandling:
     """Test error handling in CLI"""
 
-    @patch("app.cli.drugbank_medicine.LiteClient")
-    @patch("builtins.open", side_effect=IOError("Permission denied"))
-    def test_file_write_error(self, mock_open, mock_client_class):
+    @patch("drugbank_medicine_cli.DrugBankMedicine")
+    def test_file_write_error(self, mock_analyzer_class):
         """Test handling of file write errors"""
-        sample_response = json.dumps({
+        sample_response = {
             "basic_info": {"name": "Test Drug", "synonyms": []},
-        })
+        }
 
-        mock_client = MagicMock()
-        mock_client.generate_text.return_value = sample_response
-        mock_client_class.return_value = mock_client
+        mock_analyzer = MagicMock()
+        mock_analyzer.generate_text.return_value = sample_response
+        mock_analyzer_class.return_value = mock_analyzer
 
-        with pytest.raises(SystemExit) as exc_info:
-            cli("Test Drug", "gemini/gemini-2.5-flash", 0.2)
-        assert exc_info.value.code == 1
+        # Mocking Path.mkdir to fail or something that causes an error in create_drugbank_medicine_report
+        with patch("pathlib.Path.mkdir", side_effect=IOError("Permission denied")):
+            result = cli("Test Drug", "gemini/gemini-2.5-flash", 0.2)
+            assert result == 1
 
 
 if __name__ == "__main__":

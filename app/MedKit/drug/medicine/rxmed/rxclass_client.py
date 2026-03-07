@@ -6,8 +6,10 @@ clinical relationships (contraindications, interactions, therapeutic uses), and 
 information retrieval.
 """
 
+from typing import Any, Dict, List, Optional, Union
+
 import requests
-from typing import Optional, Dict, Any, List, Union
+
 
 class RxClassClient:
     BASE_URL = "https://rxnav.nlm.nih.gov/REST/rxclass"
@@ -16,7 +18,9 @@ class RxClassClient:
         self.session = requests.Session()
         self.timeout = timeout
 
-    def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _get(
+        self, path: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         url = f"{self.BASE_URL}{path}"
         resp = self.session.get(url, params=params, timeout=self.timeout)
         resp.raise_for_status()
@@ -39,21 +43,27 @@ class RxClassClient:
         rxcui_param = ",".join(rxcuis)
         return self._get("/class/similarByRxcuis.json", params={"rxcuis": rxcui_param})
 
-    def get_all_classes(self, class_types: Optional[List[str]] = None) -> Dict[str, Any]:
+    def get_all_classes(
+        self, class_types: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
         """/allClasses — Retrieve all classes (optionally filtered by class type)."""
         params: Dict[str, Any] = {}
         if class_types:
             params["classTypes"] = " ".join(class_types)
         return self._get("/allClasses.json", params=params)
 
-    def get_class_by_rxcui(self, rxcui: str, rela_source: Optional[str] = None) -> Dict[str, Any]:
+    def get_class_by_rxcui(
+        self, rxcui: str, rela_source: Optional[str] = None
+    ) -> Dict[str, Any]:
         """/class/byRxcui — Classes containing a specified drug RXCUI."""
         params = {"rxcui": rxcui}
         if rela_source:
             params["relaSource"] = rela_source
         return self._get("/class/byRxcui.json", params=params)
 
-    def get_class_by_drug_name(self, drug_name: str, rela_source: Optional[str] = None) -> Dict[str, Any]:
+    def get_class_by_drug_name(
+        self, drug_name: str, rela_source: Optional[str] = None
+    ) -> Dict[str, Any]:
         """/class/byDrugName — Classes containing a drug of the specified name (generic or brand)."""
         params = {"drugName": drug_name}
         if rela_source:
@@ -64,7 +74,9 @@ class RxClassClient:
         """/classContext — Paths from the specified class to the root of its class hierarchies."""
         return self._get("/classContext.json", params={"classId": class_id})
 
-    def get_class_graph_by_source(self, class_id: str, source: Optional[str] = None) -> Dict[str, Any]:
+    def get_class_graph_by_source(
+        self, class_id: str, source: Optional[str] = None
+    ) -> Dict[str, Any]:
         """/classGraph — Classes along the path from a specified class to the root of a class hierarchy (by source)."""
         params: Dict[str, Any] = {"classId": class_id}
         if source:
@@ -77,7 +89,7 @@ class RxClassClient:
         rela_source: str,
         rela: Optional[str] = None,
         ttys: Optional[str] = None,
-        trans: Optional[Union[int, str]] = None
+        trans: Optional[Union[int, str]] = None,
     ) -> Dict[str, Any]:
         """/classMembers — Drug members of a specified class."""
         params: Dict[str, Any] = {"classId": class_id, "relaSource": rela_source}
@@ -89,7 +101,9 @@ class RxClassClient:
             params["trans"] = str(trans)
         return self._get("/classMembers.json", params=params)
 
-    def get_class_tree(self, class_id: str, rela_source: Optional[str] = None) -> Dict[str, Any]:
+    def get_class_tree(
+        self, class_id: str, rela_source: Optional[str] = None
+    ) -> Dict[str, Any]:
         """/classTree — Subclasses or descendants of the specified class."""
         params = {"classId": class_id}
         if rela_source:
@@ -113,16 +127,17 @@ class RxClassClient:
 
     def get_similarity_information(self, class1: str, class2: str) -> Dict[str, Any]:
         """/class/similarInfo — Similarity of the clinically-significant membership of two classes."""
-        return self._get("/class/similarInfo.json", params={"class1": class1, "class2": class2})
+        return self._get(
+            "/class/similarInfo.json", params={"class1": class1, "class2": class2}
+        )
 
     def get_sources_of_drug_class_relations(self) -> Dict[str, Any]:
         """/relaSources — Sources of drug-class relations."""
         return self._get("/relaSources.json")
 
-    def get_spelling_suggestions(self, term: str, type_: str = "CLASS") -> Dict[str, Any]:
+    def get_spelling_suggestions(
+        self, term: str, type_: str = "CLASS"
+    ) -> Dict[str, Any]:
         """/spellingsuggestions — Drug or class names similar to a given string."""
-        params: Dict[str, Any] = {
-            "term": term,
-            "type": type_.upper()
-        }
+        params: Dict[str, Any] = {"term": term, "type": type_.upper()}
         return self._get("/spellingsuggestions.json", params=params)

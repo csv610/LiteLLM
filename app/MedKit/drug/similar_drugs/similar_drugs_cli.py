@@ -12,15 +12,16 @@ from pathlib import Path
 from typing import Optional, Union
 
 from lite.config import ModelConfig
-
-from similar_drugs_models import SimilarMedicinesResult
 from similar_drugs import SimilarDrugs
+from similar_drugs_models import SimilarMedicinesResult
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class SimilarDrugsConfig:
     """Configuration for finding similar drugs."""
+
     output_path: Optional[Path] = None
     verbosity: int = 2  # 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG
     enable_cache: bool = True
@@ -147,13 +148,15 @@ def create_cli_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "-s", "--structured",
+        "-s",
+        "--structured",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response."
+        help="Use structured output (Pydantic model) for the response.",
     )
 
     return parser
+
 
 def main() -> int:
     """
@@ -168,7 +171,7 @@ def main() -> int:
     try:
         # Create configuration
         config = SimilarDrugsConfig(
-            output_path=args.output if hasattr(args, 'output') else None,
+            output_path=args.output if hasattr(args, "output") else None,
             verbosity=args.verbosity,
         )
 
@@ -179,9 +182,11 @@ def main() -> int:
         analyzer = SimilarDrugs(config, model_config)
         result = analyzer.find(
             medicine_name=args.medicine_name,
-            include_generics=args.include_generics if hasattr(args, 'include_generics') else True,
-            patient_age=args.age if hasattr(args, 'age') else None,
-            patient_conditions=args.conditions if hasattr(args, 'conditions') else None,
+            include_generics=args.include_generics
+            if hasattr(args, "include_generics")
+            else True,
+            patient_age=args.age if hasattr(args, "age") else None,
+            patient_conditions=args.conditions if hasattr(args, "conditions") else None,
             structured=args.structured,
         )
 
@@ -189,11 +194,13 @@ def main() -> int:
         if args.output:
             output_path = args.output
         else:
-            medicine_clean = args.medicine_name.lower().replace(' ', '_')
+            medicine_clean = args.medicine_name.lower().replace(" ", "_")
             suffix = ".json"
             if isinstance(result, str):
                 suffix = ".md"
-            output_path = Path("outputs") / f"{medicine_clean}_similar_medicines{suffix}"
+            output_path = (
+                Path("outputs") / f"{medicine_clean}_similar_medicines{suffix}"
+            )
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -223,6 +230,7 @@ def main() -> int:
         print(f"\n❌ Error: {e}", file=sys.stderr)
         logger.error(f"Unexpected error: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

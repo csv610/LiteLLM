@@ -1,60 +1,46 @@
-# Deep Intuition: The Story of Fundamental Ideas
+# DeepIntuition
 
-A narrative-driven engine designed to bridge the gap between abstract academic concepts and human intuition. Deep Intuition provides the "story" behind fundamental ideas in Computer Science and Mathematics—explaining not just *what* a theorem is, but the historical context, the intellectual struggle, and the "aha!" moments that led to its discovery.
+`DeepIntuition` generates long-form explanatory narratives about mathematical or technical ideas. Its emphasis is historical framing and intuition-building rather than formal proof.
 
-## 🧠 The Philosophy
+## What It Does
 
-Most educational tools treat fundamental discoveries as if they were plucked from thin air by "superhuman" geniuses. Deep Intuition shatters this myth. We believe that true understanding comes from seeing the **systematic human process** behind the breakthrough:
+- Accepts a topic such as a theorem, theory, or foundational idea.
+- Produces a structured narrative with sections such as historical struggle, "aha" moment, counterfactual framing, and modern resonance.
+- Saves the result to `outputs/story_<topic>.json`.
 
-*   **The Systematic Exploration**: How thinkers methodically poked at the boundaries of what was known.
-*   **The Archive of Failures**: The dead ends and incorrect hypotheses that paved the way for the eventual "Aha!" moment.
-*   **Demystifying Genius**: Showing that these discoveries are human triumphs born of persistence, not just innate "super intelligence."
-*   **The Intellectual Lineage**: How one person's "failed" attempt became another's foundation.
-*   **Counterfactual Reality**: What things would look like today if this specific human struggle had never succeeded.
+## Why It Matters
 
-## 🚀 The Intuition Mission Workflow
+Many technical explanations focus on final results and omit the reasoning path that made the result intelligible. This app is useful when the learning goal is conceptual understanding rather than direct problem solving.
 
-1.  **Story Discovery**: The engine generates a comprehensive, human-centric narrative of the fundamental discovery.
-2.  **The Human Journey**: Uncovers the systematic exploration, failed attempts, and historical struggles that preceded the "Aha!" moment.
-3.  **The "Aha!" Moment**: Provides a clear, intuitive analogy that makes the concept click for a non-expert.
-4.  **Counterfactual Reality**: Explores how our world would be fundamentally stalled or different if this human triumph had never occurred.
-5.  **Master Synthesis**: Delivers the final story as a "Master Narrative Map," connecting the historical struggle to modern resonance.
+## What Distinguishes It
 
-## 🛠 Project Structure
+- Narrative structure rather than terse summary.
+- Explicit historical and counterfactual sections.
+- Structured JSON output despite the long-form format.
 
-- `deep_intuition_cli.py`: The Storyteller interface.
-- `deep_intuition.py`: The core storytelling engine.
-- `deep_intuition_models.py`: Pydantic models (DeepIntuitionStory).
-- `deep_intuition_prompts.py`: Comprehensive storytelling prompt architecture.
-- `outputs/`: JSON archives of every uncovered human story.
+## Files
 
-## 💻 Usage
+- `deep_intuition.py`: core generator.
+- `deep_intuition_cli.py`: CLI entrypoint.
+- `deep_intuition_models.py`: response schema.
+- `deep_intuition_prompts.py`: prompt logic.
+- `deep_intuition_archive.py`: archive support.
 
-### Start an Intuition Story
+## Usage
 
 ```bash
 python deep_intuition_cli.py --topic "Galois Theory"
+python deep_intuition_cli.py --topic "Lambda Calculus" --model "openai/gpt-4"
 ```
 
-**Arguments:**
-- `-t`, `--topic`: The fundamental idea to explore (Required).
-- `-m`, `--model`: The LLM to use (Default: `ollama/gemma3`).
+Default model: `$DEFAULT_LLM_MODEL` or `ollama/gemma3`
 
-## 📊 Logic Flow
+## Testing
 
-```mermaid
-flowchart TD
-    Start([Initiate Storytelling Mission]) --> Gen[Uncover Human Story: 1000+ Words]
-    Gen --> Structure[Analyze Struggle + 'Aha!' + Counterfactuals]
-    Structure --> Synthesis[Synthesize Master Narrative Map]
-    Synthesis --> End([Archive Deep Intuition Story])
-```
+This folder contains mock tests and a live test file.
 
-## 🛡 Features
-- **Narrative Depth**: Every story is a deep, rich narrative of at least 1000 words.
-- **Human-First Discovery**: Explicitly demystifies 'genius' by showing the systematic struggle and failed attempts.
-- **Counterfactual Exploration**: Provides a detailed 'what-if' scenario for every fundamental discovery.
-- **Historical Anchors**: Strictly anchors the story in real historical events and intellectual lineages.
+## Limitations
 
----
-*Bridging the gap between the abstract and the intuitive.*
+- Historical narratives produced by an LLM may compress, omit, or misstate details.
+- The app is not designed to provide formal proofs or source citations.
+- Users should verify historical claims when accuracy is important.

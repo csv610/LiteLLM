@@ -1,45 +1,14 @@
-# Medical Vaccine Identifier
+# Medical Vaccine Recognizer
 
-Identifies whether a given name is a recognized medical vaccine in medical literature.
+This module identifies vaccine mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medical_vaccine_identifier.py`: recognition logic.
+- `medical_vaccine_cli.py`: CLI interface.
+- `medical_vaccine_models.py`: schemas.
+- `medical_vaccine_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medical_vaccine_cli.py "example medical_vaccine"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Medical vaccine",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Medical vaccine is a recognized medical vaccine in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medical_vaccine_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Vaccine naming can include product names, abbreviations, and schedule references.

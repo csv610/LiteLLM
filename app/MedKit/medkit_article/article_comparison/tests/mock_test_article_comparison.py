@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import patch
-import sys
-import os
 
+import pytest
 from article_comparison.article_comparison import ArticleComparator
-from article_comparison.article_comparison_models import ComparisonResult, ArticleEvaluation
+from article_comparison.article_comparison_models import (
+    ArticleEvaluation,
+    ComparisonResult,
+)
 
 
 @pytest.fixture

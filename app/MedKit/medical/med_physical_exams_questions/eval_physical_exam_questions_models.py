@@ -1,6 +1,7 @@
 """Pydantic models for physical exam question evaluation."""
 
 from typing import List, Literal
+
 from pydantic import BaseModel
 
 

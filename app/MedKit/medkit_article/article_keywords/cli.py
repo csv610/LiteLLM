@@ -1,7 +1,8 @@
-import sys
 import argparse
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
 from tqdm import tqdm
 
 # Add parent directories to path
@@ -33,15 +34,13 @@ Examples:
 Output is saved to ./outputs/ directory as JSON.
 JSON arrays are processed as separate items with individual keyword lists.
         """,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     # Input options (mutually exclusive: either text or file)
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument(
-        "-t",
-        "--text",
-        help="Direct text input to extract keywords from"
+        "-t", "--text", help="Direct text input to extract keywords from"
     )
     input_group.add_argument(
         "-f",
@@ -63,7 +62,11 @@ JSON arrays are processed as separate items with individual keyword lists.
         extractor = KeywordExtractor(model=args.model)
 
         # Load input items
-        items = extractor.load_file(args.file) if args.file else [{"id": "1", "text": args.text}]
+        items = (
+            extractor.load_file(args.file)
+            if args.file
+            else [{"id": "1", "text": args.text}]
+        )
 
         # Setup output directory and file path
         output_dir = Path(__file__).parent / "outputs"

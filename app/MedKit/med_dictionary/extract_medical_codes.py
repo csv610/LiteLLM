@@ -22,30 +22,30 @@ Input can be:
 Output: JSON file with term and codes from all available systems
 """
 
-import sys
-import os
-import json
 import argparse
+import json
 import logging
-import requests
+import os
+import sys
 import time
-from pathlib import Path
-from typing import Optional, Dict, List, Any
-from tqdm import tqdm
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import requests
+from tqdm import tqdm
 
 # Configure logging
 log_dir = Path(__file__).parent / "logs"
 log_dir.mkdir(exist_ok=True)
-log_file = log_dir / f"extract_medical_codes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+log_file = (
+    log_dir / f"extract_medical_codes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+)
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
@@ -93,10 +93,7 @@ class MedicalCodeExtractor:
         """
         try:
             endpoint = f"{RXNORM_API_BASE}/drugs.json"
-            params = {
-                "name": term,
-                "search": 1
-            }
+            params = {"name": term, "search": 1}
 
             response = self.rxnorm_session.get(endpoint, params=params, timeout=10)
             response.raise_for_status()
@@ -127,13 +124,11 @@ class MedicalCodeExtractor:
     def get_icd10_codes(self, term: str) -> Optional[List[Dict[str, str]]]:
         """Get ICD-10-CM codes for a medical term using Clinical Tables API."""
         try:
-            params = {
-                "sf": "code,name",
-                "terms": term,
-                "maxList": 10
-            }
+            params = {"sf": "code,name", "terms": term, "maxList": 10}
 
-            response = self.clinical_session.get(ICD10_ENDPOINT, params=params, timeout=10)
+            response = self.clinical_session.get(
+                ICD10_ENDPOINT, params=params, timeout=10
+            )
             response.raise_for_status()
 
             data = response.json()
@@ -156,13 +151,11 @@ class MedicalCodeExtractor:
     def get_icd11_codes(self, term: str) -> Optional[List[Dict[str, str]]]:
         """Get ICD-11 codes for a medical term using Clinical Tables API."""
         try:
-            params = {
-                "sf": "code,name",
-                "terms": term,
-                "maxList": 10
-            }
+            params = {"sf": "code,name", "terms": term, "maxList": 10}
 
-            response = self.clinical_session.get(ICD11_ENDPOINT, params=params, timeout=10)
+            response = self.clinical_session.get(
+                ICD11_ENDPOINT, params=params, timeout=10
+            )
             response.raise_for_status()
 
             data = response.json()
@@ -185,13 +178,11 @@ class MedicalCodeExtractor:
     def get_loinc_codes(self, term: str) -> Optional[List[Dict[str, str]]]:
         """Get LOINC codes for a medical term using Clinical Tables API."""
         try:
-            params = {
-                "type": "question",
-                "terms": term,
-                "maxList": 10
-            }
+            params = {"type": "question", "terms": term, "maxList": 10}
 
-            response = self.clinical_session.get(LOINC_ENDPOINT, params=params, timeout=10)
+            response = self.clinical_session.get(
+                LOINC_ENDPOINT, params=params, timeout=10
+            )
             response.raise_for_status()
 
             data = response.json()
@@ -230,10 +221,12 @@ class MedicalCodeExtractor:
                 "string": term,
                 "sabs": "SNOMEDCT_US",
                 "returnIdType": "code",
-                "pageSize": 10
+                "pageSize": 10,
             }
 
-            response = self.umls_session.get(UMLS_SEARCH_ENDPOINT, params=params, timeout=10)
+            response = self.umls_session.get(
+                UMLS_SEARCH_ENDPOINT, params=params, timeout=10
+            )
             response.raise_for_status()
 
             data = response.json()
@@ -242,10 +235,7 @@ class MedicalCodeExtractor:
             if "result" in data and "results" in data["result"]:
                 for item in data["result"]["results"][:10]:
                     if "ui" in item and "name" in item:
-                        results.append({
-                            "code": item["ui"],
-                            "name": item["name"]
-                        })
+                        results.append({"code": item["ui"], "name": item["name"]})
 
             if results:
                 logger.info(f"Found {len(results)} SNOMED CT codes for '{term}'")
@@ -273,10 +263,12 @@ class MedicalCodeExtractor:
                 "string": term,
                 "sabs": "MSH",
                 "returnIdType": "code",
-                "pageSize": 10
+                "pageSize": 10,
             }
 
-            response = self.umls_session.get(UMLS_SEARCH_ENDPOINT, params=params, timeout=10)
+            response = self.umls_session.get(
+                UMLS_SEARCH_ENDPOINT, params=params, timeout=10
+            )
             response.raise_for_status()
 
             data = response.json()
@@ -285,10 +277,7 @@ class MedicalCodeExtractor:
             if "result" in data and "results" in data["result"]:
                 for item in data["result"]["results"][:10]:
                     if "ui" in item and "name" in item:
-                        results.append({
-                            "code": item["ui"],
-                            "name": item["name"]
-                        })
+                        results.append({"code": item["ui"], "name": item["name"]})
 
             if results:
                 logger.info(f"Found {len(results)} MeSH codes for '{term}'")
@@ -336,10 +325,7 @@ class MedicalCodeExtractor:
 
         logger.info(f"Found codes from {len(codes_dict)} system(s) for '{term}'")
 
-        return {
-            "term": term,
-            "codes": codes_dict
-        }
+        return {"term": term, "codes": codes_dict}
 
     def process_single_term(self, term: str) -> bool:
         """Process a single medical term."""
@@ -356,7 +342,7 @@ class MedicalCodeExtractor:
     def load_terms_from_text_file(self, file_path: Path) -> List[str]:
         """Load medical terms from a text file (one per line)."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 terms = [line.strip() for line in f if line.strip()]
             logger.info(f"Loaded {len(terms)} terms from text file: {file_path}")
             return terms
@@ -367,7 +353,7 @@ class MedicalCodeExtractor:
     def load_terms_from_json_file(self, file_path: Path) -> List[str]:
         """Load medical terms from a JSON file (dictionary keys or list items)."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             terms = []
@@ -403,9 +389,9 @@ class MedicalCodeExtractor:
             logger.info(f"Processing file: {input_data}")
 
             # Try JSON first
-            if input_path.suffix == '.json':
+            if input_path.suffix == ".json":
                 terms = self.load_terms_from_json_file(input_path)
-            elif input_path.suffix == '.txt':
+            elif input_path.suffix == ".txt":
                 terms = self.load_terms_from_text_file(input_path)
             else:
                 # Try JSON, then text
@@ -444,13 +430,13 @@ class MedicalCodeExtractor:
             if output_file is None:
                 output_dir = Path(__file__).parent / "outputs"
                 output_dir.mkdir(exist_ok=True)
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 output_file = output_dir / f"medical_codes_{timestamp}.json"
             else:
                 output_file = Path(output_file)
                 output_file.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(output_file, 'w', encoding='utf-8') as f:
+            with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.output_data, f, indent=2, ensure_ascii=False)
 
             logger.info(f"Results saved to: {output_file}")
@@ -469,16 +455,14 @@ def main():
     """Main CLI function."""
     parser = argparse.ArgumentParser(
         description="Extract medical codes from medical terms using multiple coding systems "
-                    "(RxNorm, ICD-10/11, LOINC, SNOMED CT, MeSH)",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        "(RxNorm, ICD-10/11, LOINC, SNOMED CT, MeSH)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "input",
-        help="Medical term or path to JSON/text file containing medical terms"
+        "input", help="Medical term or path to JSON/text file containing medical terms"
     )
     parser.add_argument(
-        "-o", "--output",
-        help="Output JSON file path (auto-generated if not specified)"
+        "-o", "--output", help="Output JSON file path (auto-generated if not specified)"
     )
 
     args = parser.parse_args()

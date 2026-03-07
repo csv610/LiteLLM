@@ -9,11 +9,11 @@ patient questions with a generalist medical perspective.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .primary_health_care_models import PrimaryCareResponseModel, ModelOutput
+from .primary_health_care_models import ModelOutput, PrimaryCareResponseModel
 from .primary_health_care_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
@@ -64,10 +64,14 @@ class PrimaryHealthCareProvider:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the provider's response to a file."""
         if self.query is None:
-            raise ValueError("No query information available. Call address_concern first.")
-        
+            raise ValueError(
+                "No query information available. Call address_concern first."
+            )
+
         # Generate base filename from query - take first few words
-        safe_query = "".join([c if c.isalnum() else "_" for c in self.query[:30].lower()]).strip("_")
+        safe_query = "".join(
+            [c if c.isalnum() else "_" for c in self.query[:30].lower()]
+        ).strip("_")
         base_filename = f"response_{safe_query}"
-        
+
         return save_model_response(result, output_dir / base_filename)

@@ -6,19 +6,20 @@ It has ZERO dependencies on Streamlit, Gradio, or any UI framework.
 Can be easily integrated with any UI framework.
 """
 
-from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, List, Dict, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from lite.utils import save_model_response
-
+from pydantic import BaseModel
 
 # ============================================================================
 # DATA MODELS
 # ============================================================================
 
+
 class ExamAnswers(BaseModel):
     """All patient responses."""
+
     red_flags: Dict[str, str]
     medications: Dict[str, str]
     history: Dict[str, str]
@@ -28,6 +29,7 @@ class ExamAnswers(BaseModel):
 
 class PhysicalExam(BaseModel):
     """Physical examination findings."""
+
     inspection: str
     palpation: str
     range_of_motion: str
@@ -38,6 +40,7 @@ class PhysicalExam(BaseModel):
 
 class Assessment(BaseModel):
     """Clinical assessment."""
+
     red_flags: List[str]
     primary_impression: str
     urgency: str
@@ -46,6 +49,7 @@ class Assessment(BaseModel):
 
 class PatientEducation(BaseModel):
     """Patient education responses."""
+
     diagnosis: str
     timeline: str
     permanent: str
@@ -60,6 +64,7 @@ class PatientEducation(BaseModel):
 
 class ExamRecord(BaseModel):
     """Complete exam record."""
+
     patient_name: str
     patient_id: str
     encounter_id: str
@@ -74,6 +79,7 @@ class ExamRecord(BaseModel):
 # QUESTION DEFINITIONS (Data-only, no logic)
 # ============================================================================
 
+
 class QuestionSet:
     """All questions organized by category."""
 
@@ -85,7 +91,10 @@ class QuestionSet:
         ("swelling_unilateral", "Severe one-sided leg swelling with calf pain?"),
         ("pain_rest", "Severe pain at rest that doesn't improve?"),
         ("trauma_high", "High-energy trauma, major fall, or MVA?"),
-        ("systemic", "Rash, sore throat, recent infection, or constitutional symptoms?"),
+        (
+            "systemic",
+            "Rash, sore throat, recent infection, or constitutional symptoms?",
+        ),
     ]
 
     MEDICATIONS = [
@@ -142,6 +151,7 @@ class QuestionSet:
 # CORE BUSINESS LOGIC
 # ============================================================================
 
+
 class ExamProcessor:
     """Core exam processing logic (UI-agnostic)."""
 
@@ -162,16 +172,24 @@ class ExamProcessor:
             flags.append("Unexplained weight loss reported")
 
         if answers.get("neurologic", "").lower().startswith("y"):
-            flags.append("Progressive neurological symptoms - requires urgent evaluation")
+            flags.append(
+                "Progressive neurological symptoms - requires urgent evaluation"
+            )
 
         if answers.get("bowel_bladder", "").lower().startswith("y"):
-            flags.append("⚠️  CRITICAL: Bowel/bladder changes - Needs immediate physician evaluation")
+            flags.append(
+                "⚠️  CRITICAL: Bowel/bladder changes - Needs immediate physician evaluation"
+            )
 
         if answers.get("swelling_unilateral", "").lower().startswith("y"):
-            flags.append("Unilateral swelling with calf pain - possible blood clot, needs evaluation")
+            flags.append(
+                "Unilateral swelling with calf pain - possible blood clot, needs evaluation"
+            )
 
         if answers.get("pain_rest", "").lower().startswith("y"):
-            flags.append("Pain at rest unimproved - possible infection, needs evaluation")
+            flags.append(
+                "Pain at rest unimproved - possible infection, needs evaluation"
+            )
 
         if answers.get("trauma_high", "").lower().startswith("y"):
             flags.append("High-energy trauma - fracture risk, imaging may be needed")
@@ -183,18 +201,22 @@ class ExamProcessor:
 
     @staticmethod
     def generate_assessment(
-        answers: Dict[str, str],
-        exam_findings: Dict[str, str]
+        answers: Dict[str, str], exam_findings: Dict[str, str]
     ) -> Assessment:
         """Generate clinical assessment from answers and exam findings."""
 
         all_answers = {**answers}
         red_flags = ExamProcessor.detect_red_flags(all_answers)
 
-        urgency = "emergency" if any("CRITICAL" in f for f in red_flags) else \
-                  "urgent" if len(red_flags) > 2 else \
-                  "monitor" if red_flags else \
-                  "normal"
+        urgency = (
+            "emergency"
+            if any("CRITICAL" in f for f in red_flags)
+            else "urgent"
+            if len(red_flags) > 2
+            else "monitor"
+            if red_flags
+            else "normal"
+        )
 
         assessment = Assessment(
             red_flags=red_flags,
@@ -204,7 +226,7 @@ class ExamProcessor:
                 "Physical therapy evaluation",
                 "Activity modification as tolerated",
                 "Follow-up assessment in 2 weeks",
-            ]
+            ],
         )
 
         return assessment
@@ -223,7 +245,7 @@ class ExamProcessor:
             prevention="Regular exercise, good posture, proper ergonomics, weight management.",
             lifestyle="Exercise regularly, sleep 7-9 hours, manage stress, eat anti-inflammatory foods.",
             complications="Rare with proper treatment. Your physician will monitor you.",
-            specialist="Appropriate if symptoms don't improve in 4 weeks. Ask your physician for referral."
+            specialist="Appropriate if symptoms don't improve in 4 weeks. Ask your physician for referral.",
         )
 
         return education
@@ -234,7 +256,7 @@ class ExamProcessor:
         exam_answers: ExamAnswers,
         physical_exam: PhysicalExam,
         assessment: Assessment,
-        education: PatientEducation
+        education: PatientEducation,
     ) -> ExamRecord:
         """Create complete exam record."""
 
@@ -246,7 +268,7 @@ class ExamProcessor:
             answers=exam_answers,
             physical_exam=physical_exam,
             assessment=assessment,
-            education=education
+            education=education,
         )
 
         return record
@@ -255,6 +277,7 @@ class ExamProcessor:
 # ============================================================================
 # STATE MANAGEMENT
 # ============================================================================
+
 
 class ExamState:
     """Manages exam state throughout workflow."""
@@ -308,7 +331,9 @@ class ExamState:
             **self.pain_answers,
             **self.functional_answers,
         }
-        self.assessment = ExamProcessor.generate_assessment(all_answers, self.physical_exam)
+        self.assessment = ExamProcessor.generate_assessment(
+            all_answers, self.physical_exam
+        )
         return self.assessment
 
     def generate_education(self) -> PatientEducation:
@@ -346,7 +371,7 @@ class ExamState:
             exam_answers,
             physical_exam,
             self.assessment,
-            self.education
+            self.education,
         )
 
         return self.exam_record
@@ -366,6 +391,7 @@ class ExamState:
 # EXPORT UTILITIES
 # ============================================================================
 
+
 class ExamExporter:
     """Export exam data in different formats."""
 
@@ -373,6 +399,7 @@ class ExamExporter:
     def to_json(exam_record: ExamRecord) -> str:
         """Export to JSON string."""
         import json
+
         return json.dumps(exam_record.model_dump(mode="json"), indent=2, default=str)
 
     @staticmethod
@@ -420,6 +447,7 @@ class ExamExporter:
 # VALIDATION & CHECKS
 # ============================================================================
 
+
 class ExamValidator:
     """Validate exam completeness and quality."""
 
@@ -449,21 +477,21 @@ class ExamValidator:
     def get_completion_percentage(state: ExamState) -> int:
         """Get completion percentage."""
         total_questions = (
-            len(QuestionSet.RED_FLAGS) +
-            len(QuestionSet.MEDICATIONS) +
-            len(QuestionSet.HISTORY) +
-            len(QuestionSet.PAIN) +
-            len(QuestionSet.FUNCTIONAL) +
-            len(QuestionSet.PHYSICAL_EXAM)
+            len(QuestionSet.RED_FLAGS)
+            + len(QuestionSet.MEDICATIONS)
+            + len(QuestionSet.HISTORY)
+            + len(QuestionSet.PAIN)
+            + len(QuestionSet.FUNCTIONAL)
+            + len(QuestionSet.PHYSICAL_EXAM)
         )
 
         answered = (
-            len(state.red_flag_answers) +
-            len(state.medication_answers) +
-            len(state.history_answers) +
-            len(state.pain_answers) +
-            len(state.functional_answers) +
-            len(state.physical_exam)
+            len(state.red_flag_answers)
+            + len(state.medication_answers)
+            + len(state.history_answers)
+            + len(state.pain_answers)
+            + len(state.functional_answers)
+            + len(state.physical_exam)
         )
 
         return int((answered / total_questions) * 100) if total_questions > 0 else 0

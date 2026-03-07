@@ -1,10 +1,11 @@
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, validator
-import networkx as nx
-import matplotlib.pyplot as plt
 import json
 import os
+from typing import List, Literal, Optional
+
 import anatomy_prompts as prompts
+import matplotlib.pyplot as plt
+import networkx as nx
+from pydantic import BaseModel, Field, validator
 
 try:
     from lite import LiteClient
@@ -85,6 +86,7 @@ NODE_TYPE_ALIASES = {
 
 class Triple(BaseModel):
     """Validated anatomical triple."""
+
     source: str = Field(..., description="Anatomical entity")
     relation: Relation = Field(..., description="Relationship type")
     target: str = Field(..., description="Linked anatomical entity")
@@ -122,6 +124,7 @@ class Triple(BaseModel):
 
 class TripleList(BaseModel):
     """Container for a list of triples."""
+
     triples: List[Triple]
 
 
@@ -146,7 +149,7 @@ class AnatomyTripletExtractor:
             model_input = ModelInput(
                 user_prompt=prompts.PROMPT.format(text=text),
                 system_prompt="You are an anatomy expert extractor.",
-                response_format=TripleList
+                response_format=TripleList,
             )
             return self._call_client(model_input, text)
 
@@ -158,13 +161,15 @@ class AnatomyTripletExtractor:
             model_input = ModelInput(
                 user_prompt=prompts.GENERATION_PROMPT.format(anatomy_name=anatomy_name),
                 system_prompt="You are an anatomy expert.",
-                response_format=TripleList
+                response_format=TripleList,
             )
             return self._call_client(model_input, anatomy_name)
-        
+
         return [Triple(**item) for item in self._simulate(anatomy_name)]
 
-    def _call_client(self, model_input: "ModelInput", fallback_text: str) -> List[Triple]:
+    def _call_client(
+        self, model_input: "ModelInput", fallback_text: str
+    ) -> List[Triple]:
         try:
             response = self.client.generate_text(model_input=model_input)
             if isinstance(response, TripleList):
@@ -177,7 +182,7 @@ class AnatomyTripletExtractor:
                     return [Triple(**item) for item in data["triples"]]
         except Exception as e:
             print(f"⚠️ LLM call failed: {e}. Falling back to simulation.")
-        
+
         return [Triple(**item) for item in self._simulate(fallback_text)]
 
     def _simulate(self, text: str):
@@ -185,18 +190,80 @@ class AnatomyTripletExtractor:
         t = text.lower()
         triples = []
         if "heart" in t:
-            triples.extend([
-                {"source": "Heart", "relation": "part_of", "target": "Circulatory System", "source_type": "Organ", "target_type": "BodySystem"},
-                {"source": "Heart", "relation": "supplied_by", "target": "Coronary Arteries", "source_type": "Organ", "target_type": "Vessel"},
-                {"source": "Heart", "relation": "drained_by", "target": "Cardiac Veins", "source_type": "Organ", "target_type": "Vessel"},
-                {"source": "Heart", "relation": "innervated_by", "target": "Vagus Nerve", "source_type": "Organ", "target_type": "Nerve"},
-                {"source": "Heart", "relation": "located_in", "target": "Thoracic Cavity", "source_type": "Organ", "target_type": "Cavity"},
-                {"source": "Heart", "relation": "adjacent_to", "target": "Lungs", "source_type": "Organ", "target_type": "Organ"},
-                {"source": "Rib Cage", "relation": "protects", "target": "Heart", "source_type": "Bone", "target_type": "Organ"},
-                {"source": "Diaphragm", "relation": "supports", "target": "Heart", "source_type": "Muscle", "target_type": "Organ"},
-                {"source": "Heart", "relation": "common_disease", "target": "Coronary Artery Disease", "source_type": "Organ", "target_type": "Disease"},
-                {"source": "Heart", "relation": "rare_disease", "target": "Cardiac Amyloidosis", "source_type": "Organ", "target_type": "Disease"},
-            ])
+            triples.extend(
+                [
+                    {
+                        "source": "Heart",
+                        "relation": "part_of",
+                        "target": "Circulatory System",
+                        "source_type": "Organ",
+                        "target_type": "BodySystem",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "supplied_by",
+                        "target": "Coronary Arteries",
+                        "source_type": "Organ",
+                        "target_type": "Vessel",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "drained_by",
+                        "target": "Cardiac Veins",
+                        "source_type": "Organ",
+                        "target_type": "Vessel",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "innervated_by",
+                        "target": "Vagus Nerve",
+                        "source_type": "Organ",
+                        "target_type": "Nerve",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "located_in",
+                        "target": "Thoracic Cavity",
+                        "source_type": "Organ",
+                        "target_type": "Cavity",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "adjacent_to",
+                        "target": "Lungs",
+                        "source_type": "Organ",
+                        "target_type": "Organ",
+                    },
+                    {
+                        "source": "Rib Cage",
+                        "relation": "protects",
+                        "target": "Heart",
+                        "source_type": "Bone",
+                        "target_type": "Organ",
+                    },
+                    {
+                        "source": "Diaphragm",
+                        "relation": "supports",
+                        "target": "Heart",
+                        "source_type": "Muscle",
+                        "target_type": "Organ",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "common_disease",
+                        "target": "Coronary Artery Disease",
+                        "source_type": "Organ",
+                        "target_type": "Disease",
+                    },
+                    {
+                        "source": "Heart",
+                        "relation": "rare_disease",
+                        "target": "Cardiac Amyloidosis",
+                        "source_type": "Organ",
+                        "target_type": "Disease",
+                    },
+                ]
+            )
         return triples
 
 
@@ -213,49 +280,62 @@ class AnatomyGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def query_part_of(self, organ: str):
         """Find the system or region an organ belongs to."""
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
             if src.lower() == organ.lower() and d.get("relation") == "part_of"
         ]
 
     def query_connections(self, organ: str):
         """Find adjacent or connected organs."""
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
-            if src.lower() == organ.lower() and d.get("relation") in ["connected_to", "adjacent_to"]
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
+            if src.lower() == organ.lower()
+            and d.get("relation") in ["connected_to", "adjacent_to"]
         ]
 
     def export_dot(self, anatomy: str):
         """Export the graph as a DOT file for Graphviz."""
         os.makedirs("outputs", exist_ok=True)
         path = f"outputs/{anatomy.lower().replace(' ', '_')}.dot"
-        
+
         lines = ["digraph G {", '  node [style=filled, fontname="Arial"];']
-        
+
         # Add nodes with colors
         color_map = {
-            "Organ": "#8dd3c7", "BodySystem": "#80b1d3", "Vessel": "#bebada",
-            "Nerve": "#fb8072", "Bone": "#fdb462", "Muscle": "#b3de69",
-            "Cavity": "#bc80bd", "Region": "#fccde5", "Tissue": "#ffffb3",
-            "Cell": "#ccebc5", "Disease": "#ffed6f", "Other": "#d9d9d9",
+            "Organ": "#8dd3c7",
+            "BodySystem": "#80b1d3",
+            "Vessel": "#bebada",
+            "Nerve": "#fb8072",
+            "Bone": "#fdb462",
+            "Muscle": "#b3de69",
+            "Cavity": "#bc80bd",
+            "Region": "#fccde5",
+            "Tissue": "#ffffb3",
+            "Cell": "#ccebc5",
+            "Disease": "#ffed6f",
+            "Other": "#d9d9d9",
         }
-        
+
         for n, d in self.G.nodes(data=True):
             node_type = d.get("type", "Other")
             color = color_map.get(node_type, "#d9d9d9")
             lines.append(f'  "{n}" [fillcolor="{color}", label="{n}\n({node_type})"];')
-            
+
         # Add edges
         for u, v, d in self.G.edges(data=True):
             rel = d.get("relation", "other")
             lines.append(f'  "{u}" -> "{v}" [label="{rel}"];')
-            
+
         lines.append("}")
-        
+
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
         print(f"✅ Graph exported to {path}")

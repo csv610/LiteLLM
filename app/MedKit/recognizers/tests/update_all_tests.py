@@ -8,7 +8,7 @@ from pathlib import Path
 # Test modules to update
 test_modules = [
     "disease_identifier",
-    "medical_symptom", 
+    "medical_symptom",
     "medical_test",
     "medical_specialty",
     "medical_supplement",
@@ -23,12 +23,13 @@ test_modules = [
     "genetic_variant",
     "lab_unit",
     "clinical_sign",
-    "medication_class"
+    "medication_class",
 ]
+
 
 def create_test_script(module_name):
     """Create a test script for a given module."""
-    
+
     # Convert module name to class name and file patterns
     if module_name == "disease_identifier":
         class_name = "DiseaseIdentifier"
@@ -57,17 +58,17 @@ def create_test_script(module_name):
         input_class = "SupplementIdentifierInput"
     else:
         # Generic pattern for other modules
-        parts = module_name.split('_')
-        class_name = ''.join(p.capitalize() for p in parts) + 'Identifier'
+        parts = module_name.split("_")
+        class_name = "".join(p.capitalize() for p in parts) + "Identifier"
         module_path = module_name
-        model_class = class_name.replace('Identifier', 'Model')
-        input_class = class_name.replace('Identifier', 'Input')
-    
+        model_class = class_name.replace("Identifier", "Model")
+        input_class = class_name.replace("Identifier", "Input")
+
     script_content = f'''#!/usr/bin/env python3
 """
 Test script for {class_name} Module.
 
-This script tests the {module_name.replace('_', ' ')} identifier functionality without using mock libraries.
+This script tests the {module_name.replace("_", " ")} identifier functionality without using mock libraries.
 """
 
 import sys
@@ -211,7 +212,7 @@ def test_method_name_consistency():
 def main():
     """Run all tests."""
     print("=" * 60)
-    print("{module_name.upper().replace('_', ' ')} MODULE TESTS")
+    print("{module_name.upper().replace("_", " ")} MODULE TESTS")
     print("=" * 60)
     
     try:
@@ -236,33 +237,35 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-    
+
     return script_content
+
 
 def main():
     """Update all test files."""
     print("Updating all test files...")
-    
+
     tests_dir = Path(__file__).parent
-    
+
     for module in test_modules:
         test_file = tests_dir / f"test_{module}.py"
-        
+
         print(f"Creating/updating {test_file}")
-        
+
         script_content = create_test_script(module)
-        
-        with open(test_file, 'w') as f:
+
+        with open(test_file, "w") as f:
             f.write(script_content)
-        
+
         print(f"✓ Updated {test_file}")
-    
+
     print(f"\n✅ All {len(test_modules)} test files updated successfully!")
     print("\nKey changes made:")
     print("- Removed pytest and mock library dependencies")
     print("- Updated method calls to use consistent 'identify()' method")
     print("- Added comprehensive testing without mocks")
     print("- Maintained test structure and validation")
+
 
 if __name__ == "__main__":
     main()

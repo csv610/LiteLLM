@@ -9,8 +9,8 @@ comprehensive FAQ content for medical topics.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 from .medical_faq_models import MedicalFAQModel, ModelOutput
@@ -29,11 +29,7 @@ class MedicalFAQGenerator:
         self.topic = None  # Store the topic for later use in save
         logger.debug("Initialized MedicalFAQGenerator")
 
-    def generate_text(
-        self,
-        topic: str,
-        structured: bool = False
-    ) -> ModelOutput:
+    def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
         """Generate comprehensive FAQ content.
 
         Args:
@@ -81,9 +77,11 @@ class MedicalFAQGenerator:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical FAQ information to a file."""
         if self.topic is None:
-            raise ValueError("No topic information available. Call generate_text first.")
-        
+            raise ValueError(
+                "No topic information available. Call generate_text first."
+            )
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.topic.lower().replace(' ', '_')}_faq"
-        
+
         return save_model_response(result, output_dir / base_filename)

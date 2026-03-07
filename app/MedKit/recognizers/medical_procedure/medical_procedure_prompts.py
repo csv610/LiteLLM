@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass
 class MedicalProcedureIdentifierInput:
     """Configuration and input for medical procedure identification."""
+
     procedure_name: str
 
     def __post_init__(self):
@@ -49,7 +50,7 @@ If a procedure is experimental, highly specialized, obsolete, or not well-known,
 Always provide accurate, evidence-based information."""
 
     @staticmethod
-    def create_user_prompt(procedure_name:str) -> str:
+    def create_user_prompt(procedure_name: str) -> str:
         """
         Create the user prompt for medical procedure identification.
 

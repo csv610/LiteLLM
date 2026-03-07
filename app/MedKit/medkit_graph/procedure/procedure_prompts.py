@@ -36,6 +36,7 @@ Return a JSON object with a key "triples" containing an array of these objects.
 # Prompt Builder
 # =========================
 
+
 class PromptBuilder:
     """Standardized builder for medical procedure LLM prompts."""
 

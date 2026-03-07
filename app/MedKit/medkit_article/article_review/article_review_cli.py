@@ -1,7 +1,7 @@
-import sys
 import argparse
 import json
 import logging
+import sys
 from pathlib import Path
 
 # Add parent directories to path
@@ -19,6 +19,7 @@ log_file.parent.mkdir(exist_ok=True)
 configure_logging(log_file=str(log_file))
 logger = logging.getLogger(__name__)
 
+
 def main() -> int:
     """Main entry point for medical article review CLI."""
     parser = argparse.ArgumentParser(
@@ -29,18 +30,20 @@ Example:
 
 Output is saved to ./outputs/ directory as JSON.
         """,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
-        "-f", "--file", 
-        required=True, 
-        help="Path to the article file (.txt, .md, .json)"
+        "-f",
+        "--file",
+        required=True,
+        help="Path to the article file (.txt, .md, .json)",
     )
     parser.add_argument(
-        "-m", "--model", 
-        default="ollama/gemma3", 
-        help="Model identifier for LiteClient (default: %(default)s)"
+        "-m",
+        "--model",
+        default="ollama/gemma3",
+        help="Model identifier for LiteClient (default: %(default)s)",
     )
 
     args = parser.parse_args()
@@ -76,15 +79,15 @@ Output is saved to ./outputs/ directory as JSON.
 
         # Print to console
         print(f"\n--- Article Review: {review.title} ---\n")
-        
+
         print(f"Summary:\n{review.summary}\n")
-        
-        print(f"Strengths:\n  - " + "\n  - ".join(review.strengths))
-        print(f"Weaknesses:\n  - " + "\n  - ".join(review.weaknesses))
-        
+
+        print("Strengths:\n  - " + "\n  - ".join(review.strengths))
+        print("Weaknesses:\n  - " + "\n  - ".join(review.weaknesses))
+
         print(f"\nClinical Implications:\n{review.clinical_implications}\n")
         print(f"Overall Quality: {review.overall_quality}\n")
-        
+
         print(f"Full results saved to: {output_file}")
         return 0
 
@@ -92,6 +95,7 @@ Output is saved to ./outputs/ directory as JSON.
         logger.error(f"Error: {e}", exc_info=True)
         print(f"Error: {e}", file=sys.stderr)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

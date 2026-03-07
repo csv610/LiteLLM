@@ -11,17 +11,18 @@ Author: ChatGPT (for Chaman Singh Verma)
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Literal, Optional
+
 from pydantic import BaseModel, Field, validator
+
 try:
     import networkx as nx
 except ImportError:
     nx = None
-import json
-
 import hashlib
+import json
 
 # Uncomment in production:
 # from google import genai
@@ -46,7 +47,9 @@ Relation = Literal[
     "other",
 ]
 
-NodeType = Literal["Test", "Biomarker", "Disease", "SampleType", "Instrument", "Organ", "Other"]
+NodeType = Literal[
+    "Test", "Biomarker", "Disease", "SampleType", "Instrument", "Organ", "Other"
+]
 
 RELATION_ALIASES = {
     "measures": "measures",
@@ -91,6 +94,7 @@ class TestGraphConfig:
     """
     Configuration for medical_tests_graph.
     """
+
     db_path: Optional[str] = None
     db_capacity_mb: int = 500
     db_store: bool = True
@@ -105,8 +109,11 @@ class TestGraphConfig:
             self.db_path = str(
                 Path(__file__).parent.parent / "storage" / "medical_tests_graph.lmdb"
             )
+
+
 class Triple(BaseModel):
     """Represents one medical test knowledge triple."""
+
     source: str = Field(..., description="Subject entity")
     relation: Relation = Field(..., description="Relation type")
     target: str = Field(..., description="Object entity")
@@ -199,15 +206,59 @@ Text:
         t = text.lower()
         triples = []
         if "complete blood count" in t or "cbc" in t:
-            triples.extend([
-                {"source": "Complete Blood Count", "relation": "measures", "target": "Hemoglobin", "source_type": "Test", "target_type": "Biomarker"},
-                {"source": "Complete Blood Count", "relation": "measures", "target": "White blood cell count", "source_type": "Test", "target_type": "Biomarker"},
-                {"source": "Complete Blood Count", "relation": "requires_sample", "target": "Blood", "source_type": "Test", "target_type": "SampleType"},
-                {"source": "Complete Blood Count", "relation": "uses_instrument", "target": "Hematology analyzer", "source_type": "Test", "target_type": "Instrument"},
-                {"source": "Complete Blood Count", "relation": "related_to_disease", "target": "Anemia", "source_type": "Test", "target_type": "Disease"},
-                {"source": "Complete Blood Count", "relation": "related_to_disease", "target": "Leukemia", "source_type": "Test", "target_type": "Disease"},
-                {"source": "Complete Blood Count", "relation": "evaluates_function_of", "target": "Bone marrow", "source_type": "Test", "target_type": "Organ"},
-            ])
+            triples.extend(
+                [
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "measures",
+                        "target": "Hemoglobin",
+                        "source_type": "Test",
+                        "target_type": "Biomarker",
+                    },
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "measures",
+                        "target": "White blood cell count",
+                        "source_type": "Test",
+                        "target_type": "Biomarker",
+                    },
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "requires_sample",
+                        "target": "Blood",
+                        "source_type": "Test",
+                        "target_type": "SampleType",
+                    },
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "uses_instrument",
+                        "target": "Hematology analyzer",
+                        "source_type": "Test",
+                        "target_type": "Instrument",
+                    },
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "related_to_disease",
+                        "target": "Anemia",
+                        "source_type": "Test",
+                        "target_type": "Disease",
+                    },
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "related_to_disease",
+                        "target": "Leukemia",
+                        "source_type": "Test",
+                        "target_type": "Disease",
+                    },
+                    {
+                        "source": "Complete Blood Count",
+                        "relation": "evaluates_function_of",
+                        "target": "Bone marrow",
+                        "source_type": "Test",
+                        "target_type": "Organ",
+                    },
+                ]
+            )
         return triples
 
 
@@ -219,7 +270,6 @@ class TestGraphBuilder:
 
     def __init__(self):
         self.G = nx.MultiDiGraph()
-
 
     def _generate_dbkey(self, *args) -> str:
         """
@@ -238,14 +288,18 @@ class TestGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def query_measures(self, test: str):
         """Get all biomarkers measured by a given test."""
         return [
-            tgt for src, tgt, d in self.G.out_edges(test, data=True)
-            if d.get('relation') == 'measures'
+            tgt
+            for src, tgt, d in self.G.out_edges(test, data=True)
+            if d.get("relation") == "measures"
         ]
+
 
 def get_medical_tests_graph(query: str) -> List[dict]:
     """

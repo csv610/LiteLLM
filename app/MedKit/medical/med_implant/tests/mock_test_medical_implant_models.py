@@ -6,28 +6,12 @@ project_root = Path(__file__).resolve().parent.parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-import pytest
 from medical.med_implant.medical_implant_models import (
     ImplantMetadataModel,
     ImplantPurposeModel,
-    ImplantIndicationsModel,
-    ImplantMaterialsModel,
-    InstallationProcedureModel,
-    FunctionalityAndPerformanceModel,
-    RecoveryAndHealingModel,
-    ComplicationsAndRisksModel,
-    ImagingAndMonitoringModel,
-    ActivityRestrictionsModel,
-    MaintenanceAndCareModel,
-    OutcomesAndEffectivenessModel,
-    FollowUpCareModel,
-    CostAndInsuranceModel,
-    AlternativesModel,
-    ImplantLimitationsModel,
-    ImplantEducationModel,
-    ImplantEvidenceModel,
     MedicalImplantInfoModel,
 )
+
 
 def test_implant_metadata_model():
     data = {
@@ -35,21 +19,23 @@ def test_implant_metadata_model():
         "alternative_names": "Cardiac Pacemaker, Pulse Generator",
         "implant_type": "cardiovascular",
         "medical_specialty": "Cardiology",
-        "common_manufacturers": "Medtronic, Abbott, Boston Scientific"
+        "common_manufacturers": "Medtronic, Abbott, Boston Scientific",
     }
     model = ImplantMetadataModel(**data)
     assert model.implant_name == "Pacemaker"
     assert "Medtronic" in model.common_manufacturers
+
 
 def test_implant_purpose_model():
     data = {
         "primary_purpose": "Regulate heart rhythm",
         "therapeutic_uses": "Bradycardia, Heart block",
         "functional_benefits": "Heart rate stabilization",
-        "quality_of_life_improvements": "Increased energy, reduced dizziness"
+        "quality_of_life_improvements": "Increased energy, reduced dizziness",
     }
     model = ImplantPurposeModel(**data)
     assert model.primary_purpose == "Regulate heart rhythm"
+
 
 def test_medical_implant_info_model():
     # Test complex nesting
@@ -58,27 +44,27 @@ def test_medical_implant_info_model():
         "alternative_names": "test",
         "implant_type": "test",
         "medical_specialty": "test",
-        "common_manufacturers": "test"
+        "common_manufacturers": "test",
     }
     purpose = {
         "primary_purpose": "test",
         "therapeutic_uses": "test",
         "functional_benefits": "test",
-        "quality_of_life_improvements": "test"
+        "quality_of_life_improvements": "test",
     }
     indications = {
         "when_recommended": "test",
         "conditions_treated": "test",
         "symptom_relief": "test",
         "contraindications": "test",
-        "age_considerations": "test"
+        "age_considerations": "test",
     }
     materials = {
         "primary_materials": "test",
         "material_properties": "test",
         "biocompatibility": "test",
         "allergic_considerations": "test",
-        "corrosion_resistance": "test"
+        "corrosion_resistance": "test",
     }
     installation = {
         "surgical_approach": "test",
@@ -87,14 +73,14 @@ def test_medical_implant_info_model():
         "procedure_duration": "test",
         "hospital_requirements": "test",
         "recovery_location": "test",
-        "hospitalization_duration": "test"
+        "hospitalization_duration": "test",
     }
     functionality = {
         "how_it_works": "test",
         "expected_performance": "test",
         "adjustment_requirements": "test",
         "lifespan": "test",
-        "failure_modes": "test"
+        "failure_modes": "test",
     }
     recovery = {
         "immediate_recovery": "test",
@@ -103,7 +89,7 @@ def test_medical_implant_info_model():
         "activity_restrictions": "test",
         "return_to_normal_activities": "test",
         "wound_care": "test",
-        "warning_signs": "test"
+        "warning_signs": "test",
     }
     outcomes = {
         "success_rate": "test",
@@ -112,7 +98,7 @@ def test_medical_implant_info_model():
         "mobility_improvement": "test",
         "longevity_data": "test",
         "patient_satisfaction": "test",
-        "factors_affecting_outcomes": "test"
+        "factors_affecting_outcomes": "test",
     }
     complications = {
         "infection_risk": "test",
@@ -121,7 +107,7 @@ def test_medical_implant_info_model():
         "common_complications": "test",
         "serious_complications": "test",
         "revision_rates": "test",
-        "mortality_risk": "test"
+        "mortality_risk": "test",
     }
     imaging = {
         "mri_compatibility": "test",
@@ -129,7 +115,7 @@ def test_medical_implant_info_model():
         "x_ray_considerations": "test",
         "monitoring_frequency": "test",
         "diagnostic_tests": "test",
-        "remote_monitoring": "test"
+        "remote_monitoring": "test",
     }
     activity_restrictions = {
         "permanent_restrictions": "test",
@@ -137,7 +123,7 @@ def test_medical_implant_info_model():
         "sports_and_exercise": "test",
         "lifting_and_weight_bearing": "test",
         "occupational_considerations": "test",
-        "travel_considerations": "test"
+        "travel_considerations": "test",
     }
     maintenance = {
         "daily_care": "test",
@@ -145,7 +131,7 @@ def test_medical_implant_info_model():
         "battery_replacement": "test",
         "component_replacement": "test",
         "maintenance_costs": "test",
-        "long_term_management": "test"
+        "long_term_management": "test",
     }
     follow_up = {
         "follow_up_schedule": "test",
@@ -153,24 +139,24 @@ def test_medical_implant_info_model():
         "long_term_monitoring": "test",
         "provider_specialists": "test",
         "medications_after": "test",
-        "complications_monitoring": "test"
+        "complications_monitoring": "test",
     }
     alternatives = {
         "alternative_implants": "test",
         "non_implant_alternatives": "test",
         "advantages_over_alternatives": "test",
-        "when_alternatives_preferred": "test"
+        "when_alternatives_preferred": "test",
     }
     limitations = {
         "not_suitable_for": "test",
         "anatomical_limitations": "test",
         "health_condition_limitations": "test",
-        "age_limitations": "test"
+        "age_limitations": "test",
     }
     evidence = {
         "evidence_summary": "test",
         "clinical_trials": "test",
-        "implant_limitations": limitations
+        "implant_limitations": limitations,
     }
     cost_and_insurance = {
         "implant_cost": "test",
@@ -181,13 +167,13 @@ def test_medical_implant_info_model():
         "medicare_coverage": "test",
         "medicaid_coverage": "test",
         "financial_assistance_programs": "test",
-        "cpt_codes": "test"
+        "cpt_codes": "test",
     }
     education = {
         "plain_language_explanation": "test",
         "daily_living_tips": "test",
         "common_misconceptions": "test",
-        "key_takeaways": "test"
+        "key_takeaways": "test",
     }
 
     info_data = {
@@ -207,7 +193,7 @@ def test_medical_implant_info_model():
         "alternatives": alternatives,
         "evidence": evidence,
         "cost_and_insurance": cost_and_insurance,
-        "education": education
+        "education": education,
     }
 
     model = MedicalImplantInfoModel(**info_data)

@@ -28,7 +28,9 @@ Text Chunk:
         Returns:
             The formatted prompt string.
         """
-        summaries_text = "\n\n".join([f"Chunk {i+1}: {s}" for i, s in enumerate(chunk_summaries)])
+        summaries_text = "\n\n".join(
+            [f"Chunk {i + 1}: {s}" for i, s in enumerate(chunk_summaries)]
+        )
         return f"""Synthesize the following summaries from different parts of a medical article into a single, cohesive, and comprehensive summary. 
 The final summary should flow logically and cover all important aspects mentioned in the chunks.
 

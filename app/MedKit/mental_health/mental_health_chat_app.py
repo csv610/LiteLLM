@@ -46,18 +46,19 @@ import argparse
 import traceback
 
 try:
-    from mental_health.mental_health_chat import MentalHealthChatEngine, ChatConfig
     from medkit_privacy.privacy_compliance import PrivacyManager
+    from mental_health.mental_health_chat import ChatConfig, MentalHealthChatEngine
 except ImportError:
     try:
-        from .mental_health_chat import MentalHealthChatEngine, ChatConfig
+        from .mental_health_chat import ChatConfig, MentalHealthChatEngine
     except ImportError:
-        from mental_health_chat import MentalHealthChatEngine, ChatConfig
+        from mental_health_chat import ChatConfig, MentalHealthChatEngine
 
     class PrivacyManager:
         pass
 
 # ==================== CLI Application ====================
+
 
 class MentalHealthChatApp:
     """
@@ -102,9 +103,9 @@ Let's get started! 🫂
         Returns:
             True if user consents, False otherwise
         """
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("PRIVACY & CONSENT".center(80))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
         print("""
 ⚠️  IMPORTANT PRIVACY NOTICE:
@@ -125,7 +126,7 @@ CONSENT:
         """)
 
         consent = input("Do you consent to proceed? (yes/no): ").strip().lower()
-        return consent in ['yes', 'y']
+        return consent in ["yes", "y"]
 
     def register_patient(self) -> tuple:
         """
@@ -134,9 +135,9 @@ CONSENT:
         Returns:
             Tuple of (name, age, gender, chief_complaint)
         """
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("PATIENT REGISTRATION".center(80))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
         # Name
         name = input("Your name: ").strip()
@@ -166,7 +167,7 @@ CONSENT:
             "2": "Female",
             "3": "Non-binary",
             "4": "Self-described",
-            "5": "Prefer not to say"
+            "5": "Prefer not to say",
         }
 
         while True:
@@ -177,18 +178,19 @@ CONSENT:
             print("Invalid choice. Please select 1-5")
 
         # Chief complaint
-        print("\n" + "-"*80)
+        print("\n" + "-" * 80)
         print("What brings you here today?")
         print("(Describe what you're experiencing or what concerns you)")
-        print("-"*80)
+        print("-" * 80)
         chief_complaint = input("Your main concern: ").strip()
         while not chief_complaint:
             chief_complaint = input("Please describe what brings you in: ").strip()
 
         return name, age, gender, chief_complaint
 
-    def conduct_assessment(self, patient_name: str, age: int, gender: str,
-                          chief_complaint: str):
+    def conduct_assessment(
+        self, patient_name: str, age: int, gender: str, chief_complaint: str
+    ):
         """
         Conduct the mental health assessment conversation.
 
@@ -199,19 +201,25 @@ CONSENT:
             chief_complaint: Chief complaint
         """
         # Initialize session
-        session = self.engine.initialize_session(patient_name, age, gender, chief_complaint)
+        session = self.engine.initialize_session(
+            patient_name, age, gender, chief_complaint
+        )
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("MENTAL HEALTH ASSESSMENT".center(80))
-        print("="*80)
+        print("=" * 80)
         print(f"\nSession ID: {session.session_id}")
         print(f"Date: {session.created_at}\n")
 
-        print("-"*80)
+        print("-" * 80)
         print("CONVERSATION")
-        print("-"*80)
-        print(f"\nAssistant: Thank you for coming in, {patient_name}. I'm here to help you")
-        print("understand what you're experiencing. Let's have a conversation about how you're")
+        print("-" * 80)
+        print(
+            f"\nAssistant: Thank you for coming in, {patient_name}. I'm here to help you"
+        )
+        print(
+            "understand what you're experiencing. Let's have a conversation about how you're"
+        )
         print("doing.\n")
 
         # Generate and ask first question
@@ -233,7 +241,7 @@ CONSENT:
                     continue
 
                 # Check for exit commands
-                if user_input.lower() in ['quit', 'exit', 'done']:
+                if user_input.lower() in ["quit", "exit", "done"]:
                     print("\nAssistant: Thank you for sharing with me today.")
                     break
 
@@ -253,7 +261,9 @@ CONSENT:
 
                     # Show progress
                     if question_count % 5 == 0:
-                        print(f"[Progress: {question_count}/{max_questions} questions]\n")
+                        print(
+                            f"[Progress: {question_count}/{max_questions} questions]\n"
+                        )
 
             except KeyboardInterrupt:
                 print("\n\nAssessment interrupted.")
@@ -261,9 +271,9 @@ CONSENT:
                 print(f"Your session has been saved. Session ID: {session.session_id}")
                 return
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("ASSESSMENT COMPLETE".center(80))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
         print("Generating your mental health assessment report...\n")
 
@@ -279,9 +289,13 @@ CONSENT:
             if assessment.secondary_diagnoses:
                 print("\nOther Conditions to Consider:")
                 for diag in assessment.secondary_diagnoses[:3]:
-                    print(f"  • {diag.condition_name} ({diag.confidence_level} confidence)")
+                    print(
+                        f"  • {diag.condition_name} ({diag.confidence_level} confidence)"
+                    )
 
-            print(f"\nRecommended Care: {assessment.treatment_recommendations.referral_type}")
+            print(
+                f"\nRecommended Care: {assessment.treatment_recommendations.referral_type}"
+            )
             print(f"Urgency: {assessment.treatment_recommendations.urgency_of_care}")
 
             # Save assessment
@@ -295,7 +309,9 @@ CONSENT:
         """Save session and exit gracefully."""
         self.engine.save_session()
         if self.engine.session:
-            print(f"\nYour session has been saved. Session ID: {self.engine.session.session_id}")
+            print(
+                f"\nYour session has been saved. Session ID: {self.engine.session.session_id}"
+            )
 
     def resume_session(self) -> bool:
         """
@@ -304,11 +320,13 @@ CONSENT:
         Returns:
             True if session resumed, False otherwise
         """
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("RESUME SESSION".center(80))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
-        session_id = input("Enter your session ID (or press Enter to start new): ").strip()
+        session_id = input(
+            "Enter your session ID (or press Enter to start new): "
+        ).strip()
 
         if not session_id:
             return False
@@ -398,13 +416,16 @@ Thank you for trusting us with your mental health journey. 🫂
         finally:
             print("\nThank you for using MedKit Mental Health Assessment.\n")
 
+
 # ==================== Main Entry Point ====================
+
 
 def cli():
     """Main entry point."""
     # Add the current directory to sys.path to support relative imports
     import sys
     from pathlib import Path
+
     sys.path.append(str(Path(__file__).parent))
 
     parser = argparse.ArgumentParser(
@@ -413,9 +434,7 @@ def cli():
     )
 
     parser.add_argument(
-        "--resume",
-        action="store_true",
-        help="Resume a previous session"
+        "--resume", action="store_true", help="Resume a previous session"
     )
 
     args = parser.parse_args()

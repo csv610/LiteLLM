@@ -49,7 +49,9 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def create_quiz_user_prompt(topic: str, difficulty: str, num_questions: int, num_options: int = 4) -> str:
+    def create_quiz_user_prompt(
+        topic: str, difficulty: str, num_questions: int, num_options: int = 4
+    ) -> str:
         """Create the user prompt for quiz generation.
 
         Args:

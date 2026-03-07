@@ -1,24 +1,34 @@
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
-from pathlib import Path
+import sys
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+from lite.config import ModelConfig
 
 from ..medical_pathogen.medical_pathogen_identifier import MedicalPathogenIdentifier
-from ..medical_pathogen.medical_pathogen_models import ModelOutput, PathogenIdentifierModel, PathogenIdentificationModel
-from lite.config import ModelConfig
+from ..medical_pathogen.medical_pathogen_models import (
+    ModelOutput,
+    PathogenIdentificationModel,
+    PathogenIdentifierModel,
+)
+
 
 @pytest.fixture
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
+
 @pytest.fixture
 def pathogen_identifier(mock_model_config):
-    with patch('lite.lite_client.LiteClient'):
+    with patch("lite.lite_client.LiteClient"):
         id_obj = MedicalPathogenIdentifier(mock_model_config)
         id_obj.client.generate_text = MagicMock()
         return id_obj
+
 
 def test_identify(pathogen_identifier):
     # Setup mock response
@@ -35,19 +45,22 @@ def test_identify(pathogen_identifier):
         transmission_modes=["Fecal-oral"],
         clinical_relevance="Common cause of UTI",
         diagnostic_methods=["Culture", "PCR"],
-        resistance_patterns=["ESBL possible"]
+        resistance_patterns=["ESBL possible"],
     )
-    mock_model = PathogenIdentifierModel(identification=mock_data, summary="Pathogen info", data_available=True)
+    mock_model = PathogenIdentifierModel(
+        identification=mock_data, summary="Pathogen info", data_available=True
+    )
     mock_output = ModelOutput(data=mock_model, data_available=True)
     pathogen_identifier.client.generate_text.return_value = mock_output
-    
+
     # Execute
     result = pathogen_identifier.identify("E. coli")
-    
+
     # Assert
     assert result.data.identification.pathogen_name == "E. coli"
     assert result.data.identification.is_well_known is True
     assert pathogen_identifier.client.generate_text.called
+
 
 def test_identify_empty_name(pathogen_identifier):
     with pytest.raises(ValueError, match=".+"):

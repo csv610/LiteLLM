@@ -1,14 +1,13 @@
-import json
 import argparse
+import json
 import re
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List, Dict
-from dataclasses import dataclass, asdict
-from tqdm import tqdm
+from typing import Dict, List
 
 # Add parent directories to path for imports
-
 from logging_util import setup_logging
+from tqdm import tqdm
 
 # Configure logging
 log_file = Path(__file__).parent / "logs" / "review_medical_dictionary.log"
@@ -18,6 +17,7 @@ logger = setup_logging(str(log_file))
 @dataclass
 class ReviewIssue:
     """Represents a single review issue found in a medical term."""
+
     issue_type: str
     description: str
 
@@ -25,6 +25,7 @@ class ReviewIssue:
 @dataclass
 class TermReview:
     """Complete review result for a single term."""
+
     term: str
     definition: str
     is_medically_recognized: bool
@@ -46,9 +47,9 @@ class MedicalDictionaryReviewer:
 
     # Common medical abbreviation patterns
     ABBREVIATION_PATTERNS = [
-        r'^[A-Z]{2,}$',  # All caps (e.g., EKG, CT, MRI)
-        r'^[A-Z][A-Z]+\d+$',  # Caps with numbers (e.g., COVID19)
-        r'^[A-Z]{1,3}-\d+$',  # Format like IL-6, TNF-α
+        r"^[A-Z]{2,}$",  # All caps (e.g., EKG, CT, MRI)
+        r"^[A-Z][A-Z]+\d+$",  # Caps with numbers (e.g., COVID19)
+        r"^[A-Z]{1,3}-\d+$",  # Format like IL-6, TNF-α
     ]
 
     MIN_DEFINITION_WORDS = 10
@@ -108,19 +109,30 @@ class MedicalDictionaryReviewer:
         definition_lower = definition.lower()
 
         # Check word count (10-100 words for precision)
-        if word_count < self.MIN_DEFINITION_WORDS or word_count > self.MAX_DEFINITION_WORDS:
+        if (
+            word_count < self.MIN_DEFINITION_WORDS
+            or word_count > self.MAX_DEFINITION_WORDS
+        ):
             return False
 
         # Check for proper sentence structure
         if not definition[0].isupper():
             return False
-        if not definition.rstrip().endswith(('.', ')', ']')):
+        if not definition.rstrip().endswith((".", ")", "]")):
             return False
 
         # Check for OBJECTIVE language (no subjective opinions)
         subjective_indicators = [
-            "i think", "i believe", "in my opinion", "it seems", "probably",
-            "likely", "arguably", "supposedly", "allegedly", "rumored",
+            "i think",
+            "i believe",
+            "in my opinion",
+            "it seems",
+            "probably",
+            "likely",
+            "arguably",
+            "supposedly",
+            "allegedly",
+            "rumored",
         ]
         for indicator in subjective_indicators:
             if indicator in definition_lower:
@@ -128,9 +140,19 @@ class MedicalDictionaryReviewer:
 
         # Check for SIMPLE language (no conversational or casual language)
         conversational_indicators = [
-            "would you like", "let me know", "feel free", "do you have",
-            "is there anything", "hope this helps", "in summary", "basically",
-            "kind of", "sort of", "a lot of", "tons of", "lots of",
+            "would you like",
+            "let me know",
+            "feel free",
+            "do you have",
+            "is there anything",
+            "hope this helps",
+            "in summary",
+            "basically",
+            "kind of",
+            "sort of",
+            "a lot of",
+            "tons of",
+            "lots of",
         ]
         for indicator in conversational_indicators:
             if indicator in definition_lower:
@@ -138,9 +160,25 @@ class MedicalDictionaryReviewer:
 
         # Check for PROFESSIONAL language (no informal or colloquial terms)
         unprofessional_indicators = [
-            "stuff", "thing", "things", "weird", "crazy", "awesome", "terrible",
-            "cool", "neat", "pretty much", "you know", "obviously", "clearly",
-            "just", "simply put", "easy", "hard", "difficult", "confusing",
+            "stuff",
+            "thing",
+            "things",
+            "weird",
+            "crazy",
+            "awesome",
+            "terrible",
+            "cool",
+            "neat",
+            "pretty much",
+            "you know",
+            "obviously",
+            "clearly",
+            "just",
+            "simply put",
+            "easy",
+            "hard",
+            "difficult",
+            "confusing",
         ]
         for indicator in unprofessional_indicators:
             if f" {indicator} " in f" {definition_lower} ":
@@ -148,9 +186,19 @@ class MedicalDictionaryReviewer:
 
         # Check for VERIFIABLE language (no vague or unverifiable claims)
         vague_indicators = [
-            "some people", "many believe", "often thought", "generally considered",
-            "commonly believed", "widely thought", "sometimes called", "may or may not",
-            "could be", "might have", "perhaps", "possibly", "potentially",
+            "some people",
+            "many believe",
+            "often thought",
+            "generally considered",
+            "commonly believed",
+            "widely thought",
+            "sometimes called",
+            "may or may not",
+            "could be",
+            "might have",
+            "perhaps",
+            "possibly",
+            "potentially",
         ]
         for indicator in vague_indicators:
             if indicator in definition_lower:
@@ -172,7 +220,6 @@ class MedicalDictionaryReviewer:
 
         return True
 
-
     def review_single_entry(self, term: str, definition: str) -> TermReview:
         """Review a single medical term and its definition with 4 key checks."""
         issues: List[ReviewIssue] = []
@@ -180,34 +227,41 @@ class MedicalDictionaryReviewer:
         # Check 1: Is the term medically recognized?
         is_recognized = self.check_1_medical_recognition(term, definition)
         if not is_recognized:
-            issues.append(ReviewIssue(
-                issue_type="not_medically_recognized",
-                description="Term is not medically recognized"
-            ))
+            issues.append(
+                ReviewIssue(
+                    issue_type="not_medically_recognized",
+                    description="Term is not medically recognized",
+                )
+            )
 
         # Check 2: No abbreviation in term?
         no_abbreviation = self.check_2_no_abbreviation(term)
         if not no_abbreviation:
-            issues.append(ReviewIssue(
-                issue_type="has_abbreviation",
-                description="Term is an abbreviation"
-            ))
+            issues.append(
+                ReviewIssue(
+                    issue_type="has_abbreviation", description="Term is an abbreviation"
+                )
+            )
 
         # Check 3: Term not used in definition?
         term_not_in_def = self.check_3_term_not_in_definition(term, definition)
         if not term_not_in_def:
-            issues.append(ReviewIssue(
-                issue_type="term_in_definition",
-                description="Term appears in its own definition"
-            ))
+            issues.append(
+                ReviewIssue(
+                    issue_type="term_in_definition",
+                    description="Term appears in its own definition",
+                )
+            )
 
         # Check 4: Is definition verifiable, objective, simple, and professional?
         is_precise = self.check_4_precise_and_accurate(definition)
         if not is_precise:
-            issues.append(ReviewIssue(
-                issue_type="not_precise",
-                description="Definition is not verifiable, objective, simple, and professional"
-            ))
+            issues.append(
+                ReviewIssue(
+                    issue_type="not_precise",
+                    description="Definition is not verifiable, objective, simple, and professional",
+                )
+            )
 
         # Determine overall status
         overall_status = "pass" if len(issues) == 0 else "fail"
@@ -220,13 +274,15 @@ class MedicalDictionaryReviewer:
             term_in_definition=not term_not_in_def,
             is_precise_and_accurate=is_precise,
             issues=issues,
-            overall_status=overall_status
+            overall_status=overall_status,
         )
 
     def review_dictionary(self, definitions: List[Dict]) -> List[TermReview]:
         """Review all entries in a dictionary."""
         results = []
-        with tqdm(total=len(definitions), desc="Reviewing entries", unit="entry") as pbar:
+        with tqdm(
+            total=len(definitions), desc="Reviewing entries", unit="entry"
+        ) as pbar:
             for entry in definitions:
                 term = entry.get("term", "").strip()
                 definition = entry.get("definition", "").strip()
@@ -248,13 +304,15 @@ class MedicalDictionaryReviewer:
                 logger.error(f"File not found: {file_path}")
                 return []
 
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 definitions = json.load(f)
 
                 # Handle both list and dict formats
                 if isinstance(definitions, dict):
                     # Convert dict to list format
-                    definitions = [{"term": k, "definition": v} for k, v in definitions.items()]
+                    definitions = [
+                        {"term": k, "definition": v} for k, v in definitions.items()
+                    ]
 
                 logger.info(f"Loaded {len(definitions)} definitions from {file_path}")
                 return definitions
@@ -284,7 +342,7 @@ class MedicalDictionaryReviewer:
             "total_entries": total,
             "passed": passed,
             "failed": failed,
-            "pass_rate": f"{(passed/total*100):.1f}%" if total > 0 else "0%",
+            "pass_rate": f"{(passed / total * 100):.1f}%" if total > 0 else "0%",
             "issues_by_type": issues_by_type,
         }
 
@@ -315,7 +373,7 @@ def save_review_results(results: List[TermReview], output_dir: Path = None):
                 pbar.update(1)
 
         output_file = output_dir / "review_medical_dict.json"
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(results_data, f, indent=2, ensure_ascii=False)
 
         logger.info(f"Review results saved to {output_file}")
@@ -325,25 +383,27 @@ def save_review_results(results: List[TermReview], output_dir: Path = None):
         return None
 
 
-def print_review_summary(all_results: List[TermReview], failed_results: List[TermReview]):
+def print_review_summary(
+    all_results: List[TermReview], failed_results: List[TermReview]
+):
     """Print a formatted summary of review results."""
     reviewer = MedicalDictionaryReviewer()
     report = reviewer.generate_review_report(all_results)
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("MEDICAL DICTIONARY REVIEW REPORT")
-    print("="*60)
+    print("=" * 60)
     print(f"Total Entries Reviewed: {report['total_entries']}")
     print(f"Passed:                 {report['passed']}")
     print(f"Failed:                 {report['failed']}")
     print(f"Pass Rate:              {report['pass_rate']}")
 
-    if report['issues_by_type']:
+    if report["issues_by_type"]:
         print("\nIssues Found by Type:")
-        for issue_type, count in report['issues_by_type'].items():
+        for issue_type, count in report["issues_by_type"].items():
             print(f"  - {issue_type}: {count}")
 
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
 
 
 def print_failed_entries(results: List[TermReview], limit: int = None):
@@ -355,7 +415,9 @@ def print_failed_entries(results: List[TermReview], limit: int = None):
         return
 
     display_count = limit if limit is not None else len(failed)
-    print(f"\nFAILED ENTRIES (showing {min(display_count, len(failed))} of {len(failed)}):")
+    print(
+        f"\nFAILED ENTRIES (showing {min(display_count, len(failed))} of {len(failed)}):"
+    )
     print("-" * 60)
 
     for result in failed[:display_count]:
@@ -405,7 +467,9 @@ def cli(json_file: str, model: str = None):
         else:
             print("All entries passed the review!\n")
 
-        logger.info(f"Review completed for {len(all_results)} entries ({len(failed_results)} failed)")
+        logger.info(
+            f"Review completed for {len(all_results)} entries ({len(failed_results)} failed)"
+        )
 
     except Exception as e:
         logger.error(f"Unexpected error in cli: {e}")
@@ -415,16 +479,17 @@ def cli(json_file: str, model: str = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Review and validate medical dictionary entries",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "json_file",
-        help="Path to JSON file containing medical dictionary (dict or list format)"
+        help="Path to JSON file containing medical dictionary (dict or list format)",
     )
     parser.add_argument(
-        "-m", "--model",
+        "-m",
+        "--model",
         default="ollama/gemma3",
-        help="Model name used for review logging (default: ollama/gemma3)"
+        help="Model name used for review logging (default: ollama/gemma3)",
     )
 
     args = parser.parse_args()

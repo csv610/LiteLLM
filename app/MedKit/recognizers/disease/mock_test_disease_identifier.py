@@ -6,15 +6,24 @@ This script tests the disease identifier functionality with various disease exam
 without using mock libraries.
 """
 
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
+import sys
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
 import random
 from pathlib import Path
 
-
-from app.MedKit.recognizers.disease.disease_identifier_models import DiseaseIdentifierModel, DiseaseIdentificationModel, ModelOutput
-from app.MedKit.recognizers.disease.disease_identifier_prompts import PromptBuilder, DiseaseIdentifierInput
+from app.MedKit.recognizers.disease.disease_identifier_models import (
+    DiseaseIdentificationModel,
+    DiseaseIdentifierModel,
+    ModelOutput,
+)
+from app.MedKit.recognizers.disease.disease_identifier_prompts import (
+    DiseaseIdentifierInput,
+    PromptBuilder,
+)
 from app.MedKit.recognizers.disease.disease_recognizer import DiseaseIdentifier
 from lite.config import ModelConfig
 
@@ -23,15 +32,15 @@ def read_random_example_from_assets():
     """Read a random example from assets folder."""
     assets_file = Path(__file__).parent / "assets" / "example_inputs.txt"
     examples = []
-    
+
     if assets_file.exists():
-        with open(assets_file, 'r') as f:
+        with open(assets_file, "r") as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip()
-                if line and not line.startswith('#') and not line.startswith('##'):
+                if line and not line.startswith("#") and not line.startswith("##"):
                     examples.append(line)
-    
+
     # Return a random example if available, otherwise fallback
     if examples:
         return random.choice(examples)
@@ -42,23 +51,23 @@ def read_random_example_from_assets():
 def test_prompt_builder():
     """Validate the PromptBuilder class functionality."""
     print("Validating PromptBuilder...")
-    
+
     # Read random example from assets
     example_disease = read_random_example_from_assets()
-    
+
     # Validate system prompt generation
     system_prompt = PromptBuilder.create_system_prompt()
     assert isinstance(system_prompt, str)
     assert len(system_prompt) > 0
     print("✓ System prompt generated successfully")
-    
+
     # Validate user prompt generation
     disease_input = DiseaseIdentifierInput(example_disease)
     user_prompt = PromptBuilder.create_user_prompt(disease_input)
     assert isinstance(user_prompt, str)
     assert example_disease in user_prompt
     print("✓ User prompt generated successfully")
-    
+
     # Validate empty disease name handling
     try:
         DiseaseIdentifierInput("")
@@ -70,28 +79,28 @@ def test_prompt_builder():
 def test_disease_identifier_models():
     """Validate the Pydantic model structures."""
     print("\nValidating Disease Identifier Models...")
-    
+
     # Read random example from assets
     example_disease = read_random_example_from_assets()
-    
+
     # Validate DiseaseIdentificationModel structure (corrected for focused objective)
     identification = DiseaseIdentificationModel(
         disease_name=example_disease,
         is_well_known=True,
         common_symptoms=["fever", "cough"],
         prevalence="common",
-        medical_significance="Recognized in major medical databases"
+        medical_significance="Recognized in major medical databases",
     )
     print("✓ DiseaseIdentificationModel instantiated successfully")
-    
+
     # Validate DiseaseIdentifierModel structure
     disease_model = DiseaseIdentifierModel(
         identification=identification,
         summary=f"{example_disease} is a recognized disease in medical literature",
-        data_available=True
+        data_available=True,
     )
     print("✓ DiseaseIdentifierModel instantiated successfully")
-    
+
     # Validate ModelOutput structure
     model_output = ModelOutput(data=disease_model)
     assert model_output.data.identification.disease_name == example_disease
@@ -101,10 +110,10 @@ def test_disease_identifier_models():
 def test_disease_identifier_initialization():
     """Validate DiseaseIdentifier initialization."""
     print("\nValidating DiseaseIdentifier Initialization...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     identifier = DiseaseIdentifier(config)
-    
+
     assert identifier.client is not None
     print("✓ DiseaseIdentifier initialized successfully")
 
@@ -117,25 +126,25 @@ def test_method_name_consistency():
     identifier = DiseaseIdentifier(config)
 
     # Validate that the identify method exists and can be called
-    assert hasattr(identifier, 'identify'), "identify method should exist"
-    assert callable(getattr(identifier, 'identify')), "identify should be callable"
+    assert hasattr(identifier, "identify"), "identify method should exist"
+    assert callable(getattr(identifier, "identify")), "identify should be callable"
     print("✓ identify method has correct signature")
 
 
 def test_disease_identifier_validation():
     """Validate DiseaseIdentifier input validation."""
     print("\nValidating DiseaseIdentifier Input Validation...")
-    
+
     config = ModelConfig(model="ollama/gemma3", temperature=0.2)
     DiseaseIdentifier(config)
-    
+
     # Validate empty disease name handling
     try:
         DiseaseIdentifierInput("")
         assert False, "Expected ValueError for empty disease name"
     except ValueError:
         print("✓ Empty disease name validation functions correctly")
-    
+
     # Validate whitespace-only disease name handling
     try:
         DiseaseIdentifierInput("   ")
@@ -159,10 +168,10 @@ def test_with_example_diseases():
             # Validate input creation
             disease_input = DiseaseIdentifierInput(example_disease)
             assert disease_input.disease_name == example_disease
-            print(f"✓ Test {i+1}: Input created for {example_disease}")
+            print(f"✓ Test {i + 1}: Input created for {example_disease}")
 
         except Exception as e:
-            print(f"✗ Test {i+1}: Error with {example_disease}: {e}")
+            print(f"✗ Test {i + 1}: Error with {example_disease}: {e}")
             raise  # Re-raise to fail the test
 
 
@@ -171,7 +180,7 @@ def main():
     print("=" * 60)
     print("DISEASE IDENTIFIER MODULE VALIDATIONS")
     print("=" * 60)
-    
+
     try:
         test_prompt_builder()
         test_disease_identifier_models()
@@ -179,14 +188,15 @@ def main():
         test_method_name_consistency()
         test_disease_identifier_validation()
         test_with_example_diseases()
-        
+
         print("\n" + "=" * 60)
         print("ALL VALIDATIONS COMPLETED SUCCESSFULLY!")
         print("=" * 60)
-        
+
     except Exception as e:
         print(f"\n❌ VALIDATION FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

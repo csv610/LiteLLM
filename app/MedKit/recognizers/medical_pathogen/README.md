@@ -1,45 +1,14 @@
-# Medical Pathogen Identifier
+# Medical Pathogen Recognizer
 
-Identifies whether a given name is a recognized medical pathogen in medical literature.
+This module identifies pathogen mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medical_pathogen_identifier.py`: recognition logic.
+- `medical_pathogen_cli.py`: CLI interface.
+- `medical_pathogen_models.py`: schemas.
+- `medical_pathogen_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medical_pathogen_cli.py "example medical_pathogen"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Medical pathogen",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Medical pathogen is a recognized medical pathogen in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medical_pathogen_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Pathogen naming may vary across common names, abbreviations, and taxonomy terms.

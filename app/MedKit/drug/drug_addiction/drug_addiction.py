@@ -9,12 +9,11 @@ the addictive potential and risks associated with medicines and substances.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
-from lite.utils import save_model_response
-
 from drug_addiction_models import DrugAddictionModel, ModelOutput
-from drug_addiction_prompts import PromptBuilder, DrugAddictionInput
+from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
+from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
+from lite.utils import save_model_response
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,9 @@ class DrugAddiction:
         self.config = None  # Store the configuration for later use in save
         logger.debug("Initialized DrugAddiction")
 
-    def generate_text(self, config: DrugAddictionInput, structured: bool = False) -> ModelOutput:
+    def generate_text(
+        self, config: DrugAddictionInput, structured: bool = False
+    ) -> ModelOutput:
         """Analyzes addiction risks for a medicine or substance."""
         # Store the configuration for later use in save
         self.config = config
@@ -73,8 +74,8 @@ class DrugAddiction:
         """Saves the drug addiction analysis information to a file."""
         if self.config is None:
             raise ValueError("No configuration available. Call generate_text first.")
-        
+
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.config.medicine_name.lower().replace(' ', '_')}"
-        
+
         return save_model_response(result, output_dir / base_filename)

@@ -6,8 +6,8 @@ import pytest
 from typing import Dict, Any, Optional
 from unittest.mock import Mock, patch, MagicMock
 
-from .lite_client import LiteClient
-from .config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
+from lite.config import ModelConfig, ModelInput
 
 
 logger = logging.getLogger(__name__)

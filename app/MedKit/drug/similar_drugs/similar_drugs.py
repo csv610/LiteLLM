@@ -7,19 +7,17 @@ active ingredients, therapeutic classes, and mechanisms of action.
 from pathlib import Path
 from typing import Optional, Union
 
-from lite.config import ModelConfig
+from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
-from lite.config import ModelInput
-
-from similar_drugs_models import SimilarMedicinesResult, SimilarDrugsConfig
+from similar_drugs_models import SimilarDrugsConfig, SimilarMedicinesResult
 from similar_drugs_prompts import PromptBuilder
 
 
 class SimilarDrugs:
     """Finds similar drugs based on provided configuration."""
 
-    def __init__(self, config: 'SimilarDrugsConfig', model_config: ModelConfig):
+    def __init__(self, config: "SimilarDrugsConfig", model_config: ModelConfig):
         self.config = config
         self.client = LiteClient(model_config)
 
@@ -27,7 +25,7 @@ class SimilarDrugs:
         configure_logging(
             log_file=str(Path(__file__).parent / "logs" / "similar_drugs.log"),
             verbosity=self.config.verbosity,
-            enable_console=True
+            enable_console=True,
         )
 
     def find(
@@ -59,7 +57,7 @@ class SimilarDrugs:
 
         output_path = self.config.output_path
         if output_path is None:
-            medicine_clean = medicine_name.lower().replace(' ', '_')
+            medicine_clean = medicine_name.lower().replace(" ", "_")
             output_path = Path("outputs") / f"{medicine_clean}_similar_medicines.json"
 
         output_path.parent.mkdir(parents=True, exist_ok=True)

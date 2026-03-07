@@ -7,6 +7,7 @@ for drug-drug interaction analysis using AI models.
 """
 
 from enum import Enum
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -18,6 +19,7 @@ class PromptStyle(str, Enum):
 
 class DrugDrugInput(BaseModel):
     """Configuration and input for drug-drug interaction analysis."""
+
     medicine1: str = Field(..., min_length=1, description="Name of the first medicine")
     medicine2: str = Field(..., min_length=1, description="Name of the second medicine")
     age: int | None = Field(None, ge=0, le=150, description="Patient age (0-150)")
@@ -89,19 +91,23 @@ class DrugDrugPromptBuilder:
             str: Formatted user prompt with context
         """
         context = cls._build_context(config)
-        return f"{config.medicine1} and {config.medicine2} interaction analysis. {context}"
-        
+        return (
+            f"{config.medicine1} and {config.medicine2} interaction analysis. {context}"
+        )
+
     @staticmethod
     def _build_context(config: DrugDrugInput) -> str:
         """Build the analysis context string from input parameters.
-        
+
         Args:
             config: Configuration containing the drugs and patient information
-            
+
         Returns:
             str: Formatted context string
         """
-        context_parts = [f"Checking interaction between {config.medicine1} and {config.medicine2}"]
+        context_parts = [
+            f"Checking interaction between {config.medicine1} and {config.medicine2}"
+        ]
 
         if config.age is not None:
             context_parts.append(f"Patient age: {config.age} years")

@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass
 class SupplementIdentifierInput:
     """Configuration and input for supplement identification."""
+
     supplement_name: str
 
     def __post_init__(self):

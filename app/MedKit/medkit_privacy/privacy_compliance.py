@@ -12,12 +12,12 @@ from uuid import uuid4
 
 # Import modular components - Now exclusively LLM-based for PII
 try:
-    from .pii_utils import PIIDetector, PIIMasker
     from .audit_logger import AuditLogger
+    from .pii_utils import PIIDetector, PIIMasker
     from .session_repository import SessionRepository
 except (ImportError, ValueError):
-    from pii_utils import PIIDetector, PIIMasker
     from audit_logger import AuditLogger
+    from pii_utils import PIIDetector, PIIMasker
     from session_repository import SessionRepository
 
 # Use relative imports for models

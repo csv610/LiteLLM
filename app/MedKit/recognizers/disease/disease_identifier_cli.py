@@ -8,8 +8,9 @@ Identify whether a given name is a recognized disease in medical literature
 import argparse
 import sys
 
-from lite.config import ModelConfig
 from disease_recognizer import DiseaseIdentifier
+from lite.config import ModelConfig
+
 
 def create_parser():
     """Create and configure argument parser."""
@@ -22,29 +23,28 @@ Examples:
   %(prog)s "example_disease"
   %(prog)s "example_disease" --model ollama/llama2
   %(prog)s "example_disease" --temperature 0.1
-        """
+        """,
     )
-    
+
     # Positional argument
-    parser.add_argument(
-        "name",
-        help="Name of the disease to identify"
-    )
-    
+    parser.add_argument("name", help="Name of the disease to identify")
+
     # Model configuration options
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         default="ollama/gemma3",
-        help="Model to use for identification (default: ollama/gemma3)"
+        help="Model to use for identification (default: ollama/gemma3)",
     )
-    
+
     parser.add_argument(
-        "--temperature", "-t",
+        "--temperature",
+        "-t",
         type=float,
         default=0.2,
-        help="Temperature for model generation (default: 0.2)"
+        help="Temperature for model generation (default: 0.2)",
     )
-    
+
     return parser
 
 
@@ -52,22 +52,19 @@ def main():
     """Main CLI function."""
     parser = create_parser()
     args = parser.parse_args()
-    
+
     try:
         # Create model configuration
-        model_config = ModelConfig(
-            model=args.model,
-            temperature=args.temperature
-        )
-        
+        model_config = ModelConfig(model=args.model, temperature=args.temperature)
+
         # Initialize identifier
         identifier = DiseaseIdentifier(model_config)
-        
+
         # Perform identification
         result = identifier.identify(args.name)
-        
+
         print(result)
-        
+
     except KeyboardInterrupt:
         print("\nOperation cancelled by user", file=sys.stderr)
         sys.exit(1)

@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+
 # Add the project root to sys.path to support absolute imports
 project_root = Path(__file__).resolve().parent.parent.parent
 if str(project_root) not in sys.path:
@@ -10,8 +11,9 @@ if str(project_root) not in sys.path:
 
 import argparse
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
+
 from tqdm import tqdm
 
 # Ensure we can import from the current directory
@@ -23,7 +25,9 @@ from lite.logging_config import configure_logging
 try:
     from .eval_medical_procedure_output import MedicalProcedureEvaluator
 except (ImportError, ValueError):
-    from medical.med_procedure_info.eval_medical_procedure_output import MedicalProcedureEvaluator
+    from medical.med_procedure_info.eval_medical_procedure_output import (
+        MedicalProcedureEvaluator,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -35,31 +39,35 @@ def get_user_arguments() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "file", 
-        help="Path to the file containing the medical procedure information to evaluate, or a file path containing paths."
+        "file",
+        help="Path to the file containing the medical procedure information to evaluate, or a file path containing paths.",
     )
     parser.add_argument(
-        "-d", "--output-dir",
+        "-d",
+        "--output-dir",
         default="outputs",
-        help="Directory for output files (default: outputs)."
+        help="Directory for output files (default: outputs).",
     )
     parser.add_argument(
-        "-m", "--model", 
-        default="ollama/gemma3:27b-cloud", 
-        help="Model to use (default: gemma3:27b-cloud)"
+        "-m",
+        "--model",
+        default="ollama/gemma3:27b-cloud",
+        help="Model to use (default: gemma3:27b-cloud)",
     )
     parser.add_argument(
-        "-s", "--structured", 
-        action="store_true", 
-        default=True, 
-        help="Use structured output (Pydantic model) for the evaluation (default: True)."
+        "-s",
+        "--structured",
+        action="store_true",
+        default=True,
+        help="Use structured output (Pydantic model) for the evaluation (default: True).",
     )
     parser.add_argument(
-        "-v", "--verbosity",
+        "-v",
+        "--verbosity",
         type=int,
         default=2,
         choices=[0, 1, 2, 3, 4],
-        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2)."
+        help="Logging verbosity level: 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG (default: 2).",
     )
 
     return parser.parse_args()
@@ -71,7 +79,7 @@ def evaluate_medical_procedure_report(args) -> int:
     configure_logging(
         log_file=str(Path(__file__).parent / "logs" / "eval_medical_procedure.log"),
         verbosity=args.verbosity,
-        enable_console=True
+        enable_console=True,
     )
 
     # Ensure output directory exists
@@ -82,26 +90,28 @@ def evaluate_medical_procedure_report(args) -> int:
     input_path = Path(args.file)
     if input_path.is_file():
         # Check if it's a markdown or text file which IS the target, OR a file list
-        if input_path.suffix in ['.md', '.txt', '.json']:
-             input_files = [str(input_path)]
+        if input_path.suffix in [".md", ".txt", ".json"]:
+            input_files = [str(input_path)]
         else:
-            with open(input_path, 'r', encoding='utf-8') as f:
+            with open(input_path, "r", encoding="utf-8") as f:
                 input_files = [line.strip() for line in f if line.strip()]
         logger.debug(f"Read {len(input_files)} files to evaluate from: {input_path}")
     else:
         input_files = [args.file]
 
     try:
-        model_config = ModelConfig(model=args.model, temperature=0.1) # Low temp for evaluation
+        model_config = ModelConfig(
+            model=args.model, temperature=0.1
+        )  # Low temp for evaluation
         evaluator = MedicalProcedureEvaluator(model_config=model_config)
-        
+
         for file_path in tqdm(input_files, desc="Evaluating procedure reports"):
-            result = evaluator.generate_text(
-                file_path=file_path
-            )
+            result = evaluator.generate_text(file_path=file_path)
 
             if result is None:
-                logger.error(f"✗ Failed to evaluate procedure information for: {file_path}")
+                logger.error(
+                    f"✗ Failed to evaluate procedure information for: {file_path}"
+                )
                 continue
 
             # Save result to output directory
@@ -120,5 +130,6 @@ def main():
     args = get_user_arguments()
     evaluate_medical_procedure_report(args)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

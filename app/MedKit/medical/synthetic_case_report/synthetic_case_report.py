@@ -1,13 +1,15 @@
 import logging
 from pathlib import Path
-from lite.lite_client import LiteClient
+
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .synthetic_case_report_models import SyntheticCaseReportModel, ModelOutput
+from .synthetic_case_report_models import ModelOutput, SyntheticCaseReportModel
 from .synthetic_case_report_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
 
 class SyntheticCaseReportGenerator:
     """Generates synthetic medical case reports based on provided configuration."""
@@ -41,6 +43,8 @@ class SyntheticCaseReportGenerator:
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         if self.condition is None:
-            raise ValueError("No condition information available. Call generate_text first.")
+            raise ValueError(
+                "No condition information available. Call generate_text first."
+            )
         base_filename = f"{self.condition.lower().replace(' ', '_')}_casereport"
         return save_model_response(result, output_dir / base_filename)

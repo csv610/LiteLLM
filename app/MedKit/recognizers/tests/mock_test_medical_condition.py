@@ -1,24 +1,34 @@
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
-from pathlib import Path
+import sys
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+from lite.config import ModelConfig
 
 from ..medical_condition.medical_condition_identifier import MedicalConditionIdentifier
-from ..medical_condition.medical_condition_models import ModelOutput, MedicalConditionIdentifierModel, MedicalConditionIdentificationModel
-from lite.config import ModelConfig
+from ..medical_condition.medical_condition_models import (
+    MedicalConditionIdentificationModel,
+    MedicalConditionIdentifierModel,
+    ModelOutput,
+)
+
 
 @pytest.fixture
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
+
 @pytest.fixture
 def condition_identifier(mock_model_config):
-    with patch('lite.lite_client.LiteClient'):
+    with patch("lite.lite_client.LiteClient"):
         id_obj = MedicalConditionIdentifier(mock_model_config)
         id_obj.client.generate_text = MagicMock()
         return id_obj
+
 
 def test_identify(condition_identifier):
     # Setup mock response
@@ -35,20 +45,23 @@ def test_identify(condition_identifier):
         clinical_relevance="Requires lifelong management",
         risk_profile="High complications if untreated",
         differential_diagnosis=["Type 1 vs Type 2"],
-        prognosis="Good with management"
+        prognosis="Good with management",
     )
-    mock_model = MedicalConditionIdentifierModel(identification=mock_data, summary="Condition info", data_available=True)
+    mock_model = MedicalConditionIdentifierModel(
+        identification=mock_data, summary="Condition info", data_available=True
+    )
     mock_output = ModelOutput(data=mock_model, data_available=True)
-    
+
     condition_identifier.client.generate_text.return_value = mock_output
-    
+
     # Execute
     result = condition_identifier.identify("Diabetes")
-    
+
     # Assert
     assert result.data.identification.condition_name == "Diabetes"
     assert result.data.identification.is_well_known is True
     assert condition_identifier.client.generate_text.called
+
 
 def test_identify_empty_name(condition_identifier):
     with pytest.raises(ValueError, match=".+"):

@@ -1,86 +1,50 @@
-# Millennium Prize Problems Explorer
+# MillenniumPrize
 
-A CLI tool for exploring and generating detailed information about the seven Millennium Prize Problems in mathematics.
+`MillenniumPrize` provides a CLI for the seven Clay Mathematics Institute Millennium Prize Problems.
 
-The Millennium Prize Problems are seven problems in mathematics that were stated by the Clay Mathematics Institute in 2000. The problems are Birch and Swinnerton-Dyer conjecture, Hodge conjecture, Navier–Stokes existence and smoothness, P versus NP problem, Poincaré conjecture, Riemann hypothesis, and Yang–Mills existence and mass gap. A correct solution to any of the problems results in a US $1 million prize being awarded by the institute.
+## What It Does
 
-## Features
+- Lists the seven problems from the built-in dataset.
+- Can generate an additional model-produced explanation for a selected problem.
+- Saves JSON output to the current working directory.
 
-- **CLI Interface**: Easy-to-use command-line interface for querying problem data.
-- **Detailed Data**: Includes title, description, field, status, significance, and current progress for each problem.
-- **LLM-Powered Explanations**: Generate comprehensive explanations using Large Language Models (LLMs) via `LiteClient`.
-- **JSON Export**: Automatically saves problem details and generated explanations to structured JSON files.
-- **Type Safety**: Built with Pydantic models for robust data validation and schema management.
-- **Comprehensive Logging**: Detailed logging of operations and error handling.
+## Why It Matters
 
-## Project Structure
+The Millennium Prize Problems are a compact set of high-impact open problems. This app provides a simple way to retrieve them in a consistent format.
 
-- `millennium_prize_problems_cli.py`: Main entry point and CLI logic.
-- `millennium_prize_models.py`: Pydantic data models for problems and responses.
-- `millennium_prize_prompts.py`: Logic for building prompts for LLM explanations.
-- `test_millennium_prize.py`: Comprehensive test suite using `unittest`.
+## What Distinguishes It
 
-## Installation
+- Uses a built-in data table for the seven problems.
+- Optionally augments that data with a generated explanation.
+- Keeps the scope narrow and fixed.
 
-### Prerequisites
+## Files
 
-- Python 3.8+
-- Pydantic
-- Access to an LLM (optional, defaults to `ollama/gemma3`)
-
-### Setup
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd MillenniumPrize
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install pydantic
-   ```
-   *(Note: Ensure the `lite` module and its dependencies are available in your python path as this tool depends on it for LLM functionality.)*
+- `millennium_prize_problems_cli.py`: CLI entrypoint.
+- `millennium_prize_models.py`: schemas.
+- `millennium_prize_prompts.py`: prompt builder.
+- `mock_test_millennium_prize.py`: tests.
 
 ## Usage
 
-### List All Problems
-To list all Millennium Prize Problems and save them to `millennium_prize_problems.json`:
 ```bash
 python millennium_prize_problems_cli.py
+python millennium_prize_problems_cli.py --problem 1
+python millennium_prize_problems_cli.py --problem 3 --model gpt-4
 ```
 
-### Get Specific Problem Details
-To get details for a specific problem (1-7) without LLM explanation:
-```bash
-python millennium_prize_problems_cli.py -p 1
-```
+Default model for generated explanations: `ollama/gemma3`
 
-### Generate LLM Explanation
-To generate a detailed explanation using a specific LLM:
-```bash
-python millennium_prize_problems_cli.py -p 3 -m gpt-4
-```
-
-### CLI Arguments
-- `-p, --problem`: Problem number (1-7). Omit to list all.
-- `-m, --model`: LLM model to use (default: `ollama/gemma3`).
-
-## Millennium Prize Problems List
-
-1. **P versus NP** (Computer Science)
-2. **Hodge Conjecture** (Algebraic Geometry)
-3. **Riemann Hypothesis** (Number Theory)
-4. **Yang-Mills Existence and Mass Gap** (Mathematical Physics)
-5. **Navier-Stokes Existence and Smoothness** (Fluid Dynamics)
-6. **Birch and Swinnerton-Dyer Conjecture** (Number Theory)
-7. **Poincaré Conjecture** (Topology) - *Solved by Grigori Perelman (2003)*
+Note: when a specific problem is requested, the current CLI attempts to generate an explanation unless the code is changed.
 
 ## Testing
 
-Run the test suite using `unittest`:
 ```bash
-python test_millennium_prize.py
+python -m unittest mock_test_millennium_prize.py
 ```
 
-The tests cover model validation, prompt generation, and CLI functionality using mocks for external dependencies.
+## Limitations
+
+- The built-in problem metadata is static.
+- Generated explanations are not authoritative mathematical references.
+- The CLI behavior currently couples single-problem lookup with model-based explanation generation.

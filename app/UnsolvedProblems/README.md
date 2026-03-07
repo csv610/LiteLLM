@@ -1,85 +1,43 @@
-# Unsolved Problems Explorer
+# UnsolvedProblems
 
-A professional CLI tool and library designed to fetch, analyze, and document famous unsolved problems in various academic and scientific fields using Large Language Models (LLMs).
+`UnsolvedProblems` generates structured lists of open problems for a topic such as mathematics, physics, or computer science.
 
-## Overview
+## What It Does
 
-The Unsolved Problems Explorer leverages advanced LLMs to provide structured, academically grounded information about open questions in fields such as Mathematics, Physics, Computer Science, and more. It utilizes a robust Pydantic-based data model to ensure consistency, accuracy, and ease of integration with other tools.
+- Accepts a topic and number of problems.
+- Generates a list of structured problem records.
+- Saves the result to `outputs/unsolved_<topic>_<count>.json`.
 
-## Key Features
+## Why It Matters
 
-- **Structured Data Extraction**: Returns detailed information including problem title, description, field, difficulty, historical context, prize money, significance, and current status.
-- **CLI Interface**: A user-friendly command-line interface for quick generation of reports.
-- **Extensible Explorer Class**: A modular `UnsolvedProblemsExplorer` class that can be integrated into larger Python applications.
-- **Schema Validation**: Rigorous validation of LLM responses against Pydantic models to ensure data integrity.
-- **Automatic Documentation**: Automatically generates and saves reports in JSON format with organized naming conventions.
+Open-problem lists are useful for study planning and topic exploration, but they are often scattered across multiple sources. This app produces a consistent JSON representation.
 
-## Project Structure
+## What Distinguishes It
 
-- `unsolved_problems_cli.py`: Command-line interface and entry point.
-- `unsolved_problems_explorer.py`: Core logic for interacting with LLM clients and managing data flow.
-- `unsolved_problems_models.py`: Pydantic models defining the structure of problems and responses.
-- `unsolved_problems_prompts.py`: Specialized prompt engineering for generating high-quality academic content.
-- `outputs/`: Directory containing generated JSON reports.
-- `logs/`: Application logs for debugging and monitoring.
+- Topic-based generation rather than a fixed built-in dataset.
+- Typed output with fields such as title, description, significance, and status.
+- Automatic output archiving.
 
-## Prerequisites
+## Files
 
-- Python 3.10+
-- Access to an LLM provider (e.g., Ollama, OpenAI, Anthropic) via the `lite` integration library.
-- Environment variable `DEFAULT_LLM_MODEL` (optional, defaults to `ollama/gemma3`).
-
-## Installation
-
-Ensure the `lite` package is available in your Python environment. Install dependencies:
-
-```bash
-pip install pydantic
-```
+- `unsolved_problems_cli.py`: CLI interface.
+- `unsolved_problems_explorer.py`: generation logic.
+- `unsolved_problems_models.py`: schemas.
+- `unsolved_problems_prompts.py`: prompt builder.
 
 ## Usage
 
-### CLI
-
-To fetch unsolved problems via the command line:
-
 ```bash
-python unsolved_problems_cli.py -t "Mathematics" -n 5
+python unsolved_problems_cli.py --topic "Mathematics" --num-problems 5
+python unsolved_problems_cli.py --topic "Cryptography" --num-problems 3 --model ollama/gemma3
 ```
 
-**Arguments:**
-- `-t`, `--topic`: The academic topic (e.g., "Physics", "Number Theory").
-- `-n`, `--num-problems`: Number of problems to retrieve (1-50).
-- `-m`, `--model`: (Optional) Specific LLM model to use.
+Defaults:
 
-### Programmatic Usage
+- `--model`: `$DEFAULT_LLM_MODEL` or `ollama/gemma3`
 
-```python
-from unsolved_problems_explorer import UnsolvedProblemsExplorer
+## Limitations
 
-explorer = UnsolvedProblemsExplorer(model="ollama/gemma3")
-problems = explorer.fetch_problems(topic="Cryptography", num_problems=3)
-
-for problem in problems:
-    print(f"Title: {problem.title}")
-    print(f"Status: {problem.current_status}")
-```
-
-## Data Model
-
-Each problem is captured with the following attributes:
-
-| Field | Description |
-| :--- | :--- |
-| `title` | The name or title of the problem. |
-| `description` | Clear explanation of the problem and its importance. |
-| `field` | The specific academic subfield. |
-| `difficulty` | Estimated level (Elementary, Moderate, Advanced). |
-| `first_posed` | Historical context or proposer. |
-| `prize_money` | Associated rewards, if any. |
-| `significance` | Impact of a potential solution. |
-| `current_status` | Latest known results and research progress. |
-
-## License
-
-This project is intended for educational and research purposes.
+- The app does not verify whether a listed problem is still open.
+- Topic coverage depends on model knowledge rather than a maintained problem database.
+- Results should be checked against current field-specific references.

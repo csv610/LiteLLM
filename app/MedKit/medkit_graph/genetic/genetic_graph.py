@@ -1,4 +1,4 @@
-from .core import GeneticsTripletExtractor, GeneticsGraphBuilder, GraphVisualizer
+from .core import GeneticsGraphBuilder, GeneticsTripletExtractor, GraphVisualizer
 
 # =========================
 # 5️⃣ Runner
@@ -22,7 +22,10 @@ if __name__ == "__main__":
     builder.add_triples(triples)
     builder.export_json("genetics_graph.json")
 
-    print("\n🔹 Disease-linked Genes (Breast Cancer):", builder.find_disease_genes("Breast Cancer"))
+    print(
+        "\n🔹 Disease-linked Genes (Breast Cancer):",
+        builder.find_disease_genes("Breast Cancer"),
+    )
     print("🔹 Pathways involving BRCA1:", builder.find_gene_pathways("BRCA1"))
 
     visualizer = GraphVisualizer(builder.G)

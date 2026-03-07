@@ -1,24 +1,36 @@
-import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
-from pathlib import Path
-import pytest
-from unittest.mock import patch, MagicMock
+import sys
 
-from recognizers.medical_specialty.medical_specialty_identifier import MedicalSpecialtyIdentifier
-from recognizers.medical_specialty.medical_specialty_models import ModelOutput, MedicalSpecialtyIdentifierModel, MedicalSpecialtyIdentificationModel
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+from unittest.mock import MagicMock, patch
+
+import pytest
 from lite.config import ModelConfig
+
+from recognizers.medical_specialty.medical_specialty_identifier import (
+    MedicalSpecialtyIdentifier,
+)
+from recognizers.medical_specialty.medical_specialty_models import (
+    MedicalSpecialtyIdentificationModel,
+    MedicalSpecialtyIdentifierModel,
+    ModelOutput,
+)
+
 
 @pytest.fixture
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
+
 @pytest.fixture
 def specialty_identifier(mock_model_config):
-    with patch('lite.lite_client.LiteClient'):
+    with patch("lite.lite_client.LiteClient"):
         id_obj = MedicalSpecialtyIdentifier(mock_model_config)
         id_obj.client.generate_text = MagicMock()
         return id_obj
+
 
 def test_identify(specialty_identifier):
     # Setup mock response
@@ -37,19 +49,22 @@ def test_identify(specialty_identifier):
         related_specialties=["Cardiothoracic surgery"],
         board_certification_body="ABIM",
         related_orgs=["ACC", "AHA"],
-        related_procedures=["Angioplasty"]
+        related_procedures=["Angioplasty"],
     )
-    mock_model = MedicalSpecialtyIdentifierModel(identification=mock_data, summary="Specialty info", data_available=True)
+    mock_model = MedicalSpecialtyIdentifierModel(
+        identification=mock_data, summary="Specialty info", data_available=True
+    )
     mock_output = ModelOutput(data=mock_model, data_available=True)
     specialty_identifier.client.generate_text.return_value = mock_output
-    
+
     # Execute
     result = specialty_identifier.identify("Cardiology")
-    
+
     # Assert
     assert result.data.identification.specialty_name == "Cardiology"
     assert result.data.identification.is_well_known is True
     assert specialty_identifier.client.generate_text.called
+
 
 def test_identify_empty_name(specialty_identifier):
     with pytest.raises(ValueError, match=".+"):

@@ -1,16 +1,18 @@
 """Extract keywords from medical documents using structured LLM output."""
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 # Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import logging
-from lite.lite_client import LiteClient
+
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
+
 try:
     from .models import KeywordList, KeywordResult
     from .prompts import PromptBuilder
@@ -141,10 +143,7 @@ class KeywordExtractor:
             prompt = PromptBuilder.get_keyword_extraction_prompt(text)
 
             # Use LiteClient with structured output
-            model_input = ModelInput(
-                user_prompt=prompt,
-                response_format=KeywordList
-            )
+            model_input = ModelInput(user_prompt=prompt, response_format=KeywordList)
 
             response = self.client.generate_text(model_input=model_input)
             keywords = response.keywords

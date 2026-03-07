@@ -1,11 +1,12 @@
 import json
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
 
 # Try to import LiteClient and Config classes from the project's 'lite' package
 try:
-    from lite.lite_client import LiteClient
     from lite.config import ModelConfig, ModelInput
+    from lite.lite_client import LiteClient
 except (ImportError, ModuleNotFoundError):
     # Fallback/Mock if not available
     from dataclasses import dataclass

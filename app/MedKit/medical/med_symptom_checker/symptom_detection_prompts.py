@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from symptom_detection_qa import PatientDemographics
 
+
 class PromptBuilder:
     """Builder class for creating prompts for medical consultation."""
 
@@ -66,7 +67,9 @@ Example: "You mentioned the headache started suddenly - what were you doing when
 Avoid jargon and overwhelming the patient."""
 
     @staticmethod
-    def create_summary_prompt(demographics: "PatientDemographics", conversation_log: list) -> str:
+    def create_summary_prompt(
+        demographics: "PatientDemographics", conversation_log: list
+    ) -> str:
         """
         Create the prompt for generating a comprehensive medical summary.
 
@@ -81,7 +84,7 @@ Avoid jargon and overwhelming the patient."""
 Based on this consultation, generate a comprehensive medical summary.
 
 Patient: {demographics.name}, {demographics.age}yo {demographics.gender}
-Occupation: {demographics.occupation or 'Not specified'}
+Occupation: {demographics.occupation or "Not specified"}
 
 Consultation Q&A:
 {json.dumps(conversation_log, indent=2)}

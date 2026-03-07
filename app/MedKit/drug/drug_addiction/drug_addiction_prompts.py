@@ -13,13 +13,14 @@ from typing import Optional
 @dataclass
 class DrugAddictionInput:
     """Configuration and input for drug addiction analysis."""
+
     medicine_name: str
     usage_duration: Optional[str] = None
     prompt_style: str = "detailed"
-    
+
     def validate(self) -> None:
         """Validate the input parameters.
-        
+
         Raises:
             ValueError: If any parameter is invalid
         """
@@ -68,14 +69,14 @@ Base your analysis on current medical literature, DSM-5 criteria (if applicable)
         """
         context = cls._build_context(config)
         return f"Analyze the addiction potential and risks for {config.medicine_name}. {context}"
-    
+
     @staticmethod
     def _build_context(config: DrugAddictionInput) -> str:
         """Build the analysis context string from input parameters.
-        
+
         Args:
             config: Configuration containing the medicine and patient information
-            
+
         Returns:
             str: Formatted context string
         """

@@ -7,10 +7,9 @@ using AI-powered analysis.
 import logging
 from pathlib import Path
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
-
 from medicine_info_models import MedicineInfoModel, ModelOutput
 from medicine_info_prompts import PromptBuilder
 
@@ -24,7 +23,9 @@ class MedicineInfoGenerator:
         self.client = LiteClient(model_config)
         self.logger = logging.getLogger(__name__)
 
-    def generate_text( self, medicine_name: str, structured: bool = False) -> ModelOutput:
+    def generate_text(
+        self, medicine_name: str, structured: bool = False
+    ) -> ModelOutput:
         """Generate comprehensive medicine information.
 
         Args:

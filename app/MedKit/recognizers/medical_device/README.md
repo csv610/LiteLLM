@@ -1,45 +1,14 @@
-# Medical Device Identifier
+# Medical Device Recognizer
 
-Identifies whether a given name is a recognized medical device in medical literature.
+This module identifies medical-device mentions in text.
 
-## Purpose
+## Files
 
-Quick identification filter before calling expensive LLMs to minimize hallucinations and computational costs.
+- `medical_device_identifier.py`: recognition logic.
+- `medical_device_cli.py`: CLI interface.
+- `medical_device_models.py`: schemas.
+- `medical_device_prompts.py`: prompts.
 
-## Usage
+## Limitations
 
-```bash
-python medical_device_cli.py "example medical_device"
-```
-
-## Output
-
-```json
-{
-  "identification": {
-    "name": "Example Medical device",
-    "is_well_known": true,
-    "recognition_confidence": "high",
-    "medical_literature_reference": "Recognized in major medical databases and literature"
-  },
-  "summary": "Example Medical device is a recognized medical device in medical literature",
-  "data_available": true
-}
-```
-
-## Installation
-
-```bash
-cd /Users/csv610/Projects/LiteLLM
-pip install -r requirements.txt
-```
-
-## Testing
-
-```bash
-python test_medical_device_identifier.py
-```
-
-## Disclaimer
-
-For identification purposes only. Not a substitute for professional medical advice.
+- Device names may be brand-specific or ambiguous.

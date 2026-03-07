@@ -1,13 +1,13 @@
 # =========================
 # Imports
 # =========================
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, validator
-import networkx as nx
-import matplotlib.pyplot as plt
 import json
-import os
+from typing import List, Literal, Optional
+
+import matplotlib.pyplot as plt
 import medicine_prompts as prompts
+import networkx as nx
+from pydantic import BaseModel, Field, validator
 
 try:
     from lite import LiteClient
@@ -97,6 +97,7 @@ NODE_TYPE_ALIASES = {
 
 class Triple(BaseModel):
     """Represents one biomedical relation."""
+
     source: str = Field(..., description="Subject entity")
     relation: Relation = Field(..., description="Relation type")
     target: str = Field(..., description="Object entity")
@@ -134,6 +135,7 @@ class Triple(BaseModel):
 
 class TripleList(BaseModel):
     """Container for a list of triples."""
+
     triples: List[Triple]
 
 
@@ -158,7 +160,7 @@ class MedicineTripletExtractor:
             model_input = ModelInput(
                 user_prompt=text,
                 system_prompt=prompts.PROMPT,
-                response_format=TripleList
+                response_format=TripleList,
             )
             try:
                 response = self.client.generate_text(model_input=model_input)
@@ -182,11 +184,41 @@ class MedicineTripletExtractor:
         t = text.lower()
         if "paracetamol" in t:
             return [
-                {"source": "Paracetamol", "relation": "treats", "target": "Fever", "source_type": "Drug", "target_type": "Disease"},
-                {"source": "Paracetamol", "relation": "treats", "target": "Pain", "source_type": "Drug", "target_type": "Symptom"},
-                {"source": "Paracetamol", "relation": "has_side_effect", "target": "Liver toxicity", "source_type": "Drug", "target_type": "SideEffect"},
-                {"source": "Paracetamol", "relation": "contraindicated_in", "target": "Liver disease", "source_type": "Drug", "target_type": "Condition"},
-                {"source": "Paracetamol", "relation": "belongs_to_class", "target": "Analgesic", "source_type": "Drug", "target_type": "DrugClass"},
+                {
+                    "source": "Paracetamol",
+                    "relation": "treats",
+                    "target": "Fever",
+                    "source_type": "Drug",
+                    "target_type": "Disease",
+                },
+                {
+                    "source": "Paracetamol",
+                    "relation": "treats",
+                    "target": "Pain",
+                    "source_type": "Drug",
+                    "target_type": "Symptom",
+                },
+                {
+                    "source": "Paracetamol",
+                    "relation": "has_side_effect",
+                    "target": "Liver toxicity",
+                    "source_type": "Drug",
+                    "target_type": "SideEffect",
+                },
+                {
+                    "source": "Paracetamol",
+                    "relation": "contraindicated_in",
+                    "target": "Liver disease",
+                    "source_type": "Drug",
+                    "target_type": "Condition",
+                },
+                {
+                    "source": "Paracetamol",
+                    "relation": "belongs_to_class",
+                    "target": "Analgesic",
+                    "source_type": "Drug",
+                    "target_type": "DrugClass",
+                },
             ]
         return []
 
@@ -204,17 +236,21 @@ class MedicineGraphBuilder:
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
-            self.G.add_edge(t.source, t.target, relation=t.relation, confidence=t.confidence)
+            self.G.add_edge(
+                t.source, t.target, relation=t.relation, confidence=t.confidence
+            )
 
     def query_treats(self, disease: str):
         return [
-            src for src, tgt, d in self.G.edges(data=True)
+            src
+            for src, tgt, d in self.G.edges(data=True)
             if tgt.lower() == disease.lower() and d.get("relation") == "treats"
         ]
 
     def query_side_effects(self, drug: str):
         return [
-            tgt for src, tgt, d in self.G.edges(data=True)
+            tgt
+            for src, tgt, d in self.G.edges(data=True)
             if src.lower() == drug.lower() and d.get("relation") == "has_side_effect"
         ]
 
@@ -238,9 +274,9 @@ class MedicineGraphBuilder:
         """Exports the graph to a Graphviz .dot file."""
         with open(path, "w", encoding="utf-8") as f:
             f.write("digraph G {\n")
-            f.write('  rankdir=LR;\n')
+            f.write("  rankdir=LR;\n")
             f.write('  node [style=filled, shape=rect, fontname="Arial"];\n')
-            
+
             color_map = {
                 "Drug": "#8dd3c7",
                 "Disease": "#fb8072",
@@ -249,11 +285,13 @@ class MedicineGraphBuilder:
                 "Condition": "#80b1d3",
                 "Other": "#fdb462",
             }
-            
+
             for n, d in self.G.nodes(data=True):
                 node_type = d.get("type", "Other")
                 color = color_map.get(node_type, "#fdb462")
-                f.write(f'  "{n}" [fillcolor="{color}", label="{n}\\n({node_type})"];\n')
+                f.write(
+                    f'  "{n}" [fillcolor="{color}", label="{n}\\n({node_type})"];\n'
+                )
 
             for u, v, d in self.G.edges(data=True):
                 rel = d.get("relation", "other")

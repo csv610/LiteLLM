@@ -1,6 +1,7 @@
 from ..base_recognizer import BaseRecognizer
 from .clinical_sign_models import ClinicalSignIdentifierModel, ModelOutput
-from .clinical_sign_prompts import PromptBuilder, ClinicalSignInput
+from .clinical_sign_prompts import ClinicalSignInput, PromptBuilder
+
 
 class ClinicalSignIdentifier(BaseRecognizer):
     def identify(self, name: str, structured: bool = False) -> ModelOutput:
@@ -9,7 +10,7 @@ class ClinicalSignIdentifier(BaseRecognizer):
             user_prompt=PromptBuilder.create_user_prompt(ClinicalSignInput(name)),
             response_format=ClinicalSignIdentifierModel if structured else None,
         )
-        
+
         if structured:
             return ModelOutput(data=response)
         else:

@@ -15,8 +15,8 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
-from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
@@ -75,7 +75,7 @@ class MedEthicalQA:
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Call the LLM client to generate information."""
         response = self.client.generate_text(model_input=model_input)
-        
+
         if isinstance(response, ModelOutput):
             return response
         elif isinstance(response, EthicalAnalysisModel):
@@ -89,30 +89,38 @@ class MedEthicalQA:
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical ethics analysis to a file (JSON if structured, Markdown otherwise)."""
         if self.question is None:
-            raise ValueError("No medical ethics question available. Call generate_text first.")
-        
+            raise ValueError(
+                "No medical ethics question available. Call generate_text first."
+            )
+
         import re
 
         if result.data:
             # Structured output - Save as JSON using the title for filename
             title = result.data.case_title or self.question[:50]
-            sanitized_title = re.sub(r'[^\w\s-]', '', title).strip().lower().replace(' ', '_')
-            logger.info(f"✓ Saving structured analysis to {output_dir / sanitized_title}.json")
+            sanitized_title = (
+                re.sub(r"[^\w\s-]", "", title).strip().lower().replace(" ", "_")
+            )
+            logger.info(
+                f"✓ Saving structured analysis to {output_dir / sanitized_title}.json"
+            )
             return save_model_response(result, output_dir / sanitized_title)
-        
+
         # Markdown output
         md_content = result.markdown
         if not md_content:
             raise ValueError("No content to save.")
 
-        first_line = md_content.split('\n')[0].strip('*# ')
-        sanitized_title = re.sub(r'[^\w\s-]', '', first_line).strip().lower().replace(' ', '_')
-        
+        first_line = md_content.split("\n")[0].strip("*# ")
+        sanitized_title = (
+            re.sub(r"[^\w\s-]", "", first_line).strip().lower().replace(" ", "_")
+        )
+
         filename = f"{sanitized_title}.md"
         file_path = output_dir / filename
-        
-        with open(file_path, 'w') as f:
+
+        with open(file_path, "w") as f:
             f.write(md_content)
-        
+
         logger.info(f"✓ Saved markdown analysis to {file_path}")
         return file_path

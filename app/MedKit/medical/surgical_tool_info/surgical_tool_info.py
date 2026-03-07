@@ -1,17 +1,19 @@
 import logging
 from pathlib import Path
-from lite.lite_client import LiteClient
+
 from lite.config import ModelConfig, ModelInput
+from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
-    from .surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
+    from .surgical_tool_info_models import ModelOutput, SurgicalToolInfoModel
     from .surgical_tool_info_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from surgical_tool_info_models import SurgicalToolInfoModel, ModelOutput
+    from surgical_tool_info_models import ModelOutput, SurgicalToolInfoModel
     from surgical_tool_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
 
 class SurgicalToolInfoGenerator:
     """Generates comprehensive surgical tool information based on provided configuration."""

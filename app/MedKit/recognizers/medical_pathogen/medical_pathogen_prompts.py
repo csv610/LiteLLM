@@ -11,6 +11,7 @@ from dataclasses import dataclass
 @dataclass
 class PathogenIdentifierInput:
     """Configuration and input for pathogen identification."""
+
     pathogen_name: str
 
     def __post_init__(self):

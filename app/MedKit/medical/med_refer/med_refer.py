@@ -1,14 +1,18 @@
 import logging
+
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
+
 from .medrefer_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
 
 class MedReferral:
     """
     A class for determining the appropriate medical specialists based on a given question using OpenAI GPT model.
     """
+
     medical_specialists = frozenset(
         [
             "Allergist",
@@ -58,11 +62,11 @@ class MedReferral:
             "Urologist",
         ]
     )
-    
+
     def __init__(self, config: ModelConfig):
         self.config = config
         self.client = LiteClient(model_config=config)
-    
+
     def generate_text(self, question):
         """
         Determines the appropriate medical specialists for a given question.
@@ -72,12 +76,11 @@ class MedReferral:
 
         try:
             logger.debug(f"Sending request to model: {self.config.model}")
-            
+
             model_input = ModelInput(
-                system_prompt=system_prompt,
-                user_prompt=user_prompt
+                system_prompt=system_prompt, user_prompt=user_prompt
             )
-            
+
             response = self.client.generate_text(model_input=model_input)
 
             return response
