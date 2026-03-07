@@ -23,7 +23,7 @@ logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from medical_classification_prompts import MedicalClassificationPromptBuilder
+from med_dictionary.medical_classification_prompts import MedicalClassificationPromptBuilder
 
 
 def load_terms_from_file(file_path: Path) -> List[str]:
