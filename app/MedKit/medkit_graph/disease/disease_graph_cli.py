@@ -1,4 +1,4 @@
-from disease_models import DiseaseGraphBuilder, DiseaseTripletExtractor, GraphVisualizer
+from disease_models import DiseaseKnowledgeGraphBuilder, GraphVisualizer, Triple
 
 # =========================
 # 5️⃣ Main Runner
@@ -15,20 +15,18 @@ if __name__ == "__main__":
         print("❌ No disease name provided.")
         sys.exit(1)
 
-    extractor = DiseaseTripletExtractor()
     print(f"🔍 Generating knowledge graph for: {disease_name}...")
-    triples = extractor.extract_by_name(disease_name)
+    
+    builder = DiseaseKnowledgeGraphBuilder()
+    triples = builder.build_from_name(disease_name)
 
     if not triples:
-        print(f"❌ Could not extract information for '{disease_name}'.")
+        print(f"❌ Could not generate information for '{disease_name}'.")
         sys.exit(1)
 
-    print(f"✅ Extracted {len(triples)} Disease Triples:")
+    print(f"✅ Created {len(triples)} Disease Triples:")
     for t in triples:
         print(t.model_dump())
-
-    builder = DiseaseGraphBuilder()
-    builder.add_triples(triples)
 
     # Use the first part of the disease name for query if it's long, or just the full name
     q_name = disease_name.split()[0] if " " in disease_name else disease_name

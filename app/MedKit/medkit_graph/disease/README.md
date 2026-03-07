@@ -6,7 +6,6 @@ This module generates graph-style representations of disease-related entities an
 
 - `disease_graph_cli.py`: CLI interface.
 - `disease_models.py`: schemas.
-- `disease_prompts.py`: prompts.
 
 ## Limitations
 
