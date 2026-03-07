@@ -47,7 +47,7 @@ class DiseaseInfoGenerator:
         self.disease = None
         logger.debug(f"Starting organ diseases generation for: {organ}")
 
-        system_prompt = PromptBuilder.create_system_prompt()
+        system_prompt = PromptBuilder.create_system_prompt(structured=structured)
         user_prompt = PromptBuilder.create_user_prompt(organ)
         logger.debug(f"System Prompt: {system_prompt}")
         logger.debug(f"User Prompt: {user_prompt}")
@@ -66,6 +66,10 @@ class DiseaseInfoGenerator:
         try:
             result = self.ask_llm(model_input)
             logger.debug("✓ Successfully generated organ diseases information")
+            
+            # If structured, wrap the result in ModelOutput
+            if structured and isinstance(result, OrganDiseasesModel):
+                return ModelOutput(data=result)
             return result
         except Exception as e:
             logger.error(f"✗ Error generating organ diseases information: {e}")

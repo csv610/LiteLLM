@@ -11,8 +11,11 @@ class PromptBuilder:
     """Builder class for creating prompts for disease information generation."""
 
     @staticmethod
-    def create_system_prompt() -> str:
+    def create_system_prompt(structured: bool = False) -> str:
         """Create the system prompt for disease information generation.
+
+        Args:
+            structured: Whether the output should be structured JSON
 
         Returns:
             str: System prompt defining the AI's role and guidelines
