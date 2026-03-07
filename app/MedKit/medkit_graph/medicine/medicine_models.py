@@ -2,9 +2,9 @@
 # Imports
 # =========================
 import json
+import os
 from typing import List, Literal, Optional
 
-import matplotlib.pyplot as plt
 import medicine_prompts as prompts
 import networkx as nx
 from pydantic import BaseModel, Field, validator
@@ -25,6 +25,9 @@ Relation = Literal[
     "treats",
     "has_side_effect",
     "belongs_to_class",
+    "has_atc_classification",
+    "has_therapeutic_class",
+    "has_pharmacological_class",
     "interacts_with",
     "contraindicated_in",
     "has_active_ingredient",
@@ -36,12 +39,22 @@ Relation = Literal[
     "has_mechanism",
     "manufactured_by",
     "recommended_dose_for",
+    "safe_for_breastfeeding",
+    "contraindicated_in_breastfeeding",
+    "safe_for_children",
+    "contraindicated_in_children",
+    "safe_for_elderly",
+    "contraindicated_in_elderly",
+    "has_restriction",
+    "approved_by",
+    "approved_on",
     "other",
 ]
 
 NodeType = Literal[
     "Drug",
     "DrugClass",
+    "ATCClass",
     "ActiveIngredient",
     "Disease",
     "Symptom",
@@ -54,6 +67,11 @@ NodeType = Literal[
     "Manufacturer",
     "ClinicalTest",
     "Contraindication",
+    "LactationContext",
+    "AgeGroup",
+    "Restriction",
+    "RegulatoryAgency",
+    "Date",
     "Other",
 ]
 
@@ -64,6 +82,10 @@ RELATION_ALIASES = {
     "adverse_effect": "has_side_effect",
     "belongs_to": "belongs_to_class",
     "is_a": "belongs_to_class",
+    "atc": "has_atc_classification",
+    "atc_code": "has_atc_classification",
+    "therapeutic_class": "has_therapeutic_class",
+    "pharmacological_class": "has_pharmacological_class",
     "interaction": "interacts_with",
     "interacts": "interacts_with",
     "contraindicated": "contraindicated_in",
@@ -73,6 +95,14 @@ RELATION_ALIASES = {
     "mechanism": "has_mechanism",
     "manufacturer": "manufactured_by",
     "dose_for": "recommended_dose_for",
+    "breastfeeding_safe": "safe_for_breastfeeding",
+    "lactation_safe": "safe_for_breastfeeding",
+    "child_safe": "safe_for_children",
+    "pediatric_safe": "safe_for_children",
+    "elderly_safe": "safe_for_elderly",
+    "geriatric_safe": "safe_for_elderly",
+    "fda_approved": "approved_by",
+    "approval_date": "approved_on",
 }
 
 NODE_TYPE_ALIASES = {
@@ -98,12 +128,15 @@ NODE_TYPE_ALIASES = {
 class Triple(BaseModel):
     """Represents one biomedical relation."""
 
-    source: str = Field(..., description="Subject entity")
-    relation: Relation = Field(..., description="Relation type")
-    target: str = Field(..., description="Object entity")
-    source_type: NodeType = "Other"
-    target_type: NodeType = "Other"
-    confidence: Optional[float] = None
+    source: str = Field(..., description="Subject entity", alias="subject")
+    relation: Relation = Field(..., description="Relation type", alias="predicate")
+    target: str = Field(..., description="Object entity", alias="object")
+    source_type: NodeType = Field("Other", alias="subject_type")
+    target_type: NodeType = Field("Other", alias="object_type")
+    evidence: Optional[str] = Field(None, description="Brief medical justification or reference")
+
+    class Config:
+        populate_by_name = True
 
     @validator("source", "target")
     def not_empty_entity(cls, v):
@@ -133,111 +166,57 @@ class Triple(BaseModel):
         return "Other"
 
 
-class TripleList(BaseModel):
-    """Container for a list of triples."""
+class MedicineReport(BaseModel):
+    """Container for a structured medicine report."""
 
-    triples: List[Triple]
+    name: str = Field(..., description="Name of the medicine")
+    therapeutic_class: str = Field(..., description="Therapeutic class of the medicine")
+    description: str = Field(..., description="High-level medical overview")
+    triples: List[Triple] = Field(..., description="List of biomedical triples")
 
 
 # =========================
-# 2️⃣ Gemini Triplet Extractor
+# 2️⃣ Graph Builder
 # =========================
-class MedicineTripletExtractor:
-    """Uses LiteClient or fallback simulation to extract biomedical triples."""
+class MedicineKnowledgeGraph:
+    """Builds and queries the medicine knowledge graph using LLM."""
 
-    def __init__(self, model_name: str = "ollama/gemma3"):
-        self.model_name = model_name
+    def __init__(self, model_config: Optional["ModelConfig"] = None):
+        self.G = nx.MultiDiGraph()
+        self.model_config = model_config
         self.client = None
+        self.last_report = None
 
         if LiteClient is not None:
-            config = ModelConfig(model=self.model_name)
-            self.client = LiteClient(model_config=config)
+            if self.model_config is None:
+                self.model_config = ModelConfig(
+                    model="ollama/gemma3", temperature=0.0
+                )
+            self.client = LiteClient(model_config=self.model_config)
         else:
-            print("⚠️ 'lite' package not installed. Using offline mode.")
+            raise ImportError("'lite' package is required for MedicineKnowledgeGraph.")
 
-    def extract(self, text: str) -> List[Triple]:
-        if self.client is not None:
-            model_input = ModelInput(
-                user_prompt=text,
-                system_prompt=prompts.PROMPT,
-                response_format=TripleList,
-            )
-            try:
-                response = self.client.generate_text(model_input=model_input)
-                # LiteClient with response_format returns the Pydantic object directly
-                if isinstance(response, TripleList):
-                    return response.triples
-                elif isinstance(response, str):
-                    # Fallback if it somehow returns a string
-                    data = json.loads(response)
-                    if isinstance(data, list):
-                        return [Triple(**item) for item in data]
-                    elif isinstance(data, dict) and "triples" in data:
-                        return [Triple(**item) for item in data["triples"]]
-            except Exception as e:
-                print(f"⚠️ Extraction failed: {e}. Falling back to simulation.")
-
-        return [Triple(**item) for item in self._simulate(text)]
-
-    def _simulate(self, text: str):
-        """Fallback for offline testing."""
-        t = text.lower()
-        if "paracetamol" in t:
-            return [
-                {
-                    "source": "Paracetamol",
-                    "relation": "treats",
-                    "target": "Fever",
-                    "source_type": "Drug",
-                    "target_type": "Disease",
-                },
-                {
-                    "source": "Paracetamol",
-                    "relation": "treats",
-                    "target": "Pain",
-                    "source_type": "Drug",
-                    "target_type": "Symptom",
-                },
-                {
-                    "source": "Paracetamol",
-                    "relation": "has_side_effect",
-                    "target": "Liver toxicity",
-                    "source_type": "Drug",
-                    "target_type": "SideEffect",
-                },
-                {
-                    "source": "Paracetamol",
-                    "relation": "contraindicated_in",
-                    "target": "Liver disease",
-                    "source_type": "Drug",
-                    "target_type": "Condition",
-                },
-                {
-                    "source": "Paracetamol",
-                    "relation": "belongs_to_class",
-                    "target": "Analgesic",
-                    "source_type": "Drug",
-                    "target_type": "DrugClass",
-                },
-            ]
-        return []
-
-
-# =========================
-# 3️⃣ Graph Builder
-# =========================
-class MedicineGraphBuilder:
-    """Builds and queries the medicine knowledge graph."""
-
-    def __init__(self):
-        self.G = nx.MultiDiGraph()
+    def build_from_medicine(self, medicine_name: str):
+        """Generates a structured medicine report and builds the graph."""
+        model_input = ModelInput(
+            user_prompt=prompts.GENERATION_USER_PROMPT.format(medicine_name=medicine_name),
+            system_prompt=prompts.GENERATION_SYSTEM_PROMPT,
+            response_format=MedicineReport,
+        )
+        report = self.client.generate_text(model_input=model_input)
+        if isinstance(report, MedicineReport):
+            self.last_report = report
+            self.add_triples(report.triples)
+            return report.triples
+        else:
+            raise ValueError(f"Expected MedicineReport, got {type(report)}")
 
     def add_triples(self, triples: List[Triple]):
         for t in triples:
             self.G.add_node(t.source, type=t.source_type)
             self.G.add_node(t.target, type=t.target_type)
             self.G.add_edge(
-                t.source, t.target, relation=t.relation, confidence=t.confidence
+                t.source, t.target, relation=t.relation, evidence=t.evidence
             )
 
     def query_treats(self, disease: str):
@@ -255,23 +234,19 @@ class MedicineGraphBuilder:
         ]
 
     def export_json(self, path: str = "medicine_graph.json"):
-        triples = [
-            {
-                "source": u,
-                "relation": d.get("relation"),
-                "target": v,
-                "source_type": self.G.nodes[u].get("type"),
-                "target_type": self.G.nodes[v].get("type"),
-                "confidence": d.get("confidence"),
-            }
-            for u, v, d in self.G.edges(data=True)
-        ]
+        if not self.last_report:
+            print("⚠️ No report to export.")
+            return
+
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(triples, f, indent=2)
+            f.write(self.last_report.model_dump_json(indent=2, by_alias=True))
         print(f"✅ Graph exported to {path}")
 
-    def export_dot(self, path: str):
+    def export_dot(self, medicine: str):
         """Exports the graph to a Graphviz .dot file."""
+        os.makedirs("outputs", exist_ok=True)
+        path = f"outputs/{medicine.lower().replace(' ', '_')}.dot"
+
         with open(path, "w", encoding="utf-8") as f:
             f.write("digraph G {\n")
             f.write("  rankdir=LR;\n")
@@ -298,45 +273,3 @@ class MedicineGraphBuilder:
                 f.write(f'  "{u}" -> "{v}" [label="{rel}"];\n')
             f.write("}\n")
         print(f"✅ Graph exported to {path}")
-
-
-# =========================
-# 4️⃣ Graph Visualizer
-# =========================
-class GraphVisualizer:
-    """Visualizes the medicine knowledge graph."""
-
-    def __init__(self, graph: nx.MultiDiGraph):
-        self.G = graph
-
-    def show(self, figsize=(10, 8)):
-        plt.figure(figsize=figsize)
-        pos = nx.spring_layout(self.G, k=0.6, iterations=40)
-        edge_labels = nx.get_edge_attributes(self.G, "relation")
-
-        color_map = {
-            "Drug": "#8dd3c7",
-            "Disease": "#fb8072",
-            "SideEffect": "#ffffb3",
-            "DrugClass": "#bebada",
-            "Condition": "#80b1d3",
-            "Other": "#fdb462",
-        }
-
-        node_colors = [
-            color_map.get(self.G.nodes[n].get("type", "Other"), "#fdb462")
-            for n in self.G.nodes()
-        ]
-
-        nx.draw(
-            self.G,
-            pos,
-            with_labels=True,
-            node_color=node_colors,
-            node_size=2200,
-            font_size=9,
-            font_weight="bold",
-            arrows=True,
-        )
-        nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels)
-        plt.show()
