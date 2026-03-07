@@ -49,8 +49,10 @@ Guidelines:
             str: Formatted user prompt
         """
         return (
-            f"Generate a comprehensive and exhaustive list of diseases associated with the {organ}. "
-            "Ensure to cover a wide spectrum of pathologies including infectious, inflammatory, "
-            "neoplastic, congenital, metabolic, vascular, traumatic, and autoimmune disorders. "
-            "Categorize the diseases into 'Common' and 'Rare' groups."
+            f"Generate a comprehensive and exhaustive list of diseases whose primary side of pathology is the {organ}. "
+            "Cover a broad spectrum of medical conditions including infectious, inflammatory, "
+            "neoplastic (benign and malignant), congenital, genetic, metabolic, vascular, "
+            "degenerative, autoimmune, traumatic, toxic, iatrogenic, nutritional, and functional disorders. "
+            "Organize the diseases into two groups: 'Common Diseases' and 'Rare Diseases'. "
+            "Within each group, categorize diseases by pathology type (e.g., infectious, inflammatory, neoplastic, etc.)."
         )

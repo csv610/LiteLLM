@@ -29,7 +29,7 @@ def get_user_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate comprehensive disease information based on an organ.")
     parser.add_argument("organ", help="Organ name or file path containing organs.")
     parser.add_argument("-d", "--output-dir", default="outputs", help="Output directory.")
-    parser.add_argument("-m", "--model", default="ollama/gemma3", help="Model to use.")
+    parser.add_argument("-m", "--model", default="ollama/gemma3:27b-cloud", help="Model to use.")
     parser.add_argument("-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3, 4], help="Verbosity level.")
     parser.add_argument("-s", "--structured", action="store_true", help="Use structured output.")
     return parser.parse_args()
