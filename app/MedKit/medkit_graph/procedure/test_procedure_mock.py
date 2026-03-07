@@ -3,7 +3,6 @@ import unittest
 from procedure_models import (
     ModelConfig,
     ProcedureGraphBuilder,
-    ProcedureTripletExtractor,
     Triple,
 )
 
@@ -65,30 +64,6 @@ class TestProcedureKnowledgeGraph(unittest.TestCase):
         """Test the new build method of GraphBuilder."""
         builder = ProcedureGraphBuilder(model_config=self.model_config)
         triples = builder.build("Appendectomy")
-        self.assertTrue(len(triples) > 0)
-        self.assertIn("Appendectomy", builder.G.nodes)
-
-    def test_extractor_offline_mode(self):
-        """Test the extractor's fallback mechanism."""
-        extractor = ProcedureTripletExtractor(model_config=self.model_config)
-        # By providing text that triggers simulation, we can test without API keys if needed
-        triples = extractor.extract("Appendectomy for appendicitis")
-        self.assertTrue(len(triples) > 0)
-        self.assertEqual(triples[0].source, "Appendectomy")
-
-    def test_extract_from_text_offline(self):
-        """Test extraction directly from text using the extractor."""
-        extractor = ProcedureTripletExtractor(model_config=self.model_config)
-        triples = extractor.extract("Colonoscopy is performed on the colon.")
-        self.assertTrue(len(triples) >= 1)
-        self.assertEqual(triples[0].source, "Colonoscopy")
-
-    def test_graph_builder_extractor_separation(self):
-        """Test that extractor-based building is separated into its own class."""
-        from procedure_models import ProcedureExtractorGraphBuilder
-
-        builder = ProcedureExtractorGraphBuilder(model_config=self.model_config)
-        triples = builder.build_from_text("Appendectomy is for appendicitis.")
         self.assertTrue(len(triples) > 0)
         self.assertIn("Appendectomy", builder.G.nodes)
 

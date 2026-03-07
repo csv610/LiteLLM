@@ -26,6 +26,7 @@ Relation = Literal[
     "has_risk",
     "has_benefit",
     "has_complication",
+    "has_contraindication",
     "requires_anesthesia",
     "requires_preparation",
     "follow_up_by",
@@ -48,6 +49,7 @@ NodeType = Literal[
     "Preparation",
     "FollowUp",
     "Condition",
+    "Contraindication",
     "Other",
 ]
 
@@ -67,6 +69,7 @@ RELATION_ALIASES = {
     "preparation": "requires_preparation",
     "follow_up": "follow_up_by",
     "related": "related_to_procedure",
+    "contraindication": "has_contraindication",
 }
 
 NODE_TYPE_ALIASES = {
@@ -80,14 +83,17 @@ NODE_TYPE_ALIASES = {
     "system": "BodySystem",
     "instrument": "Instrument",
     "device": "Instrument",
+    "implant": "Instrument",
     "surgeon": "Specialist",
     "doctor": "Specialist",
     "risk": "Risk",
     "benefit": "Benefit",
     "complication": "Complication",
     "anesthesia": "AnesthesiaType",
+    "anesthesia_type": "AnesthesiaType",
     "preparation": "Preparation",
     "follow_up": "FollowUp",
+    "contraindication": "Contraindication",
 }
 
 
@@ -114,132 +120,37 @@ class Triple(BaseModel):
         rv = str(v).strip().lower().replace(" ", "_")
         if rv in RELATION_ALIASES:
             rv = RELATION_ALIASES[rv]
-        allowed = set(Relation.__args__)
-        return rv if rv in allowed else "other"
+        
+        # Case-insensitive match for Relation literal
+        allowed = {t.lower(): t for t in Relation.__args__}
+        if rv in allowed:
+            return allowed[rv]
+        return "other"
 
     @validator("source_type", "target_type", pre=True)
     def normalize_node_type(cls, v):
         if not v:
             return "Other"
-        key = str(v).strip().lower().replace(" ", "_")
-        if key.capitalize() in NodeType.__args__:
-            return key.capitalize()
-        if key in NODE_TYPE_ALIASES:
-            return NODE_TYPE_ALIASES[key]
+        
+        val = str(v).strip()
+        
+        # 1. Clean key for alias lookup
+        alias_key = val.lower().replace(" ", "_")
+        if alias_key in NODE_TYPE_ALIASES:
+            return NODE_TYPE_ALIASES[alias_key]
+            
+        # 2. Case-insensitive and space-insensitive match for NodeType literal
+        allowed_types = {t.lower().replace("_", ""): t for t in NodeType.__args__}
+        key = val.lower().replace(" ", "").replace("_", "")
+        
+        if key in allowed_types:
+            return allowed_types[key]
+            
         return "Other"
 
 
 class TripleList(BaseModel):
     triples: List[Triple]
-
-
-# =========================
-# 2️⃣ Procedure Extractor
-# =========================
-class ProcedureTripletExtractor:
-    """Uses lite_client to extract structured procedure triples from text."""
-
-    def __init__(self, model_config: Optional[ModelConfig] = None):
-        self.model_config = model_config or ModelConfig(model="ollama/gemma3")
-        self.client = LiteClient(model_config=self.model_config)
-
-    def extract(self, text: str) -> List[Triple]:
-        model_input = ModelInput(
-            user_prompt=prompts.PromptBuilder.build_extraction_prompt(text),
-            response_format=TripleList,
-        )
-        try:
-            response: TripleList = self.client.generate_text(model_input)
-            return response.triples
-        except Exception as e:
-            print(f"⚠️ Extraction failed: {e}. Using offline mode.")
-            return self._simulate(text)
-
-    def _simulate(self, text: str):
-        """Offline fallback for testing."""
-        t = text.lower()
-        triples = []
-        if "appendectomy" in t:
-            triples.extend(
-                [
-                    Triple(
-                        source="Appendectomy",
-                        relation="treats_disease",
-                        target="Appendicitis",
-                        source_type="Procedure",
-                        target_type="Disease",
-                    ),
-                    Triple(
-                        source="Appendectomy",
-                        relation="performed_on",
-                        target="Appendix",
-                        source_type="Procedure",
-                        target_type="Organ",
-                    ),
-                    Triple(
-                        source="Appendectomy",
-                        relation="has_risk",
-                        target="Infection",
-                        source_type="Procedure",
-                        target_type="Risk",
-                    ),
-                    Triple(
-                        source="Appendectomy",
-                        relation="requires_instrument",
-                        target="Scalpel",
-                        source_type="Procedure",
-                        target_type="Instrument",
-                    ),
-                    Triple(
-                        source="Appendectomy",
-                        relation="performed_by_specialist",
-                        target="Surgeon",
-                        source_type="Procedure",
-                        target_type="Specialist",
-                    ),
-                ]
-            )
-        elif "colonoscopy" in t:
-            triples.extend(
-                [
-                    Triple(
-                        source="Colonoscopy",
-                        relation="used_for_diagnosis",
-                        target="Colon Cancer",
-                        source_type="Procedure",
-                        target_type="Disease",
-                    ),
-                    Triple(
-                        source="Colonoscopy",
-                        relation="performed_on",
-                        target="Colon",
-                        source_type="Procedure",
-                        target_type="Organ",
-                    ),
-                    Triple(
-                        source="Colonoscopy",
-                        relation="requires_instrument",
-                        target="Colonoscope",
-                        source_type="Procedure",
-                        target_type="Instrument",
-                    ),
-                    Triple(
-                        source="Colonoscopy",
-                        relation="has_risk",
-                        target="Perforation",
-                        source_type="Procedure",
-                        target_type="Risk",
-                    ),
-                    Triple(
-                        source="Colonoscopy",
-                        relation="performed_by_specialist",
-                        target="Gastroenterologist",
-                        source_type="Procedure",
-                        target_type="Specialist",
-                    ),
-                ]
-            )
-        return triples
 
 
 # =========================
@@ -439,21 +350,6 @@ class ProcedureGraphBuilder(BaseProcedureGraphBuilder):
                     ),
                 ]
             )
-        return triples
-
-
-class ProcedureExtractorGraphBuilder(BaseProcedureGraphBuilder):
-    """Builds/Enriches the procedure knowledge graph using an extractor from text."""
-
-    def __init__(self, model_config: ModelConfig):
-        super().__init__(model_config)
-        self.extractor = ProcedureTripletExtractor(model_config=self.model_config)
-
-    def build_from_text(self, text: str) -> List[Triple]:
-        """Uses an extractor to add information to the graph from text."""
-        triples = self.extractor.extract(text)
-        if triples:
-            self.add_triples(triples)
         return triples
 
 
