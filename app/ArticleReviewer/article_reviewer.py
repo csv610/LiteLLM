@@ -96,8 +96,14 @@ class ArticleReviewer:
         # Final path should be in the output_dir
         # If output_filename is just a name, join it with output_dir
         # If output_filename has a path component, still place it in output_dir unless it's absolute
-        file_name = os.path.basename(output_filename)
-        output_path = os.path.join(output_dir, file_name)
+        if os.path.isabs(output_filename):
+            output_path = output_filename
+        else:
+            file_name = os.path.basename(output_filename)
+            output_path = os.path.join(output_dir, file_name)
+
+        # Create the directory for output_path if it doesn't exist
+        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
         with open(output_path, 'w') as f:
             json.dump(review.model_dump(), f, indent=4)

@@ -7,7 +7,7 @@ except ImportError:
     import legal_rights_cli as cli
 
 
-@patch("legal_rights_cli.print")
+@patch("med_legal.legal_rights_cli.print")
 def test_list_topics(mock_print, tmp_path):
     # Setup a mock topics list file
     assets_dir = tmp_path / "assets"
@@ -15,7 +15,7 @@ def test_list_topics(mock_print, tmp_path):
     topics_file = assets_dir / "topics_list.txt"
     topics_file.write_text("Topic 1\nTopic 2\n")
 
-    with patch("legal_rights_cli.Path") as mock_path_class:
+    with patch("med_legal.legal_rights_cli.Path") as mock_path_class:
         mock_file_path = MagicMock()
         mock_file_path.parent = tmp_path
         # When Path(__file__) is called, return mock_file_path
@@ -53,7 +53,7 @@ def test_get_user_arguments_ls():
         assert args.command == "ls"
 
 
-@patch("legal_rights_cli.list_topics")
+@patch("med_legal.legal_rights_cli.list_topics")
 def test_main_ls(mock_list_topics):
     test_args = ["medkit-legal", "ls"]
     with patch.object(sys, "argv", test_args):
@@ -61,7 +61,7 @@ def test_main_ls(mock_list_topics):
         mock_list_topics.assert_called_once()
 
 
-@patch("legal_rights_cli.list_topics")
+@patch("med_legal.legal_rights_cli.list_topics")
 def test_main_no_args(mock_list_topics):
     test_args = ["medkit-legal"]
     with patch.object(sys, "argv", test_args):
@@ -69,8 +69,8 @@ def test_main_no_args(mock_list_topics):
         mock_list_topics.assert_called_once()
 
 
-@patch("legal_rights_cli.configure_logging")
-@patch("legal_rights_cli.LegalRightsGenerator")
+@patch("med_legal.legal_rights_cli.configure_logging")
+@patch("med_legal.legal_rights_cli.LegalRightsGenerator")
 def test_main_generate_success(mock_generator_class, mock_configure_logging, tmp_path):
     test_args = [
         "medkit-legal",
@@ -100,8 +100,8 @@ def test_main_generate_success(mock_generator_class, mock_configure_logging, tmp
         mock_generator.save.assert_called_once()
 
 
-@patch("legal_rights_cli.configure_logging")
-@patch("legal_rights_cli.LegalRightsGenerator")
+@patch("med_legal.legal_rights_cli.configure_logging")
+@patch("med_legal.legal_rights_cli.LegalRightsGenerator")
 def test_main_generate_file_input(
     mock_generator_class, mock_configure_logging, tmp_path
 ):
@@ -128,8 +128,8 @@ def test_main_generate_file_input(
         assert mock_generator.save.call_count == 2
 
 
-@patch("legal_rights_cli.configure_logging")
-@patch("legal_rights_cli.LegalRightsGenerator")
+@patch("med_legal.legal_rights_cli.configure_logging")
+@patch("med_legal.legal_rights_cli.LegalRightsGenerator")
 def test_main_generate_failure(mock_generator_class, mock_configure_logging, tmp_path):
     test_args = ["medkit-legal", "-d", str(tmp_path), "generate", "Test Topic"]
 

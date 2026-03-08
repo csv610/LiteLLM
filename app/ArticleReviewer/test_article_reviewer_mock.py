@@ -157,7 +157,7 @@ def test_article_reviewer_save_review(tmp_path):
 
     # Test with input_filename
     saved_path = reviewer.save_review(review, input_filename="my_article.txt")
-    assert saved_path == "my_article_review.json"
+    assert saved_path == os.path.join("outputs", "my_article_review.json")
     if os.path.exists(saved_path):
         os.remove(saved_path)
 

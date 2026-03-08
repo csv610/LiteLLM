@@ -77,7 +77,7 @@ class DrugAddictionDetailsModel(BaseModel):
         default=None, description="Alternative names, brand names, or street names"
     )
     dea_schedule: Optional[DEASchedule] = Field(
-        description="DEA Controlled Substance Schedule (e.g., Schedule I, II, etc.)"
+        default=None, description="DEA Controlled Substance Schedule (e.g., Schedule I, II, etc.)"
     )
     addiction_potential: AddictionPotential = Field(
         description="Overall potential for addiction"

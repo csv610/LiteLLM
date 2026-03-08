@@ -54,7 +54,13 @@ class DrugAddiction:
 
         logger.debug("Calling LiteClient.generate_text()...")
         try:
-            result = self._ask_llm(model_input)
+            raw_result = self._ask_llm(model_input)
+            
+            if structured:
+                result = ModelOutput(data=raw_result)
+            else:
+                result = ModelOutput(markdown=raw_result)
+                
             logger.debug("✓ Successfully analyzed addiction risks")
             return result
         except Exception as e:
@@ -78,4 +84,6 @@ class DrugAddiction:
         # Generate base filename - save_model_response will add appropriate extension
         base_filename = f"{self.config.medicine_name.lower().replace(' ', '_')}"
 
-        return save_model_response(result, output_dir / base_filename)
+        # Pass the inner content to save_model_response for correct formatting (MD or JSON)
+        content_to_save = result.data if result.data else result.markdown
+        return save_model_response(content_to_save, output_dir / base_filename)
