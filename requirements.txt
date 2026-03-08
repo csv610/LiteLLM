@@ -6,3 +6,9 @@ Pillow>=10.0.0
 pydantic>=2.12
 opencv-python
 numpy
+lmdb
+google-genai
+requests
+tqdm
+typing-extensions
+rich

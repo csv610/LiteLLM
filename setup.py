@@ -9,10 +9,10 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip()]
 
 setup(
-    name="litellm-client",
+    name="litekit",
     version="0.1.0",
-    author="LiteLLM Contributors",
-    description="Unified interface for interacting with multiple LLM providers and vision models",
+    author="Chaman Singh Verma",
+    description="An unofficial, opinionated toolkit for LiteLLM (BerriAI) with vision and evaluation support.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),

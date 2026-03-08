@@ -1,4 +1,4 @@
-name: LiteLLM CI
+name: LiteKit CI
 
 on:
   push:

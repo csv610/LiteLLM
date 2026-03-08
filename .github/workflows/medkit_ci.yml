@@ -1,4 +1,4 @@
-name: MedKit CI
+name: MedKit Tools CI
 
 on:
   push:
