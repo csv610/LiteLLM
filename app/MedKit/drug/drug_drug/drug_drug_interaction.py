@@ -13,8 +13,8 @@ from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from .drug_drug_interaction_models import DrugInteractionModel, ModelOutput
-from .drug_drug_interaction_prompts import DrugDrugInput, DrugDrugPromptBuilder
+from drug_drug_interaction_models import DrugInteractionModel, ModelOutput
+from drug_drug_interaction_prompts import DrugDrugInput, DrugDrugPromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class DrugDrugInteractionGenerator:
     ) -> ModelOutput:
         """Generate drug-drug interaction analysis."""
         # Store the configuration for later use in save
-        self.user_inout = user_input
+        self.user_input = user_input
         logger.debug("Starting drug-drug interaction analysis")
         logger.debug(f"Drug 1: {user_input.medicine1}")
         logger.debug(f"Drug 2: {user_input.medicine2}")
@@ -57,7 +57,13 @@ class DrugDrugInteractionGenerator:
 
         logger.debug("Calling LiteClient.generate_text()...")
         try:
-            result = self.ask_llm(model_input)
+            raw_result = self.ask_llm(model_input)
+            
+            if structured:
+                result = ModelOutput(data=raw_result)
+            else:
+                result = ModelOutput(markdown=raw_result)
+                
             logger.debug("✓ Successfully analyzed drug-drug interaction")
             return result
         except Exception as e:

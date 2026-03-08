@@ -115,7 +115,7 @@ def create_drug_drug_interaction_report(args) -> int:
             prompt_style=PromptStyle(args.style),
         )
 
-        result = generator.generate_text(config=user_input, structured=args.structured)
+        result = generator.generate_text(user_input=user_input, structured=args.structured)
 
         if result is None:
             logger.error("✗ Failed to generate drug-drug interaction information.")

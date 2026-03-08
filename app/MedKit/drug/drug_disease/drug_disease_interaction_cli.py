@@ -4,11 +4,8 @@ import argparse
 import logging
 from pathlib import Path
 
-from drug_disease_interaction import (
-    DrugDiseaseInput,
-    DrugDiseaseInteraction,
-    PromptStyle,
-)
+from drug_disease_interaction import DrugDiseaseInteraction
+from drug_disease_interaction_prompts import DrugDiseaseInput, PromptStyle
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
