@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from pydantic import BaseModel, Field
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from logging_util import setup_logging
+from lite.logging_config import configure_logging as setup_logging
 
 
 # Setup logging

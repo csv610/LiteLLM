@@ -1,4 +1,4 @@
-from disease_models import DiseaseKnowledgeGraphBuilder, GraphVisualizer, Triple
+from disease_models import DiseaseKnowledgeGraphBuilder, GraphVisualizer
 
 # =========================
 # 5️⃣ Main Runner
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print(f"🔍 Generating knowledge graph for: {disease_name}...")
-    
+
     builder = DiseaseKnowledgeGraphBuilder()
     triples = builder.build_from_name(disease_name)
 

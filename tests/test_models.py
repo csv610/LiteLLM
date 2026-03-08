@@ -3,6 +3,7 @@
 import json
 import logging
 import pytest
+from pathlib import Path
 from typing import Dict, Any, Optional
 from unittest.mock import Mock, patch, MagicMock
 
@@ -101,7 +102,9 @@ def mock_completion_response():
 @pytest.fixture
 def sample_image_path():
     """Return path to the vishnu.png test image."""
-    return "/Users/csv610/Projects/LiteLLM/data/vishnu.png"
+    # Use relative path from project root
+    project_root = Path(__file__).parent.parent
+    return str(project_root / "data" / "vishnu.png")
 
 
 # ============================================================================

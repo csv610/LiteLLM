@@ -7,12 +7,12 @@ import re
 from pathlib import Path
 from typing import Optional
 
-# Add parent directory to path to import lite module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add project root directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
-from logging_util import setup_logging
+from lite.logging_config import configure_logging as setup_logging
 
 from millennium_prize_models import MillenniumProblem, MillenniumProblemsResponse
 from millennium_prize_prompts import PromptBuilder

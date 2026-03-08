@@ -1,13 +1,12 @@
 # =========================
 # Imports
 # =========================
-import json
 import os
 from typing import List, Literal, Optional
 
 import medicine_prompts as prompts
 import networkx as nx
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 try:
     from lite import LiteClient
@@ -133,18 +132,22 @@ class Triple(BaseModel):
     target: str = Field(..., description="Object entity", alias="object")
     source_type: NodeType = Field("Other", alias="subject_type")
     target_type: NodeType = Field("Other", alias="object_type")
-    evidence: Optional[str] = Field(None, description="Brief medical justification or reference")
+    evidence: Optional[str] = Field(
+        None, description="Brief medical justification or reference"
+    )
 
     class Config:
         populate_by_name = True
 
-    @validator("source", "target")
+    @field_validator("source", "target")
+    @classmethod
     def not_empty_entity(cls, v):
         if not v or not v.strip():
             raise ValueError("Entity name cannot be empty")
         return v.strip()
 
-    @validator("relation", pre=True)
+    @field_validator("relation", mode="before")
+    @classmethod
     def normalize_relation(cls, v):
         if not v:
             return "other"
@@ -154,7 +157,8 @@ class Triple(BaseModel):
         allowed = set(Relation.__args__)
         return rv if rv in allowed else "other"
 
-    @validator("source_type", "target_type", pre=True)
+    @field_validator("source_type", "target_type", mode="before")
+    @classmethod
     def normalize_node_type(cls, v):
         if not v:
             return "Other"
@@ -189,9 +193,7 @@ class MedicineKnowledgeGraph:
 
         if LiteClient is not None:
             if self.model_config is None:
-                self.model_config = ModelConfig(
-                    model="ollama/gemma3", temperature=0.0
-                )
+                self.model_config = ModelConfig(model="ollama/gemma3", temperature=0.0)
             self.client = LiteClient(model_config=self.model_config)
         else:
             raise ImportError("'lite' package is required for MedicineKnowledgeGraph.")
@@ -199,7 +201,9 @@ class MedicineKnowledgeGraph:
     def build_from_medicine(self, medicine_name: str):
         """Generates a structured medicine report and builds the graph."""
         model_input = ModelInput(
-            user_prompt=prompts.GENERATION_USER_PROMPT.format(medicine_name=medicine_name),
+            user_prompt=prompts.GENERATION_USER_PROMPT.format(
+                medicine_name=medicine_name
+            ),
             system_prompt=prompts.GENERATION_SYSTEM_PROMPT,
             response_format=MedicineReport,
         )

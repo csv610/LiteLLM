@@ -9,8 +9,8 @@ import sys
 import argparse
 from pathlib import Path
 
-# Add parent directories to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.config import ModelConfig
 from lite import logging_config
@@ -34,7 +34,7 @@ def cli(subject, level=None, num_chapters=12, model_name="ollama/gemma3"):
     
     try:
         # Initialize global logger
-        logger = logging_config.setup_logging(str(Path(__file__).parent / "logs" / "bookchapters.log"))
+        logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "bookchapters.log"))
         
         # Create ModelConfig and BookChaptersGenerator
         model_config = ModelConfig(model=model_name, temperature=0.2)

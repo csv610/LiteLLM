@@ -12,6 +12,9 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+# Add project root to sys.path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from lite import logging_config
 from nobel_prize_info import fetch_nobel_winners
 
@@ -126,7 +129,7 @@ def main() -> int:
 
     try:
         # Initialize global logger
-        logger = logging_config.setup_logging(str(Path(__file__).parent / "logs" / "nobel_prize_cli.log"))
+        logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "nobel_prize_cli.log"))
         
         logger.info(f"Fetching Nobel Prize information for {args.category} in {args.year}...")
 

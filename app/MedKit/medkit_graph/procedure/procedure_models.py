@@ -10,7 +10,7 @@ import networkx as nx
 import procedure_prompts as prompts
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # =========================
 # 1️⃣ Pydantic Models
@@ -107,45 +107,48 @@ class Triple(BaseModel):
     target_type: NodeType = "Other"
     confidence: Optional[float] = None
 
-    @validator("source", "target")
+    @field_validator("source", "target")
+    @classmethod
     def not_empty_entity(cls, v):
         if not v or not v.strip():
             raise ValueError("Entity name cannot be empty")
         return v.strip()
 
-    @validator("relation", pre=True)
+    @field_validator("relation", mode="before")
+    @classmethod
     def normalize_relation(cls, v):
         if not v:
             return "other"
         rv = str(v).strip().lower().replace(" ", "_")
         if rv in RELATION_ALIASES:
             rv = RELATION_ALIASES[rv]
-        
+
         # Case-insensitive match for Relation literal
         allowed = {t.lower(): t for t in Relation.__args__}
         if rv in allowed:
             return allowed[rv]
         return "other"
 
-    @validator("source_type", "target_type", pre=True)
+    @field_validator("source_type", "target_type", mode="before")
+    @classmethod
     def normalize_node_type(cls, v):
         if not v:
             return "Other"
-        
+
         val = str(v).strip()
-        
+
         # 1. Clean key for alias lookup
         alias_key = val.lower().replace(" ", "_")
         if alias_key in NODE_TYPE_ALIASES:
             return NODE_TYPE_ALIASES[alias_key]
-            
+
         # 2. Case-insensitive and space-insensitive match for NodeType literal
         allowed_types = {t.lower().replace("_", ""): t for t in NodeType.__args__}
         key = val.lower().replace(" ", "").replace("_", "")
-        
+
         if key in allowed_types:
             return allowed_types[key]
-            
+
         return "Other"
 
 

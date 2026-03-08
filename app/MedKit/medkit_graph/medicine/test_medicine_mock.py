@@ -5,8 +5,8 @@ import unittest
 
 from medicine_models import (
     MedicineKnowledgeGraph,
-    Triple,
     MedicineReport,
+    Triple,
 )
 from pydantic import ValidationError
 
@@ -86,7 +86,7 @@ class TestMedicineModels(unittest.TestCase):
                     subject_type="Drug",
                     object_type="Disease",
                 )
-            ]
+            ],
         )
         builder.last_report = report
         builder.add_triples(report.triples)
@@ -102,7 +102,7 @@ class TestMedicineModels(unittest.TestCase):
                 self.assertEqual(len(data["triples"]), 1)
                 self.assertEqual(data["triples"][0]["subject"], "Paracetamol")
 
-            # Test dot export (dot export uses hardcoded 'outputs' directory in model, 
+            # Test dot export (dot export uses hardcoded 'outputs' directory in model,
             # so we might need to be careful, but we can call it and see)
             # However, for mock test, we can just verify it works.
             # I updated export_dot to use 'outputs' directory.

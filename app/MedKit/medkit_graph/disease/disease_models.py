@@ -6,9 +6,10 @@ from typing import Any, List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
 # Add lite package path
-lite_path = "/Users/csv610/Projects/LiteLLM/lite"
-if lite_path not in sys.path:
-    sys.path.append(lite_path)
+from pathlib import Path
+project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 try:
     from lite import LiteClient
@@ -159,9 +160,7 @@ class DiseaseKnowledgeGraphBuilder:
 
         if LiteClient is not None:
             if self.model_config is None:
-                self.model_config = ModelConfig(
-                    model="ollama/gemma3", temperature=0.0
-                )
+                self.model_config = ModelConfig(model="ollama/gemma3", temperature=0.0)
             self.client = LiteClient(model_config=self.model_config)
         else:
             print("⚠️ 'lite' package not installed. Using offline mode.")
@@ -183,13 +182,13 @@ class DiseaseKnowledgeGraphBuilder:
             "- [Symptom] -> source_type MUST be 'Symptom'\n"
             "DO NOT use medical authorities as sources. Use only the disease or its components."
         )
-        
+
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=disease_name,
             response_format=DiseaseReport,
         )
-        
+
         try:
             report = self.client.generate_text(model_input=model_input)
             self.last_report = report
@@ -218,17 +217,49 @@ class DiseaseKnowledgeGraphBuilder:
         data = []
         if "malaria" in t:
             data = [
-                Triple(source="Malaria", relation="has_symptom", target="Fever", source_type="Disease", target_type="Symptom"),
-                Triple(source="Malaria", relation="caused_by", target="Plasmodium", source_type="Disease", target_type="Cause"),
+                Triple(
+                    source="Malaria",
+                    relation="has_symptom",
+                    target="Fever",
+                    source_type="Disease",
+                    target_type="Symptom",
+                ),
+                Triple(
+                    source="Malaria",
+                    relation="caused_by",
+                    target="Plasmodium",
+                    source_type="Disease",
+                    target_type="Cause",
+                ),
             ]
         elif "diabetes" in t:
             data = [
-                Triple(source="Diabetes", relation="has_symptom", target="Thirst", source_type="Disease", target_type="Symptom"),
-                Triple(source="Diabetes", relation="treated_with", target="Insulin", source_type="Disease", target_type="Drug"),
+                Triple(
+                    source="Diabetes",
+                    relation="has_symptom",
+                    target="Thirst",
+                    source_type="Disease",
+                    target_type="Symptom",
+                ),
+                Triple(
+                    source="Diabetes",
+                    relation="treated_with",
+                    target="Insulin",
+                    source_type="Disease",
+                    target_type="Drug",
+                ),
             ]
         else:
-            data = [Triple(source=disease_name, relation="associated_with", target="Unknown", source_type="Disease", target_type="Other")]
-        
+            data = [
+                Triple(
+                    source=disease_name,
+                    relation="associated_with",
+                    target="Unknown",
+                    source_type="Disease",
+                    target_type="Other",
+                )
+            ]
+
         self.add_triples(data)
         return data
 

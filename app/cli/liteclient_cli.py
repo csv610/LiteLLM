@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput, DEFAULT_TEMPERATURE
-from logging_util import setup_logging
+from lite.logging_config import configure_logging as setup_logging
 
 # Configure logging
 logger = setup_logging(str(Path(__file__).parent / "logs" / "liteclient_cli.log"))

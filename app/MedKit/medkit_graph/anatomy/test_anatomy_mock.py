@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from anatomy_models import AnatomyKnowledgeGraph, Triple
 
@@ -48,7 +46,9 @@ def test_build_from_name():
     assert "Heart" in builder.G.nodes
     assert any(t.source == "Heart" for t in triples)
     assert any(t.relation == "part_of" for t in triples)
-    assert any(t.target in ["Circulatory System", "Cardiovascular System"] for t in triples)
+    assert any(
+        t.target in ["Circulatory System", "Cardiovascular System"] for t in triples
+    )
 
 
 if __name__ == "__main__":

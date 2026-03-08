@@ -8,7 +8,7 @@ from typing import List, Literal, Optional
 import matplotlib.pyplot as plt
 import networkx as nx
 import prompts
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 try:
     from google import genai
@@ -93,13 +93,15 @@ class Triple(BaseModel):
     target_type: NodeType = "Other"
     confidence: Optional[float] = None
 
-    @validator("source", "target")
+    @field_validator("source", "target")
+    @classmethod
     def not_empty(cls, v):
         if not v or not v.strip():
             raise ValueError("Entity cannot be empty")
         return v.strip()
 
-    @validator("relation", pre=True)
+    @field_validator("relation", mode="before")
+    @classmethod
     def normalize_relation(cls, v):
         if not v:
             return "other"
@@ -109,7 +111,8 @@ class Triple(BaseModel):
         allowed = set(Relation.__args__)
         return rv if rv in allowed else "other"
 
-    @validator("source_type", "target_type", pre=True)
+    @field_validator("source_type", "target_type", mode="before")
+    @classmethod
     def normalize_node_type(cls, v):
         if not v:
             return "Other"

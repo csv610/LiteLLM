@@ -20,7 +20,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "cli-litetext=app.cli.liteclient_cli:cli_interface",
+            "cli-litetext=app.cli.liteclient_cli:main_cli",
         ],
     },
     classifiers=[

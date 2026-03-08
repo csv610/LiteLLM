@@ -10,9 +10,9 @@ import logging
 from typing import Optional
 
 # Add project root to sys.path to use local 'lite' package
-# Use absolute path to ensure correct resolution
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -34,7 +34,7 @@ class NobelPrizeWinnerInfo:
         self.model_config = model_config
         self.model = model_config.model or "gemini/gemini-2.5-flash"
         self.client = LiteClient(model_config=model_config)
-        self.logger = logging_config.setup_logging(str(Path(__file__).parent / "logs" / "nobel_prize_explorer.log"))
+        self.logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "nobel_prize_explorer.log"))
     
     def _validate_model_name(self, model: str) -> None:
         """

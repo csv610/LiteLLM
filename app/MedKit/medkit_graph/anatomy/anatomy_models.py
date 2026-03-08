@@ -1,11 +1,10 @@
-import json
 import os
 from typing import List, Literal, Optional
 
 import anatomy_prompts as prompts
 import matplotlib.pyplot as plt
 import networkx as nx
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 try:
     from lite import LiteClient
@@ -62,18 +61,22 @@ class Triple(BaseModel):
     source: str = Field(..., description="Anatomical entity", alias="subject")
     relation: Relation = Field(..., description="Relationship type", alias="predicate")
     target: str = Field(..., description="Linked anatomical entity", alias="object")
-    evidence: Optional[str] = Field(None, description="Brief medical justification or reference")
+    evidence: Optional[str] = Field(
+        None, description="Brief medical justification or reference"
+    )
 
     class Config:
         populate_by_name = True
 
-    @validator("source", "target")
+    @field_validator("source", "target")
+    @classmethod
     def not_empty(cls, v):
         if not v or not v.strip():
             raise ValueError("Entity name cannot be empty")
         return v.strip()
 
-    @validator("relation", pre=True)
+    @field_validator("relation", mode="before")
+    @classmethod
     def normalize_relation(cls, v):
         if not v:
             return "other"
@@ -120,7 +123,9 @@ class AnatomyKnowledgeGraph:
             raise RuntimeError("LLM client not initialized.")
 
         model_input = ModelInput(
-            user_prompt=prompts.GENERATION_USER_PROMPT.format(anatomy_name=anatomy_name),
+            user_prompt=prompts.GENERATION_USER_PROMPT.format(
+                anatomy_name=anatomy_name
+            ),
             system_prompt=prompts.GENERATION_SYSTEM_PROMPT,
             response_format=AnatomyReport,
         )
@@ -138,9 +143,7 @@ class AnatomyKnowledgeGraph:
         for t in triples:
             self.G.add_node(t.source)
             self.G.add_node(t.target)
-            self.G.add_edge(
-                t.source, t.target, relation=t.relation
-            )
+            self.G.add_edge(t.source, t.target, relation=t.relation)
 
     def query_part_of(self, organ: str):
         """Find the system or region an organ belongs to."""
@@ -164,7 +167,10 @@ class AnatomyKnowledgeGraph:
         os.makedirs("outputs", exist_ok=True)
         path = f"outputs/{anatomy.lower().replace(' ', '_')}.dot"
 
-        lines = ["digraph G {", '  node [style=filled, fontname="Arial", fillcolor="#d9d9d9"];']
+        lines = [
+            "digraph G {",
+            '  node [style=filled, fontname="Arial", fillcolor="#d9d9d9"];',
+        ]
 
         # Add nodes
         for n in self.G.nodes():
@@ -189,7 +195,7 @@ class AnatomyKnowledgeGraph:
 
         with open(path, "w", encoding="utf-8") as f:
             f.write(self.last_report.model_dump_json(indent=2))
-        
+
         print(f"✅ Full report exported to {path}")
 
 

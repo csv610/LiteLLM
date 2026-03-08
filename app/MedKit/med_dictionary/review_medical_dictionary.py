@@ -5,8 +5,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, List
 
-# Add parent directories to path for imports
-from logging_util import setup_logging
+import sys
+from pathlib import Path
+
+# Add project root directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+
+from lite.logging_config import configure_logging as setup_logging
 from tqdm import tqdm
 
 # Configure logging

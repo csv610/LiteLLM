@@ -1,11 +1,13 @@
-import os
 import argparse
+import os
+
 from medicine_models import MedicineKnowledgeGraph
 
 try:
     from lite.config import ModelConfig
 except ImportError:
     ModelConfig = None
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -14,7 +16,7 @@ def main():
     parser.add_argument(
         "medicine_name",
         type=str,
-        nargs='?',
+        nargs="?",
         default="Paracetamol",
         help="Name of the medicine (e.g., Paracetamol, Ibuprofen)",
     )
@@ -32,10 +34,10 @@ def main():
     # 1. Build graph from name
     config = ModelConfig(model=args.model) if ModelConfig else None
     builder = MedicineKnowledgeGraph(model_config=config)
-    
+
     try:
         triples = builder.build_from_medicine(args.medicine_name)
-        
+
         if not triples:
             print("❌ No triples generated.")
             return
@@ -47,11 +49,14 @@ def main():
             print(f"  - {t.source} --({t.relation})--> {t.target}")
 
         print("🔹 Drugs that treat Fever:", builder.query_treats("Fever"))
-        print("🔹 Side effects of Paracetamol:", builder.query_side_effects(args.medicine_name))
+        print(
+            "🔹 Side effects of Paracetamol:",
+            builder.query_side_effects(args.medicine_name),
+        )
 
         # 2. Export
         builder.export_dot(args.medicine_name)
-        
+
         output_dir = "outputs"
         os.makedirs(output_dir, exist_ok=True)
         json_path = os.path.join(output_dir, "medicine_graph.json")
@@ -59,6 +64,7 @@ def main():
 
     except Exception as e:
         print(f"❌ Error: {e}")
+
 
 if __name__ == "__main__":
     main()
