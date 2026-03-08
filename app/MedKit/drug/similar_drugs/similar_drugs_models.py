@@ -4,10 +4,21 @@ similar_drugs_models.py - Pydantic Models for Similar Drugs Module
 Defines data structures for similar medicine search and comparison results.
 """
 
+from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Optional
 
 from pydantic import BaseModel, Field
+
+
+@dataclass
+class SimilarDrugsConfig:
+    """Configuration for finding similar drugs."""
+
+    output_path: Optional[Path] = None
+    verbosity: int = 2  # 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG
+    enable_cache: bool = True
 
 
 class SimilarityCategory(str, Enum):

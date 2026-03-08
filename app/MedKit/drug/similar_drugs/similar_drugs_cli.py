@@ -13,18 +13,10 @@ from typing import Optional, Union
 
 from lite.config import ModelConfig
 from similar_drugs import SimilarDrugs
-from similar_drugs_models import SimilarMedicinesResult
+from similar_drugs_models import SimilarDrugsConfig, SimilarMedicinesResult
+
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class SimilarDrugsConfig:
-    """Configuration for finding similar drugs."""
-
-    output_path: Optional[Path] = None
-    verbosity: int = 2  # 0=CRITICAL, 1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG
-    enable_cache: bool = True
 
 
 def get_similar_medicines(
