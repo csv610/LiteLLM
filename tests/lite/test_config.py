@@ -4,7 +4,7 @@ import pytest
 def test_model_config_default():
     config = ModelConfig(model="gpt-4")
     assert config.model == "gpt-4"
-    assert config.temperature == 0.7
+    assert config.temperature == 0.2
 
 def test_model_input_validation():
     # Should fail if both prompt and images are missing

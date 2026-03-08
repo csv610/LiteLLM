@@ -12,7 +12,7 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
 from article_reviewer_models import (
-    ArticleReviewModel
+    DeleteModel, ModifyModel, InsertModel, ArticleReviewModel
 )
 from article_reviewer_prompts import PromptBuilder
 
