@@ -54,12 +54,16 @@ class DrugFoodInteraction:
         try:
             result = self._ask_llm(model_input)
             logger.debug("✓ Successfully analyzed food interactions")
-            return result
+            
+            if structured:
+                return ModelOutput(data=result)
+            else:
+                return ModelOutput(markdown=result)
         except Exception as e:
             logger.error(f"✗ Error generating drug-food interaction: {e}")
             raise
 
-    def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
+    def _ask_llm(self, model_input: ModelInput) -> any:
         """Helper to call LiteClient with error handling."""
         try:
             return self.client.generate_text(model_input=model_input)
@@ -70,7 +74,7 @@ class DrugFoodInteraction:
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the drug-food interaction information to a file."""
-        if self.config is None:
+        if self.user_input is None:
             raise ValueError("No configuration available. Call generate_text first.")
 
         # Generate base filename - save_model_response will add appropriate extension
