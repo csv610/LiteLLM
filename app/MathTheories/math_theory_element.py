@@ -12,7 +12,7 @@ from typing import Optional, List
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from math_theory_models import MathTheory, TheoryResponse, AudienceLevel, TheoryExplanation
+from math_theory_models import MathTheory, TheoryResponse, AudienceLevel
 
 
 class MathTheoryExplainer:

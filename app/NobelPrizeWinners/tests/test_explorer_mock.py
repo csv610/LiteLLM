@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import sys
-from pathlib import Path
 
 # Mock the lite package dependencies before they are imported by nobel_prize_explorer
 sys.modules["lite"] = MagicMock()

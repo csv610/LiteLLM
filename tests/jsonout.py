@@ -1,4 +1,3 @@
-import os
 from litellm import completion 
 from pydantic import BaseModel
 import json

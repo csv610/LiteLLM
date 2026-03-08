@@ -82,7 +82,7 @@ async def run_analysis(args: argparse.Namespace):
 
         # Run analysis
         if args.text:
-            print(f"\n🔄 Analyzing text (Async)...")
+            print("\n🔄 Analyzing text (Async)...")
             result = await analyzer.analyze_text(args.text, use_cache=not args.no_cache)
         elif args.image:
             print(f"\n🔄 Analyzing image (Async): {args.image}...")

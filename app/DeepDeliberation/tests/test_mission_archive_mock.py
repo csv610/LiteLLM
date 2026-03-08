@@ -1,7 +1,6 @@
 import unittest
 import json
 import os
-from pathlib import Path
 from deep_deliberation_archive import MissionArchive
 from deep_deliberation_models import KnowledgeSynthesis
 

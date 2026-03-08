@@ -4,7 +4,7 @@ import base64
 import io
 import logging
 from pathlib import Path
-from typing import List, Literal, Tuple, Union, Dict, Optional
+from typing import List, Literal, Union, Dict, Optional
 import cv2
 import numpy as np
 from PIL import Image
@@ -12,8 +12,6 @@ from datetime import datetime
 
 from .core import (
     IMAGE_MIME_TYPE, 
-    MAX_IMAGE_SIZE_MB, 
-    MIN_IMAGE_DIMENSION, 
     _is_url, 
     _download_from_url, 
     _convert_to_rgb,

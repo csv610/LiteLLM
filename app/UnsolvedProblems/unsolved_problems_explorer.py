@@ -6,14 +6,12 @@ unsolved problems in various academic fields.
 """
 
 import logging
-import os
-import re
 from typing import Optional, List
 
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from unsolved_problems_models import UnsolvedProblem, UnsolvedProblemsModel
+from unsolved_problems_models import UnsolvedProblem
 from unsolved_problems_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)

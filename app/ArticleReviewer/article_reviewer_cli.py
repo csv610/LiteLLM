@@ -5,10 +5,8 @@ Provides CLI functionality for reviewing articles with detailed feedback
 on deletions, modifications, and insertions.
 """
 
-import sys
 import json
 import argparse
-from pathlib import Path
 
 from lite.config import ModelConfig
 from article_reviewer import ArticleReviewer

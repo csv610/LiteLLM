@@ -113,7 +113,7 @@ def main():
             f.write(f"{term}\n")
 
     print(f"\n{'='*60}")
-    print(f"SCRAPING COMPLETE")
+    print("SCRAPING COMPLETE")
     print(f"{'='*60}")
     print(f"Total unique medical terms: {len(all_terms)}")
     print(f"Saved to: {output_file}")

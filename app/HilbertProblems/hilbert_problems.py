@@ -5,14 +5,11 @@ Dynamically fetches and documents all 23 problems proposed by David Hilbert in 1
 using LiteClient (ollama/gemma3) for current and comprehensive information
 """
 
-import sys
 import logging
 import json
-import re
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
-from tqdm import tqdm
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
@@ -142,7 +139,7 @@ class HilbertProblemsGuide:
     def display_summary(self):
         """Display a summary of all 23 Hilbert problems."""
         print(f"\n{'='*80}")
-        print(f"SUMMARY OF HILBERT'S 23 PROBLEMS")
+        print("SUMMARY OF HILBERT'S 23 PROBLEMS")
         print(f"{'='*80}")
         print("\nFetching summary information from AI...")
         

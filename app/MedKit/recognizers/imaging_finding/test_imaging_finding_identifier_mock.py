@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.imaging_finding.imaging_finding_models import (
     ImagingFindingIdentificationModel,
     ImagingFindingIdentifierModel,
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.imaging_finding.imaging_finding_prompts import (
 from app.MedKit.recognizers.imaging_finding.imaging_finding_recognizer import (
     ImagingFindingIdentifier,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

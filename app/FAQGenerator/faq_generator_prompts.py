@@ -5,7 +5,6 @@ Contains the PromptBuilder class for creating comprehensive prompts
 for generating frequently asked questions with configurable difficulty levels.
 """
 
-from typing import Optional
 
 
 class PromptBuilder:

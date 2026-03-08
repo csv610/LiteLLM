@@ -12,7 +12,7 @@ from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
 from deep_deliberation_models import (
-    DiscoveryFAQ, InitialKnowledgeMap, DiscoveryInsight, KnowledgeSynthesis
+    DiscoveryFAQ, InitialKnowledgeMap, KnowledgeSynthesis
 )
 from deep_deliberation_prompts import PromptBuilder
 from deep_deliberation_agents import DiscoveryAgent
@@ -84,7 +84,7 @@ class DeepDeliberation:
         print(f"✅ Mission seeded with {len(current_faqs)} discovery probes.")
 
         # Iterative Swarm Waves
-        print(f"\n[2/3] Launching Parallel Waves...")
+        print("\n[2/3] Launching Parallel Waves...")
         for wave in range(num_rounds):
             if not current_faqs:
                 break

@@ -2,9 +2,8 @@ import pytest
 import os
 import sys
 import json
-import tempfile
 from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import patch
 import argparse
 
 # Add project root to sys.path

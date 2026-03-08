@@ -8,7 +8,6 @@ The LLM keeps track of answers and asks smart questions to minimize
 the number of questions needed to identify the object.
 """
 
-import json
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from object_guessing_prompts import PromptBuilder
@@ -123,7 +122,7 @@ class ObjectGuessingGame:
                         print(f"The LLM identified it in {self.question_count} questions.")
                         return True
                     else:
-                        print(f"\nLLM's guess was wrong. Let me ask more questions...")
+                        print("\nLLM's guess was wrong. Let me ask more questions...")
                         self.add_to_history("user", f"No, it's not a {guess}. Keep trying.")
                         continue
 

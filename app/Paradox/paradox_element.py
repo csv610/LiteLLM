@@ -12,7 +12,7 @@ from typing import Optional, List
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from paradox_models import Paradox, ParadoxResponse, AudienceLevel, ParadoxExplanation
+from paradox_models import Paradox, ParadoxResponse, AudienceLevel
 
 
 class ParadoxExplainer:

@@ -1,12 +1,10 @@
 import argparse
 import json
 import re
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, List
-
-import sys
-from pathlib import Path
 
 # Add project root directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))

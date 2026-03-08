@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.medical_anatomy.medical_anatomy_identifier import (
     MedicalAnatomyIdentifier,
 )
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.medical_anatomy.medical_anatomy_identifier_prompts i
     MedicalAnatomyIdentifierInput,
     PromptBuilder,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

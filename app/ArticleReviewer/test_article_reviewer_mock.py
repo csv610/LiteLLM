@@ -1,13 +1,12 @@
 import json
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 import os
 
 from article_reviewer_models import DeleteModel, ModifyModel, InsertModel, ArticleReviewModel
 from article_reviewer_prompts import PromptBuilder
 from article_reviewer import ArticleReviewer
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 
 # Test Models
 def test_delete_model():
@@ -178,7 +177,6 @@ def test_article_reviewer_print_review(capsys):
 
 # Test CLI functionality (article_reviewer_cli.py)
 from article_reviewer_cli import main
-import argparse
 
 def test_cli_load_from_file(tmp_path):
     article_file = tmp_path / "article.txt"

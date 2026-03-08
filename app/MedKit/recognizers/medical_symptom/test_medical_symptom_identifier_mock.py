@@ -14,6 +14,8 @@ sys.path.insert(
 )
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.medical_symptom.medical_symptom_identifier import (
     MedicalSymptomIdentifier,
 )
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.medical_symptom.medical_symptom_prompts import (
     MedicalSymptomIdentifierInput,
     PromptBuilder,
 )
-from lite.config import ModelConfig
 
 
 def test_prompt_builder():

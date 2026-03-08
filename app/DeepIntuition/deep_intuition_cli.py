@@ -1,13 +1,12 @@
 import argparse
 import logging
-import json
 import sys
 import os
 import re
 from pathlib import Path
 from typing import Optional
 
-from lite import LiteClient, ModelConfig, configure_logging
+from lite import ModelConfig, configure_logging
 from deep_intuition_models import DeepIntuitionStory
 from deep_intuition import DeepIntuition
 

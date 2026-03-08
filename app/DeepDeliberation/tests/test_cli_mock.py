@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
 from deep_deliberation_cli import arguments_parser, main, run_discovery_mission
 from deep_deliberation_models import KnowledgeSynthesis
 

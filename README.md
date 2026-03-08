@@ -1,8 +1,8 @@
-# LiteLLM
+# LiteKit
 
 A unified command-line interface for accessing multiple language model providers through a single client. Supports text generation, image analysis, and specialized medical information tools.
 
-## Why Use LiteLLM
+## Why Use LiteKit
 
 ### **Unified Access to Multiple AI Providers**
 - Single interface for OpenAI, Anthropic, Google Gemini, Ollama, and other providers
@@ -67,8 +67,8 @@ python app/FeymannTutor/feymann_tutor.py
 
 ### **Standard Installation**
 ```bash
-git clone https://github.com/csv610/LiteLLM.git
-cd LiteLLM
+git clone https://github.com/csv610/LiteKit.git
+cd LiteKit
 pip install -r requirements.txt
 pip install -e .
 ```

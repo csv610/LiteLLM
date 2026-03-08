@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from lite.config import ModelConfig
 from paradox_element import ParadoxExplainer
 from paradox_models import Paradox, ParadoxResponse, AudienceLevel, ParadoxStatus

@@ -1,13 +1,10 @@
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
+from unittest.mock import patch
 import json
 import os
-import shutil
 
 from hilbert_problems import HilbertProblemsGuide
 from hilbert_problems_models import HilbertProblemModel, ProblemStatus
-from lite.config import ModelConfig, ModelInput
 
 @pytest.fixture
 def mock_lite_client():

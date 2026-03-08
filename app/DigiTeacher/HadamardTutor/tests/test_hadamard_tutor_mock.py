@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from hadamard_tutor_prompts import PromptBuilder
 from hadamard_tutor import HadamardTutorQuestionGenerator
 

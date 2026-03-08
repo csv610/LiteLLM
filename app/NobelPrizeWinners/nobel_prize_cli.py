@@ -5,7 +5,6 @@ including argument parsing, validation, and main entry point.
 """
 
 import argparse
-import logging
 import json
 import sys
 import os

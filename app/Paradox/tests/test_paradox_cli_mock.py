@@ -1,7 +1,5 @@
 import sys
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-import pytest
+from unittest.mock import patch
 from paradox_cli import paradox_to_markdown, arguments_parser
 from paradox_models import Paradox, AudienceLevel, ParadoxStatus
 

@@ -5,7 +5,6 @@ import tempfile
 import urllib.request
 import urllib.error
 from pathlib import Path
-from typing import Tuple, Literal, Union
 from urllib.parse import urlparse
 from PIL import Image
 

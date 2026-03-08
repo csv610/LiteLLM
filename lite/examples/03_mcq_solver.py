@@ -22,5 +22,4 @@ print(f"Options: {question.options}")
 print(f"Correct Option: {answer.correct_options[0].key} - {answer.correct_options[0].value}")
 print(f"Reasoning: {answer.reasoning}")
 
-print("
-Example complete!")
+print("\nExample complete!")

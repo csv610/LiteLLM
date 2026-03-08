@@ -6,11 +6,6 @@ This module is deprecated. Use the 'lite.vision' package instead.
 import logging
 from .vision import (
     IMAGE_MIME_TYPE,
-    MAX_IMAGE_SIZE_MB,
-    MAX_IMAGE_SIZE_BYTES,
-    MAX_TOTAL_IMAGE_PAYLOAD_MB,
-    MAX_TOTAL_IMAGE_PAYLOAD_BYTES,
-    MIN_IMAGE_DIMENSION,
     is_valid_image,
     is_valid_size,
     is_valid_dimensions,

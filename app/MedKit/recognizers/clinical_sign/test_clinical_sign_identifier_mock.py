@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.clinical_sign.clinical_sign_models import (
     ClinicalSignIdentificationModel,
     ClinicalSignIdentifierModel,
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.clinical_sign.clinical_sign_prompts import (
 from app.MedKit.recognizers.clinical_sign.clinical_sign_recognizer import (
     ClinicalSignIdentifier,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

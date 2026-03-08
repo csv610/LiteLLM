@@ -1,11 +1,9 @@
-import argparse
 import json
 import logging
-import sys
 import os
 import re
 from pathlib import Path
-from typing import Optional, NoReturn
+from typing import Optional
 from dataclasses import dataclass
 
 from lite.lite_client import LiteClient

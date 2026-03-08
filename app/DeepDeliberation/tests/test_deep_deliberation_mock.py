@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from deep_deliberation import DeepDeliberation
 from deep_deliberation_models import (
     InitialKnowledgeMap, DiscoveryFAQ, DiscoveryInsight, DiscoveryCheck, 
-    VerificationResult, KnowledgeSynthesis, SummaryResponse
+    VerificationResult, KnowledgeSynthesis
 )
 from lite import ModelConfig
 

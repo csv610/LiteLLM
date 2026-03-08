@@ -4,10 +4,8 @@ Guardrail System - Analyzes text and images for safety violations.
 Uses LiteClient to perform content moderation.
 """
 
-import sys
 import asyncio
 import logging
-import json
 import re
 import hashlib
 from pathlib import Path
@@ -143,7 +141,7 @@ class GuardrailAnalyzer:
         print(f"\nSUMMARY: {result.summary}")
         
         if result.flagged_categories:
-            print(f"\nFLAGGED CATEGORIES:")
+            print("\nFLAGGED CATEGORIES:")
             for category_result in result.flagged_categories:
                 print(f"  - {category_result.category.value.upper()}:")
                 print(f"    Confidence: {category_result.score:.2f}")

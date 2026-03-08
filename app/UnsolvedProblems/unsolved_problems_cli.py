@@ -10,11 +10,9 @@ from typing import Optional
 # Add parent directory to path to import lite module
 #sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from lite import LiteClient, ModelConfig, configure_logging
-from lite.config import ModelInput
+from lite import ModelConfig, configure_logging
 
-from unsolved_problems_models import UnsolvedProblem, UnsolvedProblemsResponse
-from unsolved_problems_prompts import PromptBuilder
+from unsolved_problems_models import UnsolvedProblem
 from unsolved_problems_explorer import UnsolvedProblemsExplorer
 
 configure_logging(log_file=str(Path(__file__).parent / "logs" / "unsolved.log"))

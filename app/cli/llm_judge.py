@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 # Internal imports
 from lite.lite_client import LiteClient
@@ -248,7 +248,7 @@ class LLMJudge:
             result = JudgmentResult(criteria=criteria, confidence=confidence)
             return result.format_output()
 
-        except Exception as e:
+        except Exception:
             result = JudgmentResult(confidence=0.0)
             return result.format_output()
 

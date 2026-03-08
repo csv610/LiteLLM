@@ -1,7 +1,5 @@
-import pytest
 from unittest.mock import patch, MagicMock
 import sys
-from io import StringIO
 
 from hilbert_problems_cli import main, argument_parser
 

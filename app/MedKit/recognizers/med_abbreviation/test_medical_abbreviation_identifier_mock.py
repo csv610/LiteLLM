@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.med_abbreviation.medical_abbreviation_models import (
     AbbreviationIdentificationModel,
     AbbreviationIdentifierModel,
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.med_abbreviation.medical_abbreviation_prompts import
 from app.MedKit.recognizers.med_abbreviation.medical_abbreviation_recognizer import (
     MedicalAbbreviationIdentifier,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

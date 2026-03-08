@@ -5,7 +5,6 @@ Contains the PromptBuilder class for creating structured prompts
 for fetching comprehensive information about Hilbert's mathematical problems.
 """
 
-from typing import Optional
 
 
 class PromptBuilder:

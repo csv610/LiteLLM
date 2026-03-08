@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.lab_unit.lab_unit_models import (
     LabUnitIdentificationModel,
     LabUnitIdentifierModel,
@@ -21,7 +23,6 @@ from app.MedKit.recognizers.lab_unit.lab_unit_models import (
 )
 from app.MedKit.recognizers.lab_unit.lab_unit_prompts import LabUnitInput, PromptBuilder
 from app.MedKit.recognizers.lab_unit.lab_unit_recognizer import LabUnitIdentifier
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

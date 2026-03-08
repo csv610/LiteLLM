@@ -1,13 +1,10 @@
 import pytest
 import asyncio
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from pathlib import Path
-import json
-import os
 
 from guardrail import GuardrailAnalyzer
-from guardrail_models import GuardrailResponse, GuardrailResult, SafetyCategory, PreprocessingError, AnalysisError, ImageGuardrailResponse
-from lite.config import ModelConfig, ModelInput
+from guardrail_models import GuardrailResponse, GuardrailResult, SafetyCategory, PreprocessingError, ImageGuardrailResponse
 
 # Manual async runner since pytest-asyncio is missing
 def run_async(coro):

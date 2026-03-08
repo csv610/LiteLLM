@@ -4,8 +4,7 @@ import json
 import logging
 import pytest
 from pathlib import Path
-from typing import Dict, Any, Optional
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

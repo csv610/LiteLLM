@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
 import sys
 import os
-import asyncio
 
 from guardrail_cli import main, argument_parser
 

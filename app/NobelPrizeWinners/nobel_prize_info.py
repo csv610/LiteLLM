@@ -1,6 +1,4 @@
-import argparse
 import logging
-import json
 import sys
 import os
 from pathlib import Path
@@ -10,7 +8,6 @@ from typing import Optional
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from lite.config import ModelConfig
-from lite.logging_config import configure_logging as setup_logging
 from nobel_prize_models import PrizeWinner
 from nobel_prize_explorer import NobelPrizeWinnerInfo
 

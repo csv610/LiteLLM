@@ -6,7 +6,7 @@ import json
 import pytest
 from pathlib import Path
 import sys
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 # Add project root and app/cli to sys.path
 root_path = Path(__file__).parent.parent

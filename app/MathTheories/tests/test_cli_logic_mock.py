@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from math_theory_cli import fetch_theory_info
 from math_theory_models import MathTheory, AudienceLevel, TheoryExplanation, SolutionMethods
 from lite.config import ModelConfig

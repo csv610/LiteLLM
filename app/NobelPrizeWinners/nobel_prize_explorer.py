@@ -4,9 +4,7 @@ Contains the NobelPrizeWinnerInfo class for fetching and managing
 Nobel Prize winner information with proper encapsulation.
 """
 
-import os
 import re
-import logging
 from typing import Optional
 
 # Add project root to sys.path to use local 'lite' package

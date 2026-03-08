@@ -14,6 +14,8 @@ sys.path.insert(
 )
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.medical_test.medical_test_identifier import (
     MedicalTestIdentifier,
 )
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.medical_test.medical_test_prompts import (
     MedicalTestIdentifierInput,
     PromptBuilder,
 )
-from lite.config import ModelConfig
 
 
 def test_prompt_builder():

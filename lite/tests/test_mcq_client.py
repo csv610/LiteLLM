@@ -1,7 +1,6 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from lite.lite_mcq_client import LiteMCQClient
-from lite.config import ModelConfig, MCQInput
+from lite.config import MCQInput
 from pydantic import BaseModel
 
 # Mock output model

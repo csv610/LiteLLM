@@ -6,7 +6,7 @@ different audience levels (high-school, undergrad, master, phd, researcher).
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
+from typing import List, Dict
 from enum import Enum
 
 

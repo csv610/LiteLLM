@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput

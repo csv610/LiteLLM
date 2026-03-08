@@ -4,8 +4,7 @@ deep_deliberation_agents.py - Reusable Discovery Agents
 Encapsulates the specialized LLM logic for Inquiry, Analysis, and Verification.
 """
 
-from typing import List, Optional, Dict
-from lite import LiteClient, ModelConfig
+from lite import LiteClient
 from lite.config import ModelInput
 from deep_deliberation_models import (
     DiscoveryFAQ, DiscoveryInsight, DiscoveryCheck, VerificationResult, SummaryResponse

@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from math_theory_models import (
     MathTheory, AudienceLevel, TheoryExplanation, SolutionMethods, TheoryResponse
 )

@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.medication_class.medication_class_models import (
     MedicationClassIdentificationModel,
     MedicationClassIdentifierModel,
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.medication_class.medication_class_prompts import (
 from app.MedKit.recognizers.medication_class.medication_class_recognizer import (
     MedicationClassIdentifier,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

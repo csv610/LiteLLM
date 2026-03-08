@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
 
 @pytest.fixture

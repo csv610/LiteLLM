@@ -61,7 +61,7 @@ def cli(subject, level=None, num_chapters=12, model_name="ollama/gemma3"):
 
 
 if __name__ == "__main__":
-    from bookchapters_prompts import EDUCATION_LEVELS, LEVEL_CODES
+    from bookchapters_prompts import LEVEL_CODES
     
     levels_help = '\n'.join(f"  {code}: {level}" for level, code in LEVEL_CODES.items())
 

@@ -1,4 +1,3 @@
-import pytest
 from PIL import Image
 from lite.vision.core import _is_url, _convert_to_rgb
 

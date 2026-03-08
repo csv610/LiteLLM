@@ -22,12 +22,10 @@ evaluation = judge.evaluate(user_input)
 print(f"Overall Score: {evaluation.overall_score:.2f}")
 print(f"Is Correct:    {evaluation.is_correct}")
 print(f"Reasoning:     {evaluation.reasoning}")
-print("
-Criteria Scores:")
+print("\nCriteria Scores:")
 print(f"  Accuracy:     {evaluation.criteria.accuracy:.2f}")
 print(f"  Completeness: {evaluation.criteria.completeness:.2f}")
 print(f"  Relevance:    {evaluation.criteria.relevance:.2f}")
 print(f"  Clarity:      {evaluation.criteria.clarity:.2f}")
 
-print("
-Example complete!")
+print("\nExample complete!")

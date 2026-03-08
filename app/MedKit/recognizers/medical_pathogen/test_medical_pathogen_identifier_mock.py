@@ -14,6 +14,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.medical_pathogen.medical_pathogen_identifier import (
     MedicalPathogenIdentifier,
 )
@@ -26,7 +28,6 @@ from app.MedKit.recognizers.medical_pathogen.medical_pathogen_prompts import (
     PathogenIdentifierInput,
     PromptBuilder,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

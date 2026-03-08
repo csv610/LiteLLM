@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from socrates_tutor_prompts import PromptBuilder
 from socrates_tutor import SocratesTutor
 

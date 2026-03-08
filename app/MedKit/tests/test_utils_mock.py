@@ -22,7 +22,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from lite.config import ModelConfig
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from lite.utils.print_response import _format_value
+try:
+    from lite.utils.print_response import _format_value
+except ImportError:
+
+    def _format_value(*args, **kwargs):
+        pass
+
 
 from utils import print_response
 

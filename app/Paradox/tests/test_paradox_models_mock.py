@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 from paradox_models import (
-    AudienceLevel, ParadoxResolution, ParadoxExplanation, Paradox, ParadoxResponse, ParadoxStatus
+    AudienceLevel, ParadoxResolution, ParadoxExplanation, Paradox, ParadoxStatus
 )
 
 def test_audience_level_enum():

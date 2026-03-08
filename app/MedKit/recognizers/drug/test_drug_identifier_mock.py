@@ -13,6 +13,8 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.drug.drug_recognizer import DrugIdentifier
 from app.MedKit.recognizers.drug.drug_recognizer_model import (
     DrugIdentificationModel,
@@ -23,7 +25,6 @@ from app.MedKit.recognizers.drug.drug_recognizer_prompts import (
     DrugIdentifierInput,
     PromptBuilder,
 )
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

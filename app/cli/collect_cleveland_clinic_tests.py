@@ -10,7 +10,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 def collect_tests_for_letter(driver, letter):
     """
@@ -100,7 +99,7 @@ def main():
             json.dump(results, f, indent=2)
 
         print(f"\n{'='*60}")
-        print(f"Collection complete!")
+        print("Collection complete!")
         print(f"Total unique tests found: {len(all_tests_flat)}")
         print(f"Results saved to: {output_file}")
         print(f"{'='*60}")

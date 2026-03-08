@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 
 from medical.surgical_tool_info.surgical_tool_info_cli import (
     get_user_arguments,
-    main_with_args,
+    main,
 )
 
 
@@ -42,7 +42,11 @@ def test_main_with_args_single_tool(mock_configure_logging, mock_generator_class
     )
 
     with patch("pathlib.Path.mkdir"):
-        result = main_with_args(args)
+        with patch(
+            "medical.surgical_tool_info.surgical_tool_info_cli.get_user_arguments",
+            return_value=args,
+        ):
+            result = main()
 
     assert result == 0
     mock_generator.generate_text.assert_called_once_with(
@@ -61,8 +65,7 @@ def test_main_with_args_file_input(
     mock_generator.generate_text.return_value = mock_result
 
     tool_file = tmp_path / "tools.txt"
-    tool_file.write_text("""scalpel
-forceps""")
+    tool_file.write_text("""scalpel\nforceps""")
 
     args = argparse.Namespace(
         tool=str(tool_file),
@@ -72,7 +75,11 @@ forceps""")
         structured=True,
     )
 
-    result = main_with_args(args)
+    with patch(
+        "medical.surgical_tool_info.surgical_tool_info_cli.get_user_arguments",
+        return_value=args,
+    ):
+        result = main()
 
     assert result == 0
     assert mock_generator.generate_text.call_count == 2
@@ -95,6 +102,10 @@ def test_main_with_args_error(mock_configure_logging, mock_generator_class):
     )
 
     with patch("pathlib.Path.mkdir"):
-        result = main_with_args(args)
+        with patch(
+            "medical.surgical_tool_info.surgical_tool_info_cli.get_user_arguments",
+            return_value=args,
+        ):
+            result = main()
 
     assert result == 1

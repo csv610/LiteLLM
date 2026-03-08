@@ -4,8 +4,7 @@ import sys
 import tempfile
 import os
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-from io import StringIO
+from unittest.mock import patch, MagicMock
 
 # Add project root and MedKit path to sys.path
 root_path = Path(__file__).parent.parent

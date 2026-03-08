@@ -146,7 +146,7 @@ class DictConfig:
         required_keys = ["system_prompt_template", "user_prompt_template", "file_name"]
         if not all(key in config_dict for key in required_keys):
             raise ValueError(
-                f"system_prompt_template, user_prompt_template, and file_name are required in configuration dictionary"
+                "system_prompt_template, user_prompt_template, and file_name are required in configuration dictionary"
             )
 
         return cls(

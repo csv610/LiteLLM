@@ -15,6 +15,8 @@ sys.path.insert(
 import random
 from pathlib import Path
 
+from lite.config import ModelConfig
+
 from app.MedKit.recognizers.disease.disease_identifier_models import (
     DiseaseIdentificationModel,
     DiseaseIdentifierModel,
@@ -25,7 +27,6 @@ from app.MedKit.recognizers.disease.disease_identifier_prompts import (
     PromptBuilder,
 )
 from app.MedKit.recognizers.disease.disease_recognizer import DiseaseIdentifier
-from lite.config import ModelConfig
 
 
 def read_random_example_from_assets():

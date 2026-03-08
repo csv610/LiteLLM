@@ -5,7 +5,6 @@ Contains the PromptBuilder class for creating structured prompts
 to analyze input text and images for various safety violations.
 """
 
-from typing import List
 
 
 class PromptBuilder:

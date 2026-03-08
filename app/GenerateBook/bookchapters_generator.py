@@ -5,7 +5,6 @@ curriculum chapters using LiteClient and structured prompts.
 """
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 
 # Add parent directories to path for imports
@@ -14,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from bookchapters_models import ChapterSuggestion, EducationLevel, BookChaptersModel, BookInput
+from bookchapters_models import BookChaptersModel, BookInput
 from bookchapters_prompts import PromptBuilder
 
 
@@ -64,7 +63,7 @@ class BookChaptersGenerator:
             else:
                 raise ValueError(f"Expected BookChaptersResponse, got {type(response).__name__}")
                 
-        except Exception as e:
+        except Exception:
             raise
     
     def save_to_file(self, response: BookChaptersModel, book_input: BookInput) -> str:
@@ -92,7 +91,7 @@ class BookChaptersGenerator:
             
             return filename
             
-        except Exception as e:
+        except Exception:
             raise
     
     def generate_and_save(self, book_input: BookInput) -> str:

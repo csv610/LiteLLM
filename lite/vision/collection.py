@@ -1,13 +1,11 @@
 """Collection and scanning utilities for images in directories."""
 
 import logging
-import os
 from pathlib import Path
 from typing import Dict, List, Optional, Literal
 from PIL import Image
-from datetime import datetime
 
-from .core import _validate_directory_exists, _validate_file_exists
+from .core import _validate_directory_exists
 from .io import get_image_info
 
 logger = logging.getLogger(__name__)

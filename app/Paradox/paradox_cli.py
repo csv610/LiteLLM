@@ -3,12 +3,11 @@ import argparse
 from pathlib import Path
 from typing import List
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 from paradox_models import (
-    Paradox, AudienceLevel, ParadoxExplanation, ParadoxResolution, ParadoxResponse, ParadoxStatus
+    Paradox, AudienceLevel
 )
 from paradox_element import ParadoxExplainer
 

@@ -4,7 +4,6 @@ Test script for the object guesser game with pre-programmed answers.
 """
 
 import sys
-import io
 from pathlib import Path
 
 # Add project root and ObjectGuesser path to sys.path

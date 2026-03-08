@@ -3,12 +3,11 @@ import argparse
 from pathlib import Path
 from typing import List
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 from math_theory_models import (
-    MathTheory, AudienceLevel, TheoryExplanation, SolutionMethods, TheoryResponse
+    MathTheory, AudienceLevel
 )
 from math_theory_element import MathTheoryExplainer
 

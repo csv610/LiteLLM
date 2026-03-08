@@ -12,9 +12,8 @@ from pathlib import Path
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
-
-from .medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
-from .medical_test_devices_prompts import PromptBuilder
+from medical_test_devices_models import MedicalDeviceInfoModel, ModelOutput
+from medical_test_devices_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

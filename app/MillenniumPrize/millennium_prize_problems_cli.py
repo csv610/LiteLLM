@@ -1,11 +1,8 @@
 import argparse
-import logging
 import json
 import sys
 import os
-import re
 from pathlib import Path
-from typing import Optional
 
 # Add project root directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -14,7 +11,7 @@ from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 from lite.logging_config import configure_logging as setup_logging
 
-from millennium_prize_models import MillenniumProblem, MillenniumProblemsResponse
+from millennium_prize_models import MillenniumProblem
 from millennium_prize_prompts import PromptBuilder
 
 logger = setup_logging(str(Path(__file__).parent / "logs" / "millennium.log"))

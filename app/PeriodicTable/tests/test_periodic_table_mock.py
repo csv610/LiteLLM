@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from periodic_table_element import PeriodicTableElement
 from periodic_table_models import ElementInfo, PhysicalCharacteristics, AtomicDimensions, ChemicalCharacteristics, ElementResponse
 from lite import ModelConfig

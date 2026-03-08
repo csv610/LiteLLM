@@ -1,8 +1,7 @@
 import unittest
 import os
 import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from lite import ModelConfig
 from faq_generator import FAQGenerator, FAQInput, DataExporter
 from faq_generator_models import FAQ, FAQResponse

@@ -1,9 +1,7 @@
 import pytest
-import json
 import sys
 from pathlib import Path
 from datetime import datetime
-from unittest.mock import Mock, patch, MagicMock
 
 # Add project root and MedKit path to sys.path
 root_path = Path(__file__).parent.parent
@@ -16,32 +14,21 @@ from drugbank_medicine_models import (
     RouteOfAdministration,
     ChemicalProperties,
     Taxonomy,
-    ExternalIdentifier,
     Patent,
     ATCCode,
     Interaction,
-    FoodInteraction,
     Target,
-    Enzyme,
-    Carrier,
-    Transporter,
-    Pharmacodynamics,
     Pharmacokinetics,
     Dosage,
-    ClinicalTrial,
     Manufacturer,
     PricingInfo,
     Contraindication,
     AdverseReaction,
     BasicInfo,
     Classification,
-    Pharmacology,
-    Indications,
     Administration,
-    Interactions,
     Safety,
     Regulation,
-    References,
     MedicineInfo,
 )
 from drugbank_medicine_cli import sanitize_filename

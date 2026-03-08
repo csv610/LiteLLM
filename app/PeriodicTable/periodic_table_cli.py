@@ -4,13 +4,11 @@ import argparse
 from pathlib import Path
 from tqdm import tqdm
 
-from lite.lite_client import LiteClient
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 from periodic_table_models import (
-    PhysicalCharacteristics, AtomicDimensions, ChemicalCharacteristics,
-    IsotopeInfo, ElementInfo, ElementResponse
+    ElementInfo
 )
 from periodic_table_element import PeriodicTableElement, ALL_ELEMENTS
 
