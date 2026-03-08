@@ -378,12 +378,9 @@ class LMDBStorage:
         try:
             with self.env.begin(write=True) as txn:
                 cursor = txn.cursor()
-                # Iterate and delete each key. This is a simple but potentially slow
-                # approach for very large databases.
-                if cursor.first():
+                while cursor.first():
+                    cursor.delete()
                     count += 1
-                    while cursor.delete():
-                        count += 1
             if self.logger:
                 self.logger.info(f"Cleared {count} entries from database")
         except Exception as e:

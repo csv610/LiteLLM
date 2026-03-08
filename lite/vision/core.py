@@ -51,12 +51,12 @@ def _download_from_url(url: str) -> str:
             raise ValueError(f"Invalid URL: {url}")
 
         path = parsed.path.lower()
-        if path.endswith('.jpg') or path.endswith('.jpeg'):
-            suffix = '.jpg'
-        elif path.endswith('.png'):
+        if path.endswith('.png'):
             suffix = '.png'
-        elif path.endswith('.webp'):
-            suffix = '.webp'
+        elif path.endswith('.jpeg'):
+            suffix = '.jpeg'
+        elif path.endswith('.jpg'):
+            suffix = '.jpg'
         elif path.endswith('.gif'):
             suffix = '.gif'
         else:
