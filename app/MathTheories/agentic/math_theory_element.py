@@ -99,11 +99,12 @@ class ReviewerAgent:
 class MathTheoryExplainer:
     """Orchestrates the 3-agent pipeline to generate high-quality theory explanations."""
     
-    def __init__(self, model_config: ModelConfig):
+    def __init__(self, model_config: ModelConfig, max_refinements: int = 3):
         self.client = LiteClient(model_config=model_config)
         self.researcher = ResearcherAgent(self.client)
         self.writer = WriterAgent(self.client)
         self.reviewer = ReviewerAgent(self.client)
+        self.max_refinements = max_refinements
         self.logger = logging.getLogger(__name__)
     
     def fetch_theory_explanation(self, theory_name: str, audience_levels: List[AudienceLevel] = None) -> Optional[MathTheory]:
@@ -122,21 +123,35 @@ class MathTheoryExplainer:
         for level in audience_levels:
             self.logger.info(f"Generating explanation for audience: {level.value}")
             
-            # Phase 2: Writing (Draft 1)
+            # Initial Draft
             explanation = self.writer.write_explanation(research_data, level)
             if not explanation:
                 continue
                 
-            # Phase 3: Review
-            self.logger.info(f"Reviewing explanation for audience: {level.value}")
-            feedback = self.reviewer.review(research_data, explanation)
-            
-            if feedback and (not feedback.is_accurate or not feedback.is_audience_appropriate):
-                self.logger.warning(f"Critique received for {level.value}: {feedback.critique}. Refined draft requested.")
-                # Phase 4: Refinement (Optional loop - doing 1 refinement for quality)
-                refined_explanation = self.writer.write_explanation(research_data, level, feedback)
-                if refined_explanation:
-                    explanation = refined_explanation
+            # Iterative Refinement Loop
+            attempt = 0
+            while attempt < self.max_refinements:
+                self.logger.info(f"Reviewing explanation for audience: {level.value} (Attempt {attempt + 1})")
+                feedback = self.reviewer.review(research_data, explanation)
+                
+                if feedback and feedback.is_accurate and feedback.is_audience_appropriate:
+                    self.logger.info(f"Review passed for {level.value} after {attempt + 1} attempt(s).")
+                    break
+                
+                attempt += 1
+                if attempt < self.max_refinements:
+                    critique_msg = feedback.critique if feedback else "Unknown error during review"
+                    self.logger.warning(
+                        f"Refinement required for {level.value} (Attempt {attempt}): {critique_msg}"
+                    )
+                    refined_explanation = self.writer.write_explanation(research_data, level, feedback)
+                    if refined_explanation:
+                        explanation = refined_explanation
+                    else:
+                        self.logger.error(f"Failed to generate refined draft on attempt {attempt}.")
+                        break
+                else:
+                    self.logger.error(f"Reached max refinements ({self.max_refinements}) for {level.value}. Using last draft.")
             
             explanations[level] = explanation
             
