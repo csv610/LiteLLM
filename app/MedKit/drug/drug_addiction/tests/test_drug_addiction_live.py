@@ -1,6 +1,8 @@
-import os
-import pytest
 from pathlib import Path
+import os
+
+import pytest
+
 from drug_addiction import DrugAddiction
 from drug_addiction_prompts import DrugAddictionInput
 from lite.config import ModelConfig
@@ -30,7 +32,7 @@ class TestDrugAddictionLive:
 
     def test_live_generate_text_markdown(self, analyzer):
         config = DrugAddictionInput(medicine_name="Caffeine")
-        result = analyzer.generate_text(config, structured=False)
+        result = analyzer.generate_markdown(config)
         
         assert result is not None
         assert result.markdown is not None
@@ -40,10 +42,11 @@ class TestDrugAddictionLive:
     def test_live_generate_text_structured(self, analyzer):
         # Use a very common substance for high likelihood of correct structured response
         config = DrugAddictionInput(medicine_name="Nicotine")
-        result = analyzer.generate_text(config, structured=True)
-        
+        result = analyzer.generate_text(config)
+
         assert result is not None
         assert result.data is not None
+        assert result.markdown is not None
         assert result.data.addiction_details is not None
         assert "Nicotine" in result.data.addiction_details.medicine_name
         assert result.data.addiction_details.addiction_potential is not None
@@ -51,11 +54,13 @@ class TestDrugAddictionLive:
 
     def test_live_save_functionality(self, analyzer, tmp_path):
         config = DrugAddictionInput(medicine_name="Alcohol")
-        result = analyzer.generate_text(config, structured=False)
+        result = analyzer.generate_text(config)
         
         output_path = analyzer.save(result, tmp_path)
+        json_path = tmp_path / "alcohol.json"
         
         assert output_path.exists()
         assert "alcohol" in output_path.name.lower()
-        # Verify it saved something substantial
+        assert output_path.suffix == ".md"
+        assert json_path.exists()
         assert output_path.stat().st_size > 0

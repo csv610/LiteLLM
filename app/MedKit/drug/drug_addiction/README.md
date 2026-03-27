@@ -13,7 +13,8 @@ The **Drug Addiction Analyzer** is a clinical reference tool that leverages adva
 - **Mechanism of Action:** Explains how the substance affects the brain's reward system and neurotransmitters.
 - **Risk Mitigation Strategies:** Suggests clinically-grounded approaches for tapering and monitoring.
 - **Patient-Centric Summaries:** Provides clear, non-technical explanations of risks and warning signs.
-- **Structured Output:** Supports Pydantic-validated JSON data for seamless system integration.
+- **Structured Output:** Uses a Pydantic-validated schema as the primary response contract.
+- **Readable Reports:** Generates markdown reports from structured data so human-readable output stays aligned with saved fields.
 
 ## Project Structure
 
@@ -41,14 +42,18 @@ pip install pydantic argparse
 Analyze the addiction risk of a specific substance:
 
 ```bash
-python drug_addiction_cli.py "Ketamine" --structured
+python drug_addiction_cli.py "Ketamine"
 ```
 
 **Arguments:**
 - `substance_name`: The name of the drug or substance to analyze.
-- `--structured`: (Optional) Output as validated JSON.
+- `--markdown-only`: (Optional) Skip structured output and request freeform markdown directly.
 - `--model`: (Optional) LLM Model ID to use.
 - `--output-dir`: (Optional) Directory for saving reports.
+
+By default, the CLI saves:
+- a markdown report: `<substance>.md`
+- a structured JSON sidecar: `<substance>.json`
 
 ### Python API
 
@@ -57,13 +62,14 @@ from drug_addiction import DrugAddiction
 from drug_addiction_prompts import DrugAddictionInput
 from lite.config import ModelConfig
 
-config = ModelConfig(model_id="ollama/gemma3")
+config = ModelConfig(model="ollama/gemma3")
 analyzer = DrugAddiction(config)
 
 input_data = DrugAddictionInput(medicine_name="Alprazolam")
-result = analyzer.generate_text(input_data, structured=True)
+result = analyzer.generate_text(input_data)
 
-print(result.data.addiction_risk_level)
+print(result.data.addiction_details.addiction_potential)
+print(result.markdown)
 ```
 
 ## ⚠️ Important Medical Disclaimer

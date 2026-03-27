@@ -46,11 +46,10 @@ def get_user_arguments():
         "--model", "-m", type=str, default="ollama/gemma3", help="Model ID"
     )
     parser.add_argument(
-        "-s",
-        "--structured",
+        "--markdown-only",
         action="store_true",
         default=False,
-        help="Use structured output (Pydantic model) for the response.",
+        help="Skip structured output and request markdown directly from the model.",
     )
     parser.add_argument(
         "-o",
@@ -90,7 +89,10 @@ def main() -> int:
 
         model_config = ModelConfig(model=args.model, temperature=0.2)
         analyzer = DrugAddiction(model_config)
-        result = analyzer.generate_text(user_input, structured=args.structured)
+        if args.markdown_only:
+            result = analyzer.generate_markdown(user_input)
+        else:
+            result = analyzer.generate_text(user_input)
 
         if result is None:
             logger.error("✗ Failed to generate drug addiction analysis.")

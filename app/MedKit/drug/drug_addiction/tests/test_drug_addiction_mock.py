@@ -1,11 +1,18 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from pathlib import Path
 
 from drug_addiction import DrugAddiction
 from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
-from drug_addiction_models import DrugAddictionModel, ModelOutput, DrugAddictionDetailsModel, AddictionPotential, ConfidenceLevel, AddictionMechanismModel
-from lite.config import ModelConfig, ModelInput
+from drug_addiction_models import (
+    AddictionMechanismModel,
+    AddictionPotential,
+    ConfidenceLevel,
+    DrugAddictionDetailsModel,
+    DrugAddictionModel,
+    ModelOutput,
+)
+from lite.config import ModelConfig
 
 @pytest.fixture
 def mock_model_config():
@@ -41,10 +48,9 @@ def test_prompt_builder():
 
 @patch("drug_addiction.LiteClient")
 def test_generate_text_mock(mock_client_class, mock_model_config):
-    # Setup mock client to return raw markdown string
     mock_client_instance = mock_client_class.return_value
-    raw_markdown = "# Analysis for Ketamine"
-    mock_client_instance.generate_text.return_value = raw_markdown
+    structured_raw = DrugAddictionModel(technical_summary="Structured summary")
+    mock_client_instance.generate_text.return_value = structured_raw
     
     analyzer = DrugAddiction(mock_model_config)
     config = DrugAddictionInput(medicine_name="Ketamine")
@@ -52,13 +58,29 @@ def test_generate_text_mock(mock_client_class, mock_model_config):
     result = analyzer.generate_text(config)
     
     assert isinstance(result, ModelOutput)
-    assert result.markdown == raw_markdown
+    assert result.data == structured_raw
+    assert "## Technical Summary" in result.markdown
     mock_client_instance.generate_text.assert_called_once()
     
-    # Verify ModelInput passed to client
     args, kwargs = mock_client_instance.generate_text.call_args
     model_input = kwargs.get("model_input") or args[0]
     assert "Ketamine" in model_input.user_prompt
+    assert model_input.response_format == DrugAddictionModel
+
+@patch("drug_addiction.LiteClient")
+def test_generate_markdown_mock(mock_client_class, mock_model_config):
+    mock_client_instance = mock_client_class.return_value
+    raw_markdown = "# Analysis for Ketamine"
+    mock_client_instance.generate_text.return_value = raw_markdown
+
+    analyzer = DrugAddiction(mock_model_config)
+    result = analyzer.generate_markdown(DrugAddictionInput(medicine_name="Ketamine"))
+
+    assert result.data is None
+    assert result.markdown == raw_markdown
+
+    args, kwargs = mock_client_instance.generate_text.call_args
+    model_input = kwargs.get("model_input") or args[0]
     assert model_input.response_format is None
 
 @patch("drug_addiction.LiteClient")
@@ -90,12 +112,15 @@ def test_generate_text_structured_mock(mock_client_class, mock_model_config):
     analyzer = DrugAddiction(mock_model_config)
     config = DrugAddictionInput(medicine_name="Ketamine")
     
-    result = analyzer.generate_text(config, structured=True)
-    
+    result = analyzer.generate_text(config)
+
     assert isinstance(result, ModelOutput)
     assert result.data == structured_raw
     assert result.data.addiction_details.medicine_name == "Ketamine"
-    
+    assert result.markdown is not None
+    assert "## Ketamine" in result.markdown
+    assert "## Technical Summary" in result.markdown
+
     # Verify response_format was set
     args, kwargs = mock_client_instance.generate_text.call_args
     model_input = kwargs.get("model_input") or args[0]
@@ -103,19 +128,35 @@ def test_generate_text_structured_mock(mock_client_class, mock_model_config):
 
 @patch("drug_addiction.save_model_response")
 def test_save_mock(mock_save_response, drug_addiction_analyzer):
-    result = ModelOutput(markdown="# Analysis")
+    result = ModelOutput(
+        data=DrugAddictionModel(technical_summary="Summary"),
+        markdown="# Analysis",
+    )
     output_dir = Path("test_outputs")
     
-    # Must call generate_text first to set self.config
     config = DrugAddictionInput(medicine_name="Ketamine")
     drug_addiction_analyzer.config = config
     
     drug_addiction_analyzer.save(result, output_dir)
     
+    assert mock_save_response.call_count == 2
+    first_args, _ = mock_save_response.call_args_list[0]
+    second_args, _ = mock_save_response.call_args_list[1]
+    assert first_args[0] == result.markdown
+    assert second_args[0] == result.data
+    assert "ketamine" in str(first_args[1])
+    assert "ketamine" in str(second_args[1])
+
+@patch("drug_addiction.save_model_response")
+def test_save_markdown_only_mock(mock_save_response, drug_addiction_analyzer):
+    result = ModelOutput(markdown="# Analysis")
+    drug_addiction_analyzer.config = DrugAddictionInput(medicine_name="Ketamine")
+
+    drug_addiction_analyzer.save(result, Path("test_outputs"))
+
     mock_save_response.assert_called_once()
     args, _ = mock_save_response.call_args
     assert args[0] == result.markdown
-    assert "ketamine" in str(args[1])
 
 def test_save_before_generate_raises(drug_addiction_analyzer):
     result = ModelOutput(markdown="# Analysis")
