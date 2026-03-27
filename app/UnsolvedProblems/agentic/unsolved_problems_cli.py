@@ -1,14 +1,11 @@
 import argparse
-import logging
 import json
-import sys
+import logging
 import os
 import re
+import sys
 from pathlib import Path
 from typing import Optional
-
-# Add parent directory to path to import lite module
-#sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from lite import ModelConfig, configure_logging
 
@@ -17,6 +14,19 @@ from unsolved_problems_explorer import UnsolvedProblemsExplorer
 
 configure_logging(log_file=str(Path(__file__).parent / "logs" / "unsolved.log"))
 logger = logging.getLogger(__name__)
+
+
+def num_problems_type(value: str) -> int:
+    """Validate the requested number of problems."""
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("num-problems must be an integer") from exc
+
+    if not 1 <= parsed <= 50:
+        raise argparse.ArgumentTypeError("num-problems must be between 1 and 50")
+
+    return parsed
 
 
 # ==============================================================================
@@ -66,15 +76,16 @@ def arguments_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python unsolved.py -t "Mathematics" -n 10
-  python unsolved.py --topic "Physics" --num-problems 5
-  python unsolved.py -t "Computer Science" -n 8 -m claude-3-opus
-  DEFAULT_LLM_MODEL=gpt-4 python unsolved.py -t "Biology" -n 10
+  python unsolved_problems_cli.py -t "Mathematics" -n 10
+  python unsolved_problems_cli.py --topic "Physics" --num-problems 5
+  python unsolved_problems_cli.py -t "Computer Science" -n 8 -m claude-3-opus
+  DEFAULT_LLM_MODEL=gpt-4 python unsolved_problems_cli.py -t "Biology" -n 10
         """
     )
 
     parser.add_argument(
         "-t",
+        "--topic",
         required=True,
         type=str,
         dest="topic",
@@ -83,14 +94,16 @@ Examples:
 
     parser.add_argument(
         "-n",
+        "--num-problems",
         required=True,
-        type=int,
+        type=num_problems_type,
         dest="num_problems",
         help="Number of unsolved problems to retrieve (1-50)"
     )
 
     parser.add_argument(
         "-m",
+        "--model",
         default=None,
         dest="model",
         help="LLM model to use (default: $DEFAULT_LLM_MODEL or ollama/gemma3)"
@@ -139,7 +152,7 @@ def main() -> int:
         os.chmod(output_filename, 0o600)
 
         logger.info(f"Successfully saved {len(problems)} unsolved problem(s) to {output_filename}")
-        print( "Generation complete ")
+        print("Generation complete")
         return 0
 
     except RuntimeError as e:

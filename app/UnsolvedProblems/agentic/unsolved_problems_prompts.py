@@ -61,37 +61,3 @@ Requirements:
 
 Draft JSON:
 {draft_json}"""
-
-    @staticmethod
-    def create_model_input(prompt: str, response_format) -> Dict:
-        """Create model input dictionary for LLM generation.
-        
-        Args:
-            prompt: The formatted prompt string
-            response_format: The Pydantic model class for response format
-            
-        Returns:
-            dict: Dictionary containing user_prompt and response_format for ModelInput
-        """
-        return {
-            "user_prompt": prompt,
-            "response_format": response_format
-        }
-
-    @staticmethod
-    def create_complete_prompt_data(topic: str, num_problems: int, response_format) -> Dict:
-        """Create complete prompt data for unsolved problems generation.
-        
-        Args:
-            topic: The topic to find unsolved problems for
-            num_problems: Number of unsolved problems to retrieve
-            response_format: The Pydantic model class for response format
-            
-        Returns:
-            dict: Dictionary containing formatted prompt and model input data
-        """
-        prompt = PromptBuilder.get_generation_user_prompt(topic, num_problems)
-        return {
-            "prompt": prompt,
-            "model_input": PromptBuilder.create_model_input(prompt, response_format)
-        }
