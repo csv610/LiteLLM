@@ -17,8 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from lite import logging_config
 from nobel_prize_info import fetch_nobel_winners
 
-# Global logger for application
-logger = None
+DEFAULT_MODEL = "gemini/gemini-2.5-flash"
 
 def validate_year(year_str: str) -> int:
     """
@@ -121,18 +120,17 @@ def main() -> int:
     Returns:
         Exit code (0 for success, 1 for error)
     """
-    global logger
-    
     parser = arguments_parser()
     args = parser.parse_args()
+    logger = None
 
     try:
-        # Initialize global logger
         logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "nobel_prize_cli.log"))
-        
+        model = args.model or os.getenv("NOBEL_PRIZE_MODEL", DEFAULT_MODEL)
+
         logger.info(f"Fetching Nobel Prize information for {args.category} in {args.year}...")
 
-        winners = fetch_nobel_winners(args.category, str(args.year), model=args.model)
+        winners = fetch_nobel_winners(args.category, str(args.year), model=model)
 
         # Save to JSON file with format: {category}_{year}.json
         output_filename = f"{args.category.lower()}_{args.year}.json"
@@ -158,7 +156,8 @@ def main() -> int:
         return 0
 
     except Exception as e:
-        logger.exception(f"Error: {e}")
+        if logger is not None:
+            logger.exception(f"Error: {e}")
         print(f"Error: {e}")
         return 1
 

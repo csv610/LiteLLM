@@ -4,8 +4,29 @@ Contains the PromptBuilder class for creating structured prompts
 for fetching Nobel Prize winner information from LLM.
 """
 
+from nobel_prize_models import PrizeResponse
+
 class PromptBuilder:
     """Builder class for creating prompts for Nobel Prize information."""
+
+    @staticmethod
+    def create_agent_system_prompt(agent_name: str) -> str:
+        """Create a system prompt for a specific agent role."""
+        if agent_name == "generation_agent":
+            return (
+                "You are the generation agent for Nobel Prize winner data. "
+                "Produce complete, factual, structured educational content that matches the requested schema. "
+                "Avoid subjective language and unsupported claims."
+            )
+
+        if agent_name == "validation_agent":
+            return (
+                "You are the validation agent for Nobel Prize winner data. "
+                "Review generated content for factual consistency, schema correctness, and objective wording. "
+                "Correct errors conservatively and return only the final structured response."
+            )
+
+        raise ValueError(f"Unknown agent name: {agent_name}")
     
     @staticmethod
     def create_nobel_prize_prompt(category: str, year: str) -> str:
@@ -67,14 +88,21 @@ Use objective language. Avoid words like "revolutionary," "profound," "amazing,"
 Instead, describe what specifically changed and how we know it changed."""
     
     @staticmethod
-    def create_validation_prompt() -> str:
+    def create_validation_prompt(category: str, year: str, generated_response: PrizeResponse) -> str:
         """
         Create a prompt for validating Nobel Prize information.
         
         Returns:
             Validation prompt string for LLM
         """
-        return """Please validate the following Nobel Prize information for accuracy and completeness:
+        generated_json = generated_response.model_dump_json(indent=2)
+
+        return f"""You are the validation agent in a two-agent workflow for Nobel Prize winner data.
+
+The generation agent has already produced structured output for the {category} Nobel Prize in {year}.
+Your job is to validate, correct, and return the final structured response.
+
+Review the candidate JSON below and fix any factual issues, omissions, schema inconsistencies, timeline problems, or subjective language.
 
 Check for:
 1. Factual accuracy of dates, names, and events
@@ -83,10 +111,14 @@ Check for:
 4. Appropriate level of detail for educational content
 5. Absence of subjective language or superlatives
 6. Complete coverage of all required sections
+7. Consistency between the requested category/year and each winner entry
 
-Ensure the information is:
-- Factually correct and verifiable
-- Educational and informative
-- Free from bias or subjective claims
-- Well-structured and organized
-- Appropriate for the intended audience"""
+Requirements:
+- Return corrected data using the same schema as the input
+- Preserve accurate content where possible instead of rewriting everything
+- If a claim seems doubtful, prefer a conservative, objective phrasing
+- Ensure every winner has category={category} and year={year}
+- Output only the final corrected structured response
+
+Candidate JSON:
+{generated_json}"""

@@ -5,7 +5,6 @@ Nobel Prize winner information with proper encapsulation.
 """
 
 import re
-from typing import Optional
 
 # Add project root to sys.path to use local 'lite' package
 import sys
@@ -30,9 +29,31 @@ class NobelPrizeWinnerInfo:
             model_config: ModelConfig with model settings
         """
         self.model_config = model_config
-        self.model = model_config.model or "gemini/gemini-2.5-flash"
         self.client = LiteClient(model_config=model_config)
         self.logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "nobel_prize_explorer.log"))
+
+    def _run_agent(
+        self,
+        *,
+        agent_name: str,
+        prompt: str,
+        model_config: ModelConfig,
+    ) -> PrizeResponse:
+        """Run a single structured agent pass and validate its response."""
+        self.logger.info(f"Running {agent_name} with model: {model_config.model}")
+
+        model_input = ModelInput(
+            system_prompt=PromptBuilder.create_agent_system_prompt(agent_name),
+            user_prompt=prompt,
+            response_format=PrizeResponse
+        )
+        agent_response = self.client.generate_text(
+            model_input=model_input,
+            model_config=model_config,
+        )
+        if not isinstance(agent_response, PrizeResponse):
+            raise RuntimeError(f"{agent_name} returned invalid response: {agent_response}")
+        return agent_response
     
     def _validate_model_name(self, model: str) -> None:
         """
@@ -47,14 +68,14 @@ class NobelPrizeWinnerInfo:
         if not re.match(r'^[a-zA-Z0-9\-\./_]+$', model):
             raise ValueError(f"Invalid model name: {model}. Only alphanumeric characters, hyphens, slashes, dots, and underscores are allowed.")
     
-    def fetch_winners(self, category: str, year: str, model: Optional[str] = None) -> list[PrizeWinner]:
+    def fetch_winners(self, category: str, year: str, model: str) -> list[PrizeWinner]:
         """
         Fetch Nobel Prize winners for a specific field and year.
 
         Args:
             category: Nobel Prize category (Physics, Chemistry, Medicine, Literature, Peace, Economics)
             year: Year of the prize
-            model: LLM model to use (defaults to configured model)
+            model: LLM model to use for both agents
 
         Returns:
             List of PrizeWinner instances
@@ -63,21 +84,27 @@ class NobelPrizeWinnerInfo:
             ValueError: If API response is invalid or model response doesn't match schema
             RuntimeError: If API call fails or required credentials are missing
         """
-        if model is None:
-            model = self.model
-        
         self._validate_model_name(model)
 
-        self.logger.info(f"Fetching Nobel Prize information for {category} in {year} using model: {model}")
-
-        # Create ModelInput with prompt and response format
-        model_input = ModelInput(
-            user_prompt=PromptBuilder.create_nobel_prize_prompt(category, year),
-            response_format=PrizeResponse
+        self.logger.info(
+            f"Fetching Nobel Prize information for {category} in {year} using two-agent workflow with model: {model}"
         )
 
-        # Generate text using LiteClient (validation handled by client)
-        prize_response = self.client.generate_text(model_input=model_input)
+        generation_config = ModelConfig(model=model, temperature=self.model_config.temperature)
+        validation_config = ModelConfig(model=model, temperature=0.0)
 
-        self.logger.info(f"Successfully fetched {len(prize_response.winners)} winner(s)")
-        return prize_response.winners
+        generated_response = self._run_agent(
+            agent_name="generation_agent",
+            prompt=PromptBuilder.create_nobel_prize_prompt(category, year),
+            model_config=generation_config,
+        )
+        self.logger.info(f"Generation agent produced {len(generated_response.winners)} winner(s)")
+
+        validated_response = self._run_agent(
+            agent_name="validation_agent",
+            prompt=PromptBuilder.create_validation_prompt(category, year, generated_response),
+            model_config=validation_config,
+        )
+        self.logger.info(f"Validation agent approved {len(validated_response.winners)} winner(s)")
+
+        return validated_response.winners

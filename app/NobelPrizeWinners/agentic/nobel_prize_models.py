@@ -5,7 +5,12 @@ Contains data models for Nobel Prize winners, their biographical information,
 career details, and related educational content.
 """
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
+
+
+CURRENT_YEAR = datetime.now().year
 
 
 class FAQItem(BaseModel):
@@ -35,7 +40,7 @@ class CareerPosition(BaseModel):
     title: str = Field(..., description="Job title or position (e.g., 'Professor of Physics', 'Research Scientist')")
     institution: str = Field(..., description="Institution or organization name")
     location: str = Field(..., description="City and country of the institution")
-    start_year: int = Field(..., description="Start year of position", ge=1900, le=2025)
+    start_year: int = Field(..., description="Start year of position", ge=1900, le=CURRENT_YEAR)
     end_year: int | None = Field(None, description="End year of position (null if current)")
     description: str = Field(..., description="Brief description of role and responsibilities")
 
@@ -54,7 +59,7 @@ class PrizeWinner(BaseModel):
     """Represents a Nobel Prize winner and their contribution."""
 
     name: str = Field(..., description="Full name of the prize winner(s)")
-    year: int = Field(..., description="Year of prize was awarded", ge=1901, le=2025)
+    year: int = Field(..., description="Year of prize was awarded", ge=1901, le=CURRENT_YEAR)
     category: str = Field(..., description="Nobel Prize category (Physics, Chemistry, Medicine, etc.)")
     contribution: str = Field(
         ...,
