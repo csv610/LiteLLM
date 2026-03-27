@@ -5,7 +5,10 @@ from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from pydantic import BaseModel, Field
 
-from prescription_extractor import PrescriptionData, PrescriptionExtractor
+try:
+    from .prescription_extractor import PrescriptionData, PrescriptionExtractor
+except ImportError:
+    from prescription_extractor import PrescriptionData, PrescriptionExtractor
 
 logger = logging.getLogger(__name__)
 

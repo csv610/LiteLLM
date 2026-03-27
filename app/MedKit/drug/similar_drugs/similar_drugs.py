@@ -10,8 +10,13 @@ from typing import Optional, Union
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.logging_config import configure_logging
-from similar_drugs_models import SimilarDrugsConfig, SimilarMedicinesResult
-from similar_drugs_prompts import PromptBuilder
+
+try:
+    from .similar_drugs_models import SimilarDrugsConfig, SimilarMedicinesResult
+    from .similar_drugs_prompts import PromptBuilder
+except ImportError:
+    from similar_drugs_models import SimilarDrugsConfig, SimilarMedicinesResult
+    from similar_drugs_prompts import PromptBuilder
 
 
 class SimilarDrugs:

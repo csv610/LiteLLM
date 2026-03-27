@@ -1,20 +1,21 @@
-import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import patch
 
+import pytest
 from drugs_comparison import DrugsComparison, DrugsComparisonInput
 from drugs_comparison_models import (
-    MedicinesComparisonResult, 
-    ClinicalMetrics, 
-    RegulatoryMetrics, 
-    PracticalMetrics, 
-    ComparisonSummary, 
-    RecommendationContext,
+    AvailabilityStatus,
+    ClinicalMetrics,
+    ComparisonSummary,
     EffectivenessRating,
+    MedicinesComparisonResult,
+    PracticalMetrics,
+    RecommendationContext,
+    RegulatoryMetrics,
     SafetyRating,
-    AvailabilityStatus
 )
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
+
 
 @pytest.fixture
 def mock_model_config():

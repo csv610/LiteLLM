@@ -6,8 +6,12 @@ import os
 from typing import List, Literal, Optional
 
 import networkx as nx
-import surgery_prompts as prompts
 from pydantic import BaseModel, Field, field_validator
+
+try:
+    from . import surgery_prompts as prompts
+except ImportError:
+    import surgery_prompts as prompts
 
 try:
     from lite.config import ModelConfig, ModelInput

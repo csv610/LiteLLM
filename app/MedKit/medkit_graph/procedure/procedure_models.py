@@ -7,10 +7,14 @@ from typing import List, Literal, Optional
 
 import matplotlib.pyplot as plt
 import networkx as nx
-import procedure_prompts as prompts
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 from pydantic import BaseModel, Field, field_validator
+
+try:
+    from . import procedure_prompts as prompts
+except ImportError:
+    import procedure_prompts as prompts
 
 # =========================
 # 1️⃣ Pydantic Models

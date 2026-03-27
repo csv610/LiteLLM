@@ -1,10 +1,11 @@
-import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 from drug_disease_interaction import DrugDiseaseInteraction
-from drug_disease_interaction_prompts import DrugDiseaseInput, PromptStyle
-from drug_disease_interaction_models import ModelOutput, DrugDiseaseInteractionModel
 from drug_disease_interaction_cli import create_drug_disease_interaction_report
+from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
+from drug_disease_interaction_prompts import DrugDiseaseInput, PromptStyle
 from lite.config import ModelConfig
 
 # --- Core Class Mock Tests ---
@@ -97,6 +98,7 @@ def test_parse_prompt_style():
 
 def test_get_user_arguments():
     import sys
+
     from drug_disease_interaction_cli import get_user_arguments
     test_args = [
         "drug_disease_interaction_cli.py",
@@ -181,7 +183,11 @@ def test_prompt_builder_system_prompt():
     assert "drug-disease interactions" in system_prompt
 
 def test_prompt_builder_user_prompt():
-    from drug_disease_interaction_prompts import PromptBuilder, DrugDiseaseInput, PromptStyle
+    from drug_disease_interaction_prompts import (
+        DrugDiseaseInput,
+        PromptBuilder,
+        PromptStyle,
+    )
     config = DrugDiseaseInput(
         medicine_name="Warfarin",
         condition_name="Liver Cirrhosis",

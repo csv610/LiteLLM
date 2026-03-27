@@ -10,15 +10,24 @@ import logging
 from pathlib import Path
 from typing import Optional, Union
 
-from drug_addiction_models import (
-    DrugAddictionModel,
-    ModelOutput,
-    WithdrawalSymptomModel,
-)
-from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
+
+try:
+    from .drug_addiction_models import (
+        DrugAddictionModel,
+        ModelOutput,
+        WithdrawalSymptomModel,
+    )
+    from .drug_addiction_prompts import DrugAddictionInput, PromptBuilder
+except ImportError:
+    from drug_addiction_models import (
+        DrugAddictionModel,
+        ModelOutput,
+        WithdrawalSymptomModel,
+    )
+    from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
 
 logger = logging.getLogger(__name__)
 

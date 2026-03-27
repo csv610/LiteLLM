@@ -1,8 +1,8 @@
 import os
+
 import pytest
-from pathlib import Path
 from drug_drug_interaction import DrugDrugInteractionGenerator
-from drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
+from drug_drug_interaction_prompts import DrugDrugInput
 from lite.config import ModelConfig
 
 # Set model from environment or use a common default

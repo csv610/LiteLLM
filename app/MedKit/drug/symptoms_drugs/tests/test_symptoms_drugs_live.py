@@ -1,9 +1,10 @@
 import os
+
 import pytest
-from pathlib import Path
+from lite.config import ModelConfig
 from symptom_drugs import SymptomDrugs
 from symptom_drugs_prompts import SymptomInput
-from lite.config import ModelConfig
+
 
 @pytest.mark.skipif(
     not os.getenv("GEMINI_API_KEY") and not os.getenv("OPENAI_API_KEY"),

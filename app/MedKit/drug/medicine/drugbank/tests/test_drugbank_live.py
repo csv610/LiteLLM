@@ -1,8 +1,9 @@
 import os
+
 import pytest
-from pathlib import Path
 from drugbank_medicine import DrugBankMedicine
 from lite.config import ModelConfig
+
 
 @pytest.mark.skipif(
     not os.getenv("GEMINI_API_KEY") and not os.getenv("OPENAI_API_KEY"),

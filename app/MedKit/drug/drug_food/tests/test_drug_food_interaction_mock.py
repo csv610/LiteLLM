@@ -1,14 +1,15 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from pathlib import Path
+
+import pytest
 from drug_food_interaction import DrugFoodInteraction
-from drug_food_interaction_prompts import DrugFoodInput
 from drug_food_interaction_models import (
+    DataAvailabilityInfoModel,
     DrugFoodInteractionModel,
     ModelOutput,
-    DataAvailabilityInfoModel,
 )
+from drug_food_interaction_prompts import DrugFoodInput
 from lite.config import ModelConfig, ModelInput
+
 
 @pytest.fixture
 def model_config():

@@ -2,16 +2,6 @@ import argparse
 import json
 import os
 import sys
-from pathlib import Path
-
-# Add project root to sys.path
-sys.path.append(str(Path(__file__).parent.parent))
-
-
-def setup_path(domain):
-    p = str(Path(__file__).parent.parent / "medgraphs" / domain)
-    if p not in sys.path:
-        sys.path.append(p)
 
 
 def main():
@@ -25,8 +15,6 @@ def main():
         "disease",
         "anatomy",
         "medicine",
-        "pathophysiology",
-        "pharmacology",
         "procedure",
         "surgery",
         "genetic",
@@ -55,116 +43,98 @@ def main():
 
     try:
         if args.command in domains:
-            setup_path(args.command)
-
-            # Dynamic imports based on domain
             if args.command == "disease":
-                from medgraphs.disease.core import (
-                    DiseaseGraphBuilder as Builder,
+                from medkit_graph.disease.disease_models import (
+                    DiseaseKnowledgeGraphBuilder as Builder,
                 )
-                from medgraphs.disease.core import (
-                    DiseaseTripletExtractor as Extractor,
-                )
-                from medgraphs.disease.core import (
+                from medkit_graph.disease.disease_models import (
                     GraphVisualizer as Visualizer,
                 )
+
+                builder = Builder()
+                triples = builder.build_from_name(input_text)
             elif args.command == "anatomy":
-                from medgraphs.anatomy.core import (
-                    AnatomyGraphBuilder as Builder,
+                from medkit_graph.anatomy.anatomy_models import (
+                    AnatomyKnowledgeGraph as Builder,
                 )
-                from medgraphs.anatomy.core import (
-                    AnatomyTripletExtractor as Extractor,
-                )
-                from medgraphs.anatomy.core import (
+                from medkit_graph.anatomy.anatomy_models import (
                     GraphVisualizer as Visualizer,
                 )
+
+                builder = Builder()
+                triples = builder.build_from_name(input_text)
             elif args.command == "medicine":
-                from medgraphs.medicine.core import (
-                    GraphVisualizer as Visualizer,
-                )
-                from medgraphs.medicine.core import (
-                    MedicineGraphBuilder as Builder,
-                )
-                from medgraphs.medicine.core import (
-                    MedicineTripletExtractor as Extractor,
-                )
-            elif args.command == "pathophysiology":
-                from medgraphs.pathophysiology.core import (
-                    GraphVisualizer as Visualizer,
-                )
-                from medgraphs.pathophysiology.core import (
-                    PathophysiologyGraphBuilder as Builder,
-                )
-                from medgraphs.pathophysiology.core import (
-                    PathophysiologyTripletExtractor as Extractor,
-                )
-            elif args.command == "pharmacology":
-                from medgraphs.pharmacology.core import (
-                    GraphVisualizer as Visualizer,
-                )
-                from medgraphs.pharmacology.core import (
-                    PharmacologyGraphBuilder as Builder,
-                )
-                from medgraphs.pharmacology.core import (
-                    PharmacologyTripletExtractor as Extractor,
-                )
+                from medkit_graph.medicine.medicine_models import MedicineKnowledgeGraph
+
+                builder = MedicineKnowledgeGraph()
+                triples = builder.build_from_medicine(input_text)
+                Visualizer = None
             elif args.command == "procedure":
-                from medgraphs.procedure.core import (
-                    GraphVisualizer as Visualizer,
+                from medkit_graph.procedure.procedure_models import (
+                    ModelConfig,
                 )
-                from medgraphs.procedure.core import (
+                from medkit_graph.procedure.procedure_models import (
                     ProcedureGraphBuilder as Builder,
                 )
-                from medgraphs.procedure.core import (
-                    ProcedureTripletExtractor as Extractor,
-                )
+
+                builder = Builder(ModelConfig(model="ollama/gemma3", temperature=0.0))
+                triples = builder.build(input_text)
             elif args.command == "surgery":
-                from medgraphs.surgery.core import (
-                    GraphVisualizer as Visualizer,
-                )
-                from medgraphs.surgery.core import (
+                from medkit_graph.surgery.surgery_models import (
                     SurgeryGraphBuilder as Builder,
                 )
-                from medgraphs.surgery.core import (
+                from medkit_graph.surgery.surgery_models import (
                     SurgeryTripletExtractor as Extractor,
                 )
+
+                extractor = Extractor()
+                triples = extractor.extract(input_text)
+                builder = Builder()
+                builder.add_triples(triples)
+                Visualizer = None
             elif args.command == "genetic":
-                from medgraphs.genetic.core import (
-                    GeneticGraphBuilder as Builder,
+                from medkit_graph.genetic.core import (
+                    GeneticsGraphBuilder as Builder,
                 )
-                from medgraphs.genetic.core import (
-                    GeneticTripletExtractor as Extractor,
+                from medkit_graph.genetic.core import (
+                    GeneticsTripletExtractor as Extractor,
                 )
-                from medgraphs.genetic.core import (
-                    GraphVisualizer as Visualizer,
-                )
+
+                extractor = Extractor()
+                triples = extractor.extract(input_text)
+                builder = Builder()
+                builder.add_triples(triples)
             elif args.command == "symptoms":
-                from medgraphs.symptoms.core import (
-                    GraphVisualizer as Visualizer,
-                )
-                from medgraphs.symptoms.core import (
+                from medkit_graph.symptoms.sympton_models import (
                     SymptomGraphBuilder as Builder,
                 )
-                from medgraphs.symptoms.core import (
+                from medkit_graph.symptoms.sympton_models import (
                     SymptomTripletExtractor as Extractor,
                 )
 
-            extractor = Extractor()
-            triples = extractor.extract(input_text)
+                extractor = Extractor()
+                triples = extractor.extract(input_text)
+                builder = Builder()
+                builder.add_triples(triples)
 
             if args.json:
-                print(json.dumps([t.dict() for t in triples], indent=2))
+                print(json.dumps([t.model_dump() for t in triples], indent=2))
             else:
                 print(f"✅ Extracted {len(triples)} {args.command} triples.")
                 for t in triples:
                     print(f" - {t.source} --({t.relation})--> {t.target}")
 
             if not args.no_viz:
-                builder = Builder()
-                builder.add_triples(triples)
-                visualizer = Visualizer(builder.G)
-                print("📊 Opening visualization window...")
-                visualizer.show()
+                if Visualizer is None:
+                    print("Visualization is not implemented for surgery.")
+                else:
+                    visualizer = (
+                        Visualizer(builder)
+                        if args.command == "disease"
+                        else Visualizer(builder.G)
+                    )
+                    print("📊 Opening visualization window...")
+                    visualizer.show()
 
         elif args.command == "test":
             from medkit_diagnose.medical_tests_graph import (
@@ -183,9 +153,7 @@ def main():
             if not args.no_viz:
                 builder = MedicalTestGraphBuilder()
                 builder.add_triples(triples)
-                visualizer = Visualizer(builder.G)
-                print("📊 Opening visualization window...")
-                visualizer.show()
+                print("Visualization is not implemented for test graphs.")
 
     except Exception as e:
         print(f"Error: {e}")

@@ -13,8 +13,12 @@ from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
-from drug_drug_interaction_models import DrugInteractionModel, ModelOutput
-from drug_drug_interaction_prompts import DrugDrugInput, DrugDrugPromptBuilder
+try:
+    from .drug_drug_interaction_models import DrugInteractionModel, ModelOutput
+    from .drug_drug_interaction_prompts import DrugDrugInput, DrugDrugPromptBuilder
+except ImportError:
+    from drug_drug_interaction_models import DrugInteractionModel, ModelOutput
+    from drug_drug_interaction_prompts import DrugDrugInput, DrugDrugPromptBuilder
 
 logger = logging.getLogger(__name__)
 

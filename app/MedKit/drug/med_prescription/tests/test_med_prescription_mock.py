@@ -1,10 +1,10 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from pathlib import Path
 
-from prescription_extractor import PrescriptionExtractor, PrescriptionData, Medication
-from prescription_analyzer import analyze_prescription, PrescriptionAnalysis
-from lite.config import ModelConfig, ModelInput
+import pytest
+from lite.config import ModelConfig
+from prescription_analyzer import PrescriptionAnalysis, analyze_prescription
+from prescription_extractor import Medication, PrescriptionData, PrescriptionExtractor
+
 
 @pytest.fixture
 def mock_model_config():

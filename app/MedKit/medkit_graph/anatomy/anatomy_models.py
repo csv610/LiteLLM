@@ -1,10 +1,14 @@
 import os
 from typing import List, Literal, Optional
 
-import anatomy_prompts as prompts
 import matplotlib.pyplot as plt
 import networkx as nx
 from pydantic import BaseModel, Field, field_validator
+
+try:
+    from . import anatomy_prompts as prompts
+except ImportError:
+    import anatomy_prompts as prompts
 
 try:
     from lite import LiteClient

@@ -4,9 +4,13 @@
 import os
 from typing import List, Literal, Optional
 
-import medicine_prompts as prompts
 import networkx as nx
 from pydantic import BaseModel, Field, field_validator
+
+try:
+    from . import medicine_prompts as prompts
+except ImportError:
+    import medicine_prompts as prompts
 
 try:
     from lite import LiteClient

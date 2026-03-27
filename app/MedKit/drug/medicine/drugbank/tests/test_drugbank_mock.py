@@ -1,10 +1,10 @@
-import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import patch
 
+import pytest
 from drugbank_medicine import DrugBankMedicine
-from drugbank_medicine_models import MedicineInfo
-from lite.config import ModelConfig, ModelInput
+from lite.config import ModelConfig
+
 
 @pytest.fixture
 def mock_model_config():

@@ -178,54 +178,67 @@ def main():
             from drug_drug_interaction_prompts import DrugDrugInput
 
             gen = DrugDrugInteractionGenerator(model_config)
-            config = DrugDrugInput(
+            user_input = DrugDrugInput(
                 medicine1=args.medicine1, medicine2=args.medicine2, age=args.age
             )
-            res = gen.generate_text(config=config, structured=args.structured)
+            res = gen.generate_text(user_input=user_input, structured=args.structured)
             if res:
                 gen.save(res, output_dir)
 
         elif args.command == "food":
             setup_path("drug_food")
-            from drug_food_interaction import DrugFoodInteractionGenerator
+            from drug_food_interaction import DrugFoodInteraction
+            from drug_food_interaction_prompts import DrugFoodInput
 
-            gen = DrugFoodInteractionGenerator(model_config)
-            res = gen.generate_text(
-                medicine=args.medicine, food=args.food, structured=args.structured
+            gen = DrugFoodInteraction(model_config)
+            user_input = DrugFoodInput(
+                medicine_name=args.medicine,
+                specific_food=args.food,
             )
+            res = gen.generate_text(user_input=user_input, structured=args.structured)
             if res:
                 gen.save(res, output_dir)
 
         elif args.command == "disease":
             setup_path("drug_disease")
-            from drug_disease_interaction import DrugDiseaseInteractionGenerator
+            from drug_disease_interaction import DrugDiseaseInteraction
+            from drug_disease_interaction_prompts import DrugDiseaseInput
 
-            gen = DrugDiseaseInteractionGenerator(model_config)
-            res = gen.generate_text(
-                medicine=args.medicine, disease=args.disease, structured=args.structured
+            gen = DrugDiseaseInteraction(model_config)
+            user_input = DrugDiseaseInput(
+                medicine_name=args.medicine,
+                condition_name=args.disease,
             )
+            res = gen.generate_text(config=user_input, structured=args.structured)
             if res:
                 gen.save(res, output_dir)
 
         elif args.command == "similar":
             setup_path("similar_drugs")
-            from similar_drugs import SimilarDrugsGenerator
+            from similar_drugs import SimilarDrugs
+            from similar_drugs_models import SimilarDrugsConfig
 
-            gen = SimilarDrugsGenerator(model_config)
-            res = gen.generate_text(medicine=args.medicine, structured=args.structured)
+            gen = SimilarDrugs(SimilarDrugsConfig(verbosity=args.verbosity), model_config)
+            res = gen.find(medicine_name=args.medicine, structured=args.structured)
             if res:
-                gen.save(res, output_dir)
+                output_path = output_dir / f"{args.medicine.lower().replace(' ', '_')}_similar_medicines"
+                suffix = ".md" if isinstance(res, str) else ".json"
+                with open(output_path.with_suffix(suffix), "w", encoding="utf-8") as f:
+                    if isinstance(res, str):
+                        f.write(res)
+                    else:
+                        f.write(res.model_dump_json(indent=2))
 
         elif args.command == "compare":
             setup_path("drugs_comparision")
-            from drugs_comparison import DrugsComparisonGenerator
+            from drugs_comparison import DrugsComparison, DrugsComparisonInput
 
-            gen = DrugsComparisonGenerator(model_config)
-            res = gen.generate_text(
+            gen = DrugsComparison(model_config)
+            user_input = DrugsComparisonInput(
                 medicine1=args.medicine1,
                 medicine2=args.medicine2,
-                structured=args.structured,
             )
+            res = gen.generate_text(config=user_input, structured=args.structured)
             if res:
                 gen.save(res, output_dir)
 
@@ -240,10 +253,12 @@ def main():
 
         elif args.command == "addiction":
             setup_path("drug_addiction")
-            from drug_addiction import DrugAddictionGenerator
+            from drug_addiction import DrugAddiction
+            from drug_addiction_prompts import DrugAddictionInput
 
-            gen = DrugAddictionGenerator(model_config)
-            res = gen.generate_text(drug=args.drug, structured=args.structured)
+            gen = DrugAddiction(model_config)
+            user_input = DrugAddictionInput(medicine_name=args.drug)
+            res = gen.generate_text(user_input)
             if res:
                 gen.save(res, output_dir)
 

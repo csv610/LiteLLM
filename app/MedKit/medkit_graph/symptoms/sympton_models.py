@@ -7,8 +7,12 @@ from typing import List, Literal, Optional
 
 import matplotlib.pyplot as plt
 import networkx as nx
-import sympton_prompts as prompts
 from pydantic import BaseModel, Field, field_validator
+
+try:
+    from . import sympton_prompts as prompts
+except ImportError:
+    import sympton_prompts as prompts
 
 try:
     from google import genai

@@ -1,9 +1,8 @@
-import pytest
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
 
+import pytest
 from drug_addiction import DrugAddiction
-from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
 from drug_addiction_models import (
     AddictionMechanismModel,
     AddictionPotential,
@@ -12,7 +11,9 @@ from drug_addiction_models import (
     DrugAddictionModel,
     ModelOutput,
 )
+from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
 from lite.config import ModelConfig
+
 
 @pytest.fixture
 def mock_model_config():

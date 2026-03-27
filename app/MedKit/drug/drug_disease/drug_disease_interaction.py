@@ -9,11 +9,19 @@ how medical conditions affect drug efficacy, safety, and metabolism.
 import logging
 from pathlib import Path
 
-from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
-from drug_disease_interaction_prompts import DrugDiseaseInput, PromptBuilder
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
+
+try:
+    from .drug_disease_interaction_models import (
+        DrugDiseaseInteractionModel,
+        ModelOutput,
+    )
+    from .drug_disease_interaction_prompts import DrugDiseaseInput, PromptBuilder
+except ImportError:
+    from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
+    from drug_disease_interaction_prompts import DrugDiseaseInput, PromptBuilder
 
 logger = logging.getLogger(__name__)
 

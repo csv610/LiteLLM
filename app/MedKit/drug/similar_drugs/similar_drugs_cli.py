@@ -7,14 +7,12 @@ mechanisms of action. Provides detailed comparisons to help identify suitable su
 import argparse
 import logging
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
 from lite.config import ModelConfig
 from similar_drugs import SimilarDrugs
 from similar_drugs_models import SimilarDrugsConfig, SimilarMedicinesResult
-
 
 logger = logging.getLogger(__name__)
 

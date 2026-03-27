@@ -9,11 +9,16 @@ how food and beverages interact with medicines.
 import logging
 from pathlib import Path
 
-from drug_food_interaction_models import DrugFoodInteractionModel, ModelOutput
-from drug_food_interaction_prompts import DrugFoodInput, PromptBuilder
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
+
+try:
+    from .drug_food_interaction_models import DrugFoodInteractionModel, ModelOutput
+    from .drug_food_interaction_prompts import DrugFoodInput, PromptBuilder
+except ImportError:
+    from drug_food_interaction_models import DrugFoodInteractionModel, ModelOutput
+    from drug_food_interaction_prompts import DrugFoodInput, PromptBuilder
 
 logger = logging.getLogger(__name__)
 

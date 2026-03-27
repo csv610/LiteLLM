@@ -1,7 +1,7 @@
-import pytest
 import os
-from pathlib import Path
-from drug_disease_interaction import DrugDiseaseInteraction, DrugDiseaseInput
+
+import pytest
+from drug_disease_interaction import DrugDiseaseInput, DrugDiseaseInteraction
 from lite.config import ModelConfig
 
 # Skip live tests by default unless LIVE_TEST environment variable is set

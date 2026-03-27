@@ -1,9 +1,10 @@
 import os
+
 import pytest
-from pathlib import Path
+from lite.config import ModelConfig
 from similar_drugs import SimilarDrugs
 from similar_drugs_models import SimilarDrugsConfig
-from lite.config import ModelConfig
+
 
 @pytest.mark.skipif(
     not os.getenv("GEMINI_API_KEY") and not os.getenv("OPENAI_API_KEY"),

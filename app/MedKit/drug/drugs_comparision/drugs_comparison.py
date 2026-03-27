@@ -11,11 +11,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
-from drugs_comparison_models import MedicinesComparisonResult
-from drugs_comparison_prompts import PromptBuilder
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
+
+try:
+    from .drugs_comparison_models import MedicinesComparisonResult
+    from .drugs_comparison_prompts import PromptBuilder
+except ImportError:
+    from drugs_comparison_models import MedicinesComparisonResult
+    from drugs_comparison_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

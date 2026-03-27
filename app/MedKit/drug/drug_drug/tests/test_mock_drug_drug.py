@@ -1,19 +1,20 @@
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
 from drug_drug_interaction import DrugDrugInteractionGenerator
-from drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
 from drug_drug_interaction_models import (
-    DrugInteractionModel,
-    DrugInteractionDetailsModel,
-    DrugInteractionSeverity,
     ConfidenceLevel,
-    DataSourceType,
-    PatientFriendlySummaryModel,
     DataAvailabilityInfoModel,
-    ModelOutput
+    DataSourceType,
+    DrugInteractionDetailsModel,
+    DrugInteractionModel,
+    DrugInteractionSeverity,
+    ModelOutput,
+    PatientFriendlySummaryModel,
 )
-from lite.config import ModelConfig, ModelInput
+from drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
+from lite.config import ModelConfig
+
 
 @pytest.fixture
 def model_config():

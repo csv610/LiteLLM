@@ -1,10 +1,11 @@
-import pytest
 import os
-from pathlib import Path
+
+import pytest
 from drug_food_interaction import DrugFoodInteraction
+from drug_food_interaction_models import ModelOutput
 from drug_food_interaction_prompts import DrugFoodInput
 from lite.config import ModelConfig
-from drug_food_interaction_models import ModelOutput
+
 
 # Skip live tests if no OpenAI API key is found
 @pytest.mark.live

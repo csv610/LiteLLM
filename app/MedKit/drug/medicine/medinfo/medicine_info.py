@@ -10,8 +10,13 @@ from pathlib import Path
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
-from medicine_info_models import MedicineInfoModel, ModelOutput
-from medicine_info_prompts import PromptBuilder
+
+try:
+    from .medicine_info_models import MedicineInfoModel, ModelOutput
+    from .medicine_info_prompts import PromptBuilder
+except ImportError:
+    from medicine_info_models import MedicineInfoModel, ModelOutput
+    from medicine_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

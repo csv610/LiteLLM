@@ -1,8 +1,9 @@
 import os
+
 import pytest
-from pathlib import Path
-from medicine_info import MedicineInfoGenerator
 from lite.config import ModelConfig
+from medicine_info import MedicineInfoGenerator
+
 
 @pytest.mark.skipif(
     not os.getenv("GEMINI_API_KEY") and not os.getenv("OPENAI_API_KEY"),
