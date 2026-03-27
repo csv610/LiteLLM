@@ -28,14 +28,30 @@ def sample_problem():
 def test_generate_text(mock_lite_client, sample_problem):
     # Setup mock
     instance = mock_lite_client.return_value
-    instance.generate_text.return_value = sample_problem
+    instance.generate_text.side_effect = [sample_problem, sample_problem]
     
     guide = HilbertProblemsGuide()
     result = guide.generate_text(1)
     
     assert result.number == 1
     assert result.title == "The Continuum Hypothesis"
-    instance.generate_text.assert_called_once()
+    assert instance.generate_text.call_count == 2
+
+def test_generate_text_reviewer_fallback(mock_lite_client, sample_problem):
+    instance = mock_lite_client.return_value
+    instance.generate_text.side_effect = [sample_problem, "not-structured"]
+
+    guide = HilbertProblemsGuide()
+    result = guide.generate_text(1)
+
+    assert result == sample_problem
+    assert instance.generate_text.call_count == 2
+
+def test_generate_text_invalid_problem_number():
+    guide = HilbertProblemsGuide()
+
+    with pytest.raises(ValueError, match="between 1 and 23"):
+        guide.generate_text(24)
 
 def test_save_to_file(sample_problem, tmp_path):
     guide = HilbertProblemsGuide()
@@ -58,12 +74,15 @@ def test_display_problem(sample_problem, capsys):
 
 def test_display_summary(mock_lite_client, capsys):
     instance = mock_lite_client.return_value
-    instance.generate_text.return_value = "Summary of all problems..."
+    instance.generate_text.side_effect = [
+        "Summary of all problems...",
+        "Reviewed summary of all problems..."
+    ]
     
     guide = HilbertProblemsGuide()
     guide.display_summary()
     
     captured = capsys.readouterr()
     assert "SUMMARY OF HILBERT'S 23 PROBLEMS" in captured.out
-    assert "Summary of all problems..." in captured.out
-    instance.generate_text.assert_called_once()
+    assert "Reviewed summary of all problems..." in captured.out
+    assert instance.generate_text.call_count == 2
