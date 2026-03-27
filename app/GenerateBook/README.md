@@ -6,7 +6,8 @@
 
 - Accepts a subject, optional education level, and chapter count.
 - Generates chapter structures for one level or for all supported levels.
-- Saves the result through the generator's export path.
+- Runs a 3-agent workflow: planner, generator, reviewer.
+- Saves the reviewed result through the generator's export path.
 
 ## Why It Matters
 
@@ -16,14 +17,15 @@ Curriculum planning often starts with a level-appropriate sequence of topics rat
 
 - Works across several education levels from a single CLI.
 - Uses typed input and output models rather than raw text only.
+- Separates planning, drafting, and review into distinct model calls.
 - Produces a reusable structure that can be refined later.
 
 ## Files
 
 - `bookchapters_cli.py`: CLI entrypoint.
-- `bookchapters_generator.py`: generation and save logic.
-- `bookchapters_models.py`: typed input and output models.
-- `bookchapters_prompts.py`: level-specific prompting.
+- `bookchapters_generator.py`: 3-agent orchestration and save logic.
+- `bookchapters_models.py`: typed planner, draft, review, and final output models.
+- `bookchapters_prompts.py`: prompts for planner, generator, and reviewer agents.
 - `test_bookchapters_mock.py`: tests.
 
 ## Usage
@@ -51,3 +53,4 @@ python -m unittest test_bookchapters_mock.py
 - The generated curriculum reflects model judgment rather than an accredited syllabus.
 - Difficulty progression and sequencing should be reviewed by a subject-matter expert.
 - The tool generates chapter plans, not complete instructional content.
+- The 3-agent flow improves consistency, but it also increases latency and token usage because it performs three model calls per request.
