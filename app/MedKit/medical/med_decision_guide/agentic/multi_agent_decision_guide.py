@@ -18,6 +18,7 @@ from .medical_decision_guide_models import (
     EmergencyTriageModel,
     DecisionLogicModel,
     OutcomeListModel,
+    ComplianceReportModel,
     DecisionNode,
     Outcome
 )
@@ -57,6 +58,7 @@ class MultiAgentMedicalDecisionGuideGenerator:
         self.architect = Agent(self.client, "LogicArchitect")
         self.outcomes = Agent(self.client, "OutcomeSpecialist")
         self.synthesizer = Agent(self.client, "SynthesisCoordinator")
+        self.compliance_officer = Agent(self.client, "ComplianceOfficer")
 
     def generate(self, symptom: str) -> MedicalDecisionGuideModel:
         """Orchestrates the multi-agent generation process."""
@@ -109,6 +111,18 @@ class MultiAgentMedicalDecisionGuideGenerator:
             warning_signs=triage_info.warning_signs,
             emergency_indicators=triage_info.emergency_indicators
         )
+
+        # Step 6: Compliance Audit
+        audit_report: ComplianceReportModel = self.compliance_officer.run(
+            MultiAgentPrompts.get_compliance_system_prompt(),
+            MultiAgentPrompts.get_compliance_user_prompt(final_guide.model_dump_json()),
+            ComplianceReportModel
+        )
+        
+        if not audit_report.is_safe:
+            logger.warning(f"Compliance audit identified safety concerns for {symptom}: {audit_report.safety_concerns}")
+        else:
+            logger.info(f"✓ Compliance audit passed for {symptom} (Score: {audit_report.compliance_score})")
 
         logger.info("✓ Multi-agent generation complete")
         return final_guide

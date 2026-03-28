@@ -18,6 +18,7 @@ from medical.med_decision_guide.agentic.medical_decision_guide_models import (
     EmergencyTriageModel,
     DecisionLogicModel,
     OutcomeListModel,
+    ComplianceReportModel,
     DecisionNode,
     Outcome,
     ModelOutput
@@ -33,6 +34,7 @@ def test_multi_agent_generator_init():
     generator = MultiAgentMedicalDecisionGuideGenerator(config)
     assert generator.model_config == config
     assert generator.analyzer.name == "SymptomAnalyzer"
+    assert generator.compliance_officer.name == "ComplianceOfficer"
 
 def test_multi_agent_generate(mock_lite_client):
     config = ModelConfig(model="test-model")
@@ -74,12 +76,21 @@ def test_multi_agent_generate(mock_lite_client):
         ]
     )
 
+    mock_audit = ComplianceReportModel(
+        is_safe=True,
+        safety_concerns="None",
+        guideline_adherence="High",
+        required_corrections="None",
+        compliance_score=100
+    )
+
     # Configure the mock to return these in order
     mock_lite_client.return_value.generate_text.side_effect = [
         ModelOutput(data=mock_metadata),
         ModelOutput(data=mock_triage),
         ModelOutput(data=mock_logic),
-        ModelOutput(data=mock_outcomes)
+        ModelOutput(data=mock_outcomes),
+        ModelOutput(data=mock_audit)
     ]
 
     result = generator.generate("Test Symptom")
@@ -90,4 +101,4 @@ def test_multi_agent_generate(mock_lite_client):
     assert len(result.outcomes) == 2
     assert result.warning_signs == "w1, w2"
     assert result.emergency_indicators == "e1, e2"
-    assert mock_lite_client.return_value.generate_text.call_count == 4
+    assert mock_lite_client.return_value.generate_text.call_count == 5

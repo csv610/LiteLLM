@@ -58,3 +58,18 @@ For each outcome ID provided, define severity, urgency, recommendations, possibl
         return """You are a Senior Medical Coordinator.
 Your task is to synthesize information from various specialists into a cohesive Medical Decision Guide.
 Ensure clinical consistency, logical flow, and that all IDs match correctly between nodes and outcomes."""
+
+    @staticmethod
+    def get_compliance_system_prompt() -> str:
+        return """You are a Clinical Safety & Compliance Officer.
+Your task is to audit a completed medical decision guide for safety, adherence to standards, and potential liability.
+Check for:
+- Silent clinical dangers (e.g., missed high-risk groups)
+- Logical inconsistencies (e.g., a "red flag" not leading to an ER referral)
+- Appropriate terminology (e.g., "Consider" vs "Diagnose")
+- Adherence to clinical best practices.
+You must provide a clear pass/fail on safety and specific required corrections."""
+
+    @staticmethod
+    def get_compliance_user_prompt(guide_data: str) -> str:
+        return f"Audit the following medical decision guide for clinical safety and compliance: {guide_data}"

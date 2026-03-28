@@ -105,6 +105,16 @@ class OutcomeListModel(BaseModel):
     outcomes: List[Outcome]
 
 
+class ComplianceReportModel(BaseModel):
+    """Clinical safety and compliance audit report."""
+
+    is_safe: bool = Field(description="Whether the guide meets safety standards")
+    safety_concerns: str = Field(description="Specific clinical safety risks identified, comma-separated")
+    guideline_adherence: str = Field(description="Assessment of adherence to clinical standards")
+    required_corrections: str = Field(description="Mandatory changes needed for safety/compliance")
+    compliance_score: int = Field(description="Numerical score from 0-100 for overall compliance")
+
+
 class ModelOutput(BaseModel):
     data: Optional[
         Union[
@@ -113,6 +123,7 @@ class ModelOutput(BaseModel):
             EmergencyTriageModel,
             DecisionLogicModel,
             OutcomeListModel,
+            ComplianceReportModel,
         ]
     ] = None
     markdown: Optional[str] = None
