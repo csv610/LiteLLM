@@ -20,7 +20,10 @@ from tqdm import tqdm
 try:
     from .med_refer import MedReferral
 except (ImportError, ValueError):
-    from medical.med_refer.med_refer import MedReferral
+    try:
+        from medical.med_refer.agentic.med_refer import MedReferral
+    except ImportError:
+        from med_refer import MedReferral
 
 logger = logging.getLogger(__name__)
 

@@ -3,14 +3,14 @@ import logging
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 
-from .medrefer_prompts import PromptBuilder
+from .medrefer_prompts import PromptBuilder, SymptomAnalysis, SpecialistList, Recommendation
 
 logger = logging.getLogger(__name__)
 
 
 class MedReferral:
     """
-    A class for determining the appropriate medical specialists based on a given question using OpenAI GPT model.
+    A multi-agent medical referral system.
     """
 
     medical_specialists = frozenset(
@@ -67,24 +67,66 @@ class MedReferral:
         self.config = config
         self.client = LiteClient(model_config=config)
 
+    def agent_generate_text(self, system_prompt: str, user_prompt: str, response_format: type):
+        """Helper to run a specialized agent with structured output."""
+        try:
+            model_input = ModelInput(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_format=response_format
+            )
+            return self.client.generate_text(model_input=model_input)
+        except Exception as e:
+            logger.error(f"Agent error: {e}")
+            raise
+
     def generate_text(self, question):
         """
-        Determines the appropriate medical specialists for a given question.
+        Orchestrates the multi-agent flow to determine medical referrals.
         """
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(question)
-
         try:
-            logger.debug(f"Sending request to model: {self.config.model}")
+            logger.info(f"Starting multi-agent analysis for: {question}")
 
-            model_input = ModelInput(
-                system_prompt=system_prompt, user_prompt=user_prompt
+            # Agent 1: Symptom Analysis
+            sys_p, user_p = PromptBuilder.get_symptom_analysis_prompts(question)
+            analysis: SymptomAnalysis = self.agent_generate_text(sys_p, user_p, SymptomAnalysis)
+            logger.info(f"Symptom analysis completed: {analysis.severity}")
+
+            # Agent 2: Specialist Matching
+            sys_p, user_p = PromptBuilder.get_specialist_matching_prompts(analysis)
+            referrals: SpecialistList = self.agent_generate_text(sys_p, user_p, SpecialistList)
+            logger.info(f"Specialist matching completed: {', '.join(referrals.specialists)}")
+
+            # Coordinator: Consolidate Final Recommendation
+            final_recommendation = Recommendation(
+                analysis=analysis,
+                referrals=referrals
             )
 
-            response = self.client.generate_text(model_input=model_input)
-
-            return response
+            # Convert to markdown for CLI compatibility
+            return self._format_recommendation(final_recommendation)
 
         except Exception as e:
-            logger.error(f"Error in prediction: {e}")
+            logger.error(f"Error in multi-agent orchestration: {e}")
             return f"Error: {str(e)}"
+
+    def _format_recommendation(self, rec: Recommendation) -> str:
+        """Formats the recommendation into a readable markdown string."""
+        symptoms_str = ", ".join(rec.analysis.symptoms)
+        body_parts_str = ", ".join(rec.analysis.affected_body_parts)
+        specialists_str = ", ".join(rec.referrals.specialists)
+
+        return f"""# Medical Referral Analysis
+
+## Symptom Analysis
+- **Symptoms:** {symptoms_str}
+- **Severity:** {rec.analysis.severity}
+- **Affected Body Parts:** {body_parts_str}
+
+## Recommended Specialists
+- **Specialists:** {specialists_str}
+- **Reasoning:** {rec.referrals.reasoning}
+
+## Medical Disclaimer
+> {rec.disclaimer}
+"""

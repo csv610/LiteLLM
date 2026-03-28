@@ -7,8 +7,51 @@ for medical specialist recommendation using AI models.
 """
 
 
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+
+class SymptomAnalysis(BaseModel):
+    """Structured analysis of patient symptoms."""
+    symptoms: List[str] = Field(description="List of identified symptoms")
+    severity: str = Field(description="Overall severity: Low, Medium, High, or Urgent")
+    affected_body_parts: List[str] = Field(description="Body parts or systems affected")
+
+
+class SpecialistList(BaseModel):
+    """List of recommended medical specialists."""
+    specialists: List[str] = Field(description="List of recommended specialists")
+    reasoning: str = Field(description="Brief explanation for the recommendations")
+
+
+class Recommendation(BaseModel):
+    """Final medical referral recommendation."""
+    analysis: SymptomAnalysis
+    referrals: SpecialistList
+    disclaimer: str = Field(
+        default="This is an AI-generated recommendation and should not replace professional medical advice. Please consult a healthcare professional immediately for urgent symptoms.",
+        description="Medical disclaimer"
+    )
+
+
 class PromptBuilder:
     """Builder class for creating prompts for medical specialist recommendation."""
+
+    @staticmethod
+    def get_symptom_analysis_prompts(question: str) -> tuple[str, str]:
+        """Create prompts for the Symptom Analyst agent."""
+        system_prompt = """You are a medical symptom analyst. Your task is to extract symptoms, assess severity, and identify affected body parts from the patient's description.
+Be precise and professional. Categorize severity based on typical clinical urgency."""
+        user_prompt = f"Analyze the following patient question: \"{question}\""
+        return system_prompt, user_prompt
+
+    @staticmethod
+    def get_specialist_matching_prompts(analysis: SymptomAnalysis) -> tuple[str, str]:
+        """Create prompts for the Specialist Matcher agent."""
+        system_prompt = """You are a medical specialist matcher. Based on a structured symptom analysis, recommend the most appropriate specialists.
+Provide a clear reasoning for each recommendation."""
+        user_prompt = f"Recommend specialists for the following analysis: {analysis.model_dump_json()}"
+        return system_prompt, user_prompt
 
     @staticmethod
     def create_system_prompt() -> str:
