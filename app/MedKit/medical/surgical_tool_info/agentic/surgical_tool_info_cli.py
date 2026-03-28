@@ -19,13 +19,20 @@ from tqdm import tqdm
 
 try:
     try:
-        from .surgical_tool_info import SurgicalToolInfoGenerator
+        from .surgical_tool_info import (
+            MultiAgentSurgicalToolInfoGenerator,
+            SurgicalToolInfoGenerator,
+        )
     except (ImportError, ValueError):
         from medical.surgical_tool_info.surgical_tool_info import (
+            MultiAgentSurgicalToolInfoGenerator,
             SurgicalToolInfoGenerator,
         )
 except (ImportError, ValueError):
-    from surgical_tool_info import SurgicalToolInfoGenerator
+    from surgical_tool_info import (
+        MultiAgentSurgicalToolInfoGenerator,
+        SurgicalToolInfoGenerator,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +56,9 @@ def get_user_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "-s", "--structured", action="store_true", help="Use structured output."
+    )
+    parser.add_argument(
+        "-a", "--agentic", action="store_true", help="Use multi-agentic generation."
     )
     return parser.parse_args()
 
@@ -76,6 +86,9 @@ def setup_subparser(subparsers: argparse._SubParsersAction) -> argparse.Argument
     parser.add_argument(
         "-s", "--structured", action="store_true", help="Use structured output."
     )
+    parser.add_argument(
+        "-a", "--agentic", action="store_true", help="Use multi-agentic generation."
+    )
     parser.set_defaults(func=main)
     return parser
 
@@ -100,7 +113,13 @@ def main():
 
     try:
         model_config = ModelConfig(model=args.model, temperature=0.2)
-        generator = SurgicalToolInfoGenerator(model_config)
+
+        if args.agentic:
+            generator = MultiAgentSurgicalToolInfoGenerator(model_config)
+            logger.info("Using multi-agentic generation mode")
+        else:
+            generator = SurgicalToolInfoGenerator(model_config)
+            logger.info("Using single-agent generation mode")
 
         for item in tqdm(items, desc="Generating"):
             result = generator.generate_text(tool=item, structured=args.structured)
