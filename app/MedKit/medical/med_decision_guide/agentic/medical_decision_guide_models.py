@@ -3,7 +3,7 @@
 Defines the schema for decision trees used in medical symptom assessment.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -75,6 +75,44 @@ class MedicalDecisionGuideModel(BaseModel):
     )
 
 
+class SymptomMetadataModel(BaseModel):
+    """Metadata about the symptom assessment."""
+
+    guide_name: str
+    primary_symptom: str
+    secondary_symptoms: str
+    age_groups_covered: str
+    scope: str
+
+
+class EmergencyTriageModel(BaseModel):
+    """Emergency and warning indicators."""
+
+    warning_signs: str
+    emergency_indicators: str
+
+
+class DecisionLogicModel(BaseModel):
+    """Decision logic architecture."""
+
+    start_node_id: str
+    decision_nodes: List[DecisionNode]
+
+
+class OutcomeListModel(BaseModel):
+    """List of clinical outcomes."""
+
+    outcomes: List[Outcome]
+
+
 class ModelOutput(BaseModel):
-    data: Optional[MedicalDecisionGuideModel] = None
+    data: Optional[
+        Union[
+            MedicalDecisionGuideModel,
+            SymptomMetadataModel,
+            EmergencyTriageModel,
+            DecisionLogicModel,
+            OutcomeListModel,
+        ]
+    ] = None
     markdown: Optional[str] = None
