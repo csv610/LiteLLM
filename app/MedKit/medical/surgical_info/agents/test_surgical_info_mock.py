@@ -2,41 +2,45 @@ import sys
 from pathlib import Path
 
 # Add the project root to sys.path
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from unittest.mock import patch
-
 import pytest
 from lite.config import ModelConfig
 
-from medical.surgical_info.surgery_info_models import (
-    AlternativesModel,
-    CostAndInsuranceModel,
-    FollowUpModel,
+from medical.surgical_info.agents.surgery_info_models import (
+    ClinicalBackgroundOutput,
+    MedicalPolicyEducationOutput,
     ModelOutput,
+    MultiAgentOutput,
+    PerioperativeCareOutput,
+    SurgicalTechnicalOutput,
+    SurgeryInfoModel,
+    SurgeryMetadataModel,
+    SurgeryBackgroundModel,
+    SurgeryIndicationsModel,
+    PreoperativePhaseModel,
     OperativePhaseModel,
     OperativeRisksModel,
     PostoperativePhaseModel,
-    PreoperativePhaseModel,
     RecoveryAndOutcomesModel,
+    FollowUpModel,
+    AlternativesModel,
     SpecialPopulationsModel,
-    SurgeryBackgroundModel,
-    SurgeryEducationModel,
-    SurgeryEvidenceModel,
-    SurgeryIndicationsModel,
-    SurgeryInfoModel,
-    SurgeryMetadataModel,
-    SurgeryResearchModel,
     TechnicalDetailsModel,
+    SurgeryResearchModel,
+    SurgeryEvidenceModel,
+    SurgeryEducationModel,
+    CostAndInsuranceModel,
 )
-from medical.surgical_info.surgical_info import SurgeryInfoGenerator
+from medical.surgical_info.agents.surgical_info import SurgeryInfoGenerator
 
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.surgical_info.surgical_info.LiteClient") as mock:
+    with patch("medical.surgical_info.agents.surgical_info.LiteClient") as mock:
         yield mock
 
 
@@ -68,8 +72,8 @@ def test_generate_text_structured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = SurgeryInfoGenerator(config)
 
-    # Minimal mock data for structured output
-    mock_data = SurgeryInfoModel(
+    # Mock outputs for the four agents
+    mock_clinical = ClinicalBackgroundOutput(
         metadata=SurgeryMetadataModel(
             surgery_name="Appendectomy",
             alternative_names="Appy",
@@ -90,6 +94,15 @@ def test_generate_text_structured(mock_lite_client):
             absolute_contraindications="None",
             relative_contraindications="None",
         ),
+        alternatives=AlternativesModel(
+            medical_management="Antibiotics",
+            minimally_invasive_procedures="Laparoscopic",
+            conservative_approaches="None",
+            advantages_over_alternatives="Cure",
+        ),
+    )
+
+    mock_perioperative = PerioperativeCareOutput(
         preoperative=PreoperativePhaseModel(
             patient_evaluation="Physical",
             laboratory_tests="CBC",
@@ -98,20 +111,6 @@ def test_generate_text_structured(mock_lite_client):
             risk_stratification="ASA",
             preoperative_preparation="NPO",
             patient_counseling_points="Risks",
-        ),
-        operative=OperativePhaseModel(
-            surgical_approaches="Laparoscopic",
-            anesthesia_type="General",
-            patient_positioning="Supine",
-            surgical_steps="1. Cut",
-            instruments_equipment="Trocar",
-            duration="1 hour",
-        ),
-        operative_risks=OperativeRisksModel(
-            intraoperative_complications="Bleeding",
-            early_postoperative_complications="Infection",
-            late_postoperative_complications="Adhesions",
-            complication_rates="Low",
         ),
         postoperative=PostoperativePhaseModel(
             immediate_care="Recovery room",
@@ -139,22 +138,36 @@ def test_generate_text_structured(mock_lite_client):
             lifestyle_modifications="None",
             warning_signs="Fever",
         ),
-        alternatives=AlternativesModel(
-            medical_management="Antibiotics",
-            minimally_invasive_procedures="Laparoscopic",
-            conservative_approaches="None",
-            advantages_over_alternatives="Cure",
+    )
+
+    mock_technical = SurgicalTechnicalOutput(
+        operative=OperativePhaseModel(
+            surgical_approaches="Laparoscopic",
+            anesthesia_type="General",
+            patient_positioning="Supine",
+            surgical_steps="1. Cut",
+            instruments_equipment="Trocar",
+            duration="1 hour",
         ),
-        special_populations=SpecialPopulationsModel(
-            pediatric_considerations="Common in kids",
-            geriatric_considerations="Subtle presentation",
-            pregnancy_considerations="Emergency surgery",
+        operative_risks=OperativeRisksModel(
+            intraoperative_complications="Bleeding",
+            early_postoperative_complications="Infection",
+            late_postoperative_complications="Adhesions",
+            complication_rates="Low",
         ),
         technical=TechnicalDetailsModel(
             surgical_approach_variations="Open vs Lap",
             surgeon_qualifications="Board certified",
             facility_requirements="OR",
             technology_used="Robot",
+        ),
+    )
+
+    mock_policy = MedicalPolicyEducationOutput(
+        special_populations=SpecialPopulationsModel(
+            pediatric_considerations="Common in kids",
+            geriatric_considerations="Subtle presentation",
+            pregnancy_considerations="Emergency surgery",
         ),
         research=SurgeryResearchModel(
             recent_innovations="NOTES",
@@ -184,14 +197,28 @@ def test_generate_text_structured(mock_lite_client):
         ),
     )
 
-    mock_output = ModelOutput(data=mock_data, markdown=None)
-    mock_lite_client.return_value.generate_text.return_value = mock_output
+    # Set up side_effect to return five responses (4 workers + 1 synthesizer)
+    mock_lite_client.return_value.generate_text.side_effect = [
+        ModelOutput(data=mock_clinical),
+        ModelOutput(data=mock_perioperative),
+        ModelOutput(data=mock_technical),
+        ModelOutput(data=mock_policy),
+        ModelOutput(markdown="# Comprehensive Report\nDetails..."),
+    ]
 
     result = generator.generate_text("Appendectomy", structured=True)
+
+    # Verify calls
+    assert mock_lite_client.return_value.generate_text.call_count == 5
+
+    # Verify results
+    assert result.data is not None
     assert result.data.metadata.surgery_name == "Appendectomy"
+    assert result.markdown == "# Comprehensive Report\nDetails..."
+    assert result.multi_agent_data is not None
 
 
-@patch("medical.surgical_info.surgical_info.save_model_response")
+@patch("medical.surgical_info.agents.surgical_info.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = SurgeryInfoGenerator(config)

@@ -1,6 +1,6 @@
 """Pydantic models for surgical procedure information structure."""
 
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -273,6 +273,34 @@ class CostAndInsuranceModel(BaseModel):
     )
 
 
+class ClinicalBackgroundOutput(BaseModel):
+    metadata: SurgeryMetadataModel
+    background: SurgeryBackgroundModel
+    indications: SurgeryIndicationsModel
+    alternatives: AlternativesModel
+
+
+class PerioperativeCareOutput(BaseModel):
+    preoperative: PreoperativePhaseModel
+    postoperative: PostoperativePhaseModel
+    recovery_outcomes: RecoveryAndOutcomesModel
+    follow_up: FollowUpModel
+
+
+class SurgicalTechnicalOutput(BaseModel):
+    operative: OperativePhaseModel
+    operative_risks: OperativeRisksModel
+    technical: TechnicalDetailsModel
+
+
+class MedicalPolicyEducationOutput(BaseModel):
+    special_populations: SpecialPopulationsModel
+    research: SurgeryResearchModel
+    evidence: SurgeryEvidenceModel
+    education: SurgeryEducationModel
+    cost_and_insurance: CostAndInsuranceModel
+
+
 class SurgeryInfoModel(BaseModel):
     metadata: SurgeryMetadataModel
     background: SurgeryBackgroundModel
@@ -292,6 +320,14 @@ class SurgeryInfoModel(BaseModel):
     cost_and_insurance: CostAndInsuranceModel
 
 
+class MultiAgentOutput(BaseModel):
+    clinical_background: Optional[ClinicalBackgroundOutput] = None
+    perioperative_care: Optional[PerioperativeCareOutput] = None
+    surgical_technical: Optional[SurgicalTechnicalOutput] = None
+    medical_policy_education: Optional[MedicalPolicyEducationOutput] = None
+
+
 class ModelOutput(BaseModel):
-    data: Optional[SurgeryInfoModel] = None
+    data: Optional[Any] = None
+    multi_agent_data: Optional[MultiAgentOutput] = None
     markdown: Optional[str] = None
