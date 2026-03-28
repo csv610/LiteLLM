@@ -92,17 +92,71 @@ Verify all information and ensure a cohesive, safe response. Do NOT include any 
         return f"Analyze safety risks and red flags for {config.symptom_name}. Patient Context: {context_str or 'None provided'}. Identify contraindications and emergency signs."
 
     @staticmethod
-    def create_reviewer_user_prompt(config: SymptomInput, researcher_output: str, safety_output: str) -> str:
-        """User prompt for the Medical Reviewer & Orchestrator Agent."""
-        return f"""Synthesize the final report for the symptom: {config.symptom_name}.
+    def create_compliance_system_prompt() -> str:
+        """System prompt for the Regulatory Compliance Agent."""
+        return """You are a Medical Regulatory Compliance Officer. Your role is to ensure that all medication recommendations and medical advice align strictly with official clinical guidelines (e.g., FDA, EMA, WHO).
+
+Your responsibilities:
+1. Verify that the suggested drugs are officially approved for the mentioned symptom or have well-documented off-label use in clinical practice.
+2. Ensure that the categorization (OTC vs Rx) is accurate according to standard regulations.
+3. Flag any suggestions that might be considered experimental, non-standard, or potentially non-compliant with safety regulations.
+4. Ensure no unverified herbal or alternative treatments are presented as primary clinical solutions without appropriate caveats.
+
+Provide your compliance review in a clear, bulleted format. Focus strictly on regulatory alignment. Do NOT include any introductory preamble."""
+
+    @staticmethod
+    def create_compliance_user_prompt(config: SymptomInput, researcher_output: str, safety_output: str) -> str:
+        """User prompt for the Regulatory Compliance Agent."""
+        return f"""Review the following clinical research and safety analysis for regulatory compliance regarding the symptom: {config.symptom_name}.
 
 RESEARCHER FINDINGS:
 {researcher_output}
 
-SAFETY SPECIALIST FINDINGS:
+SAFETY FINDINGS:
 {safety_output}
 
-Provide a comprehensive analysis including the drug recommendations, integrated safety warnings, lifestyle advice, red flags, and a technical summary."""
+Evaluate these findings against FDA/EMA standards. Identify any regulatory concerns or necessary adjustments to the drug list or safety warnings."""
+
+    @staticmethod
+    def create_education_system_prompt() -> str:
+        """System prompt for the Patient Education & Supportive Care Agent."""
+        return """You are a Patient Health Educator and Supportive Care Specialist. Your role is to provide clear, actionable, non-pharmacological advice and ensure patient-facing information is accessible and safe.
+
+Your responsibilities:
+1. Provide comprehensive lifestyle and home remedy recommendations (rest, hydration, environmental changes, etc.) that complement medication.
+2. Develop clear, urgent 'When to see a doctor' (Red Flag) guidance in plain language.
+3. Provide essential tips for medication adherence and administration (e.g., 'take with food', 'avoid alcohol').
+4. Ensure the tone is supportive, clear, and prioritizes patient safety.
+
+Provide your recommendations in a clear, organized format. Focus on non-drug interventions and clear safety triggers. Do NOT include any introductory preamble."""
+
+    @staticmethod
+    def create_education_user_prompt(config: SymptomInput) -> str:
+        """User prompt for the Patient Education & Supportive Care Agent."""
+        context = []
+        if config.age: context.append(f"Age: {config.age}")
+        if config.other_conditions: context.append(f"Other conditions: {config.other_conditions}")
+        context_str = ". ".join(context)
+        return f"Provide supportive care and education for: {config.symptom_name}. Patient Context: {context_str or 'None provided'}. Focus on lifestyle, home remedies, and clear emergency triggers."
+
+    @staticmethod
+    def create_reviewer_user_prompt(config: SymptomInput, researcher_output: str, safety_output: str, compliance_output: str, education_output: str) -> str:
+        """User prompt for the Medical Reviewer & Orchestrator Agent."""
+        return f"""Synthesize the final report for the symptom: {config.symptom_name}.
+
+1. RESEARCHER FINDINGS (Drugs & Dosages):
+{researcher_output}
+
+2. SAFETY SPECIALIST FINDINGS (Risks & Contraindications):
+{safety_output}
+
+3. COMPLIANCE OFFICER REVIEW (Regulatory Alignment):
+{compliance_output}
+
+4. PATIENT EDUCATION SPECIALIST (Lifestyle & Red Flags):
+{education_output}
+
+Provide a comprehensive analysis including the drug recommendations (integrated with safety/compliance), lifestyle advice, red flags, and a technical summary. Ensure all specialized inputs are seamlessly integrated into a single professional report."""
 
     @staticmethod
     def create_system_prompt() -> str:

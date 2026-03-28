@@ -62,7 +62,27 @@ class SymptomDrugs:
         safety_result = self._ask_llm(safety_input)
         safety_output = safety_result.markdown
 
-        # 3. Reviewer Agent
+        # 3. Compliance Agent
+        logger.info("-> Compliance Officer: Reviewing regulatory alignment...")
+        compliance_input = ModelInput(
+            system_prompt=PromptBuilder.create_compliance_system_prompt(),
+            user_prompt=PromptBuilder.create_compliance_user_prompt(
+                config, researcher_output, safety_output
+            ),
+        )
+        compliance_result = self._ask_llm(compliance_input)
+        compliance_output = compliance_result.markdown
+
+        # 4. Patient Education Agent
+        logger.info("-> Patient Educator: Identifying supportive care and red flags...")
+        education_input = ModelInput(
+            system_prompt=PromptBuilder.create_education_system_prompt(),
+            user_prompt=PromptBuilder.create_education_user_prompt(config),
+        )
+        education_result = self._ask_llm(education_input)
+        education_output = education_result.markdown
+
+        # 5. Reviewer Agent
         logger.info("-> Reviewer: Synthesizing final report...")
         response_format = None
         if structured:
@@ -71,13 +91,13 @@ class SymptomDrugs:
         reviewer_input = ModelInput(
             system_prompt=PromptBuilder.create_reviewer_system_prompt(),
             user_prompt=PromptBuilder.create_reviewer_user_prompt(
-                config, researcher_output, safety_output
+                config, researcher_output, safety_output, compliance_output, education_output
             ),
             response_format=response_format,
         )
         final_result = self._ask_llm(reviewer_input)
 
-        logger.info(f"✓ Successfully completed 3-agent analysis for: {config.symptom_name}")
+        logger.info(f"✓ Successfully completed 5-agent analysis for: {config.symptom_name}")
         return final_result
 
     def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
