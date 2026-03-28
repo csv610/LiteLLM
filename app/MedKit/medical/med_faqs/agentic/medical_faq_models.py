@@ -1,6 +1,6 @@
 """Pydantic models for medical FAQ generation."""
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -50,6 +50,41 @@ class SeeAlsoTopicsModel(BaseModel):
     )
 
 
+class PatientBasicInfoModel(BaseModel):
+    """Basic patient-friendly information."""
+
+    introduction: str = Field(description="Brief introduction to the topic")
+    faqs: List[FAQItemModel] = Field(description="Patient-friendly Q&A pairs")
+
+
+class SafetyInfoModel(BaseModel):
+    """Safety guidance and misconceptions."""
+
+    when_to_seek_care: List[WhenToSeekCareModel] = Field(
+        description="Guidance on when to seek medical attention"
+    )
+    misconceptions: List[MisconceptionItemModel] = Field(
+        description="Common myths and clarifications"
+    )
+
+
+class ResearchInfoModel(BaseModel):
+    """Related topics, tests, and devices."""
+
+    see_also: List[SeeAlsoTopicsModel] = Field(
+        description="Related topics, tests, and devices for further learning"
+    )
+
+
+class ComplianceReviewModel(BaseModel):
+    """Compliance and regulatory review results."""
+
+    is_compliant: bool = Field(description="Whether the content meets medical compliance standards")
+    issues_found: List[str] = Field(description="List of compliance or safety issues identified")
+    required_disclaimers: List[str] = Field(description="Mandatory disclaimers to include")
+    suggested_edits: Optional[str] = Field(default=None, description="Suggested edits for compliance")
+
+
 class PatientFAQModel(BaseModel):
     """Patient-friendly FAQ section."""
 
@@ -95,8 +130,11 @@ class MedicalFAQModel(BaseModel):
     provider_faq: Optional[ProviderFAQModel] = Field(
         default=None, description="Optional provider-focused FAQ section"
     )
+    compliance_review: Optional[ComplianceReviewModel] = Field(
+        default=None, description="Final compliance and safety review"
+    )
 
 
 class ModelOutput(BaseModel):
-    data: Optional[MedicalFAQModel] = None
+    data: Optional[Any] = None
     markdown: Optional[str] = None

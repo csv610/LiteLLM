@@ -1,28 +1,31 @@
 import sys
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
-from unittest.mock import patch
 
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_faqs.medical_faq import MedicalFAQGenerator
-from medical.med_faqs.medical_faq_models import (
-    FAQItemModel,
-    MedicalFAQModel,
-    MisconceptionItemModel,
+# Corrected import for the agentic version
+from medical.med_faqs.agentic.medical_faq import MedicalFAQGenerator
+from medical.med_faqs.agentic.medical_faq_models import (
     ModelOutput,
+    MedicalFAQModel,
+    PatientBasicInfoModel,
+    ProviderFAQModel,
+    SafetyInfoModel,
+    ResearchInfoModel,
+    ComplianceReviewModel,
+    FAQItemModel,
     PatientFAQModel,
-    SeeAlsoTopicsModel,
-    WhenToSeekCareModel,
 )
 
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_faqs.medical_faq.LiteClient") as mock:
+    # Mock the LiteClient in the medical_agents module
+    with patch("medical.med_faqs.agentic.medical_agents.LiteClient") as mock:
         yield mock
 
 
@@ -35,42 +38,73 @@ def test_medical_faq_generator_init():
 def test_generate_text_unstructured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalFAQGenerator(config)
-    mock_output = ModelOutput(markdown="FAQ answer", data_available=True)
-    mock_lite_client.return_value.generate_text.return_value = mock_output
-    result = generator.generate_text("What is diabetes?")
-    assert result.markdown == "FAQ answer"
+
+    # We need to provide a mock response for each of the 5 agents (including Compliance)
+    mock_instance = mock_lite_client.return_value
+    mock_instance.generate_text.side_effect = [
+        ModelOutput(markdown="Patient info"),
+        ModelOutput(markdown="Clinical info"),
+        ModelOutput(markdown="Safety info"),
+        ModelOutput(markdown="Research info"),
+        ModelOutput(markdown="Compliance: All clear."),
+    ]
+
+    result = generator.generate_text("What is diabetes?", structured=False)
+    assert "Patient info" in result.markdown
+    assert "Clinical info" in result.markdown
+    assert "Safety info" in result.markdown
+    assert "Research info" in result.markdown
+    assert "Compliance: All clear." in result.markdown
 
 
 def test_generate_text_structured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalFAQGenerator(config)
-    mock_data = MedicalFAQModel(
-        topic_name="Diabetes",
-        metadata={"version": "1.0"},
-        patient_faq=PatientFAQModel(
-            topic_name="Diabetes",
-            introduction="Intro",
-            faqs=[FAQItemModel(question="What is it?", answer="A condition")],
-            when_to_seek_care=[
-                WhenToSeekCareModel(
-                    symptom_or_condition="Fever",
-                    urgency_level="Urgent",
-                    action_needed="See doctor",
-                )
-            ],
-            misconceptions=[
-                MisconceptionItemModel(
-                    misconception="Myth", clarification="Truth", explanation="Reason"
-                )
-            ],
-            see_also=[
-                SeeAlsoTopicsModel(
-                    name="Insulin", category="test", description="Desc", relevance="Rel"
-                )
-            ],
-        ),
+
+    # We need to provide structured mock data for each agent
+    mock_instance = mock_lite_client.return_value
+
+    # 1. PatientAgent
+    patient_info = PatientBasicInfoModel(
+        introduction="Intro",
+        faqs=[FAQItemModel(question="Q1", answer="A1")]
     )
-    mock_output = ModelOutput(data=mock_data, data_available=True)
-    mock_lite_client.return_value.generate_text.return_value = mock_output
+    # 2. ClinicalAgent
+    clinical_info = ProviderFAQModel(
+        topic_name="Diabetes",
+        clinical_overview="Overview",
+        clinical_faqs=[],
+        evidence_based_practices=[],
+        quality_metrics=[],
+        referral_criteria=[]
+    )
+    # 3. SafetyAgent
+    safety_info = SafetyInfoModel(
+        when_to_seek_care=[],
+        misconceptions=[]
+    )
+    # 4. ResearchAgent
+    research_info = ResearchInfoModel(
+        see_also=[]
+    )
+    # 5. ComplianceAgent
+    compliance_info = ComplianceReviewModel(
+        is_compliant=True,
+        issues_found=[],
+        required_disclaimers=["Mandatory disclaimer"],
+        suggested_edits=None
+    )
+
+    mock_instance.generate_text.side_effect = [
+        ModelOutput(data=patient_info),
+        ModelOutput(data=clinical_info),
+        ModelOutput(data=safety_info),
+        ModelOutput(data=research_info),
+        ModelOutput(data=compliance_info),
+    ]
+
     result = generator.generate_text("What is diabetes?", structured=True)
-    assert result.data.topic_name == "Diabetes"
+    assert result.data.topic_name == "What is diabetes?"
+    assert result.data.patient_faq.introduction == "Intro"
+    assert result.data.compliance_review.is_compliant is True
+    assert "Mandatory disclaimer" in result.data.compliance_review.required_disclaimers
