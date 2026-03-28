@@ -84,3 +84,41 @@ Guidelines:
             str: Formatted user prompt
         """
         return f"Translate the following technical anatomical report into plain English for a general audience:\n\n{technical_report}"
+
+    @staticmethod
+    def create_fact_checker_system_prompt() -> str:
+        """
+        Create the system prompt for the fact-checker subagent.
+
+        Returns:
+            str: System prompt for fact-checking
+        """
+        return """You are a Skeptical Medical Auditor specializing in human anatomy.
+
+Your goal is to extract every specific anatomical claim from a report and verify its accuracy against established medical knowledge (e.g., Gray's Anatomy).
+
+Your responsibilities:
+1. Extract specific claims about: Origins, Insertions, Blood Supply, Innervation, Lymphatic Drainage, and Clinical Landmarks.
+2. For each claim, determine its status:
+   - 'Verified': The claim is factually correct.
+   - 'Incorrect': The claim is factually wrong (e.g., placing the ulnar artery in the thigh).
+   - 'Unverified': The claim is too vague or not supported by standard anatomical texts.
+3. Provide a correction for any 'Incorrect' claims.
+4. Provide brief evidence or explanation for your verification status.
+5. Calculate an overall accuracy score based on the percentage of verified claims.
+
+Be extremely pedantic. A single incorrect arterial branch or nerve root makes a claim 'Incorrect'.
+"""
+
+    @staticmethod
+    def create_fact_checker_user_prompt(technical_report: str) -> str:
+        """
+        Create the user prompt for the fact-checker subagent.
+
+        Args:
+            technical_report: The technical anatomical report to verify
+
+        Returns:
+            str: Formatted user prompt
+        """
+        return f"Please extract and verify all anatomical claims in the following technical report:\n\n{technical_report}"

@@ -19,16 +19,20 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
-from lite.config import ModelConfig
+from lite.config import ModelConfig, ModelInput
 from lite.logging_config import configure_logging
 from lite.lite_client import LiteClient
 
 try:
     from .medical_anatomy import MedicalAnatomyGenerator
     from .evaluate_anatomy_report import AnatomyReportEvaluator, AnatomyEvaluationResult
+    from .medical_anatomy_models import FactCheckModel
+    from .medical_anatomy_prompts import PromptBuilder
 except (ImportError, ValueError):
     from medical.anatomy.agentic.medical_anatomy import MedicalAnatomyGenerator
     from medical.anatomy.agentic.evaluate_anatomy_report import AnatomyReportEvaluator, AnatomyEvaluationResult
+    from medical.anatomy.agentic.medical_anatomy_models import FactCheckModel
+    from medical.anatomy.agentic.medical_anatomy_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +60,9 @@ class AgenticAnatomyWorkflow:
         # although they might share the same underlying LiteClient logic if needed.
         self.evaluator = AnatomyReportEvaluator(model=evaluator_model)
 
+        # Initialize Fact-Checker Auditor
+        self.auditor_client = LiteClient(ModelConfig(model=evaluator_model, temperature=0.0))
+
         logger.info(f"Workflow initialized: Generator={generator_model}, Evaluator={evaluator_model}")
 
     def run_workflow(self, body_part: str) -> Optional[AnatomyEvaluationResult]:
@@ -72,7 +79,23 @@ class AgenticAnatomyWorkflow:
             logger.error(f"  ❌ [Maker] Generation failed: {e}")
             return None
 
-        # 2. Evaluation Phase (Checker)
+        # Extract technical section for fact-checking
+        report_md = gen_result.markdown
+        if "SECTION 1" in report_md:
+            technical_content = report_md.split("SECTION 1:")[1].split("---")[0].strip()
+        else:
+            technical_content = report_md
+
+        # 2. Fact-Checking Phase (Auditor)
+        print(f"  [Auditor] Verifying anatomical claims for {body_part}...")
+        try:
+            fact_check = self._run_fact_checker(technical_content)
+            self._print_fact_check_summary(fact_check)
+        except Exception as e:
+            logger.error(f"  ❌ [Auditor] Fact-check failed: {e}")
+            fact_check = None
+
+        # 3. Evaluation Phase (Checker)
         print(f"  [Checker] Evaluating report for {body_part}...")
         try:
             eval_result = self.evaluator.evaluate_file(report_path)
@@ -81,6 +104,35 @@ class AgenticAnatomyWorkflow:
         except Exception as e:
             logger.error(f"  ❌ [Checker] Evaluation failed: {e}")
             return None
+
+    def _run_fact_checker(self, technical_report: str) -> FactCheckModel:
+        """Run the Fact-Checker agent."""
+        system_prompt = PromptBuilder.create_fact_checker_system_prompt()
+        user_prompt = PromptBuilder.create_fact_checker_user_prompt(technical_report)
+
+        model_input = ModelInput(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            response_format=FactCheckModel,
+        )
+
+        return self.auditor_client.generate_text(model_input=model_input)
+
+    def _print_fact_check_summary(self, result: FactCheckModel):
+        """Prints a summary of the fact-check results."""
+        print(f"\n  🔍 Fact-Check Summary (Accuracy: {result.accuracy_score}%)")
+        
+        incorrect_claims = [c for c in result.claims if c.status.lower() == 'incorrect']
+        if incorrect_claims:
+            print(f"  🔴 Found {len(incorrect_claims)} incorrect claims:")
+            for c in incorrect_claims:
+                print(f"    - Claim: {c.claim}")
+                print(f"      Correction: {c.correction}")
+        else:
+            print("  ✅ All anatomical claims verified successfully.")
+        
+        print(f"  Summary: {result.summary}")
+        print("-" * 50)
 
     def _print_evaluation_summary(self, result: AnatomyEvaluationResult):
         """Prints a concise summary of the evaluation."""

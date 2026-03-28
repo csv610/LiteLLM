@@ -16,6 +16,7 @@ if str(project_root) not in sys.path:
 
 from medical.anatomy.agentic.medical_anatomy_agentic_cli import AgenticAnatomyWorkflow
 from medical.anatomy.agentic.evaluate_anatomy_report import AnatomyEvaluationResult, AccuracyRating, TerminologyRating, EmbryologyRating, ClinicalReliabilityRating, StructuralOrganizationRating, ReadabilityRating
+from medical.anatomy.agentic.medical_anatomy_models import FactCheckModel, FactClaimModel
 
 class TestAgenticAnatomyWorkflow(unittest.TestCase):
     """Test cases for the AgenticAnatomyWorkflow class."""
@@ -66,6 +67,48 @@ class TestAgenticAnatomyWorkflow(unittest.TestCase):
         self.workflow.evaluator.evaluate_file.assert_called_once()
         self.assertEqual(result.pass_fail_status, "PASS")
         self.assertEqual(result.overall_quality_score, 100.0)
+
+    @patch('medical.anatomy.agentic.medical_anatomy_agentic_cli.Path.mkdir')
+    def test_run_workflow_with_fact_check(self, mock_mkdir):
+        """Test workflow with fact-checking step."""
+        body_part = "Radial Artery"
+        
+        # Mock Generator
+        mock_gen_result = MagicMock()
+        mock_gen_result.markdown = "SECTION 1: Technical info --- SECTION 2: Layperson info"
+        self.workflow.generator.generate_text.return_value = mock_gen_result
+        self.workflow.generator.save.return_value = Path("test_output/radial.md")
+        
+        # Mock Fact-Checker
+        mock_fact_check = FactCheckModel(
+            claims=[FactClaimModel(claim="Claim 1", category="Origin", status="Verified", correction=None, evidence="Evidence 1")],
+            summary="All clear",
+            accuracy_score=100.0
+        )
+        self.workflow._run_fact_checker = MagicMock(return_value=mock_fact_check)
+        
+        # Mock Evaluator
+        mock_eval_result = AnatomyEvaluationResult(
+            structure_name=body_part,
+            anatomical_accuracy=(AccuracyRating.EXCELLENT, []),
+            terminology_precision=(TerminologyRating.ACCURATE, []),
+            embryology=(EmbryologyRating.CORRECT, []),
+            clinical_reliability=(ClinicalReliabilityRating.SAFE_RELIABLE, []),
+            structural_organization=(StructuralOrganizationRating.EXCELLENT, []),
+            general_accessibility=(ReadabilityRating.EXCELLENT, []),
+            overall_quality_score=100.0,
+            pass_fail_status="PASS",
+            critical_issues=[],
+            recommendations=[]
+        )
+        self.workflow.evaluator.evaluate_file.return_value = mock_eval_result
+        
+        # Run workflow
+        result = self.workflow.run_workflow(body_part)
+        
+        # Assertions
+        self.workflow._run_fact_checker.assert_called_once()
+        self.assertEqual(result.pass_fail_status, "PASS")
 
     def test_run_workflow_generation_failure(self):
         """Test workflow when generation fails."""

@@ -5,7 +5,7 @@ This module contains all the structured data models used to represent
 anatomical information in a standardized format.
 """
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -286,3 +286,31 @@ class MedicalAnatomyModel(BaseModel):
 class ModelOutput(BaseModel):
     data: Optional[Any] = None
     markdown: Optional[str] = None
+
+
+class FactClaimModel(BaseModel):
+    """An individual anatomical claim to be verified."""
+
+    claim: str = Field(description="The specific anatomical fact being stated")
+    category: str = Field(
+        description="Category of the claim (e.g., Origin, Insertion, Blood Supply, Innervation)"
+    )
+    status: str = Field(
+        description="Verification status: 'Verified', 'Unverified', or 'Incorrect'"
+    )
+    correction: Optional[str] = Field(
+        description="If incorrect, the correct anatomical fact"
+    )
+    evidence: str = Field(
+        description="Brief evidence or explanation for the verification status"
+    )
+
+
+class FactCheckModel(BaseModel):
+    """A collection of verified anatomical claims."""
+
+    claims: List[FactClaimModel] = Field(
+        description="List of extracted and verified anatomical facts"
+    )
+    summary: str = Field(description="Overall summary of factual accuracy")
+    accuracy_score: float = Field(description="Percentage of verified claims (0-100)")
