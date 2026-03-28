@@ -20,38 +20,102 @@ from lite.lite_client import LiteClient
 from lite.utils import save_model_response
 
 try:
-    from .med_ethics_models import EthicalAnalysisModel, ModelOutput
+    from .med_ethics_models import (
+        AnalystOutput,
+        ComplianceOutput,
+        EthicalAnalysisModel,
+        ModelOutput,
+        SafetyCheckModel,
+    )
     from .med_ethics_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.med_ethics.med_ethics_models import EthicalAnalysisModel, ModelOutput
-    from medical.med_ethics.med_ethics_prompts import PromptBuilder
+    from medical.med_ethics.agentic.med_ethics_models import (
+        AnalystOutput,
+        ComplianceOutput,
+        EthicalAnalysisModel,
+        ModelOutput,
+        SafetyCheckModel,
+    )
+    from medical.med_ethics.agentic.med_ethics_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
 
-class MedEthicalQA:
-    """Generates comprehensive medical ethics analysis."""
+class BaseAgent:
+    """Base class for agents."""
 
-    def __init__(self, model_config: ModelConfig):
-        """Initialize the generator."""
-        self.model_config = model_config
-        self.client = LiteClient(model_config=model_config)
-        self.question = None  # Store the ethics question being analyzed
-        logger.debug("Initialized MedEthicalQA")
+    def __init__(self, client: LiteClient):
+        self.client = client
 
-    def generate_text(self, question: str, structured: bool = False) -> ModelOutput:
-        """Generate comprehensive medical ethics analysis."""
-        if not question or not str(question).strip():
-            raise ValueError("Medical ethics question or scenario cannot be empty")
+    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
+        """Call the LLM client to generate information."""
+        response = self.client.generate_text(model_input=model_input)
 
-        # Store the question for later use in save
-        self.question = question
-        logger.debug(f"Starting medical ethics analysis for: {question[:50]}...")
+        if isinstance(response, ModelOutput):
+            return response
+        elif isinstance(response, (EthicalAnalysisModel, AnalystOutput, ComplianceOutput)):
+            return ModelOutput(data=response)
+        elif isinstance(response, str):
+            return ModelOutput(markdown=response)
+        else:
+            return ModelOutput(markdown=str(response))
 
-        system_prompt = PromptBuilder.create_system_prompt()
+
+class AnalystAgent(BaseAgent):
+    """Ethical analysis specialist agent."""
+
+    def analyze(self, question: str, structured: bool = False) -> ModelOutput:
+        logger.debug(f"AnalystAgent: Analyzing scenario: {question[:50]}...")
+        system_prompt = PromptBuilder.create_analyst_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(question)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
+
+        response_format = None
+        if structured:
+            response_format = AnalystOutput
+
+        model_input = ModelInput(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            response_format=response_format,
+        )
+        return self.ask_llm(model_input)
+
+
+class ComplianceAgent(BaseAgent):
+    """Compliance and legal specialist agent."""
+
+    def check_compliance(self, question: str, structured: bool = False) -> ModelOutput:
+        logger.debug(f"ComplianceAgent: Checking compliance for: {question[:50]}...")
+        system_prompt = PromptBuilder.create_compliance_system_prompt()
+        user_prompt = PromptBuilder.create_user_prompt(question)
+
+        response_format = None
+        if structured:
+            response_format = ComplianceOutput
+
+        model_input = ModelInput(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            response_format=response_format,
+        )
+        return self.ask_llm(model_input)
+
+
+class SynthesisAgent(BaseAgent):
+    """Agent for synthesizing reports into a final document."""
+
+    def synthesize(
+        self,
+        question: str,
+        analyst_output: ModelOutput,
+        compliance_output: ModelOutput,
+        structured: bool = False,
+    ) -> ModelOutput:
+        logger.debug(f"SynthesisAgent: Synthesizing final report...")
+        system_prompt = PromptBuilder.create_synthesis_system_prompt()
+
+        context = f"ANALYST REPORT:\n{analyst_output.markdown or analyst_output.data}\n\nCOMPLIANCE REPORT:\n{compliance_output.markdown or compliance_output.data}"
+        user_prompt = PromptBuilder.create_user_prompt(question, context=context)
 
         response_format = None
         if structured:
@@ -62,29 +126,81 @@ class MedEthicalQA:
             user_prompt=user_prompt,
             response_format=response_format,
         )
+        return self.ask_llm(model_input)
 
-        logger.debug("Calling LiteClient.generate_text()...")
+
+class SafetyCriticAgent(BaseAgent):
+    """Agent for reviewing reports for safety and accuracy."""
+
+    def audit(
+        self, question: str, synthesized_report: ModelOutput, structured: bool = False
+    ) -> ModelOutput:
+        logger.debug("SafetyCriticAgent: Auditing final report...")
+        system_prompt = PromptBuilder.create_safety_critic_system_prompt()
+
+        context = f"FINAL SYNTHESIZED REPORT:\n{synthesized_report.markdown or synthesized_report.data}"
+        user_prompt = PromptBuilder.create_user_prompt(question, context=context)
+
+        response_format = None
+        if structured:
+            response_format = SafetyCheckModel
+
+        model_input = ModelInput(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            response_format=response_format,
+        )
+        return self.ask_llm(model_input)
+
+
+class MedEthicalQA:
+    """Orchestrates multiple agents to generate medical ethics analysis."""
+
+    def __init__(self, model_config: ModelConfig):
+        """Initialize the agents."""
+        self.model_config = model_config
+        self.client = LiteClient(model_config=model_config)
+        self.analyst = AnalystAgent(self.client)
+        self.compliance = ComplianceAgent(self.client)
+        self.synthesizer = SynthesisAgent(self.client)
+        self.safety_critic = SafetyCriticAgent(self.client)
+        self.question = None
+        logger.debug("Initialized MedEthicalQA with multi-agent architecture")
+
+    def generate_text(self, question: str, structured: bool = False) -> ModelOutput:
+        """Generate comprehensive medical ethics analysis using multiple agents."""
+        if not question or not str(question).strip():
+            raise ValueError("Medical ethics question or scenario cannot be empty")
+
+        self.question = question
+
+        # 1. Get ethical analysis
+        analyst_result = self.analyst.analyze(question, structured=structured)
+
+        # 2. Get compliance check
+        compliance_result = self.compliance.check_compliance(
+            question, structured=structured
+        )
+
+        # 3. Synthesize the final report
+        final_result = self.synthesizer.synthesize(
+            question, analyst_result, compliance_result, structured=structured
+        )
+
+        # 4. Audit for safety
         try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated medical ethics analysis")
-            return result
+            safety_result = self.safety_critic.audit(
+                question, final_result, structured=structured
+            )
+            logger.debug("✓ Successfully audited analysis for safety")
+
+            if structured and safety_result.data and not safety_result.data.passed:
+                logger.warning("! Safety audit flagged issues in the report")
+
+            return final_result
         except Exception as e:
-            logger.error(f"✗ Error generating medical ethics analysis: {e}")
+            logger.error(f"✗ Error during safety audit: {e}")
             raise
-
-    def ask_llm(self, model_input: ModelInput) -> ModelOutput:
-        """Call the LLM client to generate information."""
-        response = self.client.generate_text(model_input=model_input)
-
-        if isinstance(response, ModelOutput):
-            return response
-        elif isinstance(response, EthicalAnalysisModel):
-            return ModelOutput(data=response)
-        elif isinstance(response, str):
-            return ModelOutput(markdown=response)
-        else:
-            # Handle cases where it might be some other type
-            return ModelOutput(markdown=str(response))
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical ethics analysis to a file (JSON if structured, Markdown otherwise)."""
@@ -97,7 +213,7 @@ class MedEthicalQA:
 
         if result.data:
             # Structured output - Save as JSON using the title for filename
-            title = result.data.case_title or self.question[:50]
+            title = getattr(result.data, "case_title", None) or self.question[:50]
             sanitized_title = (
                 re.sub(r"[^\w\s-]", "", title).strip().lower().replace(" ", "_")
             )
