@@ -3,6 +3,17 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class CategoryList(BaseModel):
+    """
+    List of major medical specialty categories.
+    """
+
+    categories: List[str] = Field(
+        ...,
+        description="List of major medical specialty categories (e.g., 'Internal Medicine', 'Surgery')",
+    )
+
+
 class SpecialtyCategory(BaseModel):
     """
     Medical specialty category for organizing related specialties.

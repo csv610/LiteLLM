@@ -6,13 +6,14 @@ project_root = Path(__file__).resolve().parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_speciality.medical_speciality import MedicalSpecialityGenerator
-from medical.med_speciality.medical_speciality_models import (
+from medical.med_speciality.agentic.medical_speciality import MedicalSpecialityGenerator
+from medical.med_speciality.agentic.medical_speciality_models import (
+    CategoryList,
     MedicalSpecialist,
     MedicalSpecialistDatabase,
     SpecialtyCategory,
@@ -21,7 +22,7 @@ from medical.med_speciality.medical_speciality_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_speciality.medical_speciality.LiteClient") as mock:
+    with patch("medical.med_speciality.agentic.medical_speciality.LiteClient") as mock:
         yield mock
 
 
@@ -34,10 +35,17 @@ def test_generator_init():
 def test_generate_text_unstructured(mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalSpecialityGenerator(config)
-    mock_lite_client.return_value.generate_text.return_value = "Specialists list"
+    
+    mock_lite_client.return_value.generate_text.side_effect = [
+        "Cardiology\nNeurology",
+        "Cardiologist details...",
+        "Neurologist details...",
+        "Specialists list"
+    ]
 
     result = generator.generate_text()
     assert result == "Specialists list"
+    assert mock_lite_client.return_value.generate_text.call_count == 4
 
 
 def test_generate_text_structured(mock_lite_client):
@@ -45,6 +53,9 @@ def test_generate_text_structured(mock_lite_client):
     generator = MedicalSpecialityGenerator(config)
 
     cat = SpecialtyCategory(name="Cardiovascular", description="Heart and vessels")
+    
+    mock_categories = CategoryList(categories=["Cardiovascular"])
+    
     mock_data = MedicalSpecialistDatabase(
         specialists=[
             MedicalSpecialist(
@@ -66,24 +77,34 @@ def test_generate_text_structured(mock_lite_client):
         ]
     )
 
-    mock_lite_client.return_value.generate_text.return_value = mock_data
+    mock_lite_client.return_value.generate_text.side_effect = [
+        mock_categories,
+        mock_data
+    ]
 
     result = generator.generate_text(structured=True)
     assert len(result.specialists) == 2
     assert len(result.get_surgical_specialists()) == 1
     assert result.get_by_category("Cardiovascular")[0].specialty_name == "Cardiologist"
+    assert mock_lite_client.return_value.generate_text.call_count == 2
 
 
-@patch("medical.med_speciality.medical_speciality.save_model_response")
+@patch("medical.med_speciality.agentic.medical_speciality.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalSpecialityGenerator(config)
-    mock_lite_client.return_value.generate_text.return_value = "Specialists"
+    
+    mock_lite_client.return_value.generate_text.side_effect = [
+        "Cardiology\nNeurology",
+        "Cardiologist details...",
+        "Neurologist details...",
+        "Specialists list"
+    ]
 
     result = generator.generate_text()
     generator.save(result, Path("/tmp"))
 
     mock_save.assert_called_once()
     args, _ = mock_save.call_args
-    assert args[0] == "Specialists"
+    assert args[0] == "Specialists list"
     assert str(args[1]).endswith("medical_specialities_database")
