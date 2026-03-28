@@ -5,7 +5,7 @@ This module defines the data models used to represent comprehensive surgical pat
 positioning information with validation and structured schema generation.
 """
 
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -123,5 +123,5 @@ class SurgicalPoseInfoModel(BaseModel):
 
 
 class ModelOutput(BaseModel):
-    data: Optional[SurgicalPoseInfoModel] = None
+    data: Optional[Any] = None
     markdown: Optional[str] = None
