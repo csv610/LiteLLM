@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -253,6 +253,40 @@ class ProcedureEvidence(BaseModel):
     procedure_limitations: ProcedureLimitations
 
 
+class ClinicalAgentOutput(BaseModel):
+    """Output for the Clinical Diagnostician Agent."""
+    metadata: ProcedureMetadata
+    purpose: ProcedurePurpose
+    indications: ProcedureIndications
+    alternatives: Alternatives
+
+
+class TechnicalAgentOutput(BaseModel):
+    """Output for the Procedure Specialist Agent."""
+    details: ProcedureDetails
+    technical: TechnicalDetails
+    evidence: ProcedureEvidence
+
+
+class RiskAgentOutput(BaseModel):
+    """Output for the Risk Analyst Agent."""
+    risks: DiscomfortAndRisks
+
+
+class RecoveryAgentOutput(BaseModel):
+    """Output for the Care Coordinator Agent."""
+    preparation: PreparationRequirements
+    recovery: RecoveryInformation
+    outcomes: OutcomesAndEffectiveness
+    follow_up: FollowUpCare
+
+
+class AdminAgentOutput(BaseModel):
+    """Output for the Patient Liaison Agent."""
+    cost_and_insurance: CostAndInsurance
+    education: ProcedureEducation
+
+
 class MedicalProcedureInfoModel(BaseModel):
     """
     Comprehensive medical procedure information.
@@ -274,6 +308,26 @@ class MedicalProcedureInfoModel(BaseModel):
     education: ProcedureEducation
 
 
+class ComplianceReport(BaseModel):
+    """Report from the Compliance Agent."""
+    is_compliant: bool = Field(description="Whether the documentation meets clinical and safety standards.")
+    safety_concerns: List[str] = Field(description="List of safety-related issues or missing contraindications.")
+    readability_issues: List[str] = Field(description="Issues with plain language or technical jargon in education sections.")
+    tone_violations: List[str] = Field(description="Instances of prescriptive/medical advice instead of informative language.")
+    suggestions: List[str] = Field(description="Suggested improvements for compliance.")
+
+
 class ModelOutput(BaseModel):
-    data: Optional[MedicalProcedureInfoModel] = None
+    data: Optional[
+        Union[
+            MedicalProcedureInfoModel,
+            ClinicalAgentOutput,
+            TechnicalAgentOutput,
+            RiskAgentOutput,
+            RecoveryAgentOutput,
+            AdminAgentOutput,
+            ComplianceReport,
+        ]
+    ] = None
     markdown: Optional[str] = None
+    compliance_report: Optional[ComplianceReport] = None

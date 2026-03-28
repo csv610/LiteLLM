@@ -20,9 +20,12 @@ from tqdm import tqdm
 try:
     from .medical_procedure_info import MedicalProcedureInfoGenerator
 except (ImportError, ValueError):
-    from medical.med_procedure_info.medical_procedure_info import (
-        MedicalProcedureInfoGenerator,
-    )
+    try:
+        from medical_procedure_info import MedicalProcedureInfoGenerator
+    except ImportError:
+        from medical.med_procedure_info.agentic.medical_procedure_info import (
+            MedicalProcedureInfoGenerator,
+        )
 
 logger = logging.getLogger(__name__)
 
