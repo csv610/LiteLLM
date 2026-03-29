@@ -11,23 +11,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from studyguide_models import (
-    AgentTrace,
-    StudyGuideModel,
     BookInput,
     SummaryPlanModel,
     ResearchModel,
     PrerequisiteModel,
-    CritiqueModel,
     RelevancyModel,
     MindMapModel,
     EssayArchitectModel,
-    QuizModel,
     BatchSummaryResponse,
     BatchQuizResponse,
     ChapterQuiz,
     ChapterSummaryAndAnalysis,
     FollowUpModel,
-    ReviewedStudyGuideModel,
 )
 from studyguide_prompts import PromptBuilder
 
@@ -135,20 +130,26 @@ class StudyGuideGenerator:
 
     def generate_and_save(self, book_input: BookInput) -> str:
         """Main orchestrator: Streams content directly to Markdown file."""
+        output_dir = Path(__file__).parent / "outputs"
+        output_dir.mkdir(exist_ok=True)
+
         title_norm = book_input.title.replace(' ', '_').lower()
-        filename = f"{title_norm}_summary.md"
+        filename = output_dir / f"{title_norm}_summary.md"
         
         # Start fresh
-        with open(filename, 'w') as f:
+        with filename.open('w') as f:
             f.write(f"# Comprehensive Academic Deconstruction: {book_input.title}\n")
             if book_input.author: f.write(f"**Author:** {book_input.author}\n\n")
 
         print(f"Step 1: Planning...")
         plan = self._run_planner_agent(book_input)
+        with filename.open('a') as f:
+            f.write("## 0. Executive Summary & Strategy\n")
+            f.write(f"{plan.planning_notes}\n\n")
         
         print(f"Step 2: Intellectual Scaffolding...")
         prereq = self._run_prerequisite_agent(book_input)
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## I. Foundations for Critical Thought\n")
             f.write("### Knowledge Scaffolding\n")
             for item in prereq.knowledge_scaffolding:
@@ -161,7 +162,7 @@ class StudyGuideGenerator:
 
         print(f"Step 3: Live Research...")
         research = self._run_research_agent(book_input)
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## II. Live Research & Academic Updates (2026)\n")
             for update in research.latest_updates:
                 f.write(f"- **{update.title}:** {update.summary} (*Source: {update.source_citation}*)\n")
@@ -173,14 +174,14 @@ class StudyGuideGenerator:
 
         print(f"Step 4: Logic Mapping...")
         mindmap = self._run_mindmap_agent(book_input, plan)
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## III. Logic & Argument Architecture\n")
             f.write(f"{mindmap.map_description}\n\n")
             clean_code = mindmap.mermaid_code.replace("```mermaid", "").replace("```", "").strip()
             f.write(f"```mermaid\n{clean_code}\n```\n\n")
 
         print(f"Step 5: Chapter-by-Chapter Deep Dive (Batch Streaming)...")
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## IV. Chapter-by-Chapter Deep Deconstruction\n")
             
         all_chapters = plan.sections
@@ -192,7 +193,7 @@ class StudyGuideGenerator:
             quizzes = self._run_batch_quiz(book_input, summaries)
             
             quiz_map = {q.chapter_title: q for q in quizzes}
-            with open(filename, 'a') as f:
+            with filename.open('a') as f:
                 for ch in summaries:
                     f.write(f"### {ch.chapter_title}\n")
                     f.write(f"**Summary:**\n{ch.summary}\n\n")
@@ -207,18 +208,23 @@ class StudyGuideGenerator:
 
         print(f"Step 6: Contrarian Perspectives...")
         relevancy = self._run_relevancy_agent(book_input, plan)
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## V. Contrarian Perspectives & Modern Relevancy\n")
             for p in relevancy.modern_perspectives:
                 f.write(f"- **{p.point}:** {p.explanation}\n")
             f.write("\n### Alternative Critical Lenses\n")
             for lens in relevancy.critical_lenses:
                 f.write(f"- **{lens.lens_name} Analysis:** {lens.analysis}\n")
+            
+            if relevancy.cross_curricular_connections:
+                f.write("\n### Cross-Curricular Connections\n")
+                for conn in relevancy.cross_curricular_connections:
+                    f.write(f"- {conn}\n")
             f.write("\n")
 
         print(f"Step 7: Essay Architect...")
         essay = self._run_essay_agent(book_input, plan)
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## VI. Scholarly Essay Architectures\n")
             for topic in essay.essay_topics:
                 f.write(f"### Topic: {topic.prompt}\n")
@@ -234,15 +240,27 @@ class StudyGuideGenerator:
 
         print(f"Step 8: Intellectual Horizon...")
         followup = self._run_followup_agent(book_input, plan)
-        with open(filename, 'a') as f:
+        with filename.open('a') as f:
             f.write("## VII. The Intellectual Horizon (Beyond the Book)\n")
             f.write("### Further Reading & Rival Theories\n")
             for book in followup.further_reading:
                 f.write(f"- **{book.title}** by {book.author}: {book.why_it_relates}\n")
+            
+            if followup.media_connections:
+                f.write("\n### Media Connections (Films, Podcasts, Documentaries)\n")
+                for media in followup.media_connections:
+                    f.write(f"- **{media.title}** ({media.type}): {media.description}\n")
+
             f.write("\n### Actionable Next Steps & Research Inquiries\n")
             for step in followup.actionable_next_steps:
                 f.write(f"- {step}\n")
             f.write("\n")
 
+        with filename.open('a') as f:
+            f.write("## VIII. Metadata & Agent Trace\n")
+            f.write(f"- **Model Used:** {self.model}\n")
+            f.write("- **Workflow:** Eleven-Agent Direct-Streaming Architecture\n")
+            f.write("- **Status:** Completed successfully\n")
+
         print(f"Academic Deconstruction Complete: {filename}")
-        return filename
+        return str(filename)
