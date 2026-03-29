@@ -1,30 +1,31 @@
 import unittest
 from unittest.mock import MagicMock
-from object_guesser_game import ObjectGuessingGame
+import json
+from object_guesser_game import ObjectGuesserGame
 from object_guessing_prompts import PromptBuilder
 
 class TestPromptBuilder(unittest.TestCase):
     def setUp(self):
         self.builder = PromptBuilder(max_questions=10)
 
-    def test_system_prompt_contains_max_questions(self):
-        prompt = self.builder.build_system_prompt()
-        self.assertIn("10 questions", prompt)
+    def test_extraction_prompt(self):
+        prompt = self.builder.build_extraction_system_prompt()
+        self.assertIn("Extraction Agent", prompt)
+        self.assertIn("user_sentiment", prompt)
 
-    def test_first_user_prompt(self):
-        prompt = self.builder.build_user_prompt([])
-        self.assertIn("Start the game", prompt)
+    def test_state_prompt(self):
+        prompt = self.builder.build_state_system_prompt()
+        self.assertIn("State Management Agent", prompt)
+        self.assertIn("Blackboard", prompt)
 
-    def test_follow_up_user_prompt(self):
-        history = [{"role": "assistant", "content": "Is it alive?"}, {"role": "user", "content": "yes"}]
-        prompt = self.builder.build_user_prompt(history)
-        self.assertIn("ASSISTANT: Is it alive?", prompt)
-        self.assertIn("USER: yes", prompt)
+    def test_strategy_prompt(self):
+        prompt = self.builder.build_strategy_system_prompt()
+        self.assertIn("Strategy Agent", prompt)
+        self.assertIn("ASK_QUESTION", prompt)
 
-class TestObjectGuessingGame(unittest.TestCase):
+class TestObjectGuesserGame(unittest.TestCase):
     def setUp(self):
-        # Mocking LiteClient to avoid real API calls
-        self.game = ObjectGuessingGame(max_questions=5)
+        self.game = ObjectGuesserGame(max_questions=5)
         self.game.client = MagicMock()
 
     def test_add_to_history(self):
@@ -32,20 +33,28 @@ class TestObjectGuessingGame(unittest.TestCase):
         self.assertEqual(len(self.game.conversation_history), 1)
         self.assertEqual(self.game.conversation_history[0], {"role": "user", "content": "yes"})
 
-    def test_extract_guess_explicit(self):
-        guess = self.game.extract_guess("I guess it's a toaster")
-        self.assertEqual(guess, "toaster")
+    def test_call_agent_parsing(self):
+        # Mocking a JSON response
+        self.game.client.generate_text.return_value = '{"test": "value"}'
+        result = self.game._call_agent("system", "user")
+        self.assertEqual(result, {"test": "value"})
 
-        guess = self.game.extract_guess("My guess is: a blue whale!")
-        self.assertEqual(guess, "blue whale")
+    def test_call_agent_markdown_parsing(self):
+        # Mocking a response with markdown blocks
+        self.game.client.generate_text.return_value = 'Here is the JSON:\n```json\n{"test": "markdown"}\n```'
+        result = self.game._call_agent("system", "user")
+        self.assertEqual(result, {"test": "markdown"})
 
-    def test_extract_guess_question_format(self):
-        guess = self.game.extract_guess("Is the object a microwave?")
-        self.assertEqual(guess, "microwave")
-
-    def test_extract_guess_no_guess(self):
-        guess = self.game.extract_guess("Is it larger than a breadbox?")
-        self.assertIsNone(guess)
+    def test_update_state(self):
+        # Mocking state agent response
+        self.game.client.generate_text.return_value = json.dumps({
+            "properties": {"is_alive": "yes"},
+            "category": "animal",
+            "excluded_objects": []
+        })
+        self.game.update_state()
+        self.assertEqual(self.game.blackboard["category"], "animal")
+        self.assertEqual(self.game.blackboard["properties"]["is_alive"], "yes")
 
 if __name__ == "__main__":
     unittest.main()
