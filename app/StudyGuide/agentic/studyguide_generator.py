@@ -45,7 +45,8 @@ class StudyGuideGenerator:
             response_format=SummaryPlanModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, SummaryPlanModel): return response
+        if isinstance(response, SummaryPlanModel):
+            return response
         raise ValueError(f"Expected SummaryPlanModel, got {type(response).__name__}")
 
     def _run_research_agent(self, book_input: BookInput) -> ResearchModel:
@@ -55,7 +56,8 @@ class StudyGuideGenerator:
             response_format=ResearchModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, ResearchModel): return response
+        if isinstance(response, ResearchModel):
+            return response
         return ResearchModel(latest_updates=[], academic_critiques=[])
 
     def _run_prerequisite_agent(self, book_input: BookInput) -> PrerequisiteModel:
@@ -65,7 +67,8 @@ class StudyGuideGenerator:
             response_format=PrerequisiteModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, PrerequisiteModel): return response
+        if isinstance(response, PrerequisiteModel):
+            return response
         raise ValueError(f"Expected PrerequisiteModel, got {type(response).__name__}")
 
     def _run_batch_generator(self, book_input: BookInput, chapters: List[str], plan: SummaryPlanModel) -> List[ChapterSummaryAndAnalysis]:
@@ -75,7 +78,8 @@ class StudyGuideGenerator:
             response_format=BatchSummaryResponse,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, BatchSummaryResponse): return response.chapters
+        if isinstance(response, BatchSummaryResponse):
+            return response.chapters
         raise ValueError(f"Expected BatchSummaryResponse, got {type(response).__name__}")
 
     def _run_batch_quiz(self, book_input: BookInput, batch_content: List[ChapterSummaryAndAnalysis]) -> List[ChapterQuiz]:
@@ -85,7 +89,8 @@ class StudyGuideGenerator:
             response_format=BatchQuizResponse,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, BatchQuizResponse): return response.quizzes
+        if isinstance(response, BatchQuizResponse):
+            return response.quizzes
         raise ValueError(f"Expected BatchQuizResponse, got {type(response).__name__}")
 
     def _run_mindmap_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> MindMapModel:
@@ -95,7 +100,8 @@ class StudyGuideGenerator:
             response_format=MindMapModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, MindMapModel): return response
+        if isinstance(response, MindMapModel):
+            return response
         raise ValueError(f"Expected MindMapModel, got {type(response).__name__}")
 
     def _run_relevancy_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> RelevancyModel:
@@ -105,7 +111,8 @@ class StudyGuideGenerator:
             response_format=RelevancyModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, RelevancyModel): return response
+        if isinstance(response, RelevancyModel):
+            return response
         raise ValueError(f"Expected RelevancyModel, got {type(response).__name__}")
 
     def _run_essay_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> EssayArchitectModel:
@@ -115,7 +122,8 @@ class StudyGuideGenerator:
             response_format=EssayArchitectModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, EssayArchitectModel): return response
+        if isinstance(response, EssayArchitectModel):
+            return response
         raise ValueError(f"Expected EssayArchitectModel, got {type(response).__name__}")
 
     def _run_followup_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> FollowUpModel:
@@ -125,7 +133,8 @@ class StudyGuideGenerator:
             response_format=FollowUpModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, FollowUpModel): return response
+        if isinstance(response, FollowUpModel):
+            return response
         raise ValueError(f"Expected FollowUpModel, got {type(response).__name__}")
 
     def generate_and_save(self, book_input: BookInput) -> str:
@@ -139,15 +148,16 @@ class StudyGuideGenerator:
         # Start fresh
         with filename.open('w') as f:
             f.write(f"# Comprehensive Academic Deconstruction: {book_input.title}\n")
-            if book_input.author: f.write(f"**Author:** {book_input.author}\n\n")
+            if book_input.author:
+                f.write(f"**Author:** {book_input.author}\n\n")
 
-        print(f"Step 1: Planning...")
+        print("Step 1: Planning...")
         plan = self._run_planner_agent(book_input)
         with filename.open('a') as f:
             f.write("## 0. Executive Summary & Strategy\n")
             f.write(f"{plan.planning_notes}\n\n")
         
-        print(f"Step 2: Intellectual Scaffolding...")
+        print("Step 2: Intellectual Scaffolding...")
         prereq = self._run_prerequisite_agent(book_input)
         with filename.open('a') as f:
             f.write("## I. Foundations for Critical Thought\n")
@@ -160,7 +170,7 @@ class StudyGuideGenerator:
                 f.write(f"- **{vocab.term}:** {vocab.definition}\n")
             f.write("\n")
 
-        print(f"Step 3: Live Research...")
+        print("Step 3: Live Research...")
         research = self._run_research_agent(book_input)
         with filename.open('a') as f:
             f.write("## II. Live Research & Academic Updates (2026)\n")
@@ -172,7 +182,7 @@ class StudyGuideGenerator:
                     f.write(f"- {critique}\n")
             f.write("\n")
 
-        print(f"Step 4: Logic Mapping...")
+        print("Step 4: Logic Mapping...")
         mindmap = self._run_mindmap_agent(book_input, plan)
         with filename.open('a') as f:
             f.write("## III. Logic & Argument Architecture\n")
@@ -180,7 +190,7 @@ class StudyGuideGenerator:
             clean_code = mindmap.mermaid_code.replace("```mermaid", "").replace("```", "").strip()
             f.write(f"```mermaid\n{clean_code}\n```\n\n")
 
-        print(f"Step 5: Chapter-by-Chapter Deep Dive (Batch Streaming)...")
+        print("Step 5: Chapter-by-Chapter Deep Dive (Batch Streaming)...")
         with filename.open('a') as f:
             f.write("## IV. Chapter-by-Chapter Deep Deconstruction\n")
             
@@ -202,11 +212,12 @@ class StudyGuideGenerator:
                         f.write("---\n**🧠 Cognitive Challenge: " + ch.chapter_title + "**\n\n")
                         for idx, q in enumerate(quiz_map[ch.chapter_title].questions):
                             f.write(f"{idx+1}. {q.question}\n")
-                            for opt in q.options: f.write(f"   - {opt}\n")
+                            for opt in q.options:
+                                f.write(f"   - {opt}\n")
                             f.write(f"\n   <details>\n   <summary>View Rationalization</summary>\n\n   **Correct Answer: {q.correct_option}**\n\n   {q.explanation}\n   </details>\n\n")
                         f.write("---\n\n")
 
-        print(f"Step 6: Contrarian Perspectives...")
+        print("Step 6: Contrarian Perspectives...")
         relevancy = self._run_relevancy_agent(book_input, plan)
         with filename.open('a') as f:
             f.write("## V. Contrarian Perspectives & Modern Relevancy\n")
@@ -222,7 +233,7 @@ class StudyGuideGenerator:
                     f.write(f"- {conn}\n")
             f.write("\n")
 
-        print(f"Step 7: Essay Architect...")
+        print("Step 7: Essay Architect...")
         essay = self._run_essay_agent(book_input, plan)
         with filename.open('a') as f:
             f.write("## VI. Scholarly Essay Architectures\n")
@@ -230,15 +241,17 @@ class StudyGuideGenerator:
                 f.write(f"### Topic: {topic.prompt}\n")
                 f.write(f"**Thesis:** {topic.thesis_statement}\n\n")
                 f.write("**Introduction Hooks:**\n")
-                for hook in topic.introduction_hooks: f.write(f"- {hook}\n")
+                for hook in topic.introduction_hooks:
+                    f.write(f"- {hook}\n")
                 f.write("\n**Paragraph-by-Paragraph Strategy:**\n")
                 for idx, bp in enumerate(topic.body_paragraphs):
                     f.write(f"{idx+1}. *{bp.sub_thesis}*\n")
-                    for arg in bp.supporting_evidence: f.write(f"   - {arg}\n")
+                    for arg in bp.supporting_evidence:
+                        f.write(f"   - {arg}\n")
                     f.write("   - **Suggested Quotes:** " + ", ".join(bp.suggested_quotes) + "\n")
                 f.write(f"\n**Conclusion Strategy:** {topic.conclusion_strategy}\n\n")
 
-        print(f"Step 8: Intellectual Horizon...")
+        print("Step 8: Intellectual Horizon...")
         followup = self._run_followup_agent(book_input, plan)
         with filename.open('a') as f:
             f.write("## VII. The Intellectual Horizon (Beyond the Book)\n")
