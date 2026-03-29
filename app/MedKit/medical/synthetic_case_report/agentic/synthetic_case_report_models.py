@@ -4,7 +4,7 @@ This module defines the structured data models used for generating comprehensive
 synthetic medical case reports with schema-aware prompting.
 """
 
-from typing import Optional
+from typing import Optional, Union, Any
 
 from pydantic import BaseModel, Field
 
@@ -276,6 +276,25 @@ class CaseReportMetadataModel(BaseModel):
     )
 
 
+class PatientPresentationOutput(BaseModel):
+    patient_information: PatientInformationModel
+    clinical_findings: ClinicalFindingsModel
+    timeline: TimelineModel
+
+
+class DiagnosticTherapeuticOutput(BaseModel):
+    diagnostic_assessment: DiagnosticAssessmentModel
+    therapeutic_interventions: TherapeuticInterventionsModel
+    follow_up_and_outcomes: FollowUpAndOutcomesModel
+
+
+class ReviewSynthesisOutput(BaseModel):
+    metadata: CaseReportMetadataModel
+    discussion: DiscussionModel
+    patient_perspective: PatientPerspectiveModel
+    informed_consent: InformedConsentModel
+
+
 class SyntheticCaseReportModel(BaseModel):
     metadata: CaseReportMetadataModel
     patient_information: PatientInformationModel
@@ -290,5 +309,5 @@ class SyntheticCaseReportModel(BaseModel):
 
 
 class ModelOutput(BaseModel):
-    data: Optional[SyntheticCaseReportModel] = None
+    data: Optional[Any] = None
     markdown: Optional[str] = None
