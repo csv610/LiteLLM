@@ -12,3 +12,4 @@ requests
 tqdm
 typing-extensions
 rich
+dspy-ai>=2.5.12
