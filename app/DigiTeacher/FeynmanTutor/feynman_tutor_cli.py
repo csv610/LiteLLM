@@ -1,4 +1,4 @@
-from feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
+from .feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
 
 def run_cli():
     print("\n🧠 Feynman-Style AI Tutor\n")

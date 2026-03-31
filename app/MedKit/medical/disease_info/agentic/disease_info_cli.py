@@ -18,7 +18,7 @@ from lite.logging_config import configure_logging
 try:
     from .disease_info import DiseaseInfoGenerator
 except (ImportError, ValueError):
-    from medical.disease_info.disease_info import DiseaseInfoGenerator
+    from medical.disease_info.agentic.disease_info import DiseaseInfoGenerator
 
 logger = logging.getLogger(__name__)
 

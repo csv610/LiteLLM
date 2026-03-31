@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Optional, Any
-from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
+from .drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
 
 class InteractionCache:
     """SQLite-based cache for drug-disease interaction results."""

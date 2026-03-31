@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .med_speciality_roles import MedSpecialityRoles
 except (ImportError, ValueError):
-    from medical.med_speciality_roles.med_speciality_roles import MedSpecialityRoles
+    from medical.med_speciality_roles.agentic.med_speciality_roles import MedSpecialityRoles
 
 logger = logging.getLogger(__name__)
 

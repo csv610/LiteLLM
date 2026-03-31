@@ -8,8 +8,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_faqs.medical_faq import MedicalFAQGenerator
-from medical.med_faqs.medical_faq_models import (
+from medical.med_faqs.nonagentic.medical_faq import MedicalFAQGenerator
+from medical.med_faqs.nonagentic.medical_faq_models import (
     FAQItemModel,
     MedicalFAQModel,
     MisconceptionItemModel,
@@ -22,7 +22,7 @@ from medical.med_faqs.medical_faq_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_faqs.medical_faq.LiteClient") as mock:
+    with patch("medical.med_faqs.nonagentic.medical_faq.LiteClient") as mock:
         yield mock
 
 

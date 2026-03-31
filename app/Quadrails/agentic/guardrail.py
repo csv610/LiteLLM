@@ -14,8 +14,8 @@ from typing import Any, Dict, Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from guardrail_models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError
-from guardrail_prompts import PromptBuilder
+from .guardrail_models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError
+from .guardrail_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

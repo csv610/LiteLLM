@@ -2,17 +2,17 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from drug_disease_interaction import DrugDiseaseInteraction
-from drug_disease_interaction_cli import create_drug_disease_interaction_report
-from drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
-from drug_disease_interaction_prompts import DrugDiseaseInput, PromptStyle
+from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction import DrugDiseaseInteraction
+from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_cli import create_drug_disease_interaction_report
+from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_models import DrugDiseaseInteractionModel, ModelOutput
+from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_prompts import DrugDiseaseInput, PromptStyle
 from lite.config import ModelConfig
 
 # --- Core Class Mock Tests ---
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("drug_disease_interaction.LiteClient") as mock:
+    with patch("app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction.LiteClient") as mock:
         yield mock
 
 @pytest.fixture
@@ -56,7 +56,7 @@ def test_generate_text_structured(analyzer, mock_lite_client):
 
 def test_save_method(analyzer):
     # Mock save_model_response
-    with patch("drug_disease_interaction.save_model_response") as mock_save:
+    with patch("app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction.save_model_response") as mock_save:
         mock_save.return_value = Path("outputs/aspirin_peptic_ulcer_interaction.md")
         
         input_config = DrugDiseaseInput(medicine_name="Aspirin", condition_name="Peptic Ulcer")
@@ -88,7 +88,7 @@ def test_ask_llm_error_handling(analyzer, mock_lite_client):
 # --- CLI Mock Tests ---
 
 def test_parse_prompt_style():
-    from drug_disease_interaction_cli import parse_prompt_style
+    from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_cli import parse_prompt_style
     assert parse_prompt_style("detailed") == PromptStyle.DETAILED
     assert parse_prompt_style("concise") == PromptStyle.CONCISE
     assert parse_prompt_style("balanced") == PromptStyle.BALANCED
@@ -99,7 +99,7 @@ def test_parse_prompt_style():
 def test_get_user_arguments():
     import sys
 
-    from drug_disease_interaction_cli import get_user_arguments
+    from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_cli import get_user_arguments
     test_args = [
         "drug_disease_interaction_cli.py",
         "Aspirin",
@@ -135,7 +135,7 @@ def test_cli_execution_mocked():
     args.verbosity = 2
     args.model = "test-model"
 
-    with patch("drug_disease_interaction_cli.DrugDiseaseInteraction") as MockAnalyzer:
+    with patch("app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_cli.DrugDiseaseInteraction") as MockAnalyzer:
         mock_analyzer_instance = MockAnalyzer.return_value
         mock_result = MagicMock(spec=ModelOutput)
         mock_analyzer_instance.generate_text.return_value = mock_result
@@ -177,13 +177,13 @@ def test_drug_disease_input_invalid_age():
         DrugDiseaseInput(medicine_name="Aspirin", condition_name="Peptic Ulcer", age=160)
 
 def test_prompt_builder_system_prompt():
-    from drug_disease_interaction_prompts import PromptBuilder
+    from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_prompts import PromptBuilder
     system_prompt = PromptBuilder.create_system_prompt()
     assert "clinical pharmacology expert" in system_prompt
     assert "drug-disease interactions" in system_prompt
 
 def test_prompt_builder_user_prompt():
-    from drug_disease_interaction_prompts import (
+    from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_prompts import (
         DrugDiseaseInput,
         PromptBuilder,
         PromptStyle,

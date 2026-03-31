@@ -9,14 +9,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from bookchapters_models import (
+from .bookchapters_models import (
     AgentTrace,
     BookChaptersModel,
     BookInput,
     CurriculumPlanModel,
     ReviewedBookChaptersModel,
 )
-from bookchapters_prompts import PromptBuilder
+from .bookchapters_prompts import PromptBuilder
 
 
 class BookChaptersGenerator:

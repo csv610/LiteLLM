@@ -21,7 +21,7 @@ try:
     try:
         from .surgical_tray_info import SurgicalTrayGenerator
     except (ImportError, ValueError):
-        from medical.surgical_tray.surgical_tray_info import SurgicalTrayGenerator
+        from medical.surgical_tray.agentic.surgical_tray_info import SurgicalTrayGenerator
 except (ImportError, ValueError):
     from surgical_tray_info import SurgicalTrayGenerator
 

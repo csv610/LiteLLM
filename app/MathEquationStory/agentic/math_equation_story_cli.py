@@ -7,8 +7,8 @@ Uses a 3-agent pipeline to ensure high narrative quality and technical accuracy.
 import argparse
 import sys
 
-from math_equation_story_models import MathematicalEquationStory
-from math_equation_story_generator import MathEquationStoryGenerator
+from .math_equation_story_models import MathematicalEquationStory
+from .math_equation_story_generator import MathEquationStoryGenerator
 
 
 # ============================================================================

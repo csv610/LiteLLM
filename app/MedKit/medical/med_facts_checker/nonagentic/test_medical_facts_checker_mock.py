@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_facts_checker.medical_facts_checker import MedicalFactsChecker
-from medical.med_facts_checker.medical_facts_checker_models import (
+from medical.med_facts_checker.nonagentic.medical_facts_checker import MedicalFactsChecker
+from medical.med_facts_checker.nonagentic.medical_facts_checker_models import (
     AnalyzerMetadata,
     ContextInformation,
     DetailedAnalysis,
@@ -25,7 +25,7 @@ from medical.med_facts_checker.medical_facts_checker_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_facts_checker.medical_facts_checker.LiteClient") as mock:
+    with patch("medical.med_facts_checker.nonagentic.medical_facts_checker.LiteClient") as mock:
         yield mock
 
 
@@ -103,7 +103,7 @@ def test_save_error():
         checker.save(ModelOutput(), Path("/tmp"))
 
 
-@patch("medical.med_facts_checker.medical_facts_checker.save_model_response")
+@patch("medical.med_facts_checker.nonagentic.medical_facts_checker.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     checker = MedicalFactsChecker(config)

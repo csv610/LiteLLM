@@ -1,16 +1,16 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from deep_deliberation import DeepDeliberation
-from deep_deliberation_models import (
+from app.DeepDeliberation.deep_deliberation import DeepDeliberation
+from app.DeepDeliberation.deep_deliberation_models import (
     InitialKnowledgeMap, DiscoveryFAQ, DiscoveryInsight, DiscoveryCheck, 
     VerificationResult, KnowledgeSynthesis
 )
-from lite import ModelConfig
+from lite import LiteClient, ModelConfig
 
 class TestDeepDeliberation(unittest.TestCase):
     def setUp(self):
         self.model_config = ModelConfig(model="test-model")
-        with patch('deep_deliberation.LiteClient'), patch('deep_deliberation.DiscoveryAgent'):
+        with patch('app.DeepDeliberation.deep_deliberation.LiteClient'), patch('app.DeepDeliberation.deep_deliberation.DiscoveryAgent'):
             self.orchestrator = DeepDeliberation(self.model_config)
             self.orchestrator.client = MagicMock()
             self.orchestrator.agent = MagicMock()
@@ -89,7 +89,7 @@ class TestDeepDeliberation(unittest.TestCase):
         self.orchestrator.agent.verify.return_value = VerificationResult(is_verified=True, credibility_score=9, critique="Solid")
         self.orchestrator.agent.summarize.return_value = "S1"
 
-        with patch('deep_deliberation.MissionArchive') as mock_archive:
+        with patch('app.DeepDeliberation.deep_deliberation.MissionArchive') as mock_archive:
              res = self.orchestrator.run(topic, num_rounds=1, num_faqs=1)
              
              self.assertEqual(res.topic, topic)

@@ -1,5 +1,5 @@
 import argparse
-from object_guesser_game import ObjectGuessingGame
+from .object_guesser_game import ObjectGuessingGame
 
 def object_guesser_cli():
     """Main entry point for the game."""

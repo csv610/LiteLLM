@@ -2,8 +2,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from drug_addiction import DrugAddiction
-from drug_addiction_models import (
+from app.MedKit.drug.drug_addiction.drug_addiction import DrugAddiction
+from app.MedKit.drug.drug_addiction.drug_addiction_models import (
     AddictionMechanismModel,
     AddictionPotential,
     ConfidenceLevel,
@@ -11,7 +11,7 @@ from drug_addiction_models import (
     DrugAddictionModel,
     ModelOutput,
 )
-from drug_addiction_prompts import DrugAddictionInput, PromptBuilder
+from app.MedKit.drug.drug_addiction.drug_addiction_prompts import DrugAddictionInput, PromptBuilder
 from lite.config import ModelConfig
 
 
@@ -21,7 +21,7 @@ def mock_model_config():
 
 @pytest.fixture
 def drug_addiction_analyzer(mock_model_config):
-    with patch("drug_addiction.LiteClient"):
+    with patch("app.MedKit.drug.drug_addiction.drug_addiction.LiteClient"):
         return DrugAddiction(mock_model_config)
 
 def test_drug_addiction_input_validation():
@@ -47,7 +47,7 @@ def test_prompt_builder():
     assert "Analyze the addiction potential and risks for Ketamine" in user_prompt
     assert "Reported usage duration: 2 weeks" in user_prompt
 
-@patch("drug_addiction.LiteClient")
+@patch("app.MedKit.drug.drug_addiction.drug_addiction.LiteClient")
 def test_generate_text_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     structured_raw = DrugAddictionModel(technical_summary="Structured summary")
@@ -68,7 +68,7 @@ def test_generate_text_mock(mock_client_class, mock_model_config):
     assert "Ketamine" in model_input.user_prompt
     assert model_input.response_format == DrugAddictionModel
 
-@patch("drug_addiction.LiteClient")
+@patch("app.MedKit.drug.drug_addiction.drug_addiction.LiteClient")
 def test_generate_markdown_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     raw_markdown = "# Analysis for Ketamine"
@@ -84,7 +84,7 @@ def test_generate_markdown_mock(mock_client_class, mock_model_config):
     model_input = kwargs.get("model_input") or args[0]
     assert model_input.response_format is None
 
-@patch("drug_addiction.LiteClient")
+@patch("app.MedKit.drug.drug_addiction.drug_addiction.LiteClient")
 def test_generate_text_structured_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     
@@ -127,7 +127,7 @@ def test_generate_text_structured_mock(mock_client_class, mock_model_config):
     model_input = kwargs.get("model_input") or args[0]
     assert model_input.response_format == DrugAddictionModel
 
-@patch("drug_addiction.save_model_response")
+@patch("app.MedKit.drug.drug_addiction.drug_addiction.save_model_response")
 def test_save_mock(mock_save_response, drug_addiction_analyzer):
     result = ModelOutput(
         data=DrugAddictionModel(technical_summary="Summary"),
@@ -148,7 +148,7 @@ def test_save_mock(mock_save_response, drug_addiction_analyzer):
     assert "ketamine" in str(first_args[1])
     assert "ketamine" in str(second_args[1])
 
-@patch("drug_addiction.save_model_response")
+@patch("app.MedKit.drug.drug_addiction.drug_addiction.save_model_response")
 def test_save_markdown_only_mock(mock_save_response, drug_addiction_analyzer):
     result = ModelOutput(markdown="# Analysis")
     drug_addiction_analyzer.config = DrugAddictionInput(medicine_name="Ketamine")

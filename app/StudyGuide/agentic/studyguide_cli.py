@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.config import ModelConfig
 from lite import logging_config
-from studyguide_models import BookInput
-from studyguide_generator import StudyGuideGenerator
+from .studyguide_models import BookInput
+from .studyguide_generator import StudyGuideGenerator
 
 # Global logger for application
 logger = None

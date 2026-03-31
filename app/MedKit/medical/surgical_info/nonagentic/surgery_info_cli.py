@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .surgical_info import SurgeryInfoGenerator
 except (ImportError, ValueError):
-    from medical.surgical_info.surgical_info import SurgeryInfoGenerator
+    from medical.surgical_info.nonagentic.surgical_info import SurgeryInfoGenerator
 
 logger = logging.getLogger(__name__)
 

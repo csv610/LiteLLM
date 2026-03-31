@@ -3,15 +3,15 @@ from unittest.mock import patch
 
 import pytest
 from lite.config import ModelConfig
-from symptom_drugs import SymptomDrugs
-from symptom_drugs_prompts import SymptomInput
+from app.MedKit.drug.symptoms_drugs.nonagentic.symptom_drugs import SymptomDrugs
+from app.MedKit.drug.symptoms_drugs.nonagentic.symptom_drugs_prompts import SymptomInput
 
 
 @pytest.fixture
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
-@patch("symptom_drugs.LiteClient")
+@patch("app.MedKit.drug.symptoms_drugs.nonagentic.symptom_drugs.LiteClient")
 def test_symptoms_drugs_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     raw_markdown = "# Medications for Headache"
@@ -29,7 +29,7 @@ def test_symptoms_drugs_mock(mock_client_class, mock_model_config):
     model_input = kwargs.get("model_input") or args[0]
     assert "Headache" in model_input.user_prompt
 
-@patch("symptom_drugs.save_model_response")
+@patch("app.MedKit.drug.symptoms_drugs.nonagentic.symptom_drugs.save_model_response")
 def test_save_mock(mock_save_response, mock_model_config):
     analyzer = SymptomDrugs(mock_model_config)
     config = SymptomInput(symptom_name="Headache")

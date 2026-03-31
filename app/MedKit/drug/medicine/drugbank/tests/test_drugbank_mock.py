@@ -2,7 +2,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from drugbank_medicine import DrugBankMedicine
+from app.MedKit.drug.medicine.drugbank.drugbank_medicine import DrugBankMedicine
 from lite.config import ModelConfig
 
 
@@ -10,7 +10,7 @@ from lite.config import ModelConfig
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
-@patch("drugbank_medicine.LiteClient")
+@patch("app.MedKit.drug.medicine.drugbank.drugbank_medicine.LiteClient")
 def test_drugbank_medicine_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     raw_markdown = "# Medicine Info for Aspirin"
@@ -34,7 +34,7 @@ def test_drugbank_medicine_validation(mock_model_config):
     with pytest.raises(ValueError, match="Medicine name cannot be empty"):
         fetcher.generate_text("   ")
 
-@patch("drugbank_medicine.save_model_response")
+@patch("app.MedKit.drug.medicine.drugbank.drugbank_medicine.save_model_response")
 def test_save_mock(mock_save_response, mock_model_config):
     fetcher = DrugBankMedicine(mock_model_config)
     fetcher.medicine_name = "Aspirin"

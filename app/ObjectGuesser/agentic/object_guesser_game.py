@@ -8,7 +8,7 @@ to provide a more robust and intelligent guessing game.
 import json
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from object_guessing_prompts import PromptBuilder
+from .object_guessing_prompts import PromptBuilder
 
 
 class ObjectGuesserGame:

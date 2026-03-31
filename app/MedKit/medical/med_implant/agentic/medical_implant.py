@@ -17,11 +17,11 @@ try:
     from .medical_implant_models import MedicalImplantInfoModel, ModelOutput
     from .medical_implant_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.med_implant.medical_implant_models import (
+    from medical.med_implant.agentic.medical_implant_models import (
         MedicalImplantInfoModel,
         ModelOutput,
     )
-    from medical.med_implant.medical_implant_prompts import PromptBuilder
+    from medical.med_implant.agentic.medical_implant_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

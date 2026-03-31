@@ -23,8 +23,8 @@ try:
     from .medical_anatomy_models import MedicalAnatomyModel, ModelOutput
     from .medical_anatomy_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.anatomy.medical_anatomy_models import MedicalAnatomyModel, ModelOutput
-    from medical.anatomy.medical_anatomy_prompts import PromptBuilder
+    from medical.anatomy.nonagentic.medical_anatomy_models import MedicalAnatomyModel, ModelOutput
+    from medical.anatomy.nonagentic.medical_anatomy_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

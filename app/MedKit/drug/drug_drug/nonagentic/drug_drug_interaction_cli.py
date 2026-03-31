@@ -2,8 +2,8 @@ import argparse
 import logging
 from pathlib import Path
 
-from drug_drug_interaction import DrugDrugInteractionGenerator
-from drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
+from .drug_drug_interaction import DrugDrugInteractionGenerator
+from .drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 

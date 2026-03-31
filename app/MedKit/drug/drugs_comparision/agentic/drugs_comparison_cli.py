@@ -8,7 +8,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from drugs_comparison import DrugsComparison, DrugsComparisonInput
+from .drugs_comparison import DrugsComparison, DrugsComparisonInput
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 

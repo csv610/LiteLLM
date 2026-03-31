@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Optional
 
 from lite import ModelConfig, configure_logging
-from deep_deliberation_models import KnowledgeSynthesis
-from deep_deliberation import DeepDeliberation
+from .deep_deliberation_models import KnowledgeSynthesis
+from .deep_deliberation import DeepDeliberation
 
 # Setup logging
 log_dir = Path(__file__).parent / "logs"

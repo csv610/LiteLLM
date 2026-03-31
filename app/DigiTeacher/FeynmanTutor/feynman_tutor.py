@@ -1,7 +1,7 @@
 # Acknowledgement: The following prompt has been copied verbatim from Dimitrios A. Karras’ Post on Linkedln.
 
 from lite.lite_client import LiteClient
-from feynman_tutor_prompts import PromptBuilder
+from .feynman_tutor_prompts import PromptBuilder
 
 class ModelConfig:
     def __init__(self, topic, level, model="ollama/gemma3", temperature=0.4):

@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from medical.med_media.ddg_videos import DuckDuckVideos
+from medical.med_media.agentic.ddg_videos import DuckDuckVideos
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def ddg_videos():
     return DuckDuckVideos()
 
 
-@patch("medical.med_media.ddg_videos.DDGS")
+@patch("medical.med_media.agentic.ddg_videos.DDGS")
 def test_get_urls(mock_ddgs, ddg_videos):
     mock_ddgs_instance = MagicMock()
     mock_ddgs.return_value.__enter__.return_value = mock_ddgs_instance

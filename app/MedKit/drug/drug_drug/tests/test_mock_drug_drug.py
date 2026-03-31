@@ -1,8 +1,8 @@
 from unittest.mock import patch
 
 import pytest
-from drug_drug_interaction import DrugDrugInteractionGenerator
-from drug_drug_interaction_models import (
+from app.MedKit.drug.drug_drug.nonagentic.drug_drug_interaction import DrugDrugInteractionGenerator
+from app.MedKit.drug.drug_drug.nonagentic.drug_drug_interaction_models import (
     ConfidenceLevel,
     DataAvailabilityInfoModel,
     DataSourceType,
@@ -12,7 +12,7 @@ from drug_drug_interaction_models import (
     ModelOutput,
     PatientFriendlySummaryModel,
 )
-from drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
+from app.MedKit.drug.drug_drug.nonagentic.drug_drug_interaction_prompts import DrugDrugInput, PromptStyle
 from lite.config import ModelConfig
 
 
@@ -22,7 +22,8 @@ def model_config():
 
 @pytest.fixture
 def drug_drug_generator(model_config):
-    return DrugDrugInteractionGenerator(model_config)
+    with patch("app.MedKit.drug.drug_drug.nonagentic.drug_drug_interaction.LiteClient"):
+        return DrugDrugInteractionGenerator(model_config)
 
 @pytest.fixture
 def sample_input():
@@ -100,7 +101,7 @@ def test_generate_text_structured(drug_drug_generator, sample_input, mock_intera
 def test_save(drug_drug_generator, sample_input, mock_interaction_result, tmp_path):
     drug_drug_generator.user_input = sample_input
     
-    with patch('drug_drug_interaction.save_model_response') as mock_save:
+    with patch('app.MedKit.drug.drug_drug.nonagentic.drug_drug_interaction.save_model_response') as mock_save:
         mock_save.return_value = tmp_path / "aspirin_warfarin_interaction.md"
         
         output_path = drug_drug_generator.save(mock_interaction_result, tmp_path)

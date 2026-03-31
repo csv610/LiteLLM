@@ -12,8 +12,8 @@ from pathlib import Path
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response
-from symptom_drugs_models import ModelOutput, SymptomDrugAnalysisModel
-from symptom_drugs_prompts import PromptBuilder, SymptomInput
+from .symptom_drugs_models import ModelOutput, SymptomDrugAnalysisModel
+from .symptom_drugs_prompts import PromptBuilder, SymptomInput
 
 logger = logging.getLogger(__name__)
 

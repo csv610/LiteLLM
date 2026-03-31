@@ -7,10 +7,10 @@ from typing import List
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from math_theory_models import (
+from .math_theory_models import (
     MathTheory, AudienceLevel
 )
-from math_theory_element import MathTheoryExplainer
+from .math_theory_element import MathTheoryExplainer
 
 def arguments_parser():
     """Parse command-line arguments for the math theory explainer CLI."""

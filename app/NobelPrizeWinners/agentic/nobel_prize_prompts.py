@@ -4,7 +4,7 @@ Contains the PromptBuilder class for creating structured prompts
 for fetching Nobel Prize winner information from LLM.
 """
 
-from nobel_prize_models import PrizeResponse
+from .nobel_prize_models import PrizeResponse
 
 class PromptBuilder:
     """Builder class for creating prompts for Nobel Prize information."""

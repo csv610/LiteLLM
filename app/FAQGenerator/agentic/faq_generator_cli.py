@@ -13,8 +13,8 @@ from pathlib import Path
 
 from lite import ModelConfig
 from lite.logging_config import configure_logging
-from faq_generator import FAQGenerator, FAQInput, DataExporter
-from faq_generator_models import VALID_DIFFICULTIES
+from .faq_generator import FAQGenerator, FAQInput, DataExporter
+from .faq_generator_models import VALID_DIFFICULTIES
 
 # Global logger for the application
 logger = logging.getLogger(__name__)

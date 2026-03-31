@@ -1,7 +1,7 @@
 import logging
 from unittest.mock import MagicMock, patch
-from drugs_comparison import DrugsComparison, DrugsComparisonInput
-from drugs_comparison_models import (
+from .drugs_comparison import DrugsComparison, DrugsComparisonInput
+from .drugs_comparison_models import (
     MedicinesComparisonResult, ClinicalMetrics, RegulatoryMetrics, 
     PracticalMetrics, ComplianceMetrics, ComparisonSummary, RecommendationContext,
     SafetyAudit, EffectivenessRating, SafetyRating, AvailabilityStatus

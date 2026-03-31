@@ -3,7 +3,7 @@
 import json
 import sys
 
-from rxclass_client import RxClassClient
+from .rxclass_client import RxClassClient
 
 from utils import print_response
 

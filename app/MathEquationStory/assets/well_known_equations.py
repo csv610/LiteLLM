@@ -6,8 +6,8 @@ for use with the Mathematical Equation Story Generator.
 """
 
 from typing import List
-from equation_base import Equation, EquationCategory
-from wikipedia_equations import get_wikipedia_equations, wiki_to_standard_equation
+from .equation_base import Equation, EquationCategory
+from .wikipedia_equations import get_wikipedia_equations, wiki_to_standard_equation
 
 
 # ============================================================================

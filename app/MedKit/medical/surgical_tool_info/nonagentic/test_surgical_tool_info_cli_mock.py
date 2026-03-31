@@ -9,7 +9,7 @@ if str(project_root) not in sys.path:
 import argparse
 from unittest.mock import MagicMock, patch
 
-from medical.surgical_tool_info.surgical_tool_info_cli import (
+from medical.surgical_tool_info.nonagentic.surgical_tool_info_cli import (
     get_user_arguments,
     main,
 )
@@ -26,8 +26,8 @@ def test_get_user_arguments():
         assert args.structured is True
 
 
-@patch("medical.surgical_tool_info.surgical_tool_info_cli.SurgicalToolInfoGenerator")
-@patch("medical.surgical_tool_info.surgical_tool_info_cli.configure_logging")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.SurgicalToolInfoGenerator")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.configure_logging")
 def test_main_with_args_single_tool(mock_configure_logging, mock_generator_class):
     mock_generator = mock_generator_class.return_value
     mock_result = MagicMock()
@@ -43,7 +43,7 @@ def test_main_with_args_single_tool(mock_configure_logging, mock_generator_class
 
     with patch("pathlib.Path.mkdir"):
         with patch(
-            "medical.surgical_tool_info.surgical_tool_info_cli.get_user_arguments",
+            "medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.get_user_arguments",
             return_value=args,
         ):
             result = main()
@@ -55,8 +55,8 @@ def test_main_with_args_single_tool(mock_configure_logging, mock_generator_class
     mock_generator.save.assert_called_once_with(mock_result, Path("test_outputs"))
 
 
-@patch("medical.surgical_tool_info.surgical_tool_info_cli.SurgicalToolInfoGenerator")
-@patch("medical.surgical_tool_info.surgical_tool_info_cli.configure_logging")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.SurgicalToolInfoGenerator")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.configure_logging")
 def test_main_with_args_file_input(
     mock_configure_logging, mock_generator_class, tmp_path
 ):
@@ -76,7 +76,7 @@ def test_main_with_args_file_input(
     )
 
     with patch(
-        "medical.surgical_tool_info.surgical_tool_info_cli.get_user_arguments",
+        "medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.get_user_arguments",
         return_value=args,
     ):
         result = main()
@@ -87,8 +87,8 @@ def test_main_with_args_file_input(
     mock_generator.generate_text.assert_any_call(tool="forceps", structured=True)
 
 
-@patch("medical.surgical_tool_info.surgical_tool_info_cli.SurgicalToolInfoGenerator")
-@patch("medical.surgical_tool_info.surgical_tool_info_cli.configure_logging")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.SurgicalToolInfoGenerator")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.configure_logging")
 def test_main_with_args_error(mock_configure_logging, mock_generator_class):
     mock_generator = mock_generator_class.return_value
     mock_generator.generate_text.side_effect = Exception("Test error")
@@ -103,7 +103,7 @@ def test_main_with_args_error(mock_configure_logging, mock_generator_class):
 
     with patch("pathlib.Path.mkdir"):
         with patch(
-            "medical.surgical_tool_info.surgical_tool_info_cli.get_user_arguments",
+            "medical.surgical_tool_info.nonagentic.surgical_tool_info_cli.get_user_arguments",
             return_value=args,
         ):
             result = main()

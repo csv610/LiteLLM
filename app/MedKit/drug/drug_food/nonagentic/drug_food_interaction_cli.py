@@ -2,8 +2,8 @@ import argparse
 import logging
 from pathlib import Path
 
-from drug_food_interaction import DrugFoodInteraction
-from drug_food_interaction_prompts import DrugFoodInput
+from .drug_food_interaction import DrugFoodInteraction
+from .drug_food_interaction_prompts import DrugFoodInput
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 

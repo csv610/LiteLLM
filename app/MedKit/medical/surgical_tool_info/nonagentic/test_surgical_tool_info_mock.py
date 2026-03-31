@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.surgical_tool_info.surgical_tool_info import SurgicalToolInfoGenerator
-from medical.surgical_tool_info.surgical_tool_info_models import (
+from medical.surgical_tool_info.nonagentic.surgical_tool_info import SurgicalToolInfoGenerator
+from medical.surgical_tool_info.nonagentic.surgical_tool_info_models import (
     AlternativesAndComparisonsModel,
     CostAndProcurementModel,
     DiscomfortRisksAndComplicationsModel,
@@ -37,7 +37,7 @@ from medical.surgical_tool_info.surgical_tool_info_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.surgical_tool_info.surgical_tool_info.LiteClient") as mock:
+    with patch("medical.surgical_tool_info.nonagentic.surgical_tool_info.LiteClient") as mock:
         yield mock
 
 
@@ -218,7 +218,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.data.tool_basics.tool_name == "Scalpel"
 
 
-@patch("medical.surgical_tool_info.surgical_tool_info.save_model_response")
+@patch("medical.surgical_tool_info.nonagentic.surgical_tool_info.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = SurgicalToolInfoGenerator(config)

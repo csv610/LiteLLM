@@ -19,7 +19,7 @@ from lite.logging_config import configure_logging
 try:
     from .medical_speciality import MedicalSpecialityGenerator
 except (ImportError, ValueError):
-    from medical.med_speciality.medical_speciality import MedicalSpecialityGenerator
+    from medical.med_speciality.agentic.medical_speciality import MedicalSpecialityGenerator
 
 logger = logging.getLogger(__name__)
 

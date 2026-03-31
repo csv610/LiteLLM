@@ -1,5 +1,5 @@
 from lite.lite_client import LiteClient
-from socrates_tutor_prompts import PromptBuilder
+from .socrates_tutor_prompts import PromptBuilder
 
 MODEL = "ollama/gemma3"
 

@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.surgical_pose_info.surgical_pose_info import SurgicalPoseInfoGenerator
-from medical.surgical_pose_info.surgical_pose_info_models import (
+from medical.surgical_pose_info.nonagentic.surgical_pose_info import SurgicalPoseInfoGenerator
+from medical.surgical_pose_info.nonagentic.surgical_pose_info_models import (
     ContraindicationsAndModificationsModel,
     ModelOutput,
     PatientSetupModel,
@@ -27,7 +27,7 @@ from medical.surgical_pose_info.surgical_pose_info_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.surgical_pose_info.surgical_pose_info.LiteClient") as mock:
+    with patch("medical.surgical_pose_info.nonagentic.surgical_pose_info.LiteClient") as mock:
         yield mock
 
 
@@ -110,7 +110,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.data.pose_basics.position_name == "Supine"
 
 
-@patch("medical.surgical_pose_info.surgical_pose_info.save_model_response")
+@patch("medical.surgical_pose_info.nonagentic.surgical_pose_info.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = SurgicalPoseInfoGenerator(config)

@@ -21,14 +21,14 @@ try:
     )
     from .med_media_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.med_media.ddg_images import DuckDuckImages
-    from medical.med_media.ddg_videos import DuckDuckVideos
-    from medical.med_media.med_media_models import (
+    from medical.med_media.agentic.ddg_images import DuckDuckImages
+    from medical.med_media.agentic.ddg_videos import DuckDuckVideos
+    from medical.med_media.agentic.med_media_models import (
         MediaCaptionModel,
         MediaSummaryModel,
         ModelOutput,
     )
-    from medical.med_media.med_media_prompts import PromptBuilder
+    from medical.med_media.agentic.med_media_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

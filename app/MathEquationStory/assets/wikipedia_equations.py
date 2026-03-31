@@ -8,7 +8,7 @@ Contains a curated collection of equations that appear on Wikipedia's
 from typing import List, Dict
 from enum import Enum
 
-from equation_base import Equation, EquationCategory
+from .equation_base import Equation, EquationCategory
 
 
 class WikipediaImportance(Enum):

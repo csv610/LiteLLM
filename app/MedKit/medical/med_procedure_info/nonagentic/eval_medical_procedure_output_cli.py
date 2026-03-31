@@ -25,7 +25,7 @@ from lite.logging_config import configure_logging
 try:
     from .eval_medical_procedure_output import MedicalProcedureEvaluator
 except (ImportError, ValueError):
-    from medical.med_procedure_info.eval_medical_procedure_output import (
+    from medical.med_procedure_info.nonagentic.eval_medical_procedure_output import (
         MedicalProcedureEvaluator,
     )
 

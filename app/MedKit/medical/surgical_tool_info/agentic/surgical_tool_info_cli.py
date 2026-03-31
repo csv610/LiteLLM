@@ -24,7 +24,7 @@ try:
             SurgicalToolInfoGenerator,
         )
     except (ImportError, ValueError):
-        from medical.surgical_tool_info.surgical_tool_info import (
+        from medical.surgical_tool_info.agentic.surgical_tool_info import (
             MultiAgentSurgicalToolInfoGenerator,
             SurgicalToolInfoGenerator,
         )

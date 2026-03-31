@@ -1,5 +1,5 @@
 import unittest
-from deep_deliberation_prompts import PromptBuilder
+from app.DeepDeliberation.deep_deliberation_prompts import PromptBuilder
 
 class TestPromptBuilder(unittest.TestCase):
     def test_get_initial_prompt(self):

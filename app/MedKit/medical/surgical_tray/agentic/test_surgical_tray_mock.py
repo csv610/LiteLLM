@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.surgical_tray.surgical_tray_info import SurgicalTrayGenerator
-from medical.surgical_tray.surgical_tray_info_models import (
+from medical.surgical_tray.agentic.surgical_tray_info import SurgicalTrayGenerator
+from medical.surgical_tray.agentic.surgical_tray_info_models import (
     ModelOutput,
     SurgicalTrayModel,
     TrayInstrument,
@@ -21,7 +21,7 @@ from medical.surgical_tray.surgical_tray_info_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.surgical_tray.surgical_tray_info.LiteClient") as mock:
+    with patch("medical.surgical_tray.agentic.surgical_tray_info.LiteClient") as mock:
         yield mock
 
 
@@ -72,7 +72,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.tray_data.surgery_name == "Appendectomy"
 
 
-@patch("medical.surgical_tray.surgical_tray_info.save_model_response")
+@patch("medical.surgical_tray.agentic.surgical_tray_info.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = SurgicalTrayGenerator(config)

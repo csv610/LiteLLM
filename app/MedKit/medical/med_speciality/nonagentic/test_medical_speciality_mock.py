@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_speciality.medical_speciality import MedicalSpecialityGenerator
-from medical.med_speciality.medical_speciality_models import (
+from medical.med_speciality.nonagentic.medical_speciality import MedicalSpecialityGenerator
+from medical.med_speciality.nonagentic.medical_speciality_models import (
     MedicalSpecialist,
     MedicalSpecialistDatabase,
     SpecialtyCategory,
@@ -21,7 +21,7 @@ from medical.med_speciality.medical_speciality_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_speciality.medical_speciality.LiteClient") as mock:
+    with patch("medical.med_speciality.nonagentic.medical_speciality.LiteClient") as mock:
         yield mock
 
 
@@ -74,7 +74,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.get_by_category("Cardiovascular")[0].specialty_name == "Cardiologist"
 
 
-@patch("medical.med_speciality.medical_speciality.save_model_response")
+@patch("medical.med_speciality.nonagentic.medical_speciality.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalSpecialityGenerator(config)

@@ -1,4 +1,4 @@
-from hadamard_tutor import HadamardTutorQuestionGenerator
+from .hadamard_tutor import HadamardTutorQuestionGenerator
 
 def run_cli():
     print("\n🧠 Hadamard Discovery Tutor")

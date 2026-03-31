@@ -39,8 +39,8 @@ except (ImportError, ValueError):
             EducatorAgent,
         )
     except ImportError:
-        from medical.herbal_info.herbal_info_models import HerbalInfoModel, ModelOutput
-        from medical.herbal_info.herbal_info_agents import (
+        from medical.herbal_info.agentic.herbal_info_models import HerbalInfoModel, ModelOutput
+        from medical.herbal_info.agentic.herbal_info_agents import (
             BotanicalAgent,
             PharmacologicalAgent,
             SafetyAgent,

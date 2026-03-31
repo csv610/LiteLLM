@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .synthetic_case_report import SyntheticCaseReportGenerator
 except (ImportError, ValueError):
-    from medical.synthetic_case_report.synthetic_case_report import (
+    from medical.synthetic_case_report.agentic.synthetic_case_report import (
         SyntheticCaseReportGenerator,
     )
 

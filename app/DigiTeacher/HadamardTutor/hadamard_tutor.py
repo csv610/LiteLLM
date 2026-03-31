@@ -1,5 +1,5 @@
 from lite.lite_client import LiteClient
-from hadamard_tutor_prompts import PromptBuilder
+from .hadamard_tutor_prompts import PromptBuilder
 
 MODEL = "ollama/gemma3"
 

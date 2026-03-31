@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
-from hadamard_tutor_prompts import PromptBuilder
-from hadamard_tutor import HadamardTutorQuestionGenerator
+from DigiTeacher.HadamardTutor.hadamard_tutor_prompts import PromptBuilder
+from DigiTeacher.HadamardTutor.hadamard_tutor import HadamardTutorQuestionGenerator
 
 class TestPromptBuilder(unittest.TestCase):
     def test_get_system_prompt(self):
@@ -28,7 +28,7 @@ class TestHadamardTutorQuestionGenerator(unittest.TestCase):
     def setUp(self):
         self.topic = "Number Theory"
         self.level = "advanced"
-        with patch('hadamard_tutor.LiteClient') as mock_client:
+        with patch('DigiTeacher.HadamardTutor.hadamard_tutor.LiteClient') as mock_client:
             self.mock_client = mock_client.return_value
             self.tutor = HadamardTutorQuestionGenerator(self.topic, self.level)
 

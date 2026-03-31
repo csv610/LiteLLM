@@ -18,7 +18,7 @@ from lite.logging_config import configure_logging
 try:
     from .herbal_info import HerbalInfoGenerator
 except (ImportError, ValueError):
-    from medical.herbal_info.herbal_info import HerbalInfoGenerator
+    from medical.herbal_info.nonagentic.herbal_info import HerbalInfoGenerator
 
 logger = logging.getLogger(__name__)
 

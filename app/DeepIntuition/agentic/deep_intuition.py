@@ -11,15 +11,15 @@ from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 from pydantic import BaseModel
 
-from deep_intuition_models import (
+from .deep_intuition_models import (
     DeepIntuitionStory, 
     HistoricalResearch, 
     IntuitionInsight, 
     CounterfactualAnalysis, 
     StruggleNarrative
 )
-from deep_intuition_prompts import AgentPrompts
-from deep_intuition_archive import MissionArchive
+from .deep_intuition_prompts import AgentPrompts
+from .deep_intuition_archive import MissionArchive
 
 logger = logging.getLogger(__name__)
 

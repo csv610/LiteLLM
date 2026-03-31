@@ -11,12 +11,12 @@ from typing import List, Optional
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from unsolved_problems_models import (
+from .unsolved_problems_models import (
     ReviewedUnsolvedProblemsResponse,
     UnsolvedProblem,
     UnsolvedProblemsResponse,
 )
-from unsolved_problems_prompts import PromptBuilder
+from .unsolved_problems_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

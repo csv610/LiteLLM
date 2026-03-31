@@ -1,4 +1,4 @@
-from socrates_tutor import SocratesTutor
+from .socrates_tutor import SocratesTutor
 
 def run_cli():
     print("\n🏛️  Socrates AI Tutor")

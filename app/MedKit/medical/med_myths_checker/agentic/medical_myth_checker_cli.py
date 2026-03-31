@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .medical_myth_checker import MedicalMythsChecker
 except (ImportError, ValueError):
-    from medical.med_myths_checker.medical_myth_checker import MedicalMythsChecker
+    from medical.med_myths_checker.agentic.medical_myth_checker import MedicalMythsChecker
 
 logger = logging.getLogger(__name__)
 

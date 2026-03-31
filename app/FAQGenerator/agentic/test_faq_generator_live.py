@@ -1,7 +1,7 @@
 import unittest
 import os
 from lite.config import ModelConfig
-from faq_generator import FAQGenerator, FAQInput
+from .faq_generator import FAQGenerator, FAQInput
 
 class LiveTestFAQGenerator(unittest.TestCase):
     def test_live_generate(self):

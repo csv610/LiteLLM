@@ -7,13 +7,15 @@ from pathlib import Path
 # Add project root directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+import logging
 from lite.logging_config import configure_logging as setup_logging
 
-from millennium_prize_agents import (
+from MillenniumPrize.agentic.millennium_prize_agents import (
     TwoAgentWorkflow,
 )
 
-logger = setup_logging(str(Path(__file__).parent / "logs" / "millennium.log"))
+setup_logging(str(Path(__file__).parent / "logs" / "millennium.log"))
+logger = logging.getLogger(__name__)
 
 
 # ==============================================================================

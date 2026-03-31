@@ -14,8 +14,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from nobel_prize_models import PrizeWinner, PrizeResponse
-from nobel_prize_prompts import PromptBuilder
+from .nobel_prize_models import PrizeWinner, PrizeResponse
+from .nobel_prize_prompts import PromptBuilder
 
 
 class NobelPrizeWinnerInfo:

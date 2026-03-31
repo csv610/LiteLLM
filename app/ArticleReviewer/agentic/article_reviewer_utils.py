@@ -6,7 +6,7 @@ import json
 import time
 import os
 from pathlib import Path
-from article_reviewer_models import ArticleReviewModel
+from .article_reviewer_models import ArticleReviewModel
 
 def save_review(review: ArticleReviewModel, output_filename: str = None, input_filename: str = None, output_dir: str = "outputs") -> str:
     """Save the review to a JSON file.

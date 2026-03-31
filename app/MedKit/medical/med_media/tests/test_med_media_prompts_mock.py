@@ -6,7 +6,7 @@ project_root = Path(__file__).resolve().parent.parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from medical.med_media.med_media_prompts import PromptBuilder
+from medical.med_media.agentic.med_media_prompts import PromptBuilder
 
 
 def test_create_system_prompt():

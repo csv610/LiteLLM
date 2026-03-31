@@ -6,8 +6,8 @@ import argparse
 import asyncio
 
 from lite.config import ModelConfig
-from article_reviewer_agents import MultiAgentReviewer
-from article_reviewer_utils import save_review, print_review
+from .article_reviewer_agents import MultiAgentReviewer
+from .article_reviewer_utils import save_review, print_review
 
 async def run_review(article_text, model_name=None, output_filename=None, input_filename=None):
     """Run the multi-agent review."""

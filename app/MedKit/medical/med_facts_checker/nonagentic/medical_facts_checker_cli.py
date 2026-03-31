@@ -21,7 +21,7 @@ from tqdm import tqdm
 try:
     from .medical_facts_checker import MedicalFactsChecker
 except (ImportError, ValueError):
-    from medical.med_facts_checker.medical_facts_checker import MedicalFactsChecker
+    from medical.med_facts_checker.nonagentic.medical_facts_checker import MedicalFactsChecker
 
 logger = logging.getLogger(__name__)
 

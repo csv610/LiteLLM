@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .medical_faq import MedicalFAQGenerator
 except (ImportError, ValueError):
-    from medical.med_faqs.medical_faq import MedicalFAQGenerator
+    from medical.med_faqs.nonagentic.medical_faq import MedicalFAQGenerator
 
 logger = logging.getLogger(__name__)
 

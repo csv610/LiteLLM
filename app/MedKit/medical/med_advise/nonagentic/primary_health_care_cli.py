@@ -18,7 +18,7 @@ from lite.logging_config import configure_logging
 try:
     from .primary_health_care import PrimaryHealthCareProvider
 except (ImportError, ValueError):
-    from medical.med_advise.primary_health_care import PrimaryHealthCareProvider
+    from medical.med_advise.nonagentic.primary_health_care import PrimaryHealthCareProvider
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,8 @@ from typing import Callable, Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig
 
-from math_equation_story_models import MathematicalEquationStory, ResearchBrief
-import math_equation_story_prompts as prompts
+from .math_equation_story_models import MathematicalEquationStory, ResearchBrief
+from . import math_equation_story_prompts as prompts
 
 
 class MathEquationStoryGenerator:

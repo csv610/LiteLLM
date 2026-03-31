@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
-from socrates_tutor_prompts import PromptBuilder
-from socrates_tutor import SocratesTutor
+from DigiTeacher.SocratesTutor.socrates_tutor_prompts import PromptBuilder
+from DigiTeacher.SocratesTutor.socrates_tutor import SocratesTutor
 
 class TestPromptBuilder(unittest.TestCase):
     def test_get_system_prompt(self):
@@ -21,7 +21,7 @@ class TestSocratesTutor(unittest.TestCase):
     def setUp(self):
         self.topic = "The Nature of Good"
         self.level = "curious"
-        with patch('socrates_tutor.LiteClient') as mock_client:
+        with patch('DigiTeacher.SocratesTutor.socrates_tutor.LiteClient') as mock_client:
             self.mock_client = mock_client.return_value
             self.tutor = SocratesTutor(self.topic, self.level)
 

@@ -1,5 +1,5 @@
 import streamlit as st
-from ddg_videos import DuckDuckVideos
+from .ddg_videos import DuckDuckVideos
 
 
 class StVideoSearch:

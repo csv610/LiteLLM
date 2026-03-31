@@ -3,7 +3,7 @@
 import argparse
 import json
 
-from rxnorm_client import RxNormClient
+from .rxnorm_client import RxNormClient
 
 
 def main():

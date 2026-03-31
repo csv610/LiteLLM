@@ -1,15 +1,15 @@
 import pytest
 from unittest.mock import patch
-from feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
+from DigiTeacher.FeynmanTutor.feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
 
 @pytest.fixture
 def mock_client():
-    with patch('feynman_tutor.LiteClient') as mock:
+    with patch('DigiTeacher.FeynmanTutor.feynman_tutor.LiteClient') as mock:
         instance = mock.return_value
         yield instance
 
 def test_tutor_initialization():
-    with patch('feynman_tutor.LiteClient'):
+    with patch('DigiTeacher.FeynmanTutor.feynman_tutor.LiteClient'):
         config = ModelConfig("quantum physics", "beginner")
         tutor = FeynmanTutorQuestionGenerator(config)
         assert tutor.config.topic == "quantum physics"

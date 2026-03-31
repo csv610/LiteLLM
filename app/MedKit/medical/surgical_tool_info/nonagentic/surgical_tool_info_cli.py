@@ -21,7 +21,7 @@ try:
     try:
         from .surgical_tool_info import SurgicalToolInfoGenerator
     except (ImportError, ValueError):
-        from medical.surgical_tool_info.surgical_tool_info import (
+        from medical.surgical_tool_info.nonagentic.surgical_tool_info import (
             SurgicalToolInfoGenerator,
         )
 except (ImportError, ValueError):

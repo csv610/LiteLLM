@@ -13,8 +13,8 @@ from pathlib import Path
 
 from lite.config import ModelConfig
 from lite import logging_config
-from guardrail import GuardrailAnalyzer, TextGuardrailAgent, ImageGuardrailAgent, configure_module_logging
-from guardrail_models import GuardrailError
+from .guardrail import GuardrailAnalyzer, TextGuardrailAgent, ImageGuardrailAgent, configure_module_logging
+from .guardrail_models import GuardrailError
 
 # Global logger for application
 logger = logging.getLogger(__name__)

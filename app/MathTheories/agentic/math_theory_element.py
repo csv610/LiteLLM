@@ -11,7 +11,7 @@ from typing import Optional, List, Dict
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from math_theory_models import (
+from .math_theory_models import (
     MathTheory, TheoryExplanation, AudienceLevel, 
     ResearchData, ReviewFeedback
 )

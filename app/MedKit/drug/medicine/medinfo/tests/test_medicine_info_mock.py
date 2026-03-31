@@ -3,14 +3,14 @@ from unittest.mock import patch
 
 import pytest
 from lite.config import ModelConfig
-from medicine_info import MedicineInfoGenerator
+from app.MedKit.drug.medicine.medinfo.medicine_info import MedicineInfoGenerator
 
 
 @pytest.fixture
 def mock_model_config():
     return ModelConfig(model="test-model", temperature=0.1)
 
-@patch("medicine_info.LiteClient")
+@patch("app.MedKit.drug.medicine.medinfo.medicine_info.LiteClient")
 def test_medicine_info_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     raw_markdown = "# Medicine Info for Aspirin"
@@ -34,7 +34,7 @@ def test_medicine_info_validation(mock_model_config):
     with pytest.raises(ValueError, match="Medicine name cannot be empty"):
         generator.generate_text("   ")
 
-@patch("medicine_info.save_model_response")
+@patch("app.MedKit.drug.medicine.medinfo.medicine_info.save_model_response")
 def test_save_mock(mock_save_response, mock_model_config):
     generator = MedicineInfoGenerator(mock_model_config)
     result = "# Info"

@@ -11,12 +11,12 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_speciality_roles.med_speciality_roles import MedSpecialityRoles
+from medical.med_speciality_roles.agentic.med_speciality_roles import MedSpecialityRoles
 
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_speciality_roles.med_speciality_roles.LiteClient") as mock:
+    with patch("medical.med_speciality_roles.agentic.med_speciality_roles.LiteClient") as mock:
         yield mock
 
 

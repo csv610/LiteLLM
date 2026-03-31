@@ -10,7 +10,7 @@ from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from medicine_info import MedicineInfoGenerator
+from .medicine_info import MedicineInfoGenerator
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from medical_topic import MedicalTopicGenerator
+from .medical_topic import MedicalTopicGenerator
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)

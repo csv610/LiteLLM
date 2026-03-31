@@ -14,43 +14,43 @@ from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
 # Import generators
-from medical.anatomy.medical_anatomy import MedicalAnatomyGenerator
-from medical.disease_info.disease_info import DiseaseInfoGenerator
-from medical.herbal_info.herbal_info import HerbalInfoGenerator
-from medical.med_advise.primary_health_care import PrimaryHealthCareProvider
-from medical.med_decision_guide.medical_decision_guide import (
+from medical.anatomy.nonagentic.medical_anatomy import MedicalAnatomyGenerator
+from medical.disease_info.agentic.disease_info import DiseaseInfoGenerator
+from medical.herbal_info.nonagentic.herbal_info import HerbalInfoGenerator
+from medical.med_advise.nonagentic.primary_health_care import PrimaryHealthCareProvider
+from medical.med_decision_guide.nonagentic.medical_decision_guide import (
     MedicalDecisionGuideGenerator,
 )
-from medical.med_ethics.med_ethics import MedEthicalQA
-from medical.med_facts_checker.medical_facts_checker import MedicalFactsChecker
-from medical.med_faqs.medical_faq import MedicalFAQGenerator
+from medical.med_ethics.nonagentic.med_ethics import MedEthicalQA
+from medical.med_facts_checker.nonagentic.medical_facts_checker import MedicalFactsChecker
+from medical.med_faqs.nonagentic.medical_faq import MedicalFAQGenerator
 from medical.med_flashcard.medical_flashcard import (
     MedicalLabelExtractor,
     MedicalTermExplainer,
 )
-from medical.med_history.patient_medical_history import PatientMedicalHistoryGenerator
-from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
-from medical.med_implant.medical_implant import MedicalImplantGenerator
-from medical.med_media.med_media import MedicalMediaGenerator
-from medical.med_myths_checker.medical_myth_checker import MedicalMythsChecker
-from medical.med_procedure_info.eval_medical_procedure_output import (
+from medical.med_history.agentic.patient_medical_history import PatientMedicalHistoryGenerator
+from medical.med_history.agentic.patient_medical_history_prompts import MedicalHistoryInput
+from medical.med_implant.agentic.medical_implant import MedicalImplantGenerator
+from medical.med_media.agentic.med_media import MedicalMediaGenerator
+from medical.med_myths_checker.agentic.medical_myth_checker import MedicalMythsChecker
+from medical.med_procedure_info.nonagentic.eval_medical_procedure_output import (
     MedicalProcedureEvaluator,
 )
-from medical.med_procedure_info.medical_procedure_info import (
+from medical.med_procedure_info.nonagentic.medical_procedure_info import (
     MedicalProcedureInfoGenerator,
 )
-from medical.med_quiz.medical_quiz import MedicalQuizGenerator
-from medical.med_refer.med_refer import MedReferral
-from medical.med_speciality_roles.med_speciality_roles import MedSpecialityRoles
-from medical.med_topic.medical_topic import MedicalTopicGenerator
+from medical.med_quiz.agentic.medical_quiz import MedicalQuizGenerator
+from medical.med_refer.nonagentic.med_refer import MedReferral
+from medical.med_speciality_roles.agentic.med_speciality_roles import MedSpecialityRoles
+from medical.med_topic.agentic.medical_topic import MedicalTopicGenerator
 from medical.organ_diseases.organ_disease_info import (
     DiseaseInfoGenerator as OrganDiseaseGenerator,
 )
-from medical.surgical_info.surgical_info import SurgeryInfoGenerator
-from medical.surgical_pose_info.surgical_pose_info import SurgicalPoseInfoGenerator
-from medical.surgical_tool_info.surgical_tool_info import SurgicalToolInfoGenerator
-from medical.surgical_tray.surgical_tray_info import SurgicalTrayGenerator
-from medical.synthetic_case_report.synthetic_case_report import (
+from medical.surgical_info.nonagentic.surgical_info import SurgeryInfoGenerator
+from medical.surgical_pose_info.nonagentic.surgical_pose_info import SurgicalPoseInfoGenerator
+from medical.surgical_tool_info.nonagentic.surgical_tool_info import SurgicalToolInfoGenerator
+from medical.surgical_tray.agentic.surgical_tray_info import SurgicalTrayGenerator
+from medical.synthetic_case_report.nonagentic.synthetic_case_report import (
     SyntheticCaseReportGenerator,
 )
 

@@ -18,7 +18,7 @@ from lite.logging_config import configure_logging
 try:
     from .medical_quiz import MedicalQuizGenerator
 except (ImportError, ValueError):
-    from medical.med_quiz.medical_quiz import MedicalQuizGenerator
+    from medical.med_quiz.agentic.medical_quiz import MedicalQuizGenerator
 
 logger = logging.getLogger(__name__)
 

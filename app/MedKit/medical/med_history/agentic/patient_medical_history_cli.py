@@ -19,13 +19,13 @@ from lite.logging_config import configure_logging
 try:
     from .patient_medical_history import PatientMedicalHistoryGenerator
 except (ImportError, ValueError):
-    from medical.med_history.patient_medical_history import (
+    from medical.med_history.agentic.patient_medical_history import (
         PatientMedicalHistoryGenerator,
     )
 try:
     from .patient_medical_history_prompts import MedicalHistoryInput
 except (ImportError, ValueError):
-    from medical.med_history.patient_medical_history_prompts import MedicalHistoryInput
+    from medical.med_history.agentic.patient_medical_history_prompts import MedicalHistoryInput
 
 logger = logging.getLogger(__name__)
 

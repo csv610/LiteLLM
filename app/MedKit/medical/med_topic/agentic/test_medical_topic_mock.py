@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_topic.medical_topic import MedicalTopicGenerator
-from medical.med_topic.medical_topic_models import (
+from medical.med_topic.agentic.medical_topic import MedicalTopicGenerator
+from medical.med_topic.agentic.medical_topic_models import (
     ClinicalPresentationModel,
     ComplicationsModel,
     CostAndImpactModel,
@@ -38,7 +38,7 @@ from medical.med_topic.medical_topic_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_topic.medical_topic.LiteClient") as mock:
+    with patch("medical.med_topic.agentic.medical_topic.LiteClient") as mock:
         yield mock
 
 
@@ -216,7 +216,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.data.overview.topic_name == "Diabetes"
 
 
-@patch("medical.med_topic.medical_topic.save_model_response")
+@patch("medical.med_topic.agentic.medical_topic.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalTopicGenerator(config)

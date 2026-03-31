@@ -8,7 +8,7 @@ repairs them.
 
 import json
 
-from faq_generator_models import FAQ
+from .faq_generator_models import FAQ
 
 
 class PromptBuilder:

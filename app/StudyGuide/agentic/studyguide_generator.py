@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from studyguide_models import (
+from .studyguide_models import (
     BookInput,
     SummaryPlanModel,
     ResearchModel,
@@ -24,7 +24,7 @@ from studyguide_models import (
     ChapterSummaryAndAnalysis,
     FollowUpModel,
 )
-from studyguide_prompts import PromptBuilder
+from .studyguide_prompts import PromptBuilder
 
 
 class StudyGuideGenerator:

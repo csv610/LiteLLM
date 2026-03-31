@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .medical_decision_guide import MedicalDecisionGuideGenerator
 except (ImportError, ValueError):
-    from medical.med_decision_guide.medical_decision_guide import (
+    from medical.med_decision_guide.nonagentic.medical_decision_guide import (
         MedicalDecisionGuideGenerator,
     )
 

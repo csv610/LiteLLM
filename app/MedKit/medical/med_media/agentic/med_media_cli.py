@@ -14,7 +14,7 @@ from lite.logging_config import configure_logging
 try:
     from .med_media import MedicalMediaGenerator
 except (ImportError, ValueError):
-    from medical.med_media.med_media import MedicalMediaGenerator
+    from medical.med_media.agentic.med_media import MedicalMediaGenerator
 
 logger = logging.getLogger(__name__)
 

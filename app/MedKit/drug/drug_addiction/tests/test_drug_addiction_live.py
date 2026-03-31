@@ -1,8 +1,8 @@
 import os
 
 import pytest
-from drug_addiction import DrugAddiction
-from drug_addiction_prompts import DrugAddictionInput
+from app.MedKit.drug.drug_addiction.drug_addiction import DrugAddiction
+from app.MedKit.drug.drug_addiction.drug_addiction_prompts import DrugAddictionInput
 from lite.config import ModelConfig
 
 

@@ -11,12 +11,12 @@ from typing import List, Optional, Dict
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from deep_deliberation_models import (
+from .deep_deliberation_models import (
     DiscoveryFAQ, InitialKnowledgeMap, KnowledgeSynthesis
 )
-from deep_deliberation_prompts import PromptBuilder
-from deep_deliberation_agents import DiscoveryAgent
-from deep_deliberation_archive import MissionArchive
+from .deep_deliberation_prompts import PromptBuilder
+from .deep_deliberation_agents import DiscoveryAgent
+from .deep_deliberation_archive import MissionArchive
 
 logger = logging.getLogger(__name__)
 

@@ -23,8 +23,8 @@ try:
     from .herbal_info_models import HerbalInfoModel, ModelOutput
     from .herbal_info_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.herbal_info.herbal_info_models import HerbalInfoModel, ModelOutput
-    from medical.herbal_info.herbal_info_prompts import PromptBuilder
+    from medical.herbal_info.nonagentic.herbal_info_models import HerbalInfoModel, ModelOutput
+    from medical.herbal_info.nonagentic.herbal_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

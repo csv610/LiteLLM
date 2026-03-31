@@ -1,8 +1,8 @@
 import unittest
 import json
 import os
-from deep_deliberation_archive import MissionArchive
-from deep_deliberation_models import KnowledgeSynthesis
+from app.DeepDeliberation.deep_deliberation_archive import MissionArchive
+from app.DeepDeliberation.deep_deliberation_models import KnowledgeSynthesis
 
 class TestMissionArchive(unittest.TestCase):
     def setUp(self):

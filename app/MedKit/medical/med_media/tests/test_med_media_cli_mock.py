@@ -8,13 +8,13 @@ if str(project_root) not in sys.path:
 
 from unittest.mock import MagicMock, patch
 
-from medical.med_media.med_media_cli import main
+from medical.med_media.agentic.med_media_cli import main
 
 
-@patch("medical.med_media.med_media_cli.argparse.ArgumentParser.parse_args")
-@patch("medical.med_media.med_media_cli.MedicalMediaGenerator")
-@patch("medical.med_media.med_media_cli.configure_logging")
-@patch("medical.med_media.med_media_cli.Path.mkdir")
+@patch("medical.med_media.agentic.med_media_cli.argparse.ArgumentParser.parse_args")
+@patch("medical.med_media.agentic.med_media_cli.MedicalMediaGenerator")
+@patch("medical.med_media.agentic.med_media_cli.configure_logging")
+@patch("medical.med_media.agentic.med_media_cli.Path.mkdir")
 def test_cli_images(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     # Setup mock arguments
     args = MagicMock()
@@ -39,10 +39,10 @@ def test_cli_images(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     mock_print.assert_any_call("✓ Saved: path/1.jpg")
 
 
-@patch("medical.med_media.med_media_cli.argparse.ArgumentParser.parse_args")
-@patch("medical.med_media.med_media_cli.MedicalMediaGenerator")
-@patch("medical.med_media.med_media_cli.configure_logging")
-@patch("medical.med_media.med_media_cli.Path.mkdir")
+@patch("medical.med_media.agentic.med_media_cli.argparse.ArgumentParser.parse_args")
+@patch("medical.med_media.agentic.med_media_cli.MedicalMediaGenerator")
+@patch("medical.med_media.agentic.med_media_cli.configure_logging")
+@patch("medical.med_media.agentic.med_media_cli.Path.mkdir")
 def test_cli_videos(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     args = MagicMock()
     args.command = "videos"
@@ -65,10 +65,10 @@ def test_cli_videos(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     mock_print.assert_any_call("- Video 1 (10:00): http://v1")
 
 
-@patch("medical.med_media.med_media_cli.argparse.ArgumentParser.parse_args")
-@patch("medical.med_media.med_media_cli.MedicalMediaGenerator")
-@patch("medical.med_media.med_media_cli.configure_logging")
-@patch("medical.med_media.med_media_cli.Path.mkdir")
+@patch("medical.med_media.agentic.med_media_cli.argparse.ArgumentParser.parse_args")
+@patch("medical.med_media.agentic.med_media_cli.MedicalMediaGenerator")
+@patch("medical.med_media.agentic.med_media_cli.configure_logging")
+@patch("medical.med_media.agentic.med_media_cli.Path.mkdir")
 def test_cli_caption(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     args = MagicMock()
     args.command = "caption"
@@ -93,10 +93,10 @@ def test_cli_caption(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     generator_instance.save.assert_called_once()
 
 
-@patch("medical.med_media.med_media_cli.argparse.ArgumentParser.parse_args")
-@patch("medical.med_media.med_media_cli.MedicalMediaGenerator")
-@patch("medical.med_media.med_media_cli.configure_logging")
-@patch("medical.med_media.med_media_cli.Path.mkdir")
+@patch("medical.med_media.agentic.med_media_cli.argparse.ArgumentParser.parse_args")
+@patch("medical.med_media.agentic.med_media_cli.MedicalMediaGenerator")
+@patch("medical.med_media.agentic.med_media_cli.configure_logging")
+@patch("medical.med_media.agentic.med_media_cli.Path.mkdir")
 def test_cli_summary(mock_mkdir, mock_logging, mock_generator, mock_parse_args):
     args = MagicMock()
     args.command = "summary"

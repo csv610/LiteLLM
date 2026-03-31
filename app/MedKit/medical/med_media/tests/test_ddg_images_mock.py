@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from medical.med_media.ddg_images import DuckDuckImages
+from medical.med_media.agentic.ddg_images import DuckDuckImages
 
 
 @pytest.fixture
@@ -30,8 +30,8 @@ def test_is_valid_image_url(mock_head, ddg_images):
     assert ddg_images.is_valid_image_url("http://example.com/not_image") is False
 
 
-@patch("medical.med_media.ddg_images.DDGS")
-@patch("medical.med_media.ddg_images.DuckDuckImages.is_valid_image_url")
+@patch("medical.med_media.agentic.ddg_images.DDGS")
+@patch("medical.med_media.agentic.ddg_images.DuckDuckImages.is_valid_image_url")
 def test_get_urls(mock_valid, mock_ddgs, ddg_images):
     mock_ddgs_instance = MagicMock()
     mock_ddgs.return_value.__enter__.return_value = mock_ddgs_instance

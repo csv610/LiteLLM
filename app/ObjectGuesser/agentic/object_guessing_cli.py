@@ -1,5 +1,5 @@
 import argparse
-from object_guesser_game import ObjectGuesserGame
+from .object_guesser_game import ObjectGuesserGame
 
 def object_guesser_cli():
     """Main entry point for the multi-agent guessing game."""

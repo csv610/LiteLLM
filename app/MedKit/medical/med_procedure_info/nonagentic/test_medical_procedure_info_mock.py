@@ -11,10 +11,10 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_procedure_info.medical_procedure_info import (
+from medical.med_procedure_info.nonagentic.medical_procedure_info import (
     MedicalProcedureInfoGenerator,
 )
-from medical.med_procedure_info.medical_procedure_info_models import (
+from medical.med_procedure_info.nonagentic.medical_procedure_info_models import (
     Alternatives,
     CostAndInsurance,
     DiscomfortAndRisks,
@@ -37,7 +37,7 @@ from medical.med_procedure_info.medical_procedure_info_models import (
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_procedure_info.medical_procedure_info.LiteClient") as mock:
+    with patch("medical.med_procedure_info.nonagentic.medical_procedure_info.LiteClient") as mock:
         yield mock
 
 
@@ -182,7 +182,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.data.metadata.procedure_name == "Appendectomy"
 
 
-@patch("medical.med_procedure_info.medical_procedure_info.save_model_response")
+@patch("medical.med_procedure_info.nonagentic.medical_procedure_info.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = MedicalProcedureInfoGenerator(config)

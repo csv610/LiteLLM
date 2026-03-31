@@ -23,8 +23,8 @@ try:
     from .disease_info_models import DiseaseInfoModel, ModelOutput
     from .disease_info_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.disease_info.disease_info_models import DiseaseInfoModel, ModelOutput
-    from medical.disease_info.disease_info_prompts import PromptBuilder
+    from medical.disease_info.agentic.disease_info_models import DiseaseInfoModel, ModelOutput
+    from medical.disease_info.agentic.disease_info_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

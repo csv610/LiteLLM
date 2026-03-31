@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .medical_procedure_info import MedicalProcedureInfoGenerator
 except (ImportError, ValueError):
-    from medical.med_procedure_info.medical_procedure_info import (
+    from medical.med_procedure_info.nonagentic.medical_procedure_info import (
         MedicalProcedureInfoGenerator,
     )
 

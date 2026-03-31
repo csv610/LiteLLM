@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from millennium_prize_models import MillenniumProblem
-from millennium_prize_prompts import PromptBuilder
+from MillenniumPrize.agentic.millennium_prize_models import MillenniumProblem
+from MillenniumPrize.agentic.millennium_prize_prompts import PromptBuilder
 
 
 class ProblemSelectionAgent:

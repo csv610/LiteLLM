@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from drugs_comparison import DrugsComparison, DrugsComparisonInput
+from app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison import DrugsComparison, DrugsComparisonInput
 from lite.config import ModelConfig
 
 

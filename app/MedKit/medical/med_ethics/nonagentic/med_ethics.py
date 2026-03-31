@@ -23,8 +23,8 @@ try:
     from .med_ethics_models import EthicalAnalysisModel, ModelOutput
     from .med_ethics_prompts import PromptBuilder
 except (ImportError, ValueError):
-    from medical.med_ethics.med_ethics_models import EthicalAnalysisModel, ModelOutput
-    from medical.med_ethics.med_ethics_prompts import PromptBuilder
+    from medical.med_ethics.nonagentic.med_ethics_models import EthicalAnalysisModel, ModelOutput
+    from medical.med_ethics.nonagentic.med_ethics_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

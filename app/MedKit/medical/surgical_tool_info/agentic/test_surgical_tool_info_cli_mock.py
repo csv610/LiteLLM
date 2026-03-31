@@ -25,7 +25,7 @@ except (ImportError, ValueError):
         if str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
         
-        from medical.surgical_tool_info.agentic import surgical_tool_info_cli
+        from medical.surgical_tool_info.agentic.agentic import surgical_tool_info_cli
         from medical.surgical_tool_info.agentic.surgical_tool_info_cli import (
             get_user_arguments,
             main,

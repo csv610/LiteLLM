@@ -18,7 +18,7 @@ from lite.logging_config import configure_logging
 try:
     from .medical_anatomy import MedicalAnatomyGenerator
 except (ImportError, ValueError):
-    from medical.anatomy.medical_anatomy import MedicalAnatomyGenerator
+    from medical.anatomy.nonagentic.medical_anatomy import MedicalAnatomyGenerator
 
 logger = logging.getLogger(__name__)
 

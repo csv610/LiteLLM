@@ -11,10 +11,10 @@ from unittest.mock import patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.synthetic_case_report.synthetic_case_report import (
+from medical.synthetic_case_report.nonagentic.synthetic_case_report import (
     SyntheticCaseReportGenerator,
 )
-from medical.synthetic_case_report.synthetic_case_report_models import (
+from medical.synthetic_case_report.nonagentic.synthetic_case_report_models import (
     CaseReportMetadataModel,
     ClinicalFindingsModel,
     DiagnosticAssessmentModel,
@@ -33,7 +33,7 @@ from medical.synthetic_case_report.synthetic_case_report_models import (
 @pytest.fixture
 def mock_lite_client():
     with patch(
-        "medical.synthetic_case_report.synthetic_case_report.LiteClient"
+        "medical.synthetic_case_report.nonagentic.synthetic_case_report.LiteClient"
     ) as mock:
         yield mock
 
@@ -182,7 +182,7 @@ def test_generate_text_structured(mock_lite_client):
     assert result.data.metadata.case_report_title == "Title"
 
 
-@patch("medical.synthetic_case_report.synthetic_case_report.save_model_response")
+@patch("medical.synthetic_case_report.nonagentic.synthetic_case_report.save_model_response")
 def test_save_success(mock_save, mock_lite_client):
     config = ModelConfig(model="test-model")
     generator = SyntheticCaseReportGenerator(config)

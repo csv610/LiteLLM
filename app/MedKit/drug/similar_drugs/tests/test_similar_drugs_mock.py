@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 import pytest
 from lite.config import ModelConfig
-from similar_drugs import SimilarDrugs
-from similar_drugs_models import SimilarDrugsConfig
+from app.MedKit.drug.similar_drugs.nonagentic.similar_drugs import SimilarDrugs
+from app.MedKit.drug.similar_drugs.nonagentic.similar_drugs_models import SimilarDrugsConfig
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def mock_model_config():
 def mock_similar_drugs_config():
     return SimilarDrugsConfig(verbosity=0)
 
-@patch("similar_drugs.LiteClient")
+@patch("app.MedKit.drug.similar_drugs.nonagentic.similar_drugs.LiteClient")
 def test_similar_drugs_mock(mock_client_class, mock_model_config, mock_similar_drugs_config):
     mock_client_instance = mock_client_class.return_value
     raw_markdown = "# Similar Medicines for Aspirin"

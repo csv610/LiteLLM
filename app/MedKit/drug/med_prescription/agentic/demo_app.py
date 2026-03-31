@@ -7,7 +7,7 @@ current_dir = Path(__file__).resolve().parent
 app_root = current_dir.parent.parent.parent.parent
 sys.path.append(str(app_root))
 
-from agent_orchestrator import PrescriptionAgentApp
+from .agent_orchestrator import PrescriptionAgentApp
 from unittest.mock import MagicMock
 from lite.config import ModelInput
 

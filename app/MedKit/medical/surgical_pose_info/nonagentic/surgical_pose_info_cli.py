@@ -20,7 +20,7 @@ from tqdm import tqdm
 try:
     from .surgical_pose_info import COMMON_SURGICAL_POSITIONS, SurgicalPoseInfoGenerator
 except (ImportError, ValueError):
-    from medical.surgical_pose_info.surgical_pose_info import (
+    from medical.surgical_pose_info.nonagentic.surgical_pose_info import (
         COMMON_SURGICAL_POSITIONS,
         SurgicalPoseInfoGenerator,
     )

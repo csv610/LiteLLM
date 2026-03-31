@@ -1,7 +1,7 @@
 import os
 
 import streamlit as st
-from ddg_images import DuckDuckImages
+from .ddg_images import DuckDuckImages
 
 
 class RenderImages:

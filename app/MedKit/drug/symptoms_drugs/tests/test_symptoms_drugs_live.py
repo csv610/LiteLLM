@@ -2,8 +2,8 @@ import os
 
 import pytest
 from lite.config import ModelConfig
-from symptom_drugs import SymptomDrugs
-from symptom_drugs_prompts import SymptomInput
+from app.MedKit.drug.symptoms_drugs.nonagentic.symptom_drugs import SymptomDrugs
+from app.MedKit.drug.symptoms_drugs.nonagentic.symptom_drugs_prompts import SymptomInput
 
 
 @pytest.mark.skipif(

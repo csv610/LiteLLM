@@ -54,7 +54,7 @@ except (ImportError, ValueError):
             ModelOutput,
         )
     except ImportError:
-        from medical.herbal_info.herbal_info_models import (
+        from medical.herbal_info.agentic.herbal_info_models import (
             HerbalMetadataModel,
             HerbalClassificationModel,
             HerbalBackgroundModel,

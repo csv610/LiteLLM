@@ -6,8 +6,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from lite.config import ModelConfig
-from nobel_prize_models import PrizeWinner
-from nobel_prize_explorer import NobelPrizeWinnerInfo
+from .nobel_prize_models import PrizeWinner
+from .nobel_prize_explorer import NobelPrizeWinnerInfo
 
 DEFAULT_MODEL = "gemini/gemini-2.5-flash"
 

@@ -9,8 +9,8 @@ app_root = current_dir.parent.parent.parent.parent
 sys.path.append(str(app_root))
 
 from lite.config import ModelConfig
-from prescription_extractor import PrescriptionExtractor
-from prescription_analyzer import analyze_prescription, PrescriptionAnalysis
+from .prescription_extractor import PrescriptionExtractor
+from .prescription_analyzer import analyze_prescription, PrescriptionAnalysis
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')

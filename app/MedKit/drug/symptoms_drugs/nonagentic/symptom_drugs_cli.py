@@ -7,8 +7,8 @@ from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
-from symptom_drugs import SymptomDrugs
-from symptom_drugs_prompts import PromptStyle, SymptomInput
+from .symptom_drugs import SymptomDrugs
+from .symptom_drugs_prompts import PromptStyle, SymptomInput
 
 logger = logging.getLogger(__name__)
 

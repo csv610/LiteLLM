@@ -11,24 +11,24 @@ from unittest.mock import MagicMock, patch
 import pytest
 from lite.config import ModelConfig
 
-from medical.med_media.med_media import MedicalMediaGenerator
+from medical.med_media.agentic.med_media import MedicalMediaGenerator
 
 
 @pytest.fixture
 def mock_lite_client():
-    with patch("medical.med_media.med_media.LiteClient") as mock:
+    with patch("medical.med_media.agentic.med_media.LiteClient") as mock:
         yield mock
 
 
 @pytest.fixture
 def mock_ddg_images():
-    with patch("medical.med_media.med_media.DuckDuckImages") as mock:
+    with patch("medical.med_media.agentic.med_media.DuckDuckImages") as mock:
         yield mock
 
 
 @pytest.fixture
 def mock_ddg_videos():
-    with patch("medical.med_media.med_media.DuckDuckVideos") as mock:
+    with patch("medical.med_media.agentic.med_media.DuckDuckVideos") as mock:
         yield mock
 
 
@@ -92,7 +92,7 @@ def test_generate_summary(mock_lite_client, generator):
     assert generator.last_topic == "test topic"
 
 
-@patch("medical.med_media.med_media.save_model_response")
+@patch("medical.med_media.agentic.med_media.save_model_response")
 def test_save(mock_save_model_response, generator):
     generator.last_topic = "Test Topic"
     result = MagicMock()

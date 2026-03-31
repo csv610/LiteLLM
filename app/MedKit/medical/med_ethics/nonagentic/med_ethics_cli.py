@@ -18,7 +18,7 @@ from lite.logging_config import configure_logging
 try:
     from .med_ethics import MedEthicalQA
 except (ImportError, ValueError):
-    from medical.med_ethics.med_ethics import MedEthicalQA
+    from medical.med_ethics.nonagentic.med_ethics import MedEthicalQA
 
 logger = logging.getLogger(__name__)
 

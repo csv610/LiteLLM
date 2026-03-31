@@ -21,9 +21,9 @@ try:
     try:
         from .medical_implant import MedicalImplantGenerator
     except (ImportError, ValueError):
-        from medical.med_implant.medical_implant import MedicalImplantGenerator
+        from medical.med_implant.agentic.medical_implant import MedicalImplantGenerator
 except (ImportError, ValueError):
-    from medical.med_implant.medical_implant import MedicalImplantGenerator
+    from medical.med_implant.agentic.medical_implant import MedicalImplantGenerator
 
 logger = logging.getLogger(__name__)
 

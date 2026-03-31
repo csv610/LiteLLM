@@ -5,7 +5,7 @@ Provides specialized ModelInput objects for the 3-agent pipeline.
 """
 
 from lite.config import ModelInput
-from math_equation_story_models import ResearchBrief, MathematicalEquationStory
+from .math_equation_story_models import ResearchBrief, MathematicalEquationStory
 
 # --- RESEARCHER ---
 

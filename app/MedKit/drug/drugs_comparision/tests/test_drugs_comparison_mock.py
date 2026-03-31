@@ -2,8 +2,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from drugs_comparison import DrugsComparison, DrugsComparisonInput
-from drugs_comparison_models import (
+from app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison import DrugsComparison, DrugsComparisonInput
+from app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison_models import (
     AvailabilityStatus,
     ClinicalMetrics,
     ComparisonSummary,
@@ -23,7 +23,7 @@ def mock_model_config():
 
 @pytest.fixture
 def drugs_comparison_analyzer(mock_model_config):
-    with patch("drugs_comparison.LiteClient"):
+    with patch("app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison.LiteClient"):
         return DrugsComparison(mock_model_config)
 
 def test_drugs_comparison_input_validation():
@@ -46,7 +46,7 @@ def test_drugs_comparison_input_validation():
     with pytest.raises(ValueError, match="Age must be between 0 and 150 years"):
         analyzer._validate_input(DrugsComparisonInput(medicine1="Aspirin", medicine2="Ibuprofen", patient_age=200))
 
-@patch("drugs_comparison.LiteClient")
+@patch("app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison.LiteClient")
 def test_generate_text_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     raw_markdown = "# Comparison for Aspirin vs Ibuprofen"
@@ -67,7 +67,7 @@ def test_generate_text_mock(mock_client_class, mock_model_config):
     assert "Ibuprofen" in model_input.user_prompt
     assert model_input.response_format is None
 
-@patch("drugs_comparison.LiteClient")
+@patch("app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison.LiteClient")
 def test_generate_text_structured_mock(mock_client_class, mock_model_config):
     mock_client_instance = mock_client_class.return_value
     
@@ -149,7 +149,7 @@ def test_generate_text_structured_mock(mock_client_class, mock_model_config):
     model_input = kwargs.get("model_input") or args[0]
     assert model_input.response_format == MedicinesComparisonResult
 
-@patch("drugs_comparison.save_model_response")
+@patch("app.MedKit.drug.drugs_comparision.nonagentic.drugs_comparison.save_model_response")
 def test_save_mock(mock_save_response, drugs_comparison_analyzer):
     result = "# Analysis"
     output_dir = Path("test_outputs")

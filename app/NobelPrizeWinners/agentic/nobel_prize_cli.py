@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite import logging_config
-from nobel_prize_info import fetch_nobel_winners
+from .nobel_prize_info import fetch_nobel_winners
 
 DEFAULT_MODEL = "gemini/gemini-2.5-flash"
 

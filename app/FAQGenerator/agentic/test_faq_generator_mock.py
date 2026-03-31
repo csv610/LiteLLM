@@ -1,17 +1,17 @@
 import unittest
 import os
 import tempfile
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from lite import ModelConfig
-from faq_generator import FAQGenerator, FAQInput, DataExporter
-from faq_generator_models import FAQ, FAQResponse, ReviewedFAQResponse
+from .faq_generator import FAQGenerator, FAQInput, DataExporter
+from .faq_generator_models import FAQ, FAQResponse, ReviewedFAQResponse
 
 class TestFAQGenerator(unittest.TestCase):
     def setUp(self):
         self.model_config = ModelConfig(model="openai/gpt-4o")
         # We'll initialize generator inside tests where we can control the mock
 
-    @patch('faq_generator.LiteClient')
+    @patch('agentic.faq_generator.LiteClient')
     def test_generate_success(self, MockLiteClient):
         mock_client_instance = MockLiteClient.return_value
         generated_response = FAQResponse(
@@ -32,14 +32,17 @@ class TestFAQGenerator(unittest.TestCase):
         )
         mock_client_instance.generate_text.side_effect = [generated_response, reviewed_response]
 
+        print(f"\nDEBUG: FAQGenerator module name: {FAQGenerator.__module__}")
         generator = FAQGenerator(self.model_config)
+        print(f"\nDEBUG: generator.client type: {type(generator.client)}")
+        print(f"DEBUG: generator.client is mock: {isinstance(generator.client, MagicMock)}")
         faq_input = FAQInput(input_source="AI", num_faqs=2, difficulty="medium")
         
         faqs = generator.generate_text(faq_input)
         self.assertEqual(len(faqs), 2)
         self.assertEqual(mock_client_instance.generate_text.call_count, 2)
 
-    @patch('faq_generator.LiteClient')
+    @patch('agentic.faq_generator.LiteClient')
     def test_generate_retry_on_failure(self, MockLiteClient):
         mock_client_instance = MockLiteClient.return_value
         draft_faqs = [
@@ -62,6 +65,7 @@ class TestFAQGenerator(unittest.TestCase):
             ),
         ]
 
+        print(f"\nDEBUG: FAQGenerator module name: {FAQGenerator.__module__}")
         generator = FAQGenerator(self.model_config)
         faq_input = FAQInput(input_source="AI", num_faqs=1, difficulty="medium")
         
@@ -69,7 +73,7 @@ class TestFAQGenerator(unittest.TestCase):
         self.assertEqual(len(faqs), 1)
         self.assertEqual(mock_client_instance.generate_text.call_count, 4)
 
-    @patch('faq_generator.LiteClient')
+    @patch('agentic.faq_generator.LiteClient')
     def test_reviewer_retry_on_failure(self, MockLiteClient):
         mock_client_instance = MockLiteClient.return_value
         generated_response = FAQResponse(
@@ -97,6 +101,7 @@ class TestFAQGenerator(unittest.TestCase):
             reviewed_response,
         ]
 
+        print(f"\nDEBUG: FAQGenerator module name: {FAQGenerator.__module__}")
         generator = FAQGenerator(self.model_config)
         faq_input = FAQInput(input_source="AI", num_faqs=1, difficulty="medium")
 
@@ -104,13 +109,14 @@ class TestFAQGenerator(unittest.TestCase):
         self.assertEqual(len(faqs), 1)
         self.assertEqual(mock_client_instance.generate_text.call_count, 3)
 
-    @patch('faq_generator.LiteClient')
+    @patch('agentic.faq_generator.LiteClient')
     def test_file_size_limit(self, MockLiteClient):
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
             f.write("a" * (6 * 1024 * 1024)) # 6MB
             temp_path = f.name
         
         try:
+            print(f"\nDEBUG: FAQGenerator module name: {FAQGenerator.__module__}")
             generator = FAQGenerator(self.model_config)
             large_input = FAQInput(input_source=temp_path, num_faqs=5, difficulty="medium")
             with self.assertRaisesRegex(ValueError, "File too large"):

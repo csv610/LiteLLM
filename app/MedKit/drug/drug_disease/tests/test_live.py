@@ -1,7 +1,8 @@
 import os
 
 import pytest
-from drug_disease_interaction import DrugDiseaseInput, DrugDiseaseInteraction
+from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction import DrugDiseaseInteraction
+from app.MedKit.drug.drug_disease.nonagentic.drug_disease_interaction_prompts import DrugDiseaseInput
 from lite.config import ModelConfig
 
 # Skip live tests by default unless LIVE_TEST environment variable is set
