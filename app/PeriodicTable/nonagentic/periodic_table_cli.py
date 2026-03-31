@@ -4,13 +4,24 @@ import argparse
 from pathlib import Path
 from tqdm import tqdm
 
+# Add the project root to sys.path
+path = Path(__file__).parent
+while path.name != "app" and path.parent != path:
+    path = path.parent
+if path.name == "app":
+    root = path.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 
-from periodic_table_models import (
-    ElementInfo
+from app.PeriodicTable.nonagentic.periodic_table_models import ElementInfo
+from app.PeriodicTable.nonagentic.periodic_table_element import (
+    PeriodicTableElement,
+    ALL_ELEMENTS,
 )
-from periodic_table_element import PeriodicTableElement, ALL_ELEMENTS
+
 
 def arguments_parser():
     """Parse command-line arguments for the element info CLI."""
@@ -18,33 +29,38 @@ def arguments_parser():
         description="Fetch periodic table element information"
     )
     parser.add_argument(
-        "-e", "--element",
+        "-e",
+        "--element",
         type=str,
         default="Hydrogen",
-        help="Specific element name to fetch (default: 'Hydrogen')"
+        help="Specific element name to fetch (default: 'Hydrogen')",
     )
     parser.add_argument(
-        "-a", "--all",
+        "-a",
+        "--all",
         action="store_true",
-        help="Fetch all elements (takes a long time)"
+        help="Fetch all elements (takes a long time)",
     )
     parser.add_argument(
-        "-m", "--model",
+        "-m",
+        "--model",
         type=str,
         default="ollama/gemma3:12b",
-        help="Model to use (default: ollama/gemma3:12b)"
+        help="Model to use (default: ollama/gemma3:12b)",
     )
     parser.add_argument(
-        "-t", "--temperature",
+        "-t",
+        "--temperature",
         type=float,
         default=0.2,
-        help="Temperature for model (default: 0.2)"
+        help="Temperature for model (default: 0.2)",
     )
     parser.add_argument(
-        "-o", "--output-dir",
+        "-o",
+        "--output-dir",
         type=str,
         default="outputs",
-        help="Output directory for JSON files (default: 'outputs' directory)"
+        help="Output directory for JSON files (default: 'outputs' directory)",
     )
     return parser.parse_args()
 
@@ -53,7 +69,7 @@ def fetch_element_info(element: str, model_config: ModelConfig) -> ElementInfo |
     """Fetch information for a single element."""
     # Initialize element fetcher with model config
     element_fetcher = PeriodicTableElement(model_config)
-    
+
     # Fetch element information using the element fetcher
     return element_fetcher.fetch_element_info(element)
 
@@ -87,7 +103,10 @@ def element_info_cli():
                 all_elements_data.append(element_info.model_dump())
 
                 # Save consolidated file after each element
-                consolidated_output = {"elements": all_elements_data, "total_count": len(all_elements_data)}
+                consolidated_output = {
+                    "elements": all_elements_data,
+                    "total_count": len(all_elements_data),
+                }
                 consolidated_file = output_dir / "all_elements.json"
                 with open(consolidated_file, "w", encoding="utf-8") as f:
                     json.dump(consolidated_output, f, indent=2, ensure_ascii=False)
@@ -95,7 +114,10 @@ def element_info_cli():
                 failed_elements.append(element)
 
         # Print summary
-        print(f"\nCompleted: {len(all_elements_data)}/{len(ALL_ELEMENTS)} elements fetched", file=sys.stderr)
+        print(
+            f"\nCompleted: {len(all_elements_data)}/{len(ALL_ELEMENTS)} elements fetched",
+            file=sys.stderr,
+        )
         if failed_elements:
             print(f"Failed: {len(failed_elements)} elements", file=sys.stderr)
             print(f"Failed elements: {', '.join(failed_elements)}", file=sys.stderr)
@@ -103,7 +125,10 @@ def element_info_cli():
         # Fetch specific element
         element = args.element.capitalize()
         if element not in ALL_ELEMENTS:
-            print(f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}", file=sys.stderr)
+            print(
+                f"Error: '{args.element}' is not a valid element. Use one of: {', '.join(ALL_ELEMENTS)}",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
         element_info = fetch_element_info(element, model_config)

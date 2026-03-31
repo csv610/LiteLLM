@@ -28,6 +28,15 @@ try:
     from medkit_article.article_keywords.cli import main as keywords_main
 except (ImportError, ValueError):
     try:
+# Add the project root to sys.path
+path = Path(__file__).parent
+while path.name != "app" and path.parent != path:
+    path = path.parent
+if path.name == "app":
+    root = path.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
         from .article_search.biomcp_articles_search import MedicalArticleSearch
         from .article_review.article_review_cli import main as review_main
         from .article_summary.article_summary_cli import main as summarize_main

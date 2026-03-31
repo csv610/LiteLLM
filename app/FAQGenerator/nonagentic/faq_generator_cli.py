@@ -11,10 +11,23 @@ import sys
 import os
 from pathlib import Path
 
+# Add the project root to sys.path
+path = Path(__file__).parent
+while path.name != "app" and path.parent != path:
+    path = path.parent
+if path.name == "app":
+    root = path.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
 from lite import ModelConfig
 from lite.logging_config import configure_logging
-from .faq_generator import FAQGenerator, FAQInput, DataExporter
-from .faq_generator_models import VALID_DIFFICULTIES
+from app.FAQGenerator.nonagentic.faq_generator import (
+    FAQGenerator,
+    FAQInput,
+    DataExporter,
+)
+from app.FAQGenerator.nonagentic.faq_generator_models import VALID_DIFFICULTIES
 
 # Global logger for the application
 logger = logging.getLogger(__name__)
@@ -22,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 def arguments_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
-    
+
     parser = argparse.ArgumentParser(
         description="Generate frequently asked questions on a given topic or from content",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -36,7 +49,7 @@ Examples:
   # Generate FAQs from content file
   python faq_generator_cli.py -i content.txt -n 5 -d research
   python faq_generator_cli.py --input article.md --num-faqs 10 --difficulty medium
-        """
+        """,
     )
 
     parser.add_argument(
@@ -45,7 +58,7 @@ Examples:
         required=True,
         dest="input_source",
         help="Input source: topic string (2-100 chars) or path to content file (txt, md, etc). "
-             "If a file path exists, file is processed; otherwise treated as topic string"
+        "If a file path exists, file is processed; otherwise treated as topic string",
     )
 
     parser.add_argument(
@@ -54,7 +67,7 @@ Examples:
         default=5,
         type=int,
         dest="num_faqs",
-        help="Number of FAQs to generate (1-100). Determines how many question-answer pairs to create"
+        help="Number of FAQs to generate (1-100). Determines how many question-answer pairs to create",
     )
 
     parser.add_argument(
@@ -65,8 +78,8 @@ Examples:
         dest="difficulty",
         choices=VALID_DIFFICULTIES,
         help="Difficulty level: simple (beginner-friendly), medium (intermediate, practical), "
-             "hard (advanced, specialized knowledge), research (cutting-edge, open problems). "
-             "Default: medium"
+        "hard (advanced, specialized knowledge), research (cutting-edge, open problems). "
+        "Default: medium",
     )
 
     parser.add_argument(
@@ -75,7 +88,7 @@ Examples:
         default=None,
         dest="model",
         help="LLM model identifier in format 'provider/model' (e.g., 'ollama/gemma3', 'gpt-4', 'claude-3-opus'). "
-             "Default: ollama/gemma3"
+        "Default: ollama/gemma3",
     )
 
     parser.add_argument(
@@ -85,7 +98,7 @@ Examples:
         default=0.3,
         dest="temperature",
         help="Sampling temperature controlling output randomness (0.0-2.0). Lower values = more deterministic. "
-             "Default: 0.3"
+        "Default: 0.3",
     )
 
     parser.add_argument(
@@ -93,7 +106,7 @@ Examples:
         "--output",
         default=".",
         dest="output_dir",
-        help="Output directory path for saving FAQ JSON file. Directory must exist. Default: current directory"
+        help="Output directory path for saving FAQ JSON file. Directory must exist. Default: current directory",
     )
 
     return parser
@@ -107,31 +120,35 @@ def main() -> int:
         Exit code (0 for success, 1 for error)
     """
     global logger
-    
+
     parser = arguments_parser()
     args = parser.parse_args()
 
     try:
         # Initialize global logger
-        configure_logging(log_file=str(Path(__file__).parent / "logs" / "faq_generator.log"))
-        
+        configure_logging(
+            log_file=str(Path(__file__).parent / "logs" / "faq_generator.log")
+        )
+
         # Create ModelConfig
         model_config = ModelConfig(model=args.model, temperature=args.temperature)
-        
+
         # Create FAQInput
         faq_input = FAQInput(
             input_source=args.input_source,
             num_faqs=args.num_faqs,
             difficulty=args.difficulty,
-            output_dir=args.output_dir
+            output_dir=args.output_dir,
         )
-        
+
         # Initialize generator with ModelConfig
         generator = FAQGenerator(model_config)
 
         # Determine source type
         source_type = "file" if os.path.exists(args.input_source) else "topic"
-        print(f"Generating {args.num_faqs} {args.difficulty} FAQs from {source_type} '{args.input_source}'...")
+        print(
+            f"Generating {args.num_faqs} {args.difficulty} FAQs from {source_type} '{args.input_source}'..."
+        )
 
         # Generate FAQs
         faqs = generator.generate_text(faq_input)
@@ -148,19 +165,23 @@ def main() -> int:
 
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
-        if logger: logger.error(f"ValueError: {e}")
+        if logger:
+            logger.error(f"ValueError: {e}")
         return 1
     except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
-        if logger: logger.error(f"RuntimeError: {e}")
+        if logger:
+            logger.error(f"RuntimeError: {e}")
         return 1
     except IOError as e:
         print(f"Error: {e}", file=sys.stderr)
-        if logger: logger.error(f"IOError: {e}")
+        if logger:
+            logger.error(f"IOError: {e}")
         return 1
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
-        if logger: logger.error(f"Unexpected error: {e}", exc_info=True)
+        if logger:
+            logger.error(f"Unexpected error: {e}", exc_info=True)
         return 1
 
 

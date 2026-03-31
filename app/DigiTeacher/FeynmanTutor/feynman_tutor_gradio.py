@@ -8,8 +8,14 @@ from pathlib import Path
 import logging
 from lite.logging_config import configure_logging
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+# Add the project root to sys.path
+path = Path(__file__).parent
+while path.name != "app" and path.parent != path:
+    path = path.parent
+if path.name == "app":
+    root = path.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
 
 # Setup logging
 log_dir = Path(__file__).parent / "logs"
@@ -17,7 +23,10 @@ log_dir.mkdir(exist_ok=True)
 configure_logging(log_file=str(log_dir / f"{Path(__file__).stem}.log"))
 logger = logging.getLogger(__name__)
 
-from .feynman_tutor import FeynmanTutorQuestionGenerator, ModelConfig
+from app.DigiTeacher.FeynmanTutor.feynman_tutor import (
+    FeynmanTutorQuestionGenerator,
+    ModelConfig,
+)
 
 
 def run_feynman_tutor_gradio(topic: str, level: str):

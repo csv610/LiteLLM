@@ -7,12 +7,26 @@ periodic table element information with comprehensive data validation.
 
 import json
 import logging
+import sys
+from pathlib import Path
 from typing import Optional
+
+# Add the project root to sys.path
+path = Path(__file__).parent
+while path.name != "app" and path.parent != path:
+    path = path.parent
+if path.name == "app":
+    root = path.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
 
 from lite.lite_client import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from PeriodicTable.nonagentic.periodic_table_models import ElementInfo, ElementResponse
+from app.PeriodicTable.nonagentic.periodic_table_models import (
+    ElementInfo,
+    ElementResponse,
+)
 
 
 # List of all 118 elements by atomic number
@@ -175,13 +189,6 @@ class PeriodicTableElement:
             return None
         except Exception as e:
             self.logger.error(f"Error fetching {element}: {str(e)}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Error fetching {element}: {str(e)}")
-            print(f"DEBUG: Exception caught: {str(e)}")
-            import traceback
-
-            traceback.print_exc()
             return None
 
     def fetch_multiple_elements(

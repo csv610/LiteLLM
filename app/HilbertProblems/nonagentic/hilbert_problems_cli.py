@@ -10,12 +10,22 @@ import argparse
 import logging
 from pathlib import Path
 
+# Add the project root to sys.path
+path = Path(__file__).parent
+while path.name != "app" and path.parent != path:
+    path = path.parent
+if path.name == "app":
+    root = path.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+
 from lite.config import ModelConfig
 from lite import logging_config
-from .hilbert_problems import HilbertProblemsGuide
+from app.HilbertProblems.nonagentic.hilbert_problems import HilbertProblemsGuide
 
 # Global logger for application
 logger = logging.getLogger(__name__)
+
 
 def argument_parser() -> argparse.ArgumentParser:
     """
@@ -33,19 +43,21 @@ Examples:
   python hilbert_problems_cli.py -p 1                         # Show details of problem 1
   python hilbert_problems_cli.py -p 8 -m ollama/gemma3       # Show problem 8 using specific model
   python hilbert_problems_cli.py -m ollama/mistral           # Show all problems with custom model
-        """
+        """,
     )
 
     parser.add_argument(
-        "-p", "--problem",
+        "-p",
+        "--problem",
         type=int,
-        help="Problem number (1-23) to display details. If not specified, shows summary of all problems"
+        help="Problem number (1-23) to display details. If not specified, shows summary of all problems",
     )
 
     parser.add_argument(
-        "-m", "--model",
+        "-m",
+        "--model",
         default="ollama/gemma3",
-        help="Model to use for fetching problem information (default: ollama/gemma3)"
+        help="Model to use for fetching problem information (default: ollama/gemma3)",
     )
 
     return parser
@@ -57,8 +69,10 @@ def main():
 
     try:
         # Initialize global logger
-        logging_config.configure_logging(str(Path(__file__).parent / "logs" / "hilbert_problems_cli.log"))
-        
+        logging_config.configure_logging(
+            str(Path(__file__).parent / "logs" / "hilbert_problems_cli.log")
+        )
+
         # Initialize guide with specified model
         model_config = ModelConfig(model=args.model, temperature=0.3)
         guide = HilbertProblemsGuide(model_config)
