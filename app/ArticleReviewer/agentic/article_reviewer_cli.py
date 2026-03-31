@@ -1,5 +1,5 @@
 """
-article_reviewer_cli.py - Command-line interface for the Multi-Agent Article Reviewer.
+article_reviewer_cli.py - Command-line interface for the LiteClient multi-stage article reviewer.
 """
 
 import argparse
@@ -10,26 +10,26 @@ from .article_reviewer_agents import MultiAgentReviewer
 from .article_reviewer_utils import save_review, print_review
 
 async def run_review(article_text, model_name=None, output_filename=None, input_filename=None):
-    """Run the multi-agent review."""
+    """Run the multi-stage review."""
     if model_name is None:
         model_name = "ollama/gemma3"
 
     model_config = ModelConfig(model=model_name, temperature=0.3)
     reviewer = MultiAgentReviewer(model_config=model_config)
     
-    print(f"Starting Multi-Agent review using model: {model_name}...")
+    print(f"Starting multi-stage review using model: {model_name}...")
     review = await reviewer.review(article_text)
     
     output_file = save_review(review, output_filename=output_filename, input_filename=input_filename)
     print_review(review)
     
-    print(f"Full Multi-Agent review saved to: {output_file}\n")
+    print(f"Full review saved to: {output_file}\n")
 
 
 async def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description="Review an article using a Multi-Agent system (Pydantic AI).",
+        description="Review an article using a LiteClient multi-stage workflow.",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 

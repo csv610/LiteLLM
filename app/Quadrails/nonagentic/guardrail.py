@@ -70,7 +70,7 @@ class GuardrailAnalyzer:
             )
 
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, self.client.generate, model_input)
+            response = await loop.run_in_executor(None, self.client.generate_text, model_input)
 
             if isinstance(response, GuardrailResponse):
                 response.text = cleaned_text
@@ -106,7 +106,7 @@ class GuardrailAnalyzer:
             )
 
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, self.client.generate, model_input)
+            response = await loop.run_in_executor(None, self.client.generate_text, model_input)
 
             if isinstance(response, ImageGuardrailResponse):
                 response.image_path = str(path.absolute())

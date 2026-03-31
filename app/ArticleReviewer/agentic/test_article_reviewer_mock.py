@@ -1,77 +1,83 @@
-import json
 import pytest
-from unittest.mock import patch, MagicMock
-import asyncio
+from unittest.mock import patch
 
-from ArticleReviewer.agentic.article_reviewer_agents import LiteModel, MultiAgentReviewer
+from ArticleReviewer.agentic.article_reviewer_agents import MultiAgentReviewer
 from ArticleReviewer.agentic.article_reviewer_models import (
-    DeleteModel, ModifyModel, InsertModel, ArticleReviewModel
+    ArticleReviewModel,
+    DeleteModel,
 )
 from lite.config import ModelConfig
 
-# Test LiteModel
-@pytest.mark.anyio
-async def test_lite_model_request():
-    model_config = ModelConfig(model="gpt-4")
-    lite_model = LiteModel(model_config)
-    
-    with patch('ArticleReviewer.agentic.article_reviewer_agents.LiteClient') as mock_client:
-        mock_instance = mock_client.return_value
-        mock_instance.generate_text.return_value = '{"score": 90, "total_issues": 0, "summary": "Great", "deletions": [], "modifications": [], "insertions": [], "proofreading_rules_applied": []}'
-        
-        # Mocking ModelMessage and RunContext is complex, so let's mock LiteClient directly
-        # and test how it is called through LiteModel.request
-        
-        from pydantic_ai.messages import ModelRequest, TextPart
-        from pydantic_ai.models import ModelRequestParameters
-        
-        messages = [ModelRequest(parts=[TextPart(content="Test content")])]
-        model_request_parameters = MagicMock(spec=ModelRequestParameters)
-        model_request_parameters.output_object = None
-        
-        response = await lite_model.request(messages, None, model_request_parameters)
-        
-        assert response.model_name == "gpt-4"
-        assert "Great" in response.parts[0].content
 
-# Test MultiAgentReviewer
-@pytest.fixture
-def mock_lite_model():
-    with patch('ArticleReviewer.agentic.article_reviewer_agents.LiteModel') as mock:
-        yield mock
-
-@pytest.mark.anyio
-async def test_multi_agent_reviewer_init(mock_lite_model):
+def test_multi_agent_reviewer_init():
     reviewer = MultiAgentReviewer()
-    assert reviewer.model is not None
-    assert reviewer.deletions_agent is not None
-    assert reviewer.modifications_agent is not None
-    assert reviewer.insertions_agent is not None
-    assert reviewer.manager_agent is not None
+    assert reviewer.client is not None
+
 
 @pytest.mark.anyio
-async def test_multi_agent_reviewer_review(mock_lite_model):
-    # Mocking the agents to return expected outputs
-    reviewer = MultiAgentReviewer()
-    
-    # Mocking the manager agent run result
-    mock_result = MagicMock()
-    mock_result.output = ArticleReviewModel(
-        score=95,
+async def test_multi_agent_reviewer_review():
+    specialist_deletions = ArticleReviewModel(
+        score=82,
         total_issues=1,
-        summary="Excellent work.",
-        deletions=[DeleteModel(line_number=1, content="Extra", reason="Redundant", severity="low")],
+        summary="Deletion pass",
+        deletions=[
+            DeleteModel(
+                line_number=1,
+                content="Extra",
+                reason="Redundant",
+                severity="low",
+            )
+        ],
         modifications=[],
         insertions=[],
-        proofreading_rules_applied=["Style"]
+        proofreading_rules_applied=["Style & Clarity"],
     )
-    
-    from unittest.mock import AsyncMock
-    reviewer.manager_agent.run = AsyncMock(return_value=mock_result)
-    
-    review = await reviewer.review("Some article text")
-    
+    specialist_modifications = ArticleReviewModel(
+        score=84,
+        total_issues=0,
+        summary="Modification pass",
+        deletions=[],
+        modifications=[],
+        insertions=[],
+        proofreading_rules_applied=["Grammar & Syntax"],
+    )
+    specialist_insertions = ArticleReviewModel(
+        score=86,
+        total_issues=0,
+        summary="Insertion pass",
+        deletions=[],
+        modifications=[],
+        insertions=[],
+        proofreading_rules_applied=["Content & Structure"],
+    )
+    final_review = ArticleReviewModel(
+        score=95,
+        total_issues=999,
+        summary="Excellent work.",
+        deletions=specialist_deletions.deletions,
+        modifications=[],
+        insertions=[],
+        proofreading_rules_applied=[
+            "Style & Clarity",
+            "Grammar & Syntax",
+            "Content & Structure",
+        ],
+    )
+
+    with patch(
+        "ArticleReviewer.agentic.article_reviewer_agents.LiteClient.generate_text",
+        side_effect=[
+            specialist_deletions,
+            specialist_modifications,
+            specialist_insertions,
+            final_review,
+        ],
+    ) as mock_generate:
+        reviewer = MultiAgentReviewer(ModelConfig(model="gpt-4"))
+        review = await reviewer.review("Some article text")
+
     assert isinstance(review, ArticleReviewModel)
     assert review.score == 95
     assert len(review.deletions) == 1
     assert review.total_issues == 1
+    assert mock_generate.call_count == 4
