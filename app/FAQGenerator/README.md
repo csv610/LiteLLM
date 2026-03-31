@@ -2,6 +2,56 @@
 
 `FAQGenerator` produces structured question-answer pairs from either a short topic string or a local text file. It is intended for users who need reusable FAQ data rather than an ad hoc explanation.
 
+## Agentic Approach
+
+**Multi-agent system for comprehensive FAQ generation**
+
+#### Agent Pipeline:
+```mermaid
+graph TD
+    A[Input Topic/File] --> B[TopicAnalyzerAgent]
+    B --> C[QuestionGeneratorAgent]
+    C --> D[AnswerFormulatorAgent]
+    D --> E[DifficultyAdjusterAgent]
+    E --> F[QualityAssuranceAgent]
+    F --> G[Final FAQ Set]
+    
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style D fill:#bbf,stroke:#333
+    style E fill:#bbf,stroke:#333
+    style F fill:#bbf,stroke:#333
+    style G fill:#9f9,stroke:#333
+```
+
+#### Agent Roles:
+
+1. **TopicAnalyzerAgent** - Analyzes the input topic or source text
+   - Role: Content analyst
+   - Responsibilities: Examines the input to identify key concepts, themes, and areas that typically generate questions
+   - Output: Topic analysis with key points and potential question areas
+
+2. **QuestionGeneratorAgent** - Creates relevant questions based on the analysis
+   - Role: Question specialist
+   - Responsibilities: Generates clear, concise questions at the specified difficulty level
+   - Output: List of questions covering different aspects of the topic
+
+3. **AnswerFormulatorAgent** - Develops accurate answers to the generated questions
+   - Role: Answer specialist
+   - Responsibilities: Researches and formulates correct, informative answers to each question
+   - Output: Detailed answers with explanations and examples
+
+4. **DifficultyAdjusterAgent** - Adjusts complexity based on specified difficulty level
+   - Role: Difficulty calibrator
+   - Responsibilities: Modifies question and answer complexity to match the requested difficulty (simple, medium, hard, research)
+   - Output: Difficulty-appropriate questions and answers
+
+5. **QualityAssuranceAgent** - Reviews and refines the generated FAQs
+   - Role: Quality checker
+   - Responsibilities: Ensures accuracy, relevance, and proper formatting of the FAQ pairs
+   - Output: Final polished FAQ set in JSON format
+
 ## What It Does
 
 - Accepts a topic or local file as input.

@@ -2,6 +2,56 @@
 
 `HilbertProblems` provides a CLI for generating structured descriptions of Hilbert's 23 problems. It is intended as a study and reference aid.
 
+## Agentic Approach
+
+**Multi-agent system for comprehensive Hilbert problem analysis**
+
+#### Agent Pipeline:
+```mermaid
+graph TD
+    A[User Query] --> B[ProblemSelectorAgent]
+    B --> C[HistoricalContextAgent]
+    C --> D[MathematicalAnalysisAgent]
+    D --> E[ImpactAgent]
+    E --> F[CurrentStatusAgent]
+    F --> G[Final Response]
+    
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style D fill:#bbf,stroke:#333
+    style E fill:#bbf,stroke:#333
+    style F fill:#bbf,stroke:#333
+    style G fill:#9f9,stroke:#333
+```
+
+#### Agent Roles:
+
+1. **ProblemSelectorAgent** - Chooses which Hilbert problem to analyze
+   - Role: Initial problem selector
+   - Responsibilities: Parses user input to determine which of the 23 problems to focus on
+   - Output: Selected problem number and title
+
+2. **HistoricalContextAgent** - Provides background on the problem's origin
+   - Role: Historical researcher
+   - Responsibilities: Researches when and why David Hilbert proposed this problem
+   - Output: Historical context and motivation
+
+3. **MathematicalAnalysisAgent** - Breaks down the problem's mathematical content
+   - Role: Mathematical analyst
+   - Responsibilities: Analyzes the core mathematical question or conjecture
+   - Output: Detailed explanation of the problem's mathematical content
+
+4. **ImpactAgent** - Assesses the problem's influence on mathematics
+   - Role: Impact evaluator
+   - Responsibilities: Examines how the problem has influenced mathematical research
+   - Output: Analysis of the problem's impact and solutions
+
+5. **CurrentStatusAgent** - Reports on the problem's current resolution status
+   - Role: Status reporter
+   - Responsibilities: Determines whether the problem has been solved, partially solved, or remains open
+   - Output: Current status and any known solutions or partial results
+
 ## What It Does
 
 - Shows a summary of the 23 problems or generates a detailed view for one selected problem.

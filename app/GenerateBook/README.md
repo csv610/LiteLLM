@@ -9,6 +9,42 @@
 - Runs a 3-agent workflow: planner, generator, reviewer.
 - Saves the reviewed result through the generator's export path.
 
+## Agentic Approach
+
+**Multi-agent system for curriculum planning**
+
+#### Agent Pipeline:
+```mermaid
+graph TD
+    A[Subject Input] --> B[PlannerAgent]
+    B --> C[GeneratorAgent]
+    C --> D[ReviewerAgent]
+    D --> E[Final Curriculum]
+    
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style D fill:#bbf,stroke:#333
+    style E fill:#9f9,stroke:#333
+```
+
+#### Agent Roles:
+
+1. **PlannerAgent** - Creates the overall chapter structure and sequencing
+   - Role: Curriculum designer
+   - Responsibilities: Determines the number of chapters, their logical sequence, and high-level topics based on the subject and education level
+   - Output: Chapter outline with titles and brief descriptions
+
+2. **GeneratorAgent** - Develops detailed content for each chapter
+   - Role: Content specialist
+   - Responsibilities: Expands each chapter outline into detailed sections, learning objectives, and key concepts to cover
+   - Output: Detailed chapter plans with subtopics and teaching points
+
+3. **ReviewerAgent** - Evaluates and improves the generated curriculum
+   - Role: Quality assurance specialist
+   - Responsibilities: Reviews the generated chapters for coherence, difficulty progression, and educational soundness
+   - Output: Refined chapter plan with improvements and validation notes
+
 ## Why It Matters
 
 Curriculum planning often starts with a level-appropriate sequence of topics rather than full prose. This app is useful when the immediate goal is scope, progression, and chapter organization.

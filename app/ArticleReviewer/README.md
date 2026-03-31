@@ -2,6 +2,56 @@
 
 `ArticleReviewer` reviews article text and returns structured editing suggestions. It is intended for users who want machine-readable feedback rather than an unstructured chat-style critique.
 
+## Agentic Approach
+
+**Multi-agent system for comprehensive article review**
+
+#### Agent Pipeline:
+```mermaid
+graph TD
+    A[Article Text] --> B[ContentAnalyzerAgent]
+    B --> C[StyleAgent]
+    C --> D[GrammarAgent]
+    D --> E[FormattingAgent]
+    E --> F[SynthesisAgent]
+    F --> G[Structured Review]
+    
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style D fill:#bbf,stroke:#333
+    style E fill:#bbf,stroke:#333
+    style F fill:#bbf,stroke:#333
+    style G fill:#9f9,stroke:#333
+```
+
+#### Agent Roles:
+
+1. **ContentAnalyzerAgent** - Examines the article's content and structure
+   - Role: Content analyst
+   - Responsibilities: Analyzes the main ideas, arguments, and logical flow
+   - Output: Content analysis with strengths and weaknesses
+
+2. **StyleAgent** - Evaluates writing style and clarity
+   - Role: Style editor
+   - Responsibilities: Assesses tone, voice, sentence structure, and readability
+   - Output: Style feedback with specific suggestions for improvement
+
+3. **GrammarAgent** - Checks grammar, spelling, and mechanics
+   - Role: Proofreader
+   - Responsibilities: Identifies grammatical errors, spelling mistakes, and punctuation issues
+   - Output: List of mechanical errors with corrections
+
+4. **FormattingAgent** - Reviews formatting and presentation
+   - Role: Formatting specialist
+   - Responsibilities: Checks headings, lists, citations, and visual presentation
+   - Output: Formatting recommendations
+
+5. **SynthesisAgent** - Combines feedback into structured suggestions
+   - Role: Review synthesizer
+   - Responsibilities: Integrates feedback from all agents into categorized suggestions (deletions, modifications, insertions)
+   - Output: Structured review with severity labels and overall score
+
 ## What It Does
 
 - Reads article text from a file path or directly from the command line.

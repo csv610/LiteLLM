@@ -2,6 +2,56 @@
 
 `MathTheories` generates level-specific explanations for mathematical theories and saves them as Markdown.
 
+## Agentic Approach
+
+**Multi-agent system for adaptive mathematical explanations**
+
+#### Agent Pipeline:
+```mermaid
+graph TD
+    A[Theory Request] --> B[AudienceAnalyzerAgent]
+    B --> C[ConceptDecomposerAgent]
+    C --> D[MotivationAgent]
+    D --> E[ApplicationAgent]
+    E --> F[ResearchAgent]
+    F --> G[Final Explanation]
+    
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style D fill:#bbf,stroke:#333
+    style E fill:#bbf,stroke:#333
+    style F fill:#bbf,stroke:#333
+    style G fill:#9f9,stroke:#333
+```
+
+#### Agent Roles:
+
+1. **AudienceAnalyzerAgent** - Determines the appropriate explanation level for the target audience
+   - Role: Audience specialist
+   - Responsibilities: Analyzes the requested level (general, undergrad, grad, phd, researcher) to determine depth and complexity
+   - Output: Audience profile with recommended explanation depth and terminology level
+
+2. **ConceptDecomposerAgent** - Breaks down the theory into fundamental components
+   - Role: Theory analyst
+   - Responsibilities: Identifies key concepts, definitions, and core principles of the mathematical theory
+   - Output: Structured breakdown of the theory's essential elements
+
+3. **MotivationAgent** - Explains why the theory matters and its historical context
+   - Role: Mathematical historian
+   - Responsibilities: Provides background on the problem or phenomenon that led to the theory's development
+   - Output: Historical motivation and significance of the theory
+
+4. **ApplicationAgent** - Identifies practical applications and connections to other fields
+   - Role: Applied mathematics specialist
+   - Responsibilities: Finds real-world applications, connections to other mathematical areas, and interdisciplinary uses
+   - Output: List of applications and related fields where the theory is useful
+
+5. **ResearchAgent** - Covers current developments and open questions
+   - Role: Research mathematician
+   - Responsibilities: Summarizes recent advances, open problems, and active research areas related to the theory
+   - Output: Overview of current state and future directions in the field
+
 ## What It Does
 
 - Accepts a theory name and an audience level.
