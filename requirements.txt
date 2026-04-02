@@ -12,4 +12,9 @@ requests
 tqdm
 typing-extensions
 rich
-dspy-ai>=2.5.12
+dspy-ai>=2.5.12agno
+langchain
+langchain-google-genai
+langchain-openai
+langchain-ollama
+langgraph
