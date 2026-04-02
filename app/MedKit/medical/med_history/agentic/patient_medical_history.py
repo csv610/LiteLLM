@@ -32,33 +32,58 @@ class PatientMedicalHistoryGenerator:
     def generate_text(
         self, user_input: MedicalHistoryInput, structured: bool = False
     ) -> ModelOutput:
-        """Generate patient medical history questions."""
-        # Store the input for later use in save
+        """Generate 3-tier medical history questionnaire."""
         self.user_input = user_input
-        logger.debug(f"Starting medical history generation for: {user_input.exam}")
+        logger.info(f"Starting 3-tier medical history generation for: {user_input.exam}")
 
-        response_format = None
-        if structured:
-            response_format = PatientMedicalHistoryModel
-
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(user_input)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.debug("Calling LiteClient.generate_text()...")
         try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated medical history questions")
-            return result
+            # 1. Specialist Stage (JSON)
+            logger.debug("[Specialist] Generating questions...")
+            system_prompt = PromptBuilder.create_system_prompt()
+            user_prompt = PromptBuilder.create_user_prompt(user_input)
+            
+            spec_input = ModelInput(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_format=PatientMedicalHistoryModel if structured else None,
+            )
+            spec_res = self.ask_llm(spec_input)
+            
+            if structured:
+                spec_json = spec_res.data.model_dump_json(indent=2)
+            else:
+                spec_json = spec_res.markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug("[Auditor] Auditing questions...")
+            audit_sys, audit_usr = PromptBuilder.get_history_auditor_prompts(user_input, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit result
+            )
+            audit_res = self.ask_llm(audit_input)
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug("[Output] Synthesizing final questionnaire...")
+            out_sys, out_usr = PromptBuilder.get_output_synthesis_prompts(user_input, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.ask_llm(out_input)
+
+            logger.info("✓ Successfully generated 3-tier medical history questionnaire")
+            return ModelOutput(
+                data=spec_res.data if structured else None, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
         except Exception as e:
-            logger.error(f"✗ Error generating medical history questions: {e}")
+            logger.error(f"✗ 3-tier History generation failed: {e}")
             raise
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:

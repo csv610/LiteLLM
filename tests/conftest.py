@@ -7,6 +7,8 @@ project_root = Path(__file__).parent.parent
 app_dirs = [
     project_root / "app" / "ArticleReviewer",
     project_root / "app" / "FAQGenerator",
+    project_root / "app" / "ObjectGuesser",
+    project_root / "app" / "MedKit" / "drug" / "medicine" / "drugbank",
 ]
 
 for d in app_dirs:

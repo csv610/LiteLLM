@@ -38,45 +38,39 @@ Strict rules:
 
     @staticmethod
     def create_user_prompt(surgery: str) -> str:
-        """
-        Create the user prompt for surgical tray generation.
+        """Create the user prompt for surgical tray generation."""
+        return f"Prepare a comprehensive surgical instrument tray for: {surgery}"
 
-        Args:
-            surgery (str): The exact name of the surgical procedure.
+    @staticmethod
+    def create_tray_auditor_prompts(surgery: str, tray_content: str) -> tuple[str, str]:
+        """Create prompts for the Tray Compliance Auditor (JSON output)."""
+        system = (
+            "You are a Senior Sterile Processing Auditor and Surgical Technologist. "
+            "Your role is to audit surgical tray lists for clinical validity, "
+            "completeness, and instrument accuracy. Output a structured JSON report "
+            "identifying any missing critical instruments or incorrect items."
+        )
+        user = (
+            f"Audit the following surgical tray for '{surgery}' and output a "
+            f"structured JSON report:\n\n{tray_content}"
+        )
+        return system, user
 
-        Returns:
-            str: Prompt requesting a validated surgical instrument tray in JSON format.
-        """
-        return f"""Prepare a surgical instrument tray for the following procedure:
-
-Procedure name: "{surgery}"
-
-Instructions:
-1. If the procedure name is vague, incomplete, or could refer to more than one surgery
-   (for example: "eye surgery", "glaucoma surgery", "heart surgery", "tumor removal"),
-   respond ONLY with:
-   "ERROR: Please specify the exact surgical procedure (for example: laparoscopic cholecystectomy, trabeculectomy, total knee replacement, orthotopic heart transplant)."
-
-2. Otherwise, generate a tray list using ONLY real instruments used for this specific procedure.
-
-3. Group instruments by functional categories
-   (for example: exposure, cutting and dissection, grasping and holding, vascular control, suturing, hemostasis).
-
-4. For each instrument include:
-   - "name": standard instrument name
-   - "quantity": typical quantity
-   - "purpose": brief surgical purpose
-
-5. Exclude:
-   - Brand names
-   - Diagnostic equipment
-   - Monitoring devices
-   - Laser systems and laser accessories
-   - Non-sterile room equipment
-
-6. Do NOT include setup instructions or sterilization methods unless explicitly requested.
-
-Output requirements:
-- Output must be valid JSON only.
-- Do not include explanations, commentary, or markdown outside JSON.
-"""
+    @staticmethod
+    def create_output_synthesis_prompts(surgery: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Surgical Instrumentation Editor. Your role is to take raw "
+            "tray data and a structured quality audit, then synthesize them into a "
+            "FINAL, polished, and safe Markdown tray guide for OR staff. "
+            "You MUST apply all fixes identified in the audit and ensure the "
+            "categorization is clear and standard."
+        )
+        user = (
+            f"Synthesize the final surgical tray list for: '{surgery}'\n\n"
+            f"TRAY DATA:\n{specialist_data}\n\n"
+            f"QUALITY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and ready for use in sterile processing and OR setup."
+        )
+        return system, user

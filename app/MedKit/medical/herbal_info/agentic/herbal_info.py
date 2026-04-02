@@ -72,36 +72,61 @@ class HerbalInfoGenerator:
         logger.debug(f"Initialized HerbalInfoGenerator with {len(self.agents)} agents")
 
     def generate_text(self, herb: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive herbal information by orchestrating multiple agents in parallel."""
-        # Validate inputs
+        """Generates 3-tier comprehensive herbal information."""
         if not herb or not str(herb).strip():
             raise ValueError("Herb name cannot be empty")
 
-        # Store the herb for later use in save
         self.herb = herb
-        logger.info(f"Starting multi-agent herbal information generation for: {herb}")
+        logger.info(f"Starting 3-tier herbal generation for: {herb}")
 
-        with ThreadPoolExecutor(max_workers=len(self.agents)) as executor:
-            # Map agents to futures
-            future_to_agent = {
-                executor.submit(agent.generate, herb, structured=structured): agent
-                for agent in self.agents
-            }
-            
-            results = []
-            for future in future_to_agent:
-                agent = future_to_agent[future]
-                try:
-                    result = future.result()
-                    results.append(result)
-                except Exception as e:
-                    logger.error(f"Error from {agent.agent_name}: {e}")
-                    raise
+        try:
+            # 1. Specialist Stage (JSON - Parallel)
+            logger.debug("Tier 1: Specialists generating herbal data...")
+            with ThreadPoolExecutor(max_workers=len(self.agents)) as executor:
+                future_to_agent = {
+                    executor.submit(agent.generate, herb, structured=structured): agent
+                    for agent in self.agents
+                }
+                spec_results = [f.result() for f in future_to_agent]
 
-        if structured:
-            return self._combine_structured_results(results)
-        else:
-            return self._combine_markdown_results(results)
+            if structured:
+                spec_data = self._combine_structured_results(spec_results).data
+                spec_json = spec_data.model_dump_json(indent=2)
+            else:
+                spec_json = self._combine_markdown_results(spec_results).markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug("Tier 2: Auditor performing safety check...")
+            from .herbal_info_prompts import PromptBuilder as PB
+            audit_sys, audit_usr = PB.create_compliance_auditor_prompts(herb, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit result
+            )
+            audit_res = self.client.generate_text(model_input=audit_input)
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug("Tier 3: Output Agent synthesizing final monograph...")
+            out_sys, out_usr = PB.create_output_synthesis_prompts(herb, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.client.generate_text(model_input=out_input)
+
+            logger.info("✓ Successfully generated 3-tier herbal monograph")
+            return ModelOutput(
+                data=spec_data if structured else None,
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
+        except Exception as e:
+            logger.error(f"✗ 3-tier Herbal generation failed: {e}")
+            raise
 
     def _combine_structured_results(self, results: list[ModelOutput]) -> ModelOutput:
         """Combines structured data from multiple agents into a single HerbalInfoModel."""

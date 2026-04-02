@@ -33,4 +33,7 @@ class PromptBuilder:
         - human_triumph_rationale: string
         - counterfactual_world: string
         - modern_resonance: string
-        - key_historical_anchors: [list of strings]"""
+        - key_historical_anchors: [list of strings]
+
+        CRITICAL: You must return ONLY a JSON object. No preamble, no conversational text, no markers other than valid JSON. Your response must be a single, well-formatted JSON object that follows the structure above.
+    """

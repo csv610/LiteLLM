@@ -74,6 +74,25 @@ DRAFT REPORT:
 Focus on identifying any missing safety warnings or potentially dangerous suggestions."""
 
     @staticmethod
+    def create_output_synthesis_prompts(medicine_name: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Clinical Pharmacist. Your role is to take raw data about "
+            "similar medicines and a structured safety audit, then synthesize them "
+            "into a FINAL, polished, and safe Markdown comparison report. "
+            "You MUST apply all fixes identified in the audit and ensure all "
+            "substitution warnings are prominently featured."
+        )
+        user = (
+            f"Synthesize the final similar medicines report for: '{medicine_name}'\n\n"
+            f"SPECIALIST DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with safety guidelines."
+        )
+        return system, user
+
+    @staticmethod
     def create_system_prompt() -> str:
         """Create the system prompt for similar medicines analysis."""
         return """You are a pharmaceutical expert and clinical pharmacist with extensive knowledge of medications, their active ingredients, therapeutic classes, and mechanisms of action.

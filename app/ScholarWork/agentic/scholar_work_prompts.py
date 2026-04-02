@@ -5,90 +5,81 @@ Provides specialized ModelInput objects for the 3-agent pipeline for scholar wor
 """
 
 from lite.config import ModelInput
-from .scholar_work_models import ResearchBrief, ScholarMajorWork
+from .scholar_work_models import ResearchBrief, ScholarMajorWork, SynthesizedReport
 
 # --- RESEARCHER ---
 
-def get_researcher_input(scholar_name: str, major_contribution: str) -> ModelInput:
+
+def get_researcher_input(scholar_name: str) -> ModelInput:
     """Creates the ModelInput for the scientific research phase."""
-    system_prompt = (
-        "You are an elite science historian and technical researcher. "
-        "You excel at uncovering the intellectual journey of great scientists— "
-        "the specific problems they faced, the paradigms they overturned, "
-        "and the human stories that define their breakthrough moments."
-    )
-    
-    user_prompt = f"""Conduct deep research on {scholar_name}'s major work: {major_contribution}.
-Focus on:
-1. Historical context: What was the scientific consensus before this work?
-2. Scientific core: Explain the logic of the discovery or theory.
-3. Revolutionary impact: How exactly did this change the field of science?
-4. Modern legacy: How is this work still relevant or influential today?
-5. Human interest: Find compelling anecdotes or obstacles {scholar_name} had to overcome."""
-
     return ModelInput(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        response_format=ResearchBrief
+        system_prompt="OUTPUT ONLY VALID JSON. ZERO PREAMBLE. ZERO EXPLANATIONS. NO MARKDOWN. NO CODE BLOCKS. YOUR ENTIRE RESPONSE MUST BE A SINGLE JSON OBJECT THAT VALIDATES AGAINST RESEARCHBRIEF SCHEMA.",
+        user_prompt=f'Conduct deep research on {scholar_name}\'s complete body of work and identify their major scientific contributions. Return ONLY a JSON object that matches this exact schema: {{"scholar_name": "string", "major_contributions": ["string"], "historical_context": "string", "scientific_core": "string", "revolutionary_impact": "string", "modern_legacy": ["string"], "key_anecdotes": ["string"]}}',
+        response_format=ResearchBrief,
     )
 
-# --- JOURNALIST ---
+
+# --- SYNTHESIZER ---
+
 
 def get_journalist_input(brief: ResearchBrief) -> ModelInput:
-    """Creates the ModelInput for the narrative writing phase."""
-    system_prompt = (
-        "You are a world-class science journalist for 'The New Yorker' or 'Scientific American'. "
-        "You specialize in long-form profiles that bring abstract scientific work to life. "
-        "You weave raw research into a beautiful, flowing story without section headers."
-    )
-    
-    user_prompt = f"""Using the following research brief, write a compelling narrative essay about {brief.scholar_name}'s {brief.major_contribution}.
-        
-RESEARCH BRIEF:
-- Scholar: {brief.scholar_name}
-- Work: {brief.major_contribution}
-- History: {brief.historical_context}
+    """Creates the ModelInput for the synthesis phase."""
+    user_prompt = f"""Create a comprehensive, technical list of {brief.scholar_name}'s major work and contributions.
+         
+RESEARCH DATA:
+- Major Contributions: {", ".join(brief.major_contributions)}
+- Historical Context: {brief.historical_context}
 - Scientific Core: {brief.scientific_core}
 - Impact: {brief.revolutionary_impact}
-- Legacy: {', '.join(brief.modern_legacy)}
-- Anecdotes: {', '.join(brief.key_anecdotes)}
+- Legacy: {", ".join(brief.modern_legacy)}
+- Anecdotes: {", ".join(brief.key_anecdotes)}
 
 CONSTRAINTS:
-1. Write as a SINGLE, COHERENT STORY with natural transitions.
-2. NO section headers or bullet points.
-3. Aim for 800-1500 words.
-4. Capture the intellectual excitement and revolutionary nature of the discovery."""
+1. Provide a COMPREHENSIVE LIST of distinct major works, discoveries, and contributions.
+2. DEPTH: Each item in the list should be a substantial paragraph explaining the work, its context, and its significance.
+3. STRUCTURE: For each contribution, explain: What was it? Why was it revolutionary? What problem did it solve?
+4. Connect each work to its lasting technical impact in the field.
+5. Use clear, precise scientific language suitable for an intelligent reader.
+6. OUTPUT ONLY VALID JSON. ZERO PREAMBLE. YOUR ENTIRE RESPONSE MUST BE A SINGLE JSON OBJECT THAT VALIDATES AGAINST SYNTHESIZEDREPORT SCHEMA."""
 
     return ModelInput(
-        system_prompt=system_prompt,
+        system_prompt="You are a meticulous science historian and technical synthesizer. You provide comprehensive, authoritative lists of scientific contributions. You MUST respond with ONLY a valid JSON object matching the SynthesizedReport schema.",
         user_prompt=user_prompt,
-        response_format=None  # Raw text for maximum narrative freedom
+        response_format=SynthesizedReport,
     )
+
 
 # --- EDITOR ---
 
-def get_editor_input(scholar_name: str, major_contribution: str, story_text: str) -> ModelInput:
+
+def get_editor_input(scholar_name: str, synthesized_report: SynthesizedReport) -> ModelInput:
     """Creates the ModelInput for the final packaging phase."""
-    system_prompt = (
-        "You are a senior editor for a high-end science publication. You take "
-        "a completed narrative profile and package it into a polished, structured "
-        "format with educational materials and an impact summary."
-    )
+    report_text = "\n\n".join(synthesized_report.contributions)
+    user_prompt = f"""Finalize this contribution report for {scholar_name} into its published format.
     
-    user_prompt = f"""Finalize the following story about {scholar_name} and {major_contribution} into its published format.
-        
-THE STORY:
-{story_text}
+REPORT CONTENT:
+{report_text}
 
 TASKS:
-1. Create an engaging Title and Subtitle.
-2. Extract 5-7 key technical terms and provide clear definitions.
-3. Provide a concise impact summary (2-3 paragraphs).
-4. Generate 3-5 thought-provoking discussion questions.
-5. Ensure the story text is returned polished but structurally intact."""
+1. Create a clear Title and Subtitle.
+2. Extract key terms and definitions.
+3. Provide an impact summary.
+4. Generate 3-5 discussion questions.
+5. Package the contribution list as provided.
+
+OUTPUT FORMAT:
+Return the final report as a BEAUTIFULLY FORMATTED MARKDOWN STRING.
+Use:
+- # for the Title
+- ## for the Subtitle and main sections (Major Works, Key Terms, Impact, etc.)
+- Bullet points for lists
+- Bold text for emphasis
+- Horizontal rules (---) to separate sections
+
+DO NOT use JSON. DO NOT use code blocks for the entire response. Just return the Markdown text."""
 
     return ModelInput(
-        system_prompt=system_prompt,
+        system_prompt="You are a senior editor. Package the research report into a polished, publication-ready Markdown document.",
         user_prompt=user_prompt,
-        response_format=ScholarMajorWork
+        response_format=None,
     )

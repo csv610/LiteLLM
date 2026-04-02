@@ -36,36 +36,61 @@ class MedicalImplantGenerator:
         logger.debug("Initialized MedicalImplantGenerator")
 
     def generate_text(self, implant: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive medical implant information."""
+        """Generates 3-tier comprehensive medical implant information."""
         if not implant or not str(implant).strip():
             raise ValueError("Implant name cannot be empty")
 
-        # Store the implant for later use in save
         self.implant = implant
-        logger.debug(f"Starting medical implant information generation for: {implant}")
+        logger.info(f"Starting 3-tier implant generation for: {implant}")
 
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(implant)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = MedicalImplantInfoModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.debug("Calling LiteClient.generate_text()...")
         try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated implant information")
-            return result
+            # 1. Specialist Stage (JSON)
+            logger.debug(f"[Specialist] Generating content for: {implant}")
+            system_prompt = PromptBuilder.create_system_prompt()
+            user_prompt = PromptBuilder.create_user_prompt(implant)
+            
+            spec_input = ModelInput(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_format=MedicalImplantInfoModel if structured else None,
+            )
+            spec_res = self.ask_llm(spec_input)
+            
+            if structured:
+                spec_json = spec_res.data.model_dump_json(indent=2)
+            else:
+                spec_json = spec_res.markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug(f"[Auditor] Auditing content for: {implant}")
+            audit_sys, audit_usr = PromptBuilder.get_implant_auditor_prompts(implant, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit result
+            )
+            audit_res = self.ask_llm(audit_input)
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug(f"[Output] Synthesizing final report for: {implant}")
+            out_sys, out_usr = PromptBuilder.get_output_synthesis_prompts(implant, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.ask_llm(out_input)
+
+            logger.info("✓ Successfully generated 3-tier implant information")
+            return ModelOutput(
+                data=spec_res.data if structured else None, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
         except Exception as e:
-            logger.error(f"✗ Error generating implant information: {e}")
+            logger.error(f"✗ 3-tier implant generation failed: {e}")
             raise
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:

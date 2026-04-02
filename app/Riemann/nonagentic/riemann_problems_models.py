@@ -22,3 +22,12 @@ class RiemannTheoryModel(BaseModel):
     applications: List[str] = Field(description="Applications in mathematics, physics, or other fields")
     related_concepts: List[str] = Field(description="Related Riemann or mathematical concepts")
     significance: str = Field(description="Significance of this theory in modern science")
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

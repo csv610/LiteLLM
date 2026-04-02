@@ -37,63 +37,63 @@ class MedicalFactsChecker:
         logger.debug("Initialized MedicalFactsChecker")
 
     def generate_text(self, statement: str, structured: bool = False) -> ModelOutput:
-        """
-        Analyze a statement using a multi-agent approach (Researcher, Skeptic, Synthesizer).
-        Runs Researcher and Skeptic in parallel.
-        """
+        """Analyze a statement using a 3-tier agent system."""
         if not statement or not statement.strip():
             raise ValueError("Statement cannot be empty")
 
         self.statement = statement
-        logger.info(f"Starting parallel multi-agent analysis for: {statement}")
+        logger.info(f"Starting 3-tier analysis for: {statement}")
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            # Parallel Agent 1: Researcher (finds support)
-            logger.info("Agent 1: Medical Researcher gathering evidence (Parallel)...")
-            researcher_input = ModelInput(
-                system_prompt=PromptBuilder.create_researcher_prompt(),
+        try:
+            # --- Tier 1: Specialist Stage (Parallel & Sequential JSON) ---
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                # Parallel specialists
+                f_res = executor.submit(self._ask_llm, ModelInput(
+                    system_prompt=PromptBuilder.create_researcher_prompt(),
+                    user_prompt=PromptBuilder.create_user_prompt(statement)
+                ))
+                f_skp = executor.submit(self._ask_llm, ModelInput(
+                    system_prompt=PromptBuilder.create_skeptic_prompt(),
+                    user_prompt=PromptBuilder.create_user_prompt(statement)
+                ))
+                res_md = f_res.result().markdown
+                skp_md = f_skp.result().markdown
+
+            # Lead Specialist Synthesis
+            synth_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_synthesizer_prompt(res_md, skp_md),
                 user_prompt=PromptBuilder.create_user_prompt(statement)
+            ))
+            spec_json = synth_res.markdown
+
+            # --- Tier 2: Compliance Auditor Stage (JSON Audit) ---
+            audit_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_compliance_officer_prompt(spec_json),
+                user_prompt=PromptBuilder.create_user_prompt(statement),
+                response_format=MedicalFactFictionAnalysisModel if structured else None
+            ))
+            
+            if structured:
+                audit_json = audit_res.data.model_dump_json(indent=2)
+            else:
+                audit_json = audit_res.markdown
+
+            # --- Tier 3: Final Output Synthesis (Markdown Closer) ---
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(
+                statement, spec_json, audit_json
             )
-            future_researcher = executor.submit(self._ask_llm, researcher_input)
+            final_res = self._ask_llm(ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None
+            ))
 
-            # Parallel Agent 2: Skeptic (finds errors/red flags)
-            logger.info("Agent 2: Medical Skeptic identifying red flags (Parallel)...")
-            skeptic_input = ModelInput(
-                system_prompt=PromptBuilder.create_skeptic_prompt(),
-                user_prompt=PromptBuilder.create_user_prompt(statement)
-            )
-            future_skeptic = executor.submit(self._ask_llm, skeptic_input)
+            logger.info("✓ Successfully generated 3-tier medical facts analysis")
+            return ModelOutput(data=audit_res.data if structured else None, markdown=final_res.markdown)
 
-            # Wait for both reports
-            researcher_report = future_researcher.result().markdown
-            skeptic_report = future_skeptic.result().markdown
-
-        # Agent 3: Lead Medical Examiner (Synthesizer)
-        logger.info("Agent 3: Lead Medical Examiner synthesizing findings...")
-        synthesizer_input = ModelInput(
-            system_prompt=PromptBuilder.create_synthesizer_prompt(researcher_report, skeptic_report),
-            user_prompt=PromptBuilder.create_user_prompt(statement)
-        )
-        synth_result = self._ask_llm(synthesizer_input)
-        synth_report = synth_result.markdown
-
-        # Agent 4: Medical Compliance & Safety Officer
-        logger.info("Agent 4: Medical Compliance Officer performing safety review...")
-        response_format = MedicalFactFictionAnalysisModel if structured else None
-        compliance_input = ModelInput(
-            system_prompt=PromptBuilder.create_compliance_officer_prompt(synth_report),
-            user_prompt=PromptBuilder.create_user_prompt(statement),
-            response_format=response_format
-        )
-        
-        result = self._ask_llm(compliance_input)
-        
-        # Store intermediate reports for traceability
-        result.researcher_report = researcher_report
-        result.skeptic_report = skeptic_report
-        
-        logger.info("✓ Multi-agent analysis (including compliance) complete")
-        return result
+        except Exception as e:
+            logger.error(f"✗ 3-tier Facts generation failed: {e}")
+            raise
 
     def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """

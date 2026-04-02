@@ -12,7 +12,21 @@ class PromptBuilder:
     """Builder class for creating prompts for unsolved problems information."""
     
     @staticmethod
-    def create_user_prompt(topic: str, num_problems: int) -> str:
+    def get_system_prompt() -> str:
+        """Get the system prompt for unsolved problems generation."""
+        return """You are an expert academic researcher and historian of science and mathematics. Your task is to provide accurate, rigorous, and well-structured information about major unsolved problems across various academic fields.
+
+Fundamental Principles:
+1. Academic Rigor: Use precise terminology and provide meaningful descriptions of each problem.
+2. Historical Accuracy: Correctly identify when and by whom the problem was first posed.
+3. Current Status: Accurately reflect the best known results, recent progress, or partial solutions.
+4. Factual Integrity: Provide information about prizes (e.g., Millennium Prize Problems) only when they are officially established.
+5. Objective Perspective: Maintain a neutral, professional tone and avoid speculative claims.
+
+Return structured data as requested, ensuring all scientific and mathematical facts are verified."""
+
+    @staticmethod
+    def get_user_prompt(topic: str, num_problems: int) -> str:
         """Create the prompt for fetching unsolved problems in a given topic.
         
         Args:
@@ -36,6 +50,10 @@ For each problem, provide:
 
 Focus on well-known, legitimate unsolved problems in {topic}. Use objective language and avoid speculation.
 Ensure the problems are academically recognized and well-documented."""
+    
+    @staticmethod
+    def create_user_prompt(topic: str, num_problems: int) -> str:
+        return PromptBuilder.get_user_prompt(topic, num_problems)
     
     @staticmethod
     def create_model_input(prompt: str, response_format) -> Dict:

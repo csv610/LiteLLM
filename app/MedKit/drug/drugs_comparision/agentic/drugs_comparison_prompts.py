@@ -67,13 +67,29 @@ class PromptBuilder:
 
     @staticmethod
     def create_safety_auditor_system_prompt() -> str:
-        """System prompt for the Safety & Standards Auditor."""
-        return f"""You are a Senior Medical Safety Auditor. Your role is to cross-verify clinical safety data and ensure adherence to medical software standards.
-        Your tasks:
-        1. Verify that Black Box Warnings match between Pharmacology and Regulatory reports.
-        2. Identify any conflicting safety information.
-        3. Ensure all clinical claims include a citation or source reference.
-        4. Grade the quality of evidence provided (High, Moderate, Low)."""
+        """System prompt for the Safety & Standards Auditor (JSON output)."""
+        return """You are a Senior Medical Safety Auditor. Your role is to audit 
+drug comparison reports for technical accuracy, safety standards, and clinical 
+consistency. Output your findings as a structured JSON report."""
+
+    @staticmethod
+    def create_output_synthesis_prompts(medicine1: str, medicine2: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Clinical Strategy Editor. Your role is to take raw "
+            "comparative drug data and a structured safety audit, then synthesize "
+            "them into a FINAL, polished, and safe Markdown comparison report. "
+            "You MUST apply all fixes identified in the audit and ensure all "
+            "Black Box warnings and safety alerts are prominently featured."
+        )
+        user = (
+            f"Synthesize the final comparison report for: '{medicine1}' vs '{medicine2}'\n\n"
+            f"COMPARATIVE DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with clinical safety standards."
+        )
+        return system, user
 
     @staticmethod
     def create_synthesis_system_prompt() -> str:

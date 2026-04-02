@@ -177,3 +177,12 @@ print("For optimizing actual chapter generation, you would:")
 print("1. Collect examples of good chapter suggestions from the generator")
 print("2. Train on those examples using the generated_chapters_metric")
 print("3. Use the optimized generator to produce better educational content")
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

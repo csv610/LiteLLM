@@ -118,7 +118,45 @@ SCORING GUIDELINES:
 - 60-69: Poor - significant issues requiring revision
 - Below 60: Very Poor - substantial revision needed
 
-Provide a fair assessment based on the total number and severity of issues found. Focus on substantive content issues, not cosmetic formatting."""
+Provide a fair assessment based on the total number and severity of issues found. Focus on substantive content issues, not cosmetic formatting.
+
+OUTPUT FORMAT:
+Provide your review in a valid JSON format matching the following structure:
+{{
+  "score": <int 0-100>,
+  "total_issues": <int>,
+  "summary": "<brief overall assessment>",
+  "deletions": [
+    {{
+      "line_number": <int>,
+      "content": "<exact phrase/sentence to delete>",
+      "reason": "<explanation>",
+      "severity": "<low|medium|high|critical>"
+    }}
+  ],
+  "modifications": [
+    {{
+      "line_number": <int>,
+      "original_content": "<exact original phrase/sentence>",
+      "suggested_modification": "<improved full sentence/phrase>",
+      "reason": "<explanation>",
+      "severity": "<low|medium|high|critical>"
+    }}
+  ],
+  "insertions": [
+    {{
+      "line_number": <int>,
+      "suggested_content": "<ready-to-use content for insertion>",
+      "reason": "<explanation>",
+      "section": "<section name>",
+      "severity": "<low|medium|high|critical>"
+    }}
+  ],
+  "proofreading_rules_applied": ["<category1>", "<category2>", ...]
+}}
+
+CRITICAL: Provide ONLY the raw JSON object. Do not include any conversational preamble, introduction, or concluding remarks. Ensure the JSON is valid and all fields are populated correctly. All modifications and insertions must use COMPLETE and UNAMBIGUOUS text as specified in the instructions above.
+"""
 
     @classmethod
     def get_proofreading_rules(cls) -> Dict[str, Dict[str, str]]:

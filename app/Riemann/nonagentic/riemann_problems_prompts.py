@@ -2,6 +2,7 @@
 riemann_problems_prompts.py - PromptBuilder class for Riemann Theory Guide
 """
 
+
 class PromptBuilder:
     """Builder class for creating Riemann theory prompts."""
 
@@ -15,7 +16,8 @@ Fundamental Principles:
 1. Historical Precision: Accurately contextualize work. BE EXTREMELY CAREFUL with publication titles and dates (e.g., do not confuse Riemann's papers with Gauss's books).
 2. Mathematical Rigor: Use precise terminology in technical sections.
 3. Depth and Clarity: Maintain technical depth while ensuring conceptual clarity.
-4. Fact-Checking: Verify all cross-references between mathematicians and their respective works before outputting."""
+4. Fact-Checking: Verify all cross-references between mathematicians and their respective works before outputting.
+5. Output Format: You MUST output ONLY a valid JSON object that matches the RiemannTheoryModel schema. Do not include any additional text, explanations, or markdown formatting."""
 
     @staticmethod
     def get_user_prompt(theory_name: str) -> str:

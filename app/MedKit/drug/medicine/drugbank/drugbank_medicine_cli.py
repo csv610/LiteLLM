@@ -3,7 +3,10 @@ import logging
 import re
 from pathlib import Path
 
-from .drugbank_medicine import DrugBankMedicine
+try:
+    from .drugbank_medicine import DrugBankMedicine
+except ImportError:
+    from drugbank_medicine import DrugBankMedicine
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging
 from lite.utils import save_model_response

@@ -318,16 +318,7 @@ class ComplianceReport(BaseModel):
 
 
 class ModelOutput(BaseModel):
-    data: Optional[
-        Union[
-            MedicalProcedureInfoModel,
-            ClinicalAgentOutput,
-            TechnicalAgentOutput,
-            RiskAgentOutput,
-            RecoveryAgentOutput,
-            AdminAgentOutput,
-            ComplianceReport,
-        ]
-    ] = None
-    markdown: Optional[str] = None
-    compliance_report: Optional[ComplianceReport] = None
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

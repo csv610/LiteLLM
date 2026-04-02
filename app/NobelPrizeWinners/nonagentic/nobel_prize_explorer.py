@@ -5,6 +5,7 @@ Nobel Prize winner information with proper encapsulation.
 """
 
 import re
+import logging
 from typing import Optional
 
 # Add project root to sys.path to use local 'lite' package
@@ -15,8 +16,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .nobel_prize_models import PrizeWinner, PrizeResponse
-from .nobel_prize_prompts import PromptBuilder
+
+try:
+    from .nobel_prize_models import PrizeWinner, PrizeResponse
+    from .nobel_prize_prompts import PromptBuilder
+except ImportError:
+    from nobel_prize_models import PrizeWinner, PrizeResponse
+    from nobel_prize_prompts import PromptBuilder
 
 
 class NobelPrizeWinnerInfo:
@@ -33,6 +39,8 @@ class NobelPrizeWinnerInfo:
         self.model = model_config.model or "gemini/gemini-2.5-flash"
         self.client = LiteClient(model_config=model_config)
         self.logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "nobel_prize_explorer.log"))
+        if self.logger is None:
+            self.logger = logging.getLogger(__name__)
     
     def _validate_model_name(self, model: str) -> None:
         """
@@ -44,8 +52,8 @@ class NobelPrizeWinnerInfo:
         Raises:
             ValueError: If model name is invalid
         """
-        if not re.match(r'^[a-zA-Z0-9\-\./_]+$', model):
-            raise ValueError(f"Invalid model name: {model}. Only alphanumeric characters, hyphens, slashes, dots, and underscores are allowed.")
+        if not re.match(r'^[a-zA-Z0-9\-\./_:]+$', model):
+            raise ValueError(f"Invalid model name: {model}. Only alphanumeric characters, hyphens, slashes, dots, underscores, and colons are allowed.")
     
     def fetch_winners(self, category: str, year: str, model: Optional[str] = None) -> list[PrizeWinner]:
         """

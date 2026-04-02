@@ -25,17 +25,38 @@ CRITICAL REQUIREMENTS:
     @staticmethod
     def user_prompt(myth: str) -> str:
         """Generate the user prompt for myth analysis."""
-        return f"""Medical Myth/Claim to Analyze: {myth}
+        return f"Analyze the following medical myth grounded in peer-reviewed evidence: {myth}"
 
-Respond ONLY with valid JSON in this exact format:
-{{
-    "myths": [
-        {{
-            "statement": "exact claim from the input",
-            "status": "TRUE or FALSE or UNCERTAIN",
-            "explanation": "detailed medical explanation grounded in peer-reviewed evidence",
-            "peer_reviewed_sources": "Specific citations: Journal names, publication years, and research findings. Or: 'No peer-reviewed evidence found' with explanation of research gaps",
-            "risk_level": "LOW or MODERATE or HIGH"
-        }}
-    ]
-}}"""
+    @staticmethod
+    def get_evidence_auditor_prompts(myth: str, analysis_content: str) -> tuple[str, str]:
+        """Create prompts for the Evidence Compliance Auditor (JSON output)."""
+        system = (
+            "You are a Senior Medical Evidence Auditor. Your role is to audit medical "
+            "myth assessments for factual accuracy and strength of evidence. Output "
+            "a structured JSON report identifying any weak citations or incorrect "
+            "conclusions based on current medical literature."
+        )
+        user = (
+            f"Audit the following medical myth analysis for '{myth}' and output a "
+            f"structured JSON report:\n\n{analysis_content}"
+        )
+        return system, user
+
+    @staticmethod
+    def get_output_synthesis_prompts(myth: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Myth-Busting Editor. Your role is to take raw "
+            "evidence analysis and a structured quality audit, then synthesize them "
+            "into a FINAL, high-impact, and safe Markdown report. You MUST apply "
+            "all fixes identified in the audit and ensure the debunking is "
+            "clear, authoritative, and medically sound."
+        )
+        user = (
+            f"Synthesize the final myth-busting report for: '{myth}'\n\n"
+            f"EVIDENCE DATA:\n{specialist_data}\n\n"
+            f"QUALITY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and effectively communicates the truth based on medical evidence."
+        )
+        return system, user

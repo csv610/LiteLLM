@@ -9,29 +9,57 @@ from .math_equation_story_models import ResearchBrief, MathematicalEquationStory
 
 # --- RESEARCHER ---
 
+
 def get_researcher_input(equation_name: str) -> ModelInput:
     """Creates the ModelInput for the technical research phase."""
+    schema = ResearchBrief.model_json_schema()
+
     system_prompt = (
         "You are an elite mathematical historian and researcher. "
         "You excel at finding the 'why' behind the math—the human problems that "
-        "led to its discovery and the subtle misconceptions people have today."
+        "led to its discovery and the subtle misconceptions people have today. "
+        "CRITICAL: You must respond with valid JSON ONLY that matches the schema exactly. "
+        "All fields must match the schema names and types precisely."
     )
-    
+
     user_prompt = f"""Conduct deep research on the equation: {equation_name}.
 Focus on:
 1. Historical context: Who formalized this and what problem were they solving?
 2. Mathematical core: Explain the logic simply but precisely.
 3. Modern applications: How does this affect our lives today?
 4. Metaphors: What are powerful analogies for a non-expert?
-5. Misconceptions: What do people usually get wrong?"""
+5. Misconceptions: What do people usually get wrong?
+
+Required JSON schema:
+{schema}
+
+Respond with valid JSON ONLY, no markdown, no explanation, no additional text."""
 
     return ModelInput(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        response_format=ResearchBrief
+        response_format=ResearchBrief,
     )
 
+    user_prompt = f"""Conduct deep research on the equation: {equation_name}.
+Focus on:
+1. Historical context: Who formalized this and what problem were they solving?
+2. Mathematical core: Explain the logic simply but precisely.
+3. Modern applications: How does this affect our lives today?
+4. Metaphors: What are powerful analogies for a non-expert?
+5. Misconceptions: What do people usually get wrong?
+
+CRITICAL: Respond with JSON only matching this schema, no additional text."""
+
+    return ModelInput(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        response_format=ResearchBrief,
+    )
+
+
 # --- JOURNALIST ---
+
 
 def get_journalist_input(brief: ResearchBrief) -> ModelInput:
     """Creates the ModelInput for the narrative writing phase."""
@@ -40,15 +68,15 @@ def get_journalist_input(brief: ResearchBrief) -> ModelInput:
         "You specialize in long-form narrative essays that make abstract concepts feel visceral. "
         "You weave raw research into a beautiful, flowing story without section headers."
     )
-    
+
     user_prompt = f"""Using the following research brief, write a compelling narrative essay about {brief.equation_name}.
         
 RESEARCH BRIEF:
 - History: {brief.historical_context}
 - Math Core: {brief.mathematical_core}
-- Applications: {', '.join(brief.real_world_applications)}
-- Metaphors: {', '.join(brief.key_metaphors)}
-- Misconceptions: {', '.join(brief.common_misconceptions)}
+- Applications: {", ".join(brief.real_world_applications)}
+- Metaphors: {", ".join(brief.key_metaphors)}
+- Misconceptions: {", ".join(brief.common_misconceptions)}
 
 CONSTRAINTS:
 1. Write as a SINGLE, COHERENT STORY with natural transitions.
@@ -59,19 +87,68 @@ CONSTRAINTS:
     return ModelInput(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        response_format=None  # Raw text for maximum narrative freedom
+        response_format=None,  # Raw text for maximum narrative freedom
     )
+
 
 # --- EDITOR ---
 
+
 def get_editor_input(equation_name: str, story_text: str) -> ModelInput:
     """Creates the ModelInput for the final packaging phase."""
+    schema = MathematicalEquationStory.model_json_schema()
+
     system_prompt = (
         "You are a senior editor and educational designer. You take a completed "
         "science essay and package it into a polished, structured format with "
-        "accurate LaTeX and educational materials."
+        "accurate LaTeX and educational materials. "
+        "CRITICAL: You must respond with valid JSON ONLY that matches the schema exactly. "
+        "All fields must match the schema names and types precisely."
     )
-    
+
+    user_prompt = f"""Finalize the following story about {equation_name} into its published format.
+        
+THE STORY:
+{story_text}
+
+TASKS:
+1. Create an engaging Title and Subtitle.
+2. Provide the accurate LaTeX formula.
+3. Extract 5-7 key technical terms and provide clear definitions.
+4. Generate 3-5 thought-provoking discussion questions.
+5. Ensure the story text is returned polished but structurally intact.
+
+Required JSON schema:
+{schema}
+
+Respond with valid JSON ONLY, no markdown, no explanation, no additional text."""
+
+    return ModelInput(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        response_format=MathematicalEquationStory,
+    )
+
+    user_prompt = f"""Finalize the following story about {equation_name} into its published format.
+        
+THE STORY:
+{story_text}
+
+TASKS:
+1. Create an engaging Title and Subtitle.
+2. Provide the accurate LaTeX formula.
+3. Extract 5-7 key technical terms and provide clear definitions.
+4. Generate 3-5 thought-provoking discussion questions.
+5. Ensure the story text is returned polished but structurally intact.
+
+CRITICAL: Respond with JSON only, no additional text."""
+
+    return ModelInput(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        response_format=MathematicalEquationStory,
+    )
+
     user_prompt = f"""Finalize the following story about {equation_name} into its published format.
         
 THE STORY:
@@ -87,5 +164,5 @@ TASKS:
     return ModelInput(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        response_format=MathematicalEquationStory
+        response_format=MathematicalEquationStory,
     )

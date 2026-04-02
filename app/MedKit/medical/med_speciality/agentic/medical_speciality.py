@@ -32,41 +32,32 @@ class MedicalSpecialityGenerator:
     def generate_text(
         self, structured: bool = False
     ) -> Union[MedicalSpecialistDatabase, str]:
-        """Generate a comprehensive medical specialists database using multiple agents."""
-        logger.debug("Starting multi-agent medical speciality database generation")
+        """Generate a comprehensive medical specialists database using a 3-tier system."""
+        logger.debug("Starting 3-tier medical speciality database generation")
 
         try:
-            # --- Agent 1: The Planner ---
+            # --- Tier 1: Specialist Stages (JSON) ---
             logger.info("Agent 1 (Planner): Identifying major specialty categories")
             planner_input = ModelInput(
                 system_prompt=PromptBuilder.create_planner_system_prompt(),
                 user_prompt=PromptBuilder.create_planner_user_prompt(),
                 response_format=CategoryList if structured else None,
             )
-            
             categories_result = self.ask_llm(planner_input)
             
             categories = []
             if structured:
-                categories = categories_result.categories
+                categories = categories_result.data.categories
             else:
-                # If unstructured, split by newline and filter out empty strings
-                raw_lines = str(categories_result).split('\n')
+                raw_lines = str(categories_result.markdown).split('\n')
                 for line in raw_lines:
                     cleaned = line.strip().strip('-* ')
                     if cleaned and len(cleaned) < 100:
                         categories.append(cleaned)
-                
-                # Fallback if parsing fails
                 if not categories:
                     categories = ["Internal Medicine", "Surgery", "Pediatrics", "Diagnostic", "Psychiatry"]
 
-            logger.info(f"Planner identified {len(categories)} categories")
-
-            # --- Agent 2: The Researchers ---
-            all_structured_specialists = []
-            all_specialists_text = []
-
+            all_specialists = []
             for category in categories:
                 logger.info(f"Agent 2 (Researcher): Investigating category '{category}'")
                 researcher_input = ModelInput(
@@ -74,34 +65,50 @@ class MedicalSpecialityGenerator:
                     user_prompt=PromptBuilder.create_researcher_user_prompt(category),
                     response_format=MedicalSpecialistDatabase if structured else None,
                 )
-                
-                researcher_result = self.ask_llm(researcher_input)
-                
+                res_result = self.ask_llm(researcher_input)
                 if structured:
-                    all_structured_specialists.extend(researcher_result.specialists)
+                    all_specialists.extend(res_result.data.specialists)
                 else:
-                    all_specialists_text.append(f"--- Category: {category} ---\n{researcher_result}")
+                    all_specialists.append(f"Category: {category}\n{res_result.markdown}")
 
-            # --- Agent 3: The Reviewer/Aggregator ---
-            logger.info("Agent 3 (Reviewer): Aggregating findings")
+            specialist_data_json = ""
             if structured:
-                # For structured data, we aggregate programmatically to guarantee formatting
-                logger.info("✓ Successfully generated and aggregated structured database")
-                return MedicalSpecialistDatabase(specialists=all_structured_specialists)
+                spec_db = MedicalSpecialistDatabase(specialists=all_specialists)
+                specialist_data_json = spec_db.model_dump_json(indent=2)
             else:
-                combined_data = "\n\n".join(all_specialists_text)
-                reviewer_input = ModelInput(
-                    system_prompt=PromptBuilder.create_reviewer_system_prompt(),
-                    user_prompt=PromptBuilder.create_reviewer_user_prompt(combined_data),
-                    response_format=None,
-                )
-                
-                final_result = self.ask_llm(reviewer_input)
-                logger.info("✓ Successfully generated and reviewed text database")
-                return final_result
+                specialist_data_json = "\n\n".join(all_specialists)
+
+            # --- Tier 2: Compliance Auditor Stage (JSON Audit) ---
+            logger.info("Agent 3 (Auditor): Auditing specialty data")
+            reviewer_input = ModelInput(
+                system_prompt=PromptBuilder.create_reviewer_system_prompt(),
+                user_prompt=PromptBuilder.create_reviewer_user_prompt(specialist_data_json),
+                response_format=None # Audit result
+            )
+            audit_result = self.ask_llm(reviewer_input)
+            audit_json = audit_result.markdown
+
+            # --- Tier 3: Final Output Synthesis (Markdown Closer) ---
+            logger.info("Agent 4 (Output): Synthesizing final database")
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(
+                specialist_data_json, audit_json
+            )
+            output_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.ask_llm(output_input)
+
+            logger.info("✓ Successfully generated 3-tier medical specialty database")
+            return ModelOutput(
+                data=MedicalSpecialistDatabase(specialists=all_specialists) if structured else None,
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
 
         except Exception as e:
-            logger.error(f"✗ Error in multi-agent generation workflow: {e}")
+            logger.error(f"✗ Error in 3-tier generation workflow: {e}")
             raise
 
     def ask_llm(self, model_input: ModelInput) -> Union[MedicalSpecialistDatabase, str]:

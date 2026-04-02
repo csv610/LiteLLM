@@ -8,7 +8,7 @@ import unittest
 import os
 import shutil
 from pathlib import Path
-from deep_deliberation import DeepDeliberation
+from DeepDeliberation.noagentic.deep_deliberation import DeepDeliberation
 from lite import ModelConfig
 
 class LiveTestDeepDeliberation(unittest.TestCase):

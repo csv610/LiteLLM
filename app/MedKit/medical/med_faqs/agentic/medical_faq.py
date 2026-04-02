@@ -16,6 +16,7 @@ from lite.utils import save_model_response
 from .medical_agents import (
     ClinicalAgent,
     ComplianceAgent,
+    OutputAgent,
     PatientAgent,
     ResearchAgent,
     SafetyAgent,
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class MedicalFAQGenerator:
-    """Generates comprehensive FAQ content using multiple specialized agents."""
+    """Generates comprehensive FAQ content using a 3-tier multi-agent approach."""
 
     def __init__(self, model_config: ModelConfig):
         """Initialize the FAQ generator with specialized agents."""
@@ -36,56 +37,72 @@ class MedicalFAQGenerator:
         self.safety_agent = SafetyAgent(model_config)
         self.research_agent = ResearchAgent(model_config)
         self.compliance_agent = ComplianceAgent(model_config)
+        self.output_agent = OutputAgent(model_config)
         self.topic = None  # Store the topic for later use in save
-        logger.debug("Initialized Multi-Agent MedicalFAQGenerator with Compliance")
+        logger.debug("Initialized 3-tier MedicalFAQGenerator")
 
     def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
-        """Generate comprehensive FAQ content using a multi-agent system.
+        """Generate comprehensive FAQ content using a 3-tier agent system.
 
         Args:
             topic: Medical topic for FAQ generation
             structured: Whether to use structured output (Pydantic models)
 
         Returns:
-            ModelOutput: Aggregated and validated result from all agents
+            ModelOutput: Aggregated and synthesized result
         """
         if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
 
         self.topic = topic
-        logger.info(f"Starting multi-agent FAQ generation for: {topic}")
+        logger.info(f"Starting 3-tier FAQ generation for: {topic}")
 
         try:
-            # 1. Run generation agents
-            logger.debug("Running generation agents...")
+            # 1. Run Specialist agents
+            logger.debug("Running Specialist agents...")
             patient_res = self.patient_agent.run(topic, structured)
             clinical_res = self.clinical_agent.run(topic, structured)
             safety_res = self.safety_agent.run(topic, structured)
             research_res = self.research_agent.run(topic, structured)
 
-            # 2. Preliminary Aggregation
+            # Preliminary Aggregation
             if structured:
                 aggregated = self._aggregate_structured(
                     patient_res, clinical_res, safety_res, research_res
                 )
-                content_for_review = aggregated.data.model_dump_json()
+                spec_content = aggregated.data.model_dump_json(indent=2)
             else:
                 aggregated = self._aggregate_unstructured(
                     patient_res, clinical_res, safety_res, research_res
                 )
-                content_for_review = aggregated.markdown
+                spec_content = aggregated.markdown
 
-            # 3. Final Compliance Validation Step
-            logger.debug("Running ComplianceAgent validation...")
+            # 2. Compliance Audit Stage (JSON/Audit)
+            logger.debug("Running ComplianceAgent audit...")
             compliance_res = self.compliance_agent.run(
-                topic, content_for_review, structured
+                topic, spec_content, structured
+            )
+            # Handle compliance_res being ModelOutput or direct data
+            comp_content = (
+                compliance_res.data.model_dump_json(indent=2)
+                if hasattr(compliance_res, 'data') and compliance_res.data 
+                else str(compliance_res)
             )
 
-            # 4. Final Finalization (Apply compliance feedback)
-            return self._finalize_with_compliance(aggregated, compliance_res, structured)
+            # 3. Final Synthesis Stage (Markdown/Refinement)
+            logger.debug("Running OutputAgent final synthesis...")
+            final_markdown = self.output_agent.run(
+                topic, spec_content, comp_content
+            )
+
+            return ModelOutput(
+                data=aggregated.data if structured else None,
+                markdown=final_markdown,
+                metadata={"audit": comp_content}
+            )
 
         except Exception as e:
-            logger.error(f"✗ Multi-agent generation failed: {e}")
+            logger.error(f"✗ 3-tier generation failed: {e}")
             raise
 
     def _aggregate_structured(
@@ -140,22 +157,6 @@ class MedicalFAQGenerator:
         ]
 
         return ModelOutput(markdown="\n\n".join(combined_md))
-
-    def _finalize_with_compliance(
-        self,
-        aggregated: ModelOutput,
-        compliance_res: ModelOutput,
-        structured: bool
-    ) -> ModelOutput:
-        """Apply compliance feedback to the final output."""
-        if structured:
-            aggregated.data.compliance_review = compliance_res.data
-            return aggregated
-        else:
-            # Append compliance review to markdown
-            final_md = aggregated.markdown + "\n\n---\n## Compliance & Safety Review\n"
-            final_md += compliance_res.markdown
-            return ModelOutput(markdown=final_md)
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:
         """Saves the medical FAQ information to a file."""

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from app.DeepDeliberation.deep_deliberation_cli import arguments_parser, main, run_discovery_mission
-from app.DeepDeliberation.deep_deliberation_models import KnowledgeSynthesis
+from DeepDeliberation.noagentic.deep_deliberation_cli import arguments_parser, main, run_discovery_mission
+from DeepDeliberation.noagentic.deep_deliberation_models import KnowledgeSynthesis
 
 class TestCLI(unittest.TestCase):
     def test_argument_parser(self):
@@ -12,7 +12,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(args.num_faqs, 10)
         self.assertEqual(args.model, "my-model")
 
-    @patch('app.DeepDeliberation.deep_deliberation_cli.DeepDeliberation')
+    @patch('DeepDeliberation.noagentic.deep_deliberation_cli.DeepDeliberation')
     def test_run_discovery_mission(self, mock_dd):
         mock_instance = mock_dd.return_value
         mock_instance.run.return_value = MagicMock(spec=KnowledgeSynthesis)
@@ -22,7 +22,7 @@ class TestCLI(unittest.TestCase):
         mock_dd.assert_called_once()
         mock_instance.run.assert_called_with("topic", 3, 5, output_path="output")
 
-    @patch('app.DeepDeliberation.deep_deliberation_cli.run_discovery_mission')
+    @patch('DeepDeliberation.noagentic.deep_deliberation_cli.run_discovery_mission')
     @patch('sys.stdout')
     def test_main_success(self, mock_stdout, mock_run):
         mock_run.return_value = KnowledgeSynthesis(
@@ -37,7 +37,7 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             mock_run.assert_called_once()
 
-    @patch('app.DeepDeliberation.deep_deliberation_cli.run_discovery_mission')
+    @patch('DeepDeliberation.noagentic.deep_deliberation_cli.run_discovery_mission')
     @patch('sys.stderr')
     def test_main_failure(self, mock_stderr, mock_run):
         mock_run.side_effect = Exception("error")

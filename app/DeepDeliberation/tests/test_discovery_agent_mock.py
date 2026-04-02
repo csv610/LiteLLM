@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
-from app.DeepDeliberation.deep_deliberation_agents import DiscoveryAgent
-from app.DeepDeliberation.deep_deliberation_models import (
+from DeepDeliberation.noagentic.deep_deliberation_agents import DiscoveryAgent
+from DeepDeliberation.noagentic.deep_deliberation_models import (
     DiscoveryFAQ, DiscoveryInsight, DiscoveryCheck, VerificationResult, SummaryResponse
 )
 

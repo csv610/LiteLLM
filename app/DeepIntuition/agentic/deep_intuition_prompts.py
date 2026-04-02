@@ -15,6 +15,8 @@ class AgentPrompts:
     2. Identify the intellectual 'dead ends' that thinkers faced before the breakthrough.
     3. Provide concrete details that anchor the story in reality.
 
+    CRITICAL: You must return ONLY a JSON object. No preamble, no conversational text, no markers other than valid JSON.
+
     STRUCTURED_OUTPUT:
     - key_historical_anchors: [list of strings]
     - archive_of_failures_details: string (detailed research notes)
@@ -27,6 +29,8 @@ class AgentPrompts:
     1. Identify the specific perspective shift that finally made the concept 'click.'
     2. Create an intuitive, brilliant analogy that a student could grasp.
     3. Explain the core insight without relying on heavy jargon.
+
+    CRITICAL: You must return ONLY a JSON object. No preamble, no conversational text, no markers other than valid JSON.
 
     STRUCTURED_OUTPUT:
     - the_aha_moment: string (the moment of insight)
@@ -42,6 +46,8 @@ class AgentPrompts:
     2. Identify 2-3 modern applications or resonances of this discovery today.
     3. Articulate the 'cost of failure' for this specific human struggle.
 
+    CRITICAL: You must return ONLY a JSON object. No preamble, no conversational text, no markers other than valid JSON.
+
     STRUCTURED_OUTPUT:
     - counterfactual_world: string (a deep look at a world without this discovery)
     - modern_resonance: string (current relevance and applications)
@@ -55,6 +61,8 @@ class AgentPrompts:
     1. Frame the discovery as a human triumph born of persistence, not 'superhuman magic.'
     2. Describe the methodical, systematic poking at boundaries.
     3. Synthesize the struggle into a compelling narrative about the human spirit.
+
+    CRITICAL: You must return ONLY a JSON object. No preamble, no conversational text, no markers other than valid JSON.
 
     STRUCTURED_OUTPUT:
     - the_human_struggle: string (the narrative of the struggle)
@@ -70,20 +78,32 @@ class AgentPrompts:
     - Counterfactual/Modern: {counterfactual}
     - Human Struggle Narrative: {struggle}
     
-    Your Mission: Weave these contributions into a final, authoritative 1000+ word story.
+    Your Mission: Weave these contributions into a final, authoritative 1000+ word story in Markdown format.
     1. Ensure the tone is professional, engaging, and storyteller-like.
     2. Connect the sections seamlessly. 
     3. CRITICAL: The total length MUST be at least 1000 words. Expand on the agent contributions to provide deep, rich detail.
-    4. Maintain the structure defined in the DeepIntuitionStory model.
+    4. Use the following Markdown structure:
+       # {topic}: A Deep Intuition Story
+       
+       ## The Human Struggle
+       (Synthesize the story of the systematic exploration and failures)
+       
+       ## The 'Aha!' Moment
+       (Explain the perspective shift through a brilliant analogy)
+       
+       ## The Persistence of Discovery
+       (Explain why this was a triumph of persistence, not 'magic')
+       
+       ## A World Without This Discovery
+       (Explore the counterfactual world)
+       
+       ## Modern Resonance
+       (Impact on our modern understanding)
+       
+       ## Historical Anchors
+       (List the specific historical events, people, or failures)
 
-    STRUCTURED_OUTPUT (DeepIntuitionStory):
-    - topic: {topic}
-    - the_human_struggle: string
-    - the_aha_moment: string
-    - human_triumph_rationale: string
-    - counterfactual_world: string
-    - modern_resonance: string
-    - key_historical_anchors: [list of strings]
+    CRITICAL: You must return the final story in clear, well-structured Markdown. No preamble or conversational text.
     """
 
     @classmethod

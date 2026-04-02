@@ -74,42 +74,69 @@ class SurgicalPoseInfoGenerator:
         logger.debug("Initialized SurgicalPoseInfoGenerator (Multi-Agentic)")
 
     def generate_text(self, pose: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive surgical position information by orchestrating multiple agents."""
+        """Generates surgical position information using a 3-tier agent system."""
         if not pose or not str(pose).strip():
             raise ValueError("Position name cannot be empty")
 
         self.pose = pose
-        logger.info(f"Starting multi-agent generation for: {pose}")
+        logger.info(f"Starting 3-tier generation for: {pose}")
 
-        # Run agents in parallel
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            future_basics = executor.submit(self.basics_agent.run, pose)
-            future_setup = executor.submit(self.setup_agent.run, pose)
-            future_safety = executor.submit(self.safety_agent.run, pose)
-            future_contra = executor.submit(self.contra_agent.run, pose)
+        try:
+            # 1. Specialist Stage (JSON - Run in parallel)
+            logger.debug("Tier 1: Specialists generating raw positioning data...")
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                future_basics = executor.submit(self.basics_agent.run, pose)
+                future_setup = executor.submit(self.setup_agent.run, pose)
+                future_safety = executor.submit(self.safety_agent.run, pose)
+                future_contra = executor.submit(self.contra_agent.run, pose)
 
-            basics_res = future_basics.result()
-            setup_res = future_setup.result()
-            safety_res = future_safety.result()
-            contra_res = future_contra.result()
+                basics_res = future_basics.result()
+                setup_res = future_setup.result()
+                safety_res = future_safety.result()
+                contra_res = future_contra.result()
 
-        # Aggregate results
-        structured_data = SurgicalPoseInfoModel(
-            pose_basics=basics_res.pose_basics,
-            indications=basics_res.indications,
-            patient_setup=setup_res.patient_setup,
-            post_operative_care=setup_res.post_operative_care,
-            safety_considerations=safety_res.safety_considerations,
-            physiological_effects=safety_res.physiological_effects,
-            contraindications_and_modifications=contra_res.contraindications_and_modifications
-        )
+            spec_data = SurgicalPoseInfoModel(
+                pose_basics=basics_res.pose_basics,
+                indications=basics_res.indications,
+                patient_setup=setup_res.patient_setup,
+                post_operative_care=setup_res.post_operative_care,
+                safety_considerations=safety_res.safety_considerations,
+                physiological_effects=safety_res.physiological_effects,
+                contraindications_and_modifications=contra_res.contraindications_and_modifications
+            )
+            spec_json = spec_data.model_dump_json(indent=2)
 
-        logger.debug("✓ Successfully aggregated multi-agent results")
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug("Tier 2: Auditor performing safety check...")
+            audit_sys, audit_usr = self.basics_agent.prompts.create_compliance_auditor_prompts(pose, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit result
+            )
+            audit_res = self.basics_agent.client.generate_text(model_input=audit_input)
+            audit_json = audit_res.markdown
 
-        # Convert to markdown for ModelOutput
-        markdown = self._to_markdown(structured_data)
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug("Tier 3: Output Agent synthesizing final surgical report...")
+            out_sys, out_usr = self.basics_agent.prompts.create_output_synthesis_prompts(pose, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.basics_agent.client.generate_text(model_input=out_input)
 
-        return ModelOutput(data=structured_data, markdown=markdown)
+            logger.info("✓ Successfully generated 3-tier surgical position information")
+            return ModelOutput(
+                data=spec_data, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
+        except Exception as e:
+            logger.error(f"✗ 3-tier Surgical generation failed: {e}")
+            raise
 
     def _to_markdown(self, data: SurgicalPoseInfoModel) -> str:
         """Converts structured data to a markdown report."""

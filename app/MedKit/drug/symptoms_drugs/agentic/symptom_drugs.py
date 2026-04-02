@@ -30,75 +30,71 @@ class SymptomDrugs:
     def generate_text(
         self, config: SymptomInput, structured: bool = False
     ) -> ModelOutput:
-        """
-        Analyzes symptoms and lists potential medications for treatment using 3 agents.
-
-        Args:
-            config: Configuration and input for analysis
-            structured: Whether to use structured output
-
-        Returns:
-            ModelOutput: The analysis result
-        """
-        # Store the configuration for later use in save
+        """Analyzes symptoms using a 3-tier agent system."""
         self.config = config
-        logger.info(f"Starting 3-agent analysis for: {config.symptom_name}")
+        logger.info(f"Starting 3-tier analysis for: {config.symptom_name}")
 
-        # 1. Researcher Agent
-        logger.info("-> Researcher: Identifying medications...")
-        researcher_input = ModelInput(
-            system_prompt=PromptBuilder.create_researcher_system_prompt(),
-            user_prompt=PromptBuilder.create_researcher_user_prompt(config),
-        )
-        researcher_result = self._ask_llm(researcher_input)
-        researcher_output = researcher_result.markdown
+        try:
+            # --- Tier 1: Specialists (JSON Sequential) ---
+            logger.debug("Tier 1: Specialists running...")
+            # 1. Researcher
+            res_out = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_researcher_system_prompt(),
+                user_prompt=PromptBuilder.create_researcher_user_prompt(config)
+            )).markdown
 
-        # 2. Safety Agent
-        logger.info("-> Safety Specialist: Analyzing risks and red flags...")
-        safety_input = ModelInput(
-            system_prompt=PromptBuilder.create_safety_system_prompt(),
-            user_prompt=PromptBuilder.create_safety_user_prompt(config),
-        )
-        safety_result = self._ask_llm(safety_input)
-        safety_output = safety_result.markdown
+            # 2. Safety
+            saf_out = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_safety_system_prompt(),
+                user_prompt=PromptBuilder.create_safety_user_prompt(config)
+            )).markdown
 
-        # 3. Compliance Agent
-        logger.info("-> Compliance Officer: Reviewing regulatory alignment...")
-        compliance_input = ModelInput(
-            system_prompt=PromptBuilder.create_compliance_system_prompt(),
-            user_prompt=PromptBuilder.create_compliance_user_prompt(
-                config, researcher_output, safety_output
-            ),
-        )
-        compliance_result = self._ask_llm(compliance_input)
-        compliance_output = compliance_result.markdown
+            # 3. Compliance
+            com_out = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_compliance_system_prompt(),
+                user_prompt=PromptBuilder.create_compliance_user_prompt(config, res_out, saf_out)
+            )).markdown
 
-        # 4. Patient Education Agent
-        logger.info("-> Patient Educator: Identifying supportive care and red flags...")
-        education_input = ModelInput(
-            system_prompt=PromptBuilder.create_education_system_prompt(),
-            user_prompt=PromptBuilder.create_education_user_prompt(config),
-        )
-        education_result = self._ask_llm(education_input)
-        education_output = education_result.markdown
+            # 4. Educator
+            edu_out = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_education_system_prompt(),
+                user_prompt=PromptBuilder.create_education_user_prompt(config)
+            )).markdown
 
-        # 5. Reviewer Agent
-        logger.info("-> Reviewer: Synthesizing final report...")
-        response_format = None
-        if structured:
-            response_format = SymptomDrugAnalysisModel
+            spec_data_json = f"RESEARCH:\n{res_out}\n\nSAFETY:\n{saf_out}\n\nCOMPLIANCE:\n{com_out}\n\nEDUCATION:\n{edu_out}"
 
-        reviewer_input = ModelInput(
-            system_prompt=PromptBuilder.create_reviewer_system_prompt(),
-            user_prompt=PromptBuilder.create_reviewer_user_prompt(
-                config, researcher_output, safety_output, compliance_output, education_output
-            ),
-            response_format=response_format,
-        )
-        final_result = self._ask_llm(reviewer_input)
+            # --- Tier 2: Compliance Auditor (JSON Audit) ---
+            logger.debug("Tier 2: Auditor performing quality check...")
+            audit_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_reviewer_system_prompt(),
+                user_prompt=PromptBuilder.create_reviewer_user_prompt(config, res_out, saf_out, com_out, edu_out),
+                response_format=SymptomDrugAnalysisModel if structured else None
+            ))
+            
+            if structured:
+                audit_json = audit_res.data.model_dump_json(indent=2)
+            else:
+                audit_json = audit_res.markdown
 
-        logger.info(f"✓ Successfully completed 5-agent analysis for: {config.symptom_name}")
-        return final_result
+            # --- Tier 3: Final Output Synthesis (Markdown Closer) ---
+            logger.debug("Tier 3: Output Agent synthesizing final report...")
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(config, spec_data_json, audit_json)
+            final_res = self._ask_llm(ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None
+            ))
+
+            logger.info(f"✓ Successfully generated 3-tier treatment report for: {config.symptom_name}")
+            return ModelOutput(
+                data=audit_res.data if structured else None, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
+        except Exception as e:
+            logger.error(f"✗ 3-tier Symptom-Drug generation failed: {e}")
+            raise
 
     def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Helper to call LiteClient with error handling and ensure ModelOutput return."""

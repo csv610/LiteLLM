@@ -1,3 +1,4 @@
+from typing import Any
 """
 deep_deliberation_models.py - Models for the Knowledge Discovery Engine
 
@@ -5,7 +6,7 @@ Defines structured data for adversarial analysis and insight synthesis.
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 
 
 class DiscoveryFAQ(BaseModel):
@@ -55,3 +56,10 @@ class KnowledgeSynthesis(BaseModel):
     executive_summary: str = Field(..., description="A high-level synthesis of the discovery mission.")
     hidden_connections: List[str] = Field(..., description="Non-obvious links identified between sub-topics.")
     research_frontiers: List[str] = Field(..., description="The 'Bleeding Edge'—where current knowledge ends and inquiry begins.")
+
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

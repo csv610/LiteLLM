@@ -3,13 +3,15 @@
 import logging
 from typing import Any, Dict, List, Optional, Union
 
-from litellm import completion
+from litellm import APIError, completion
 from pydantic import BaseModel
+from .utils.json_cleaner import JSONCleaner
 
 from .config import ModelConfig, ModelInput
 from .image_utils import ImageUtils
 
 logger = logging.getLogger(__name__)
+
 
 class LiteClient:
     """Unified client for interacting with both text and vision models."""
@@ -61,6 +63,7 @@ class LiteClient:
         self,
         model_input: ModelInput,
         model_config: Optional[ModelConfig] = None,
+        retries: int = 2,
     ) -> Union[str, BaseModel, Dict[str, Any]]:
         """
         Generate text from a prompt or analyze an image with a prompt.
@@ -68,51 +71,81 @@ class LiteClient:
         Args:
             model_input: ModelInput object containing prompt and image parameters
             model_config: Optional ModelConfig object for model configuration.
-                         If not provided, uses the instance's model_config.
+            retries: Number of retries for the model call.
 
         Returns:
             Generated text response (string, parsed Pydantic model, or error dict)
         """
-        # Use provided model_config or instance's model_config
+        # Use provided model_config or instance
         config = model_config or self.model_config
         if not config:
-            raise ValueError("ModelConfig must be provided either as argument or during initialization")
+            raise ValueError("ModelConfig must be provided")
 
-        logger.info(f"Generating completion with model: {config.model}")
+        last_exception = None
+        for attempt in range(retries + 1):
+            try:
+                logger.info(
+                    f"Generating completion (attempt {attempt + 1}) with model: {config.model}"
+                )
+                messages = self.create_message(model_input)
 
-        try:
-            # Create message and call completion
-            messages = self.create_message(model_input)
+                response = completion(
+                    model=config.model,
+                    messages=messages,
+                    temperature=config.temperature,
+                    response_format=model_input.response_format,
+                )
 
-            response = completion(
-                model=config.model,
-                messages=messages,
-                temperature=config.temperature,
-                response_format=model_input.response_format,
-            )
+                response_content = response.choices[0].message.content
 
-            logger.info("Request successful")
-            response_content = response.choices[0].message.content
+                if (
+                    model_input.response_format
+                    and isinstance(model_input.response_format, type)
+                    and issubclass(model_input.response_format, BaseModel)
+                ):
+                    try:
+                        cleaned_json = JSONCleaner.extract_json(response_content)
+                        # DEBUG: Log what we're trying to parse
+                        print(
+                            f"DEBUG: Attempting to parse JSON: '{cleaned_json[:200]}...'"
+                        )
+                        parsed_response = (
+                            model_input.response_format.model_validate_json(
+                                cleaned_json
+                            )
+                        )
+                        logger.info(
+                            f"Successfully parsed response as {model_input.response_format.__name__}"
+                        )
+                        return parsed_response
+                    except Exception as e:
+                        logger.warning(
+                            "Failed to parse response as %s; returning raw content",
+                            model_input.response_format.__name__,
+                        )
+                        # DEBUG: Log the error and raw content
+                        print(f"DEBUG: JSON parsing failed: {e}")
+                        print(
+                            f"DEBUG: Raw response content: '{response_content[:500]}...'"
+                        )
+                        return response_content
 
-            # If response_format is a Pydantic model, parse and validate the response
-            if model_input.response_format and isinstance(model_input.response_format, type) and issubclass(model_input.response_format, BaseModel):
-                parsed_response = model_input.response_format.model_validate_json(response_content)
-                logger.info(f"Successfully parsed response as {model_input.response_format.__name__}")
-                return parsed_response
-
-            return response_content
-        except FileNotFoundError as e:
-            logger.error(f"File not found: {e}")
-            if model_input.image_path or model_input.image_paths:
-                return {"error": f"File error: {str(e)}"}
-            return f"File error: {str(e)}"
-        except Exception as e:
-            logger.error(f"Error in generate_text: {e}")
-            # If it's an image request, the tests expect a dict for some reason
-            if model_input.image_path or model_input.image_paths:
-                error_msg = f"API Error: {str(e)}" if "APIError" in str(type(e)) else str(e)
-                return {"error": error_msg}
-            
-            error_prefix = "API Error: " if "APIError" in str(type(e)) else ""
-            return f"{error_prefix}{str(e)}"
-
+                return response_content
+            except Exception as e:
+                logger.error(f"Attempt {attempt + 1} failed: {e}")
+                last_exception = e
+                continue
+        has_image = bool(model_input.image_path or model_input.image_paths)
+        if isinstance(last_exception, FileNotFoundError):
+            message = f"File error: {last_exception}"
+            return {"error": message} if has_image else message
+        if isinstance(last_exception, ValueError):
+            message = str(last_exception)
+            return {"error": message} if has_image else message
+        if isinstance(last_exception, APIError):
+            message = f"API Error: {last_exception}"
+            return {"error": message} if has_image else message
+        if last_exception is not None:
+            message = str(last_exception)
+            return {"error": message} if has_image else message
+        return {"error": "Unknown error"} if has_image else "Unknown error"

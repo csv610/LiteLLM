@@ -1,33 +1,26 @@
-"""nobel_prize_explorer.py - NobelPrizeWinnerInfo class
-
-Contains the NobelPrizeWinnerInfo class for fetching and managing
-Nobel Prize winner information with proper encapsulation.
-"""
+"""nobel_prize_explorer.py - NobelPrizeWinnerInfo class with 3-tier artifact output"""
 
 import re
-
-# Add project root to sys.path to use local 'lite' package
+import logging
 import sys
 from pathlib import Path
+from typing import Optional, List, Any, Dict
+
+# Add project root to sys.path to use local 'lite' package
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .nobel_prize_models import PrizeWinner, PrizeResponse
+from .nobel_prize_models import PrizeWinner, PrizeResponse, ModelOutput
 from .nobel_prize_prompts import PromptBuilder
 
 
 class NobelPrizeWinnerInfo:
-    """Explorer class for fetching and managing Nobel Prize winner information."""
+    """Explorer class for fetching and managing Nobel Prize winner information using a 3-tier approach."""
     
     def __init__(self, model_config: ModelConfig):
-        """
-        Initialize Nobel Prize explorer.
-
-        Args:
-            model_config: ModelConfig with model settings
-        """
+        """Initialize Nobel Prize explorer."""
         self.model_config = model_config
         self.client = LiteClient(model_config=model_config)
         self.logger = logging_config.configure_logging(str(Path(__file__).parent / "logs" / "nobel_prize_explorer.log"))
@@ -39,7 +32,7 @@ class NobelPrizeWinnerInfo:
         prompt: str,
         model_config: ModelConfig,
     ) -> PrizeResponse:
-        """Run a single structured agent pass and validate its response."""
+        """Run a single structured agent pass (Tier 1/2 Specialist/Auditor)."""
         self.logger.info(f"Running {agent_name} with model: {model_config.model}")
 
         model_input = ModelInput(
@@ -47,64 +40,56 @@ class NobelPrizeWinnerInfo:
             user_prompt=prompt,
             response_format=PrizeResponse
         )
-        agent_response = self.client.generate_text(
+        res = self.client.generate_text(
             model_input=model_input,
             model_config=model_config,
         )
-        if not isinstance(agent_response, PrizeResponse):
-            raise RuntimeError(f"{agent_name} returned invalid response: {agent_response}")
-        return agent_response
+        return res.data
     
-    def _validate_model_name(self, model: str) -> None:
-        """
-        Validate model name format.
-        
-        Args:
-            model: Model name to validate
-            
-        Raises:
-            ValueError: If model name is invalid
-        """
+    def fetch_winners(self, category: str, year: str, model: str) -> ModelOutput:
+        """Fetch Nobel Prize winners using a 3-tier multi-agent approach."""
         if not re.match(r'^[a-zA-Z0-9\-\./_]+$', model):
-            raise ValueError(f"Invalid model name: {model}. Only alphanumeric characters, hyphens, slashes, dots, and underscores are allowed.")
-    
-    def fetch_winners(self, category: str, year: str, model: str) -> list[PrizeWinner]:
-        """
-        Fetch Nobel Prize winners for a specific field and year.
+            raise ValueError(f"Invalid model name: {model}")
 
-        Args:
-            category: Nobel Prize category (Physics, Chemistry, Medicine, Literature, Peace, Economics)
-            year: Year of the prize
-            model: LLM model to use for both agents
+        self.logger.info(f"Fetching 3-tier Nobel Prize info for {category} ({year})")
 
-        Returns:
-            List of PrizeWinner instances
-
-        Raises:
-            ValueError: If API response is invalid or model response doesn't match schema
-            RuntimeError: If API call fails or required credentials are missing
-        """
-        self._validate_model_name(model)
-
-        self.logger.info(
-            f"Fetching Nobel Prize information for {category} in {year} using two-agent workflow with model: {model}"
-        )
-
+        # Tier 1: Generation Specialist (JSON)
         generation_config = ModelConfig(model=model, temperature=self.model_config.temperature)
-        validation_config = ModelConfig(model=model, temperature=0.0)
-
         generated_response = self._run_agent(
             agent_name="generation_agent",
             prompt=PromptBuilder.create_nobel_prize_prompt(category, year),
             model_config=generation_config,
         )
-        self.logger.info(f"Generation agent produced {len(generated_response.winners)} winner(s)")
 
+        # Tier 2: Validation Auditor (JSON)
+        validation_config = ModelConfig(model=model, temperature=0.0)
         validated_response = self._run_agent(
             agent_name="validation_agent",
             prompt=PromptBuilder.create_validation_prompt(category, year, generated_response),
             model_config=validation_config,
         )
-        self.logger.info(f"Validation agent approved {len(validated_response.winners)} winner(s)")
 
-        return validated_response.winners
+        # Tier 3: Output Synthesis (Markdown Closer)
+        logger.debug("Synthesizing final Markdown report...")
+        winners_json = validated_response.model_dump_json(indent=2)
+        synth_prompt = (
+            f"Synthesize a beautiful, celebratory Markdown report for the Nobel Prize in {category} for the year {year}.\n\n"
+            f"WINNERS DATA:\n{winners_json}"
+        )
+        
+        final_markdown_res = self.client.generate_text(ModelInput(
+            system_prompt="You are a Lead Science Historian and Editor. Synthesize prize winner data into a professional Markdown report with biography and impact sections.",
+            user_prompt=synth_prompt,
+            response_format=None
+        ))
+        final_markdown = final_markdown_res.markdown
+
+        return ModelOutput(
+            data=validated_response,
+            markdown=final_markdown,
+            metadata={
+                "category": category,
+                "year": year,
+                "winner_count": len(validated_response.winners)
+            }
+        )

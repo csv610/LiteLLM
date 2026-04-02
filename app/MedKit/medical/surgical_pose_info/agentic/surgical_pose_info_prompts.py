@@ -62,6 +62,38 @@ Ensure clinical accuracy."""
     @staticmethod
     def create_contraindications_agent_prompt(position: str) -> str:
         """Prompt for Contraindications and Modifications Agent."""
-        return f"""Focusing on the surgical position '{position}', provide:
-1. Absolute and relative contraindications.
-2. Specific modifications for obese, pediatric, and elderly populations."""
+        return f"Focusing on the surgical position '{position}', provide contraindications and population-specific modifications."
+
+    @staticmethod
+    def create_compliance_auditor_prompts(position: str, content: str) -> tuple[str, str]:
+        """Create prompts for the JSON Compliance Auditor."""
+        system = (
+            "You are a Senior Surgical Safety Auditor. Your role is to audit surgical "
+            "positioning documentation for safety, correctness, and patient risk. "
+            "Output a structured JSON report identifying any dangerous positioning, "
+            "missed pressure points, or incorrect physiological effects."
+        )
+        user = (
+            f"Audit the following surgical positioning data for '{position}' and output "
+            f"a structured JSON report:\n\n{content}"
+        )
+        return system, user
+
+    @staticmethod
+    def create_output_synthesis_prompts(position: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Perioperative Editor. Your role is to take raw "
+            "surgical positioning data and a structured safety audit, then synthesize "
+            "them into a FINAL, polished, and safe Markdown report for OR staff. "
+            "You MUST apply all safety fixes identified in the audit and ensure "
+            "all critical padding and pressure points are clearly highlighted."
+        )
+        user = (
+            f"Synthesize the final surgical positioning report for: '{position}'\n\n"
+            f"POSITIONING DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with surgical safety guidelines."
+        )
+        return system, user

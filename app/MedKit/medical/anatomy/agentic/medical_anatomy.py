@@ -39,15 +39,15 @@ class MedicalAnatomyGenerator:
         logger.debug("Initialized MedicalAnatomyGenerator")
 
     def generate_text(self, body_part: str, structured: bool = False) -> ModelOutput:
-        """Generates dual-stream (technical + layperson) anatomical information."""
+        """Generates 3-tier anatomical information: Specialist -> Auditor -> Output."""
         if not body_part or not str(body_part).strip():
             raise ValueError("Body part name cannot be empty")
 
         self.body_part = body_part
-        logger.info(f"Starting dual-stream anatomical generation for: {body_part}")
+        logger.info(f"Starting 3-tier anatomical generation for: {body_part}")
 
-        # 1. Technical Specialist Pass
-        logger.debug(f"[Technical] Generating content for: {body_part}")
+        # 1. Technical Specialist Pass (JSON Specialist)
+        logger.debug(f"[Specialist] Generating content for: {body_part}")
         system_prompt = PromptBuilder.create_system_prompt()
         user_prompt = PromptBuilder.create_user_prompt(body_part)
 
@@ -59,37 +59,46 @@ class MedicalAnatomyGenerator:
         )
 
         tech_result = self.ask_llm(tech_input)
-        tech_md = tech_result.markdown if tech_result.markdown else ""
+        if structured:
+            tech_content = tech_result.data.model_dump_json(indent=2)
+        else:
+            tech_content = tech_result.markdown
         
-        # 2. Layperson Translator Pass
-        logger.debug(f"[Layperson] Translating content for: {body_part}")
-        lay_system = PromptBuilder.create_layperson_translator_system_prompt()
-        lay_user = PromptBuilder.create_layperson_translator_user_prompt(tech_md)
+        # 2. Compliance Auditor Pass (JSON Auditor)
+        logger.debug(f"[Auditor] Auditing content for: {body_part}")
+        audit_system = PromptBuilder.create_fact_checker_system_prompt()
+        audit_user = PromptBuilder.create_fact_checker_user_prompt(tech_content)
 
-        lay_input = ModelInput(
-            system_prompt=lay_system,
-            user_prompt=lay_user,
-            response_format=None, # Translation is best as open markdown
+        audit_input = ModelInput(
+            system_prompt=audit_system,
+            user_prompt=audit_user,
+            response_format=None, # For simplicity, can be JSON if a model exists
         )
 
-        lay_result = self.ask_llm(lay_input)
-        lay_md = lay_result.markdown if lay_result.markdown else ""
-
-        # 3. Combine Output
-        combined_markdown = (
-            f"# MEDICAL ANATOMY REPORT: {body_part.upper()}\n\n"
-            f"## SECTION 1: FOR MEDICAL PROFESSIONALS (TECHNICAL)\n\n"
-            f"{tech_md}\n\n"
-            f"---\n\n"
-            f"## SECTION 2: FOR PATIENTS & GENERAL AUDIENCE (PLAIN ENGLISH)\n\n"
-            f"{lay_md}"
+        audit_result = self.ask_llm(audit_input)
+        audit_content = audit_result.markdown # Usually JSON string in markdown
+        
+        # 3. Final Output Synthesis (Markdown Closer)
+        logger.debug(f"[Output] Synthesizing final report for: {body_part}")
+        out_sys, out_user = PromptBuilder.create_output_synthesis_prompts(
+            body_part, tech_content, audit_content
         )
 
-        logger.info("✓ Successfully generated dual-stream anatomical information")
+        output_input = ModelInput(
+            system_prompt=out_sys,
+            user_prompt=out_user,
+            response_format=None,
+        )
+
+        output_result = self.ask_llm(output_input)
+        final_markdown = output_result.markdown
+
+        logger.info("✓ Successfully generated 3-tier anatomical information")
         
         return ModelOutput(
-            data={"technical": tech_result.data, "layperson": lay_result.data},
-            markdown=combined_markdown
+            data=tech_result.data if structured else None,
+            markdown=final_markdown,
+            metadata={"audit": audit_content}
         )
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:

@@ -61,15 +61,29 @@ Ensure clinical consistency, logical flow, and that all IDs match correctly betw
 
     @staticmethod
     def get_compliance_system_prompt() -> str:
-        return """You are a Clinical Safety & Compliance Officer.
-Your task is to audit a completed medical decision guide for safety, adherence to standards, and potential liability.
-Check for:
-- Silent clinical dangers (e.g., missed high-risk groups)
-- Logical inconsistencies (e.g., a "red flag" not leading to an ER referral)
-- Appropriate terminology (e.g., "Consider" vs "Diagnose")
-- Adherence to clinical best practices.
-You must provide a clear pass/fail on safety and specific required corrections."""
+        return """You are a Clinical Safety & Compliance Auditor. 
+Your task is to audit a completed medical decision guide for safety, adherence 
+to standards, and clinical logic. Output your findings as a structured JSON report."""
 
     @staticmethod
     def get_compliance_user_prompt(guide_data: str) -> str:
-        return f"Audit the following medical decision guide for clinical safety and compliance: {guide_data}"
+        return f"Audit the following medical decision guide for clinical safety and compliance and output a structured JSON report: {guide_data}"
+
+    @staticmethod
+    def get_output_synthesis_prompts(symptom: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Content Director. Your role is to take a "
+            "structured medical decision tree and its safety audit, then synthesize "
+            "them into a FINAL, polished, and safe Markdown decision guide. "
+            "You MUST apply all safety fixes identified in the audit and ensure the "
+            "guide is easy for clinicians or patients to follow."
+        )
+        user = (
+            f"Synthesize the final medical decision guide for: '{symptom}'\n\n"
+            f"DECISION GUIDE DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown decision guide. Ensure it is accurate, "
+            "logically sound, and 100% compliant with safety standards."
+        )
+        return system, user

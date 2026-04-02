@@ -37,17 +37,32 @@ Resolve any contradictions between the reports and provide a clear, evidence-bas
 
     @staticmethod
     def create_compliance_officer_prompt(analysis_output: str) -> str:
-        return f"""You are a Medical Compliance & Safety Officer. Your role is to review a fact-checking report for safety, ethical standards, and regulatory compliance.
+        """Create prompts for the JSON Compliance Auditor."""
+        return f"""You are a Medical Compliance & Safety Auditor. 
+Your role is to audit the fact-checking analysis for safety, ethical standards, 
+and regulatory compliance. Output your findings as a structured JSON report.
 
-FACT-CHECKING REPORT:
-{analysis_output}
+ANALYSIS CONTENT:
+{analysis_output}"""
 
-Your responsibilities:
-- Identify any language that could be misinterpreted as professional medical advice.
-- Flag any dangerous health recommendations.
-- Ensure all necessary medical disclaimers are present.
-- Provide a final compliance status: Approved, Needs Revision, or Rejected.
-- Add mandatory disclaimers and safety warnings where needed."""
+    @staticmethod
+    def create_output_synthesis_prompts(statement: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Fact-Checker. Your role is to take raw "
+            "specialist research data and a structured safety audit, then "
+            "synthesize them into a FINAL, authoritative, and safe Markdown report. "
+            "You MUST apply all fixes identified in the audit and ensure the "
+            "verdict is indisputable based on clinical evidence."
+        )
+        user = (
+            f"Synthesize the final fact-checking report for: '{statement}'\n\n"
+            f"RESEARCH DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with safety standards."
+        )
+        return system, user
 
     @staticmethod
     def create_user_prompt(statement: str) -> str:

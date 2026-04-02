@@ -28,47 +28,44 @@ class PrescriptionAgentApp:
         # Agent 1: The Vision Extractor
         self.extractor = PrescriptionExtractor(config=self.config)
         
-        logger.info(f"Initialized 2-Agent App with: {model}")
+        from .prescription_analyzer import analyze_prescription, synthesize_final_report, PrescriptionAnalysis
+        ...
+            def run(self, image_path: str) -> Optional[str]:
+                """Executes the 3-tier multi-agent workflow."""
+                print(f"\n🚀 Starting 3-tier Prescription Analysis Workflow\n")
 
-    def run(self, image_path: str) -> Optional[PrescriptionAnalysis]:
-        """Executes the 2-agent sequential workflow."""
-        print(f"\n🚀 Starting Prescription Analysis Workflow\n")
-        
-        try:
-            # AGENT 1: Vision Extraction
-            print(f"[AGENT 1] Reading image and extracting data...")
-            extracted_data = self.extractor.extract(image_path)
-            
-            print("✓ Extraction complete. Found:")
-            print(f"  - Patient: {extracted_data.patient_name}")
-            print(f"  - Medications: {len(extracted_data.medications)} items identified.")
+                try:
+                    # TIER 1: Vision Extraction (JSON Specialist)
+                    print(f"[TIER 1] Specialist: Extracting data from image...")
+                    extracted_data = self.extractor.extract(image_path)
+                    print(f"✓ Extraction complete for: {extracted_data.patient_name}")
 
-            # AGENT 2: Clinical Reasoning
-            print(f"\n[AGENT 2] Performing clinical safety analysis...")
-            analysis = analyze_prescription(extracted_data, config=self.config)
-            
-            # Print Final Report
-            self._print_report(analysis)
-            
-            return analysis
-            
-        except Exception as e:
-            logger.error(f"Workflow failed: {e}")
-            return None
+                    # TIER 2: Clinical Safety Audit (JSON Auditor)
+                    print(f"[TIER 2] Auditor: Performing clinical safety audit...")
+                    audit_data = analyze_prescription(extracted_data, config=self.config)
+                    print("✓ Safety audit completed")
 
-    def _print_report(self, analysis: PrescriptionAnalysis):
-        """Helper to format and print the final safety report."""
-        print("\n" + "="*50)
-        print("CLINICAL SAFETY REPORT")
-        print("="*50)
-        print(f"Patient: {analysis.extracted_data.patient_name}")
-        print("-" * 50)
-        print(f"1. Drug-Drug Interactions:\n   {analysis.drug_interactions}")
-        print("-" * 50)
-        print(f"2. Dosage Compliance:\n   {analysis.dosage_compliance}")
-        print("-" * 50)
-        print(f"3. Overall Assessment:\n   {analysis.overall_assessment}")
-        print("="*50 + "\n")
+                    # TIER 3: Final Output Synthesis (Markdown Closer)
+                    print(f"[TIER 3] Output: Synthesizing final report...")
+                    final_markdown = synthesize_final_report(extracted_data, audit_data, config=self.config)
+
+                    # Print Final Report
+                    print("\n" + "="*50)
+                    print("FINAL CLINICAL SAFETY REPORT (MARKDOWN)")
+                    print("="*50)
+                    print(final_markdown)
+                    print("="*50 + "\n")
+
+                    return ModelOutput(
+                data=extracted_data, 
+                markdown=final_markdown,
+                metadata={"audit": audit_data.model_dump() if hasattr(audit_data, 'model_dump') else audit_data}
+            )
+
+                except Exception as e:
+                    logger.error(f"3-tier Workflow failed: {e}")
+                    return None
+
 
 if __name__ == "__main__":
     import argparse

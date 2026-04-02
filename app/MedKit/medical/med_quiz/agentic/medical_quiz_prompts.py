@@ -52,17 +52,7 @@ class PromptBuilder:
     def create_quiz_user_prompt(
         topic: str, difficulty: str, num_questions: int, num_options: int = 4
     ) -> str:
-        """Create the user prompt for quiz generation.
-
-        Args:
-            topic: The medical topic to generate a quiz for
-            difficulty: The difficulty level of the quiz
-            num_questions: The number of questions to generate
-            num_options: The number of options per question
-
-        Returns:
-            str: Formatted user prompt
-        """
+        """Create the user prompt for quiz generation."""
         # Generate the list of option identifiers dynamically (e.g., A, B, C, D)
         option_identifiers = [chr(65 + i) for i in range(num_options)]
         options_str = ", ".join(option_identifiers)
@@ -72,38 +62,39 @@ class PromptBuilder:
             f"Difficulty: {difficulty}\n"
             f"Quantity: {num_questions} questions\n"
             f"Format: Multiple choice with {num_options} options ({options_str}) per question.\n\n"
-            "Task: Create a set of high-quality clinical board questions (USMLE/MCCQE/UKMLA style) for the above topic. "
-            "Each question MUST begin with a unique clinical vignette (patient case). "
-            "Ensure the correct answer is indisputable based on current international medical evidence. "
-            "Explain the clinical reasoning for the correct answer and why other options are incorrect.\n\n"
-            "**CRITICAL REQUIREMENTS FOR UNIQUENESS & DIVERSITY:**\n"
-            f"1. Generate EXACTLY {num_questions} UNIQUE questions - no duplicates or similar scenarios\n"
-            "2. Each question must explore DIFFERENT aspects of {topic}\n"
-            "3. Vary patient demographics (age, gender, ethnicity, background)\n"
-            "4. Include different clinical presentations and disease stages\n"
-            "5. Cover various management approaches (diagnostic, therapeutic, preventive)\n"
-            "6. Incorporate different clinical settings and scenarios\n"
-            "7. Ensure questions test different cognitive skills and reasoning levels\n\n"
-            "Output Format:\n"
-            "- For each question, provide options as a simple dictionary: {'A': 'option text', 'B': 'option text', 'C': 'option text', 'D': 'option text'}\n"
-            "- Specify the correct answer as the key (e.g., 'A', 'B', 'C', or 'D')\n"
-            "- Provide detailed explanations for clinical reasoning\n\n"
-            "**CRITICAL: SEMANTIC DIFFERENTIATION REQUIREMENTS:**\n"
-            "Each option must represent a GENUINELY DIFFERENT clinical concept:\n"
-            "- **Option A**: One distinct diagnostic/therapeutic possibility\n"
-            "- **Option B**: A completely different clinical consideration\n"
-            "- **Option C**: Another separate medical reasoning pathway\n"
-            "- **Option D**: A fourth distinct clinical alternative\n\n"
-            "**AVOID THESE PROBLEMS:**\n"
-            "- Word twisting: 'Heart attack' vs 'Myocardial infarction' (same concept)\n"
-            "- Paraphrasing: 'High blood pressure' vs 'Elevated blood pressure' (identical)\n"
-            "- Similar concepts: 'Type 1 diabetes' vs 'Insulin-dependent diabetes' (same condition)\n"
-            "- Overlapping: 'Chest pain' vs 'Thoracic pain' (same symptom)\n\n"
-            "**GOOD EXAMPLES OF SEMANTIC DIFFERENTIATION:**\n"
-            "For chest pain question:\n"
-            "A) Acute myocardial infarction (cardiac emergency)\n"
-            "B) Pulmonary embolism (respiratory emergency)\n"
-            "C) Esophageal spasm (gastrointestinal condition)\n"
-            "D) Musculoskeletal pain (orthopedic issue)\n\n"
-            f"REVIEW YOUR OUTPUT: Ensure all {num_options} options are SEMANTICALLY DISTINCT and represent different clinical pathways within {topic}."
+            "Task: Create a set of high-quality clinical board questions (USMLE/MCCQE/UKMLA style). "
+            "Output Format: Pydantic model."
         )
+
+    @staticmethod
+    def get_quiz_auditor_prompts(topic: str, quiz_content: str) -> tuple[str, str]:
+        """Create prompts for the Quiz Compliance Auditor (JSON output)."""
+        system = (
+            "You are a Medical Education Quality Assurance Specialist. Your role is to "
+            "audit medical quiz questions for accuracy, board-style formatting, "
+            "and clinical relevance. Output a structured JSON report identifying "
+            "any errors, low-quality distractors, or incorrect explanations."
+        )
+        user = (
+            f"Audit the following medical quiz for the topic '{topic}' and output a "
+            f"structured JSON report:\n\n{quiz_content}"
+        )
+        return system, user
+
+    @staticmethod
+    def get_output_synthesis_prompts(topic: str, quiz_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Quiz Editor. Your role is to take raw quiz data "
+            "and a structured quality audit, then synthesize them into a FINAL, "
+            "polished, and board-ready Markdown quiz for students. You MUST apply all "
+            "fixes identified in the audit and ensure a professional, consistent format."
+        )
+        user = (
+            f"Synthesize the final medical quiz for '{topic}'.\n\n"
+            f"QUIZ DATA:\n{quiz_data}\n\n"
+            f"QUALITY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown quiz. Ensure it is accurate, board-style, "
+            "and provides clear, educational explanations for all questions."
+        )
+        return system, user

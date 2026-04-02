@@ -11,6 +11,51 @@ class PromptBuilder:
     """Builder class for creating prompts for medical specialist recommendation."""
 
     @staticmethod
+    def create_speciality_agent_prompts(speciality: str) -> tuple[str, str]:
+        """Create the prompts for the Speciality Agent."""
+        system = (
+            "You are a medical knowledge assistant. Your task is to provide detailed information "
+            "about the roles and responsibilities of a specific medical specialist."
+        )
+        user = f"Provide detailed information about the roles and responsibilities of: {speciality}"
+        return system, user
+
+    @staticmethod
+    def create_compliance_agent_prompts(speciality: str, content: str) -> tuple[str, str]:
+        """Create prompts for the Compliance Review agent (JSON output)."""
+        system = (
+            "You are a medical legal and compliance specialist. Your role is to review "
+            "the generated specialist role information for regulatory alignment, "
+            "medical accuracy, and the presence of mandatory legal disclaimers. "
+            "Output a structured report identifying compliance status, specific issues, "
+            "and required disclaimers."
+        )
+        user = (
+            f"Audit the following specialist role information for '{speciality}' and "
+            f"output a structured report:\n\n{content}"
+        )
+        return system, user
+
+    @staticmethod
+    def create_output_agent_prompts(speciality: str, specialist_data: str, compliance_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Editor. Your role is to take raw specialist data "
+            "and a structured compliance audit, then synthesize them into a FINAL, "
+            "polished, and safe Markdown report for the end-user. You MUST apply all "
+            "fixes identified in the compliance audit and ensure all mandatory "
+            "disclaimers are inserted."
+        )
+        user = (
+            f"Synthesize the final medical specialist roles report for '{speciality}'.\n\n"
+            f"SPECIALIST DATA:\n{specialist_data}\n\n"
+            f"COMPLIANCE AUDIT:\n{compliance_data}\n\n"
+            "Produce the final Markdown report. Ensure it is human-readable, professional, "
+            "and 100% compliant with safety guidelines."
+        )
+        return system, user
+
+    @staticmethod
     def create_system_prompt() -> str:
         """Create the system prompt for speciality role description.
 

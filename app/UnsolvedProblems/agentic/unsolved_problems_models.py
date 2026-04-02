@@ -4,6 +4,7 @@ unsolved_problems_models.py - Pydantic models for unsolved problems.
 Defines request and response schemas used by the generation and review agents.
 """
 
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -38,3 +39,30 @@ class ReviewedUnsolvedProblemsResponse(BaseModel):
         ...,
         description="Reviewed and normalized list of unsolved problems after quality checks",
     )
+
+
+class ProblemStatus(str, Enum):
+    UNSOLVED = "unsolved"
+    OPEN = "open"
+    PARTIALLY_SOLVED = "partially_solved"
+
+
+class UnsolvedProblemModel(BaseModel):
+    title: str
+    category: str
+    description: str
+    status: ProblemStatus
+    importance: str
+    related_fields: List[str] = Field(default_factory=list)
+
+
+UnsolvedProblemResponse = UnsolvedProblemsResponse
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

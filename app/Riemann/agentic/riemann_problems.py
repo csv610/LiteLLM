@@ -15,13 +15,13 @@ from lite.config import ModelConfig, ModelInput
 from lite import logging_config
 
 try:
-    from .riemann_problems_models import RiemannTheoryModel
+    from .riemann_problems_models import RiemannTheoryModel, ModelOutput
     from .riemann_problems_prompts import PromptBuilder
 except ImportError:
     import sys
 
     sys.path.insert(0, str(Path(__file__).parent))
-    from riemann_problems_models import RiemannTheoryModel
+    from riemann_problems_models import RiemannTheoryModel, ModelOutput
     from riemann_problems_prompts import PromptBuilder
 
 # Setup logging
@@ -57,109 +57,84 @@ class RiemannTheoryGuide:
             logger.error(f"Error loading theories: {str(e)}")
             return []
 
-    def generate_text(self, theory_name: str) -> Optional[RiemannTheoryModel]:
+    def generate_text(self, theory_name: str) -> Optional[ModelOutput]:
         """
-        Fetch information for a specific Riemann theory.
+        Fetch information for a specific Riemann theory using a 3-tier approach.
 
         Args:
             theory_name: Name of the theory or concept
 
         Returns:
-            RiemannTheoryModel instance or None if fetch fails
+            ModelOutput instance or None if fetch fails
         """
         try:
-            logger.info(f"Fetching Riemann theory '{theory_name}' from API")
+            logger.info(f"Fetching 3-tier Riemann theory '{theory_name}' from API")
 
-            # Build prompts using PromptBuilder
-            system_prompt = PromptBuilder.get_system_prompt()
-            user_prompt = PromptBuilder.get_user_prompt(theory_name)
-
+            # Tier 1: Specialist (JSON)
             model_input = ModelInput(
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
+                system_prompt=PromptBuilder.get_system_prompt(),
+                user_prompt=PromptBuilder.get_user_prompt(theory_name),
                 response_format=RiemannTheoryModel
             )
+            theory_res = self.client.generate_text(model_input)
+            theory_data: RiemannTheoryModel = theory_res.data
 
-            theory = self.client.generate_text(model_input)
+            # Tier 3: Output Synthesis (Markdown Closer)
+            # In this simple app, we can use the LLM to generate a nice narrative from the data
+            synth_prompt = f"Synthesize a beautiful Markdown reference report for the theory: {theory_name}\n\nDATA:\n{theory_data.model_dump_json(indent=2)}"
+            synth_input = ModelInput(
+                system_prompt="You are a Lead Mathematical Editor. Synthesize raw theory data into a professional Markdown report.",
+                user_prompt=synth_prompt,
+                response_format=None
+            )
+            final_markdown = self.client.generate_text(synth_input).markdown
 
-            if isinstance(theory, RiemannTheoryModel):
-                logger.info(f"Successfully fetched theory: {theory.name}")
-                return theory
-            else:
-                logger.error(f"No structured output received for theory: {theory_name}")
-                return None
+            logger.info(f"Successfully synthesized theory: {theory_name}")
+            return ModelOutput(
+                data=theory_data,
+                markdown=final_markdown,
+                metadata={"process": "2-stage fetch-and-synthesize"}
+            )
 
         except Exception as e:
             logger.error(f"Error fetching theory '{theory_name}': {str(e)}")
             return None
 
-    def save_to_file(self, theory: RiemannTheoryModel, output_dir: str) -> str:
+    def save_to_file(self, output: ModelOutput, theory_name: str, output_dir: str) -> str:
         """
-        Save a Riemann theory to a JSON file.
-        
-        Args:
-            theory: RiemannTheoryModel instance to save
-            output_dir: Directory path where to save the file
-            
-        Returns:
-            Path to the saved file
+        Save a Riemann theory artifact to Markdown and JSON.
         """
         try:
             output_path = Path(output_dir)
             output_path.mkdir(parents=True, exist_ok=True)
             
-            # Generate filename
-            filename = f"riemann_{theory.name.lower().replace(' ', '_').replace('/', '_').replace(':', '_')}.json"
-            file_path = output_path / filename
+            safe_name = theory_name.lower().replace(' ', '_').replace('/', '_').replace(':', '_')
+            md_path = output_path / f"riemann_{safe_name}.md"
+            json_path = output_path / f"riemann_{safe_name}.json"
             
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(theory.model_dump(), f, indent=2, ensure_ascii=False)
+            if output.markdown:
+                with open(md_path, 'w', encoding='utf-8') as f:
+                    f.write(output.markdown)
             
-            logger.info(f"Saved theory '{theory.name}' to {file_path}")
-            return str(file_path)
+            if output.data:
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    f.write(output.data.model_dump_json(indent=4))
+            
+            logger.info(f"Saved theory artifact '{theory_name}' to {output_dir}")
+            return str(md_path)
             
         except Exception as e:
-            logger.error(f"Error saving theory '{theory.name}': {str(e)}")
+            logger.error(f"Error saving theory '{theory_name}': {str(e)}")
             raise
 
     @staticmethod
-    def display_theory(theory: RiemannTheoryModel):
-        """Display detailed information about a Riemann theory."""
-        if not theory:
+    def display_theory(output: ModelOutput):
+        """Display synthesized information about a Riemann theory."""
+        if not output or not output.markdown:
             print("\n❌ Error: No theory information available.")
             return
 
-        print(f"\n{'='*80}")
-        print(f"RIEMANN THEORY: {theory.name.upper()}")
-        print(f"{'='*80}")
-        
-        print(f"\nLAYPERSON EXPLANATION:\n{theory.layperson_explanation}")
-        
-        print(f"\nDEFINITION:\n{theory.definition}")
-        print(f"\nINTUITION & BIGGER PICTURE:\n{theory.intuition}")
-        print(f"\nRIEMANN'S MOTIVATION:\n{theory.motivation}")
-        
-        print("\nCOMMON MISCONCEPTIONS:")
-        for misc in theory.misconceptions:
-            print(f" • {misc}")
-            
-        print(f"\nHISTORICAL CONTEXT:\n{theory.historical_context}")
-        
-        print(f"\nLIMITATIONS:\n{theory.limitations}")
-        print(f"\nMODERN DEVELOPMENTS:\n{theory.modern_developments}")
-        print(f"\nCOUNTERFACTUAL ANALYSIS:\n{theory.counterfactual_impact}")
-        
-        print("\nKEY PROPERTIES:")
-        for prop in theory.key_properties:
-            print(f" - {prop}")
-            
-        print("\nAPPLICATIONS:")
-        for app in theory.applications:
-            print(f" - {app}")
-            
-        print(f"\nRELATED CONCEPTS: {', '.join(theory.related_concepts)}")
-        print(f"\nSIGNIFICANCE:\n{theory.significance}")
-        print(f"\n{'='*80}\n")
+        print(f"\n{output.markdown}\n")
 
     def display_summary(self):
         """Display a summary of available Riemann theories."""
@@ -180,7 +155,7 @@ class RiemannTheoryGuide:
                 system_prompt=PromptBuilder.get_system_prompt(),
                 user_prompt=user_prompt
             )
-            summary_text = self.client.generate_text(model_input)
+            summary_text = self.client.generate_text(model_input).markdown
             print(f"\n{summary_text}")
         except Exception as e:
             logger.error(f"Error fetching summary: {str(e)}")

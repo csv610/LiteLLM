@@ -65,3 +65,12 @@ class ImageGuardrailResponse(BaseModel):
     is_safe: bool = Field(description="Overall safety assessment (true if no categories are flagged)")
     flagged_categories: List[GuardrailResult] = Field(description="List of flagged safety categories")
     summary: str = Field(description="A concise summary of the safety assessment")
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

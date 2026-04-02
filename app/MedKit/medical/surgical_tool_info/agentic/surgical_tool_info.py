@@ -62,71 +62,88 @@ class MultiAgentSurgicalToolInfoGenerator:
         logger.debug("Initialized MultiAgentSurgicalToolInfoGenerator")
 
     def generate_text(self, tool: str, structured: bool = False) -> ModelOutput:
+        """Generates surgical tool information using a 3-tier multi-agent system."""
         if not tool or not str(tool).strip():
             raise ValueError("Tool name cannot be empty")
 
         self.tool = tool
-        logger.info(f"Starting multi-agent surgical tool information generation for: {tool}")
-
-        # 1. Technical Expert Agent
-        logger.info("  - Invoking Technical Expert Agent...")
-        tech_input = ModelInput(
-            system_prompt=PromptBuilder.create_technical_expert_system_prompt(),
-            user_prompt=PromptBuilder.create_technical_expert_user_prompt(tool),
-        )
-        tech_report = self.client.generate_text(model_input=tech_input).markdown
-
-        # 2. Clinical Specialist Agent
-        logger.info("  - Invoking Clinical Specialist Agent...")
-        clinical_input = ModelInput(
-            system_prompt=PromptBuilder.create_clinical_specialist_system_prompt(),
-            user_prompt=PromptBuilder.create_clinical_specialist_user_prompt(tool),
-        )
-        clinical_report = self.client.generate_text(model_input=clinical_input).markdown
-
-        # 3. Safety & Maintenance Specialist Agent
-        logger.info("  - Invoking Safety & Maintenance Specialist Agent...")
-        safety_input = ModelInput(
-            system_prompt=PromptBuilder.create_safety_maintenance_specialist_system_prompt(),
-            user_prompt=PromptBuilder.create_safety_maintenance_user_prompt(tool),
-        )
-        safety_report = self.client.generate_text(model_input=safety_input).markdown
-
-        # 4. Medical Historian & Educator Agent
-        logger.info("  - Invoking Medical Historian & Educator Agent...")
-        history_input = ModelInput(
-            system_prompt=PromptBuilder.create_medical_historian_educator_system_prompt(),
-            user_prompt=PromptBuilder.create_medical_historian_educator_user_prompt(tool),
-        )
-        history_report = self.client.generate_text(model_input=history_input).markdown
-
-        # 5. Orchestrator Agent (Synthesis)
-        logger.info("  - Invoking Orchestrator Agent for synthesis...")
-        combined_reports = f"""
-TECHNICAL EXPERT REPORT:
-{tech_report}
-
-CLINICAL SPECIALIST REPORT:
-{clinical_report}
-
-SAFETY & MAINTENANCE SPECIALIST REPORT:
-{safety_report}
-
-MEDICAL HISTORIAN & EDUCATOR REPORT:
-{history_report}
-"""
-        orchestrator_input = ModelInput(
-            system_prompt=PromptBuilder.create_orchestrator_system_prompt(),
-            user_prompt=PromptBuilder.create_orchestrator_user_prompt(tool, combined_reports),
-            response_format=SurgicalToolInfoModel if structured else None,
-        )
+        logger.info(f"Starting 3-tier multi-agent generation for: {tool}")
 
         try:
-            result = self.client.generate_text(model_input=orchestrator_input)
-            logger.info(f"✓ Successfully generated multi-agent surgical tool information for {tool}")
-            return result
+            # --- Tier 1: Specialist Stages (JSON) ---
+            logger.info("Tier 1: Specialists generating specialized tool data...")
+            # 1.1 Technical Expert
+            tech_input = ModelInput(
+                system_prompt=PromptBuilder.create_technical_expert_system_prompt(),
+                user_prompt=PromptBuilder.create_technical_expert_user_prompt(tool),
+            )
+            tech_report = self.client.generate_text(model_input=tech_input).markdown
+
+            # 1.2 Clinical Specialist
+            clinical_input = ModelInput(
+                system_prompt=PromptBuilder.create_clinical_specialist_system_prompt(),
+                user_prompt=PromptBuilder.create_clinical_specialist_user_prompt(tool),
+            )
+            clinical_report = self.client.generate_text(model_input=clinical_input).markdown
+
+            # 1.3 Safety & Maintenance
+            safety_input = ModelInput(
+                system_prompt=PromptBuilder.create_safety_maintenance_specialist_system_prompt(),
+                user_prompt=PromptBuilder.create_safety_maintenance_user_prompt(tool),
+            )
+            safety_report = self.client.generate_text(model_input=safety_input).markdown
+
+            # 1.4 Medical Historian
+            history_input = ModelInput(
+                system_prompt=PromptBuilder.create_medical_historian_educator_system_prompt(),
+                user_prompt=PromptBuilder.create_medical_historian_educator_user_prompt(tool),
+            )
+            history_report = self.client.generate_text(model_input=history_input).markdown
+
+            specialist_data = f"""
+TECHNICAL REPORT:
+{tech_report}
+
+CLINICAL REPORT:
+{clinical_report}
+
+SAFETY REPORT:
+{safety_report}
+
+HISTORY REPORT:
+{history_report}
+"""
+
+            # --- Tier 2: Compliance Auditor Stage (JSON Audit) ---
+            logger.info("Tier 2: Auditor performing quality check...")
+            orchestrator_input = ModelInput(
+                system_prompt=PromptBuilder.create_orchestrator_system_prompt(),
+                user_prompt=PromptBuilder.create_orchestrator_user_prompt(tool, specialist_data),
+                response_format=SurgicalToolInfoModel if structured else None,
+            )
+            audit_res = self.client.generate_text(model_input=orchestrator_input)
+            
+            if structured:
+                audit_json = audit_res.data.model_dump_json(indent=2)
+            else:
+                audit_json = audit_res.markdown
+
+            # --- Tier 3: Final Output Synthesis (Markdown Closer) ---
+            logger.info("Tier 3: Output Agent synthesizing final report...")
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(
+                tool, specialist_data, audit_json
+            )
+            final_res = self.client.generate_text(ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None
+            ))
+
+            logger.info(f"✓ Successfully generated 3-tier surgical tool report for {tool}")
+            return ModelOutput(data=audit_res.data if structured else None, markdown=final_res.markdown)
+
         except Exception as e:
-            logger.error(f"✗ Error during multi-agent synthesis: {e}")
+            logger.error(f"✗ 3-tier Surgical Tool generation failed: {e}")
             raise
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:

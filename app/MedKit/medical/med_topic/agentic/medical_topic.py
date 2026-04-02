@@ -29,36 +29,61 @@ class MedicalTopicGenerator:
         logger.debug("Initialized MedicalTopicGenerator")
 
     def generate_text(self, topic: str, structured: bool = False) -> ModelOutput:
-        """Generates comprehensive medical topic information."""
+        """Generates 3-tier medical topic information: Specialist -> Auditor -> Output."""
         if not topic or not str(topic).strip():
             raise ValueError("Topic name cannot be empty")
 
-        # Store the topic for later use in save
         self.topic = topic
-        logger.debug(f"Starting medical topic information generation for: {topic}")
+        logger.info(f"Starting 3-tier topic generation for: {topic}")
 
-        system_prompt = PromptBuilder.create_system_prompt()
-        user_prompt = PromptBuilder.create_user_prompt(topic)
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = MedicalTopicModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.debug("Calling LiteClient.generate_text()...")
         try:
-            result = self.ask_llm(model_input)
-            logger.debug("✓ Successfully generated medical topic information")
-            return result
+            # 1. Specialist Stage (JSON)
+            logger.debug(f"[Specialist] Generating content for: {topic}")
+            system_prompt = PromptBuilder.create_system_prompt()
+            user_prompt = PromptBuilder.create_user_prompt(topic)
+
+            spec_input = ModelInput(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_format=MedicalTopicModel if structured else None,
+            )
+            spec_res = self.ask_llm(spec_input)
+            
+            if structured:
+                spec_json = spec_res.data.model_dump_json(indent=2)
+            else:
+                spec_json = spec_res.markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug(f"[Auditor] Auditing content for: {topic}")
+            audit_sys, audit_usr = PromptBuilder.get_topic_auditor_prompts(topic, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit is markdown/json
+            )
+            audit_res = self.ask_llm(audit_input)
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug(f"[Output] Synthesizing final report for: {topic}")
+            out_sys, out_usr = PromptBuilder.get_output_synthesis_prompts(topic, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.ask_llm(out_input)
+
+            logger.info("✓ Successfully generated 3-tier medical topic information")
+            return ModelOutput(
+                data=spec_res.data, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
         except Exception as e:
-            logger.error(f"✗ Error generating medical topic information: {e}")
+            logger.error(f"✗ 3-tier Topic generation failed: {e}")
             raise
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:

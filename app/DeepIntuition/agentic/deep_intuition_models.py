@@ -1,9 +1,10 @@
+from typing import Any
 """
 deep_intuition_models.py - Models for the 5-Agent Deep Intuition Storytelling Engine
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 
 
 class HistoricalResearch(BaseModel):
@@ -40,3 +41,10 @@ class DeepIntuitionStory(BaseModel):
     counterfactual_world: str = Field(..., description="A look at a world without this discovery.")
     modern_resonance: str = Field(..., description="Impact on our modern understanding.")
     key_historical_anchors: List[str] = Field(..., description="Specific historical events or people.")
+
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

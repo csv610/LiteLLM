@@ -39,11 +39,15 @@ Your task is to explain the 'Real-World Impact' of a theory.
     @staticmethod
     def get_critic_prompt() -> str:
         return """You are a Peer Reviewer and Scientific Editor.
-Your task is to analyze the COMBINED dossier for consistency and clarity.
-- Ensure the Teacher's overview matches the Professor's technical core.
-- Check for jargon leak in the pedagogical sections.
-- Ensure the applications are grounded in the math provided.
-If perfect, respond with 'PASS'."""
+Your task is to synthesize the provided specialist feedback into a final, unified Riemann Theory dossier in Markdown format.
+
+Review and Synthesis Rules:
+1. Ensure the Teacher's overview matches the Professor's technical core.
+2. Check for jargon leak in the pedagogical sections.
+3. Ensure the applications are grounded in the math provided.
+4. Provide a well-formatted Markdown report with headers, bullet points, and bold text for readability.
+5. Include all categories from the dossier (Overview, Technical, Applications).
+6. Return only the final Markdown report."""
 
 class PromptBuilder:
     @staticmethod

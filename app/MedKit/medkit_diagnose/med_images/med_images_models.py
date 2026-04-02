@@ -1,3 +1,4 @@
+from typing import Any
 """
 med_images_models.py - Pydantic models for med image classification
 
@@ -21,11 +22,7 @@ class MedicalImageClassificationModel(BaseModel):
 
 
 class ModelOutput(BaseModel):
-    data: Optional[MedicalImageClassificationModel] = None
-    markdown: Optional[str] = None
-
-    @model_validator(mode="after")
-    def check_exactly_one(self) -> "ModelOutput":
-        if (self.data is None) == (self.markdown is None):
-            raise ValueError("Exactly one of 'data' or 'markdown' must be set")
-        return self
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

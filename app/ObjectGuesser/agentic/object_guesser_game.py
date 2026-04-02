@@ -6,9 +6,13 @@ to provide a more robust and intelligent guessing game.
 """
 
 import json
+import logging
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from .object_guessing_prompts import PromptBuilder
+from .object_guesser_models import ModelOutput
+
+logger = logging.getLogger(__name__)
 
 
 class ObjectGuesserGame:
@@ -39,7 +43,8 @@ class ObjectGuesserGame:
     def _call_agent(self, system_prompt: str, user_prompt: str) -> dict:
         """Utility method to call an agent and parse JSON response."""
         model_input = ModelInput(user_prompt=user_prompt, system_prompt=system_prompt)
-        response = self.client.generate_text(model_input=model_input)
+        response_res = self.client.generate_text(model_input=model_input)
+        response = response_res.markdown if response_res.markdown else str(response_res)
         
         # Clean up response if it contains markdown code blocks
         if "```json" in response:
@@ -50,7 +55,7 @@ class ObjectGuesserGame:
         try:
             return json.loads(response)
         except json.JSONDecodeError:
-            # Fallback for simple non-JSON responses if needed, but here we expect JSON
+            # Fallback for simple non-JSON responses if needed
             raise Exception(f"Failed to parse agent response as JSON: {response}")
 
     def update_state(self):
@@ -75,7 +80,7 @@ class ObjectGuesserGame:
         
         return self._call_agent(system_prompt, user_prompt)
 
-    def play(self):
+    def play(self) -> ModelOutput:
         """Main game loop driven by multi-agent coordination."""
         print("\n" + "=" * 60)
         print("MULTI-AGENT OBJECT GUESSING GAME")
@@ -84,6 +89,7 @@ class ObjectGuesserGame:
         print("The LLM will use multiple agents to identify it.")
         print("Answer with 'yes', 'no', or 'somewhat'.\n")
 
+        won = False
         while self.question_count < self.max_questions:
             try:
                 # 1. Update internal state (Blackboard)
@@ -107,7 +113,8 @@ class ObjectGuesserGame:
                     if extraction["user_sentiment"] == "yes":
                         print(f"\n🎉 Correct! The object was a {guess}!")
                         print(f"The LLM identified it in {self.question_count + 1} turns.")
-                        return True
+                        won = True
+                        break
                     else:
                         print("\nLLM: Oops, let me refine my information...")
                         self.blackboard["excluded_objects"].append(guess)
@@ -129,11 +136,35 @@ class ObjectGuesserGame:
 
             except KeyboardInterrupt:
                 print("\n\nGame interrupted by user.")
-                return False
+                break
             except Exception as e:
                 print(f"\nAgent Error: {e}")
                 print("Continuing...")
                 continue
 
-        print(f"\nGame Over! The LLM couldn't identify the object in {self.max_questions} questions.")
-        return False
+        if not won and self.question_count >= self.max_questions:
+            print(f"\nGame Over! The LLM couldn't identify the object in {self.max_questions} questions.")
+
+        return self.generate_summary(won)
+
+    def generate_summary(self, won: bool) -> ModelOutput:
+        """Synthesize the game session into a ModelOutput artifact."""
+        status = "Correctly Guessed" if won else "Not Identified"
+        
+        # Tier 3: Output Synthesis (Markdown Closer)
+        history_str = json.dumps(self.conversation_history, indent=2)
+        synth_prompt = f"Synthesize a fun, engaging Markdown summary of this object guessing game.\nStatus: {status}\nTurns: {self.question_count}\n\nHistory:\n{history_str}"
+        
+        synth_input = ModelInput(
+            system_prompt="You are a Game Master Narrator. Synthesize the game session into a beautiful Markdown report.",
+            user_prompt=synth_prompt,
+            response_format=None
+        )
+        final_markdown_res = self.client.generate_text(synth_input)
+        final_markdown = final_markdown_res.markdown
+
+        return ModelOutput(
+            data={"status": status, "turns": self.question_count, "blackboard": self.blackboard},
+            markdown=final_markdown,
+            metadata={"conversation_history": self.conversation_history}
+        )

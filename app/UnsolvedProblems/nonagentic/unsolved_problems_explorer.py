@@ -11,7 +11,7 @@ from typing import Optional, List
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .unsolved_problems_models import UnsolvedProblem
+from .unsolved_problems_models import UnsolvedProblem, UnsolvedProblemsModel
 from .unsolved_problems_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
@@ -53,11 +53,11 @@ class UnsolvedProblemsExplorer:
         model_input = ModelInput(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=UnsolvedProblemsResponse
+            response_format=UnsolvedProblemsModel
         )
         
         # Generate response using LiteClient
-        response = self.client.generate(model_input)
+        response = self.client.generate_text(model_input)
         
         return response.problems
     

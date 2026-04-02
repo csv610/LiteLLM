@@ -44,10 +44,29 @@ Ensure you include both common and highly specialized fields within this categor
 
     @staticmethod
     def create_reviewer_system_prompt() -> str:
-        """Generate the system prompt for the reviewer/aggregator agent."""
-        return "You are a Chief Medical Officer. Review and aggregate the provided lists of medical specialists into a single, cohesive, and comprehensive overview."
+        """Generate the system prompt for the JSON Compliance Auditor."""
+        return "You are a Chief Medical Officer and Quality Auditor. Review and audit the provided medical specialty data for accuracy and completeness. Output a structured JSON report."
 
     @staticmethod
     def create_reviewer_user_prompt(specialists_data: str) -> str:
-        """Generate the user prompt for the reviewer/aggregator agent."""
-        return f"Review the following data of medical specialists from different categories. Compile them into a comprehensive, well-structured final document, ensuring consistency and removing any duplicates:\n\n{specialists_data}"
+        """Generate the user prompt for the JSON Compliance Auditor."""
+        return f"Audit the following medical specialty data and output a structured JSON report:\n\n{specialists_data}"
+
+    @staticmethod
+    def create_output_synthesis_prompts(database_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Taxonomist. Your role is to take raw specialty "
+            "data and a structured quality audit, then synthesize them into a FINAL, "
+            "polished, and comprehensive Markdown database of medical specialties. "
+            "You MUST apply all fixes identified in the audit and ensure a "
+            "logical, easy-to-navigate structure."
+        )
+        user = (
+            f"Synthesize the final medical specialty database.\n\n"
+            f"SPECIALTY DATA:\n{database_data}\n\n"
+            f"QUALITY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown database report. Ensure it is professional, "
+            "accurate, and ready for healthcare system use."
+        )
+        return system, user

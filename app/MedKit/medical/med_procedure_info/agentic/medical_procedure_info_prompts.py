@@ -110,28 +110,49 @@ class CompliancePromptBuilder:
     def create_system_prompt() -> str:
         return (
             "You are a Senior Medical Compliance Auditor and Patient Safety Officer. "
-            "Your role is to review generated medical procedure documentation for clinical safety, "
-            "regulatory compliance, and patient accessibility. "
-            "Focus on: "
-            "1. Missing safety warnings or contraindications. "
-            "2. Overly technical jargon in patient-facing sections. "
-            "3. Prescriptive 'medical advice' that should be informative. "
-            "4. Adherence to evidence-based guidelines."
+            "Your role is to audit medical documentation for safety, regulatory compliance, "
+            "and accessibility. Output your findings as a structured JSON report."
         )
 
     @staticmethod
     def create_user_prompt(procedure: str, content: str) -> str:
         return f"""
-Review the following medical procedure documentation for: "{procedure}"
+Audit the following medical procedure documentation for: "{procedure}"
 
 DOCUMENTATION CONTENT:
 {content}
 
 AUDIT REQUIREMENTS:
-1. Identify any missing critical safety warnings or contraindications.
-2. Check if the 'Plain Language' section is truly accessible (5th-8th grade level).
-3. Ensure no 'prescriptive' medical advice (e.g., use 'Patients typically...' instead of 'You must...').
-4. Verify overall clinical tone and terminology.
+1. Identify missing safety warnings or contraindications.
+2. Check plain language accessibility.
+3. Check for prescriptive vs. informative language.
+4. Verify clinical tone.
 
-Provide a structured compliance report.
+Provide a structured JSON compliance report.
+"""
+
+
+class OutputPromptBuilder:
+    @staticmethod
+    def create_system_prompt() -> str:
+        return (
+            "You are the Lead Medical Editor. Your role is to synthesize specialist "
+            "procedure data and a compliance audit into a FINAL, polished, and safe "
+            "Markdown report for patients and providers. You MUST apply all fixes "
+            "identified in the compliance audit and ensure all safety disclaimers "
+            "are prominently included."
+        )
+
+    @staticmethod
+    def create_user_prompt(procedure: str, specialist_data: str, compliance_data: str) -> str:
+        return f"""
+Synthesize the final medical procedure report for: "{procedure}"
+
+SPECIALIST DATA:
+{specialist_data}
+
+COMPLIANCE AUDIT:
+{compliance_data}
+
+Produce the final Markdown report. Ensure it is accurate, professional, and 100% compliant.
 """

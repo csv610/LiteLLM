@@ -95,74 +95,64 @@ class MedicalQuizGenerator:
         num_options: int = 4,
         structured: bool = False,
     ) -> ModelOutput:
-        """Generate medical text (quiz).
-
-        Args:
-            topic: Medical topic for quiz generation
-            difficulty: Difficulty level
-            num_questions: Number of questions
-            num_options: Number of options per question
-            structured: Whether to use structured output
-
-        Returns:
-            ModelOutput containing the generated quiz
-        """
+        """Generate medical quiz using a 3-tier agent system."""
         # Input validation
         if not topic or not topic.strip():
             raise ValueError("Topic cannot be empty")
-        if num_questions < 1:
-            raise ValueError("Number of questions must be >= 1")
-        if num_options < 2:
-            raise ValueError("Number of options must be >= 2")
-        if num_options > 26:  # A-Z maximum
-            raise ValueError("Number of options cannot exceed 26 (A-Z)")
-        if not difficulty or not difficulty.strip():
-            raise ValueError("Difficulty level cannot be empty")
-
+        
         self.topic = self._sanitize_topic(topic.strip())
+        logger.info(f"Starting 3-tier Quiz generation for: {topic}")
 
-        # Show progress indicator for large quizzes
-        if num_questions > 5:
-            progress = SimpleProgressBar(
-                num_questions, f"Generating {num_questions} quiz questions"
+        try:
+            # 1. Specialist Stage (JSON)
+            logger.debug("Tier 1: Specialist Agent generating quiz questions...")
+            system_prompt = PromptBuilder.create_quiz_system_prompt()
+            user_prompt = PromptBuilder.create_quiz_user_prompt(
+                topic, difficulty, num_questions, num_options
+            )
+            
+            spec_input = ModelInput(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                response_format=MedicalQuizModel if structured else None,
+            )
+            spec_res = self.ask_llm(spec_input)
+            
+            if structured:
+                spec_json = spec_res.data.model_dump_json(indent=2)
+            else:
+                spec_json = spec_res.markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug("Tier 2: Auditor Agent reviewing quiz...")
+            audit_sys, audit_usr = PromptBuilder.get_quiz_auditor_prompts(topic, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit is markdown/json
+            )
+            audit_res = self.ask_llm(audit_input)
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown)
+            logger.debug("Tier 3: Output Agent synthesizing final quiz...")
+            out_sys, out_usr = PromptBuilder.get_output_synthesis_prompts(topic, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.ask_llm(out_input)
+
+            logger.debug("✓ Successfully generated 3-tier Quiz")
+            return ModelOutput(
+                data=spec_res.data, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
             )
 
-        logger.debug(
-            f"Starting Quiz generation for: {topic.strip()} (sanitized: {self.topic})"
-        )
-
-        system_prompt = PromptBuilder.create_quiz_system_prompt()
-        user_prompt = PromptBuilder.create_quiz_user_prompt(
-            topic, difficulty, num_questions, num_options
-        )
-        logger.debug(f"System Prompt: {system_prompt}")
-        logger.debug(f"User Prompt: {user_prompt}")
-
-        response_format = None
-        if structured:
-            response_format = MedicalQuizModel
-
-        model_input = ModelInput(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            response_format=response_format,
-        )
-
-        logger.debug("Calling LiteClient.generate_text()...")
-        try:
-            result = self.ask_llm(model_input)
-
-            # Complete progress bar if it was started
-            if num_questions > 5:
-                progress.update(num_questions)  # Complete the progress bar
-
-            logger.debug("✓ Successfully generated Quiz")
-            return result
         except Exception as e:
-            # Complete progress bar on error too
-            if num_questions > 5:
-                progress.update(num_questions)
-            logger.error(f"✗ Error generating Quiz: {e}")
+            logger.error(f"✗ 3-tier Quiz generation failed: {e}")
             raise
 
     def ask_llm(self, model_input: ModelInput) -> ModelOutput:

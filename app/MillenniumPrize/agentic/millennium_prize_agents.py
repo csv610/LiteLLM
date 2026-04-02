@@ -75,8 +75,9 @@ class TwoAgentWorkflow:
         return self._selection_agent.get_all_problems()
 
     def process_problem(self, problem_number: int, skip_explanation: bool = False) -> Dict[str, Any]:
-        """Run the two-agent workflow for a single problem."""
+        """Run the 3-tier multi-agent workflow for a single problem."""
         selection_payload = self._selection_agent.prepare_problem_payload(problem_number)
+        problem: MillenniumProblem = selection_payload["problem"]
         explanation = ""
         explanation_status = "skipped"
 
@@ -89,20 +90,26 @@ class TwoAgentWorkflow:
             except Exception:
                 explanation_status = "failed"
 
-        result = {
+        # Tier 3: Output Synthesis (Markdown)
+        final_markdown = f"# Millennium Prize Problem: {problem.title}\n\n"
+        final_markdown += f"**Field:** {problem.field}\n"
+        final_markdown += f"**Status:** {problem.status}\n\n"
+        final_markdown += f"## Description\n{problem.description}\n\n"
+        final_markdown += f"## Significance\n{problem.significance}\n\n"
+        if explanation:
+            final_markdown += f"## AI Synthesis & Deep Dive\n{explanation}\n"
+
+        return {
             "problem_number": problem_number,
-            "problem": selection_payload["problem"],
+            "problem": problem,
             "explanation": explanation,
             "agents": {
-                "selection_agent": {
-                    "status": "completed",
-                    "selected_problem_number": selection_payload["problem_number"],
-                },
+                "selection_agent": {"status": "completed"},
                 "explanation_agent": {
                     "status": explanation_status,
-                    "model": self._model_name if explanation_status != "skipped" else None,
+                    "model": self._model_name if not skip_explanation else None,
                 },
             },
+            "markdown": final_markdown,
         }
 
-        return result

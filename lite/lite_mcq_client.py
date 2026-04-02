@@ -94,6 +94,15 @@ Always respond in the requested JSON format."""
             # Check if response is the expected Pydantic model
             if isinstance(response, MultipleChoiceSolverResponse):
                 return response.answer
+            if isinstance(response, str):
+                try:
+                    parsed = MultipleChoiceSolverResponse.model_validate_json(response)
+                    return parsed.answer
+                except Exception:
+                    try:
+                        return MultipleChoiceAnswer.model_validate_json(response)
+                    except Exception:
+                        return None
             
             # If we somehow got a string (shouldn't happen with response_format set, but safe to check)
             # or an unexpected type, we treat it as failure to parse

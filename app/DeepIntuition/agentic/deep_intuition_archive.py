@@ -30,5 +30,17 @@ class MissionArchive:
         if not self.output_path:
             return
 
-        with open(self.output_path, 'w', encoding='utf-8') as f:
-            json.dump(self.story, f, indent=4, ensure_ascii=False)
+        path = Path(self.output_path)
+        
+        # If story is a string (Markdown), ensure extension is .md
+        if isinstance(self.story, str):
+            if path.suffix != '.md':
+                path = path.with_suffix('.md')
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(self.story)
+        else:
+            # Otherwise save as JSON
+            if path.suffix != '.json':
+                path = path.with_suffix('.json')
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(self.story, f, indent=4, ensure_ascii=False)

@@ -88,32 +88,20 @@ Guidelines:
     @staticmethod
     def create_fact_checker_system_prompt() -> str:
         """
-        Create the system prompt for the fact-checker subagent.
+        Create the system prompt for the JSON Compliance Auditor.
 
         Returns:
-            str: System prompt for fact-checking
+            str: System prompt for JSON audit
         """
         return """You are a Skeptical Medical Auditor specializing in human anatomy.
-
-Your goal is to extract every specific anatomical claim from a report and verify its accuracy against established medical knowledge (e.g., Gray's Anatomy).
-
-Your responsibilities:
-1. Extract specific claims about: Origins, Insertions, Blood Supply, Innervation, Lymphatic Drainage, and Clinical Landmarks.
-2. For each claim, determine its status:
-   - 'Verified': The claim is factually correct.
-   - 'Incorrect': The claim is factually wrong (e.g., placing the ulnar artery in the thigh).
-   - 'Unverified': The claim is too vague or not supported by standard anatomical texts.
-3. Provide a correction for any 'Incorrect' claims.
-4. Provide brief evidence or explanation for your verification status.
-5. Calculate an overall accuracy score based on the percentage of verified claims.
-
-Be extremely pedantic. A single incorrect arterial branch or nerve root makes a claim 'Incorrect'.
-"""
+Your goal is to extract every specific anatomical claim from a report and verify its 
+accuracy against established medical knowledge. Output your findings as a 
+structured JSON report."""
 
     @staticmethod
     def create_fact_checker_user_prompt(technical_report: str) -> str:
         """
-        Create the user prompt for the fact-checker subagent.
+        Create the user prompt for the JSON Compliance Auditor.
 
         Args:
             technical_report: The technical anatomical report to verify
@@ -121,4 +109,23 @@ Be extremely pedantic. A single incorrect arterial branch or nerve root makes a 
         Returns:
             str: Formatted user prompt
         """
-        return f"Please extract and verify all anatomical claims in the following technical report:\n\n{technical_report}"
+        return f"Audit all anatomical claims in the following technical report and output a structured JSON report:\n\n{technical_report}"
+
+    @staticmethod
+    def create_output_synthesis_prompts(body_part: str, technical_data: str, compliance_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Anatomical Editor. Your role is to take technical "
+            "anatomical data and a structured compliance audit, then synthesize "
+            "them into a FINAL, professional Markdown report that includes both "
+            "Technical and Plain English sections. You MUST apply all fixes "
+            "identified in the audit and ensure absolute scientific accuracy."
+        )
+        user = (
+            f"Synthesize the final anatomical report for: \"{body_part}\"\n\n"
+            f"TECHNICAL DATA:\n{technical_data}\n\n"
+            f"COMPLIANCE AUDIT:\n{compliance_data}\n\n"
+            "Produce the final Markdown report with Technical and Plain English sections. "
+            "Ensure it is accurate, professional, and safe for educational use."
+        )
+        return system, user

@@ -70,26 +70,88 @@ class MedicalMediaGenerator:
     def generate_caption(
         self, topic: str, media_type: str = "image", structured: bool = False
     ) -> ModelOutput:
-        """Generate a professional medical caption for a topic."""
+        """Generate a 3-tier professional medical caption."""
         self.last_topic = topic
-        model_input = ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=PromptBuilder.create_caption_prompt(topic, media_type),
-            response_format=MediaCaptionModel if structured else None,
-        )
-        return self.client.generate_text(model_input)
+        logger.info(f"Starting 3-tier caption generation for: {topic}")
+
+        try:
+            # 1. Specialist Stage (JSON)
+            spec_input = ModelInput(
+                system_prompt=PromptBuilder.create_system_prompt(),
+                user_prompt=PromptBuilder.create_caption_prompt(topic, media_type),
+                response_format=MediaCaptionModel if structured else None,
+            )
+            spec_res = self.client.generate_text(spec_input)
+            spec_json = spec_res.data.model_dump_json(indent=2) if structured else spec_res.markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            audit_sys, audit_usr = PromptBuilder.create_accuracy_auditor_prompts(topic, spec_json)
+            audit_res = self.client.generate_text(ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None
+            ))
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown)
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(topic, spec_json, audit_json)
+            final_res = self.client.generate_text(ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None
+            ))
+
+            return ModelOutput(
+                data=spec_res.data if structured else None, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+        except Exception as e:
+            logger.error(f"✗ 3-tier Caption generation failed: {e}")
+            raise
 
     def generate_summary(
         self, topic: str, media_type: str = "video", structured: bool = False
     ) -> ModelOutput:
-        """Generate a medical summary for a topic."""
+        """Generate a 3-tier medical summary."""
         self.last_topic = topic
-        model_input = ModelInput(
-            system_prompt=PromptBuilder.create_system_prompt(),
-            user_prompt=PromptBuilder.create_summary_prompt(topic, media_type),
-            response_format=MediaSummaryModel if structured else None,
-        )
-        return self.client.generate_text(model_input)
+        logger.info(f"Starting 3-tier summary generation for: {topic}")
+
+        try:
+            # 1. Specialist Stage (JSON)
+            spec_input = ModelInput(
+                system_prompt=PromptBuilder.create_system_prompt(),
+                user_prompt=PromptBuilder.create_summary_prompt(topic, media_type),
+                response_format=MediaSummaryModel if structured else None,
+            )
+            spec_res = self.client.generate_text(spec_input)
+            spec_json = spec_res.data.model_dump_json(indent=2) if structured else spec_res.markdown
+
+            # 2. Auditor Stage (JSON Audit)
+            audit_sys, audit_usr = PromptBuilder.create_accuracy_auditor_prompts(topic, spec_json)
+            audit_res = self.client.generate_text(ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None
+            ))
+            audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown)
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(topic, spec_json, audit_json)
+            final_res = self.client.generate_text(ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None
+            ))
+
+            return ModelOutput(
+                data=spec_res.data if structured else None, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+        except Exception as e:
+            logger.error(f"✗ 3-tier Summary generation failed: {e}")
+            raise
 
     def save(
         self, result: ModelOutput, output_dir: Path, suffix: str = "analysis"

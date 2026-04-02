@@ -157,14 +157,29 @@ Primary Pharmacology Analysis: {pharmacologist_out}"""
 
     @staticmethod
     def create_compliance_system_prompt() -> str:
-        return """You are a Medical Regulatory and Compliance Officer.
-Your role is to review medical analysis for adherence to Medical Council standards and clinical safety guidelines.
-Focus on:
-1. Ensuring all recommendations are evidence-based and safe.
-2. Checking for mandatory disclaimers (e.g., "Consult your physician").
-3. Identifying any language that is overly definitive or potentially misleading.
-4. Verifying that the tone is professional and risk-appropriate.
-Flag any concerns and provide a compliance summary."""
+        """Create prompts for the JSON Compliance Auditor."""
+        return """You are a Medical Regulatory and Compliance Auditor. Your role is to 
+audit drug-disease interaction reports for clinical safety, evidence strength, 
+and adherence to standards. Output your findings as a structured JSON report."""
+
+    @staticmethod
+    def create_output_synthesis_prompts(config: DrugDiseaseInput, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Clinical Pharmacologist. Your role is to take raw "
+            "specialist research data and a structured safety audit, then synthesize "
+            "them into a FINAL, polished, and safe Markdown report. You MUST apply "
+            "all fixes identified in the audit and ensure all dosage and safety "
+            "guidance is 100% accurate."
+        )
+        user = (
+            f"Synthesize the final drug-disease interaction report for: '{config.medicine_name}' and '{config.condition_name}'\n\n"
+            f"SPECIALIST DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with clinical safety guidelines."
+        )
+        return system, user
 
     @staticmethod
     def create_compliance_user_prompt(clinician_out: str, educator_out: str) -> str:

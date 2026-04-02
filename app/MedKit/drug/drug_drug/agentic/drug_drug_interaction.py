@@ -71,30 +71,22 @@ class DrugDrugOrchestrator:
         self.search_agent = SearchAgent(model_config)
         self.compliance_agent = ComplianceAgent(model_config)
 
-    async def orchestrate_async(self, user_input: DrugDrugInput) -> DrugInteractionModel:
-        """Run the multi-agent orchestration flow asynchronously with triage and audit."""
-        logger.info(
-            f"Starting orchestrated analysis for {user_input.medicine1} + {user_input.medicine2}"
-        )
+    async def orchestrate_async(self, user_input: DrugDrugInput) -> ModelOutput:
+        """Run the 3-tier multi-agent orchestration flow (Specialists -> Auditor -> Closer)."""
+        logger.info(f"Starting 3-tier analysis for {user_input.medicine1} + {user_input.medicine2}")
 
-        # Step 1: Triage
+        # Tier 1: Triage
         triage_data = await self.triage_agent.run_async(
             user_input, response_format=TriageResultModel
         )
 
         if not triage_data.interaction_exists:
             logger.info("✓ Triage determined no clinically significant interaction.")
-            return DrugInteractionModel(
-                technical_summary=triage_data.initial_reasoning,
-                data_availability=DataAvailabilityInfoModel(
-                    data_available=False, reason=triage_data.initial_reasoning
-                ),
-            )
+            return ModelOutput(markdown=f"No clinically significant interaction found between {user_input.medicine1} and {user_input.medicine2}. {triage_data.initial_reasoning}")
 
-        # Step 2: Parallel Analysis
+        # Tier 1: Parallel Specialists
         import asyncio
-
-        logger.debug("Running Core Analysis agents in parallel...")
+        logger.debug("Tier 1: Running Specialists in parallel...")
         tasks = [
             self.pharmacology_agent.run_async(user_input, DrugInteractionDetailsModel),
             self.risk_agent.run_async(user_input, DrugInteractionDetailsModel),
@@ -102,67 +94,42 @@ class DrugDrugOrchestrator:
             self.patient_agent.run_async(user_input, PatientFriendlySummaryModel),
             self.search_agent.run_async(user_input, DrugInteractionDetailsModel),
         ]
+        spec_results = await asyncio.gather(*tasks)
+        
+        spec_data_json = "\n\n".join([
+            f"SPECIALIST {i}: {res.model_dump_json(indent=2) if hasattr(res, 'model_dump_json') else str(res)}"
+            for i, res in enumerate(spec_results)
+        ])
 
-        results = await asyncio.gather(*tasks)
-        (
-            pharmacology_data,
-            risk_data,
-            management_data,
-            patient_data,
-            search_data,
-        ) = results
-
-        # Step 3: Contextual Compliance Review
-        # We build a draft report string for the compliance agent to review
-        draft_report = (
-            f"SEVERITY: {risk_data.severity_level}\n"
-            f"MECHANISM: {pharmacology_data.mechanism_of_interaction}\n"
-            f"CLINICAL EFFECTS: {pharmacology_data.clinical_effects}\n"
-            f"MANAGEMENT: {management_data.management_recommendations}\n"
-            f"PATIENT INFO: {patient_data.simple_explanation}\n"
-        )
-
+        # Tier 2: Compliance Auditor (JSON Audit)
+        logger.debug("Tier 2: Compliance Auditor performing safety review...")
         compliance_user_prompt = DrugDrugPromptBuilder.create_compliance_review_user_prompt(
-            user_input, draft_report
+            user_input, spec_data_json
         )
-
         compliance_data = await self.compliance_agent.run_async(
             user_input,
             response_format=ComplianceInfoModel,
             custom_user_prompt=compliance_user_prompt,
         )
+        audit_json = compliance_data.model_dump_json(indent=2)
 
-        # Step 4: Consolidation & Audit Log
-        interaction_details = DrugInteractionDetailsModel(
-            drug1_name=user_input.medicine1,
-            drug2_name=user_input.medicine2,
-            severity_level=risk_data.severity_level,
-            mechanism_of_interaction=pharmacology_data.mechanism_of_interaction,
-            clinical_effects=pharmacology_data.clinical_effects,
-            management_recommendations=management_data.management_recommendations,
-            alternative_medicines=management_data.alternative_medicines,
-            confidence_level=risk_data.confidence_level,
-            data_source_type=search_data.data_source_type,
-            references=search_data.references,
-            technical_summary=risk_data.technical_summary,
+        # Tier 3: Final Output Synthesis (Markdown Closer)
+        logger.debug("Tier 3: Output Agent synthesizing final report...")
+        out_sys, out_usr = DrugDrugPromptBuilder.create_output_synthesis_prompts(
+            user_input, spec_data_json, audit_json
         )
+        
+        final_markdown = await self.pharmacology_agent.client.generate_text_async(ModelInput(
+            system_prompt=out_sys,
+            user_prompt=out_usr,
+            response_format=None
+        ))
 
-        audit_log = AuditLogModel(
-            pharmacology_raw=pharmacology_data,
-            risk_raw=risk_data,
-            management_raw=management_data,
-            patient_raw=patient_data,
-            search_raw=search_data,
-            compliance_raw=compliance_data,
-        )
-
-        return DrugInteractionModel(
-            interaction_details=interaction_details,
-            technical_summary=risk_data.technical_summary,
-            patient_friendly_summary=patient_data,
-            data_availability=DataAvailabilityInfoModel(data_available=True),
-            compliance_info=compliance_data,
-            audit_log=audit_log,
+        logger.info("✓ Successfully generated 3-tier orchestrated drug-drug report")
+        return ModelOutput(
+            data=spec_results[0] if structured else None, 
+            markdown=final_markdown.markdown,
+            metadata={"audit": audit_json}
         )
 
 

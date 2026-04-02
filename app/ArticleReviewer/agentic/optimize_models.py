@@ -3,10 +3,8 @@ optimize_models.py - Script to optimize Pydantic models for ArticleReviewer usin
 """
 
 import dspy
+from dspy.teleprompt import BootstrapFewShot
 from article_reviewer_models import (
-    DeleteModel,
-    ModifyModel,
-    InsertModel,
     ArticleReviewModel,
 )
 
@@ -137,7 +135,6 @@ trainset = [
 ]
 
 # Optimize using BootstrapFewShot (good starting point)
-from dspy.teleprompt import BootstrapFewShot
 
 print("Optimizing ArticleReviewModel with Ollama...")
 optimizer = BootstrapFewShot(
@@ -168,3 +165,12 @@ except Exception as e:
 # import pickle
 # with open('optimized_article_review_model.pkl', 'wb') as f:
 #     pickle.dump(optimized_article_review, f)
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

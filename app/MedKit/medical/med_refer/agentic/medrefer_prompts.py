@@ -34,6 +34,12 @@ class Recommendation(BaseModel):
     )
 
 
+class ModelOutput(BaseModel):
+    """Standard output model for the application."""
+    data: Optional[Recommendation] = None
+    markdown: Optional[str] = None
+
+
 class PromptBuilder:
     """Builder class for creating prompts for medical specialist recommendation."""
 
@@ -47,43 +53,28 @@ Be precise and professional. Categorize severity based on typical clinical urgen
 
     @staticmethod
     def get_specialist_matching_prompts(analysis: SymptomAnalysis) -> tuple[str, str]:
-        """Create prompts for the Specialist Matcher agent."""
-        system_prompt = """You are a medical specialist matcher. Based on a structured symptom analysis, recommend the most appropriate specialists.
-Provide a clear reasoning for each recommendation."""
-        user_prompt = f"Recommend specialists for the following analysis: {analysis.model_dump_json()}"
+        """Create prompts for the Specialist Matcher agent (JSON Auditor)."""
+        system_prompt = """You are a medical specialist matcher and compliance auditor. 
+Based on a structured symptom analysis, recommend the most appropriate specialists and 
+verify if the severity assessment is clinically sound. Output a structured JSON report."""
+        user_prompt = f"Audit and match specialists for the following analysis: {analysis.model_dump_json()}"
         return system_prompt, user_prompt
 
     @staticmethod
-    def create_system_prompt() -> str:
-        """Create the system prompt for specialist recommendation.
-
-        Returns:
-            str: System prompt defining the AI's role and guidelines
-        """
-        return """You are a medical assistant. Based on the given medical question, recommend the most suitable specialist doctors.
-Some symptoms may require consultation with multiple specialists.
-
-Example format:
-- Question: "I have chest pain and shortness of breath."
-  Specialists: Cardiologist, Pulmonologist
-
-- Question: "I have severe joint pain and swelling."
-  Specialists: Rheumatologist, Orthopedic Surgeon
-
-- Question: "I have blurry vision and headaches."
-  Specialists: Ophthalmologist, Neurologist"""
-
-    @staticmethod
-    def create_user_prompt(question: str) -> str:
-        """Create the user prompt for specialist recommendation.
-
-        Args:
-            question: The patient's medical question or symptoms
-
-        Returns:
-            str: Formatted user prompt
-        """
-        return f"""Now, analyze the following question and recommend the best specialists:
-
-Question: "{question}"
-Specialists:"""
+    def get_output_synthesis_prompts(question: str, specialist_data: str, compliance_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Referral Editor and Triage Director. Your role is to "
+            "take raw medical analysis from specialists and the specialist matcher's audit, "
+            "then synthesize them into a FINAL, human-ready Markdown report. "
+            "You MUST apply all fixes identified in the audit and ensure all mandatory "
+            "medical disclaimers are prominently included."
+        )
+        user = (
+            f"Synthesize the final medical referral report for: \"{question}\"\n\n"
+            f"SYMPTOM ANALYSIS:\n{specialist_data}\n\n"
+            f"SPECIALIST MATCHING AUDIT:\n{compliance_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with safety guidelines."
+        )
+        return system, user

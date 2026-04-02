@@ -4,10 +4,51 @@ math_theory_models.py - Pydantic models for mathematical theory data
 Defines data models for mathematical theories with explanations tailored to 
 different audience levels (high-school, undergrad, master, phd, researcher).
 """
-
+import json
+import logging
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Type
 from enum import Enum
+
+from lite import LiteClient
+from lite.config import ModelConfig, ModelInput
+
+
+class AgenticLiteClient:
+    """
+    A wrapper around lite.LiteClient to provide clear, purpose-driven methods
+    for agentic workflows.
+    """
+    def __init__(self, model_config: ModelConfig):
+        self._client = LiteClient(model_config=model_config)
+        self.logger = logging.getLogger(__name__)
+
+    def generate(self, prompt: str) -> str:
+        """
+        Generates raw text/markdown from the LLM.
+        This method is for generating human-readable content.
+        """
+        model_input = ModelInput(user_prompt=prompt)
+        # The underlying method is confusingly named generate_text, but we use it for raw output here.
+        return self._client.generate_text(model_input=model_input)
+
+    def generate_json(self, prompt: str, schema: Type[BaseModel]) -> Optional[BaseModel]:
+        """
+        Generates structured data from the LLM, returning a Pydantic model instance.
+        This method is for reliable agent-to-agent communication.
+        """
+        model_input = ModelInput(user_prompt=prompt, response_format=schema)
+        try:
+            # The underlying library returns a Pydantic object directly
+            response = self._client.generate_text(model_input=model_input)
+            if not isinstance(response, schema):
+                 self.logger.error(f"LLM output was not the expected Pydantic model. Got {type(response).__name__}, expected {schema.__name__}.")
+                 return None
+            return response
+        except Exception as e:
+            # Catch potential parsing or validation errors from the underlying client
+            self.logger.error(f"Failed to generate or parse JSON for schema {schema.__name__}: {e}")
+            return None
 
 
 class AudienceLevel(str, Enum):
@@ -67,3 +108,12 @@ class MathTheory(BaseModel):
 class TheoryResponse(BaseModel):
     """Response wrapper for theory information"""
     theory: MathTheory
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

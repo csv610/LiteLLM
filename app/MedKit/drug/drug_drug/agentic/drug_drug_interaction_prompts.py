@@ -206,6 +206,27 @@ class DrugDrugPromptBuilder:
             "Verify compliance with medical standards and clinical safety guidelines."
         )
 
+    @classmethod
+    def create_output_synthesis_prompts(cls, config: DrugDrugInput, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Clinical Pharmacology Editor. Your role is to take raw "
+            "drug-drug interaction data and a structured safety audit, then "
+            "synthesize them into a FINAL, polished, and safe Markdown report. "
+            "You MUST apply all fixes identified in the audit and ensure the "
+            "management strategy is perfectly clear for both clinicians and patients."
+        )
+        context = cls._build_context(config)
+        user = (
+            f"Synthesize the final drug-drug interaction report for '{config.medicine1}' and '{config.medicine2}'.\n\n"
+            f"CONTEXT: {context}\n\n"
+            f"SPECIALIST DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with safety standards."
+        )
+        return system, user
+
     @staticmethod
     def _build_context(config: DrugDrugInput) -> str:
         """Build the analysis context string from input parameters.

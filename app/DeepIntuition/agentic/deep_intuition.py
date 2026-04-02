@@ -16,7 +16,8 @@ from .deep_intuition_models import (
     HistoricalResearch, 
     IntuitionInsight, 
     CounterfactualAnalysis, 
-    StruggleNarrative
+    StruggleNarrative,
+    ModelOutput
 )
 from .deep_intuition_prompts import AgentPrompts
 from .deep_intuition_archive import MissionArchive
@@ -34,25 +35,29 @@ class DeepIntuition:
     def _execute_agent(self, 
                        name: str, 
                        prompt: str, 
-                       response_model: Type[BaseModel], 
-                       emoji: str = "🤖") -> BaseModel:
-        """Helper to run a single agent and return its structured output."""
+                       response_model: Optional[Type[BaseModel]], 
+                       emoji: str = "🤖") -> Any:
+        """Helper to run a single agent and return its output (structured or string)."""
         print(f"{emoji} {name} working...")
         model_input = ModelInput(user_prompt=prompt, response_format=response_model)
         
         try:
-            return self.client.generate_text(model_input)
+            res = self.client.generate_text(model_input)
+            if response_model:
+                return res.data
+            return res.markdown
         except Exception as e:
             logger.error(f"Agent '{name}' failed: {e}")
             raise RuntimeError(f"Mission failed during {name} phase: {e}") from e
 
-    def generate_story(self, topic: str, output_path: Optional[str] = None) -> DeepIntuitionStory:
-        """Uncover the human story through a refactored agentic pipeline."""
+    def generate_story(self, topic: str, output_path: Optional[str] = None) -> ModelOutput:
+        """Uncover the human story through a 3-tier artifact-based pipeline."""
         archive = MissionArchive(topic, output_path)
         print(f"\n✨ Initiating Deep Intuition mission for '{topic}'...")
 
+        # --- Tier 1: Specialists (JSON) ---
         # 1. Historical Researcher
-        historical = self._execute_agent(
+        historical: HistoricalResearch = self._execute_agent(
             "Historical Researcher",
             AgentPrompts.build(AgentPrompts.HISTORICAL_RESEARCHER, topic=topic),
             HistoricalResearch,
@@ -60,7 +65,7 @@ class DeepIntuition:
         )
 
         # 2. Intuition Specialist
-        intuition = self._execute_agent(
+        intuition: IntuitionInsight = self._execute_agent(
             "Intuition Specialist",
             AgentPrompts.build(AgentPrompts.INTUITION_SPECIALIST, topic=topic),
             IntuitionInsight,
@@ -68,7 +73,7 @@ class DeepIntuition:
         )
 
         # 3. Counterfactual Analyst
-        counterfactual = self._execute_agent(
+        counterfactual: CounterfactualAnalysis = self._execute_agent(
             "Counterfactual Analyst",
             AgentPrompts.build(AgentPrompts.COUNTERFACTUAL_ANALYST, topic=topic),
             CounterfactualAnalysis,
@@ -76,7 +81,7 @@ class DeepIntuition:
         )
 
         # 4. Human Struggle Narrator
-        struggle = self._execute_agent(
+        struggle: StruggleNarrative = self._execute_agent(
             "Human Struggle Narrator",
             AgentPrompts.build(
                 AgentPrompts.HUMAN_STRUGGLE_NARRATOR, 
@@ -87,8 +92,8 @@ class DeepIntuition:
             emoji="🎭"
         )
 
-        # 5. Lead Editor (Final Synthesis)
-        story = self._execute_agent(
+        # --- Tier 3: Lead Editor (Final Synthesis - Markdown Closer) ---
+        story_markdown: str = self._execute_agent(
             "Lead Editor",
             AgentPrompts.build(
                 AgentPrompts.LEAD_EDITOR_WEAVER,
@@ -97,10 +102,31 @@ class DeepIntuition:
                 intuition=intuition.model_dump(),
                 counterfactual=counterfactual.model_dump(),
                 struggle=struggle.model_dump()
-            ),
-            DeepIntuitionStory,
+            ) + "\n\nFINAL INSTRUCTION: Weave these insights into a powerful Markdown story. Use headers, quotes, and emphasized key insights.",
+            None,
             emoji="✍️"
         )
 
-        archive.set_final_story(story)
-        return story
+        # Create structured data for the .data member
+        final_data = DeepIntuitionStory(
+            topic=topic,
+            the_human_struggle=struggle.the_human_struggle,
+            the_aha_moment=intuition.the_aha_moment,
+            human_triumph_rationale=struggle.human_triumph_rationale,
+            counterfactual_world=counterfactual.counterfactual_world,
+            modern_resonance=counterfactual.modern_resonance,
+            key_historical_anchors=historical.key_historical_anchors
+        )
+
+        archive.set_final_story(story_markdown)
+        
+        return ModelOutput(
+            data=final_data,
+            markdown=story_markdown,
+            metadata={
+                "historical": historical.model_dump(),
+                "intuition": intuition.model_dump(),
+                "counterfactual": counterfactual.model_dump(),
+                "struggle": struggle.model_dump()
+            }
+        )

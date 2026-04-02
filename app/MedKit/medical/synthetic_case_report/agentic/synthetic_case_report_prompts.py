@@ -75,19 +75,35 @@ CONTEXT:
 
     @staticmethod
     def create_review_synthesis_agent_prompt() -> str:
-        """Create the system prompt for the Review & Synthesis Agent."""
-        return """You are a Senior Medical Editor and Reviewer.
-Your goal is to synthesize the clinical details into a final, professional medical case report.
-Focus on writing an insightful discussion that highlights the significance of the case, diagnostic reasoning, and learning points.
-Include the patient's perspective on their experience and ensure all ethical considerations (informed consent, anonymity) are addressed.
-Generate appropriate metadata including a title and keywords.
-Ensure the final report is cohesive, medically accurate, and follows CARE guidelines."""
+        """Create the system prompt for the Review & Compliance Agent (JSON Auditor)."""
+        return """You are a Senior Medical Editor and Compliance Auditor. 
+Your goal is to audit the synthetic case report for clinical coherence, 
+regulatory compliance, and adherence to medical guidelines. 
+Output your findings as a structured JSON report."""
 
     @staticmethod
     def create_review_synthesis_user_prompt(condition: str, full_context: str) -> str:
-        """Create the user prompt for the Review & Synthesis Agent."""
-        return f"""Synthesize a final medical case report for: {condition}.
-Based on the complete clinical context provided below, generate the discussion, patient perspective, informed consent, and metadata.
+        """Create the user prompt for the Review & Compliance Agent."""
+        return f"""Audit the following synthetic case report for: {condition}.
+Based on the complete clinical context provided below, identify any inconsistencies or compliance issues.
 
 CLINICAL CONTEXT:
 {full_context}"""
+
+    @staticmethod
+    def create_output_synthesis_prompts(condition: str, specialist_data: str, compliance_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Case Report Editor. Your role is to take raw "
+            "specialist case data and the compliance auditor's report, then synthesize "
+            "them into a FINAL, professional Markdown case report. You MUST apply "
+            "all fixes identified in the audit and ensure the report follows CARE guidelines."
+        )
+        user = (
+            f"Synthesize the final synthetic case report for: \"{condition}\"\n\n"
+            f"SPECIALIST CASE DATA:\n{specialist_data}\n\n"
+            f"COMPLIANCE AUDIT:\n{compliance_data}\n\n"
+            "Produce the final Markdown case report. Ensure it is accurate, professional, "
+            "and ready for clinical review."
+        )
+        return system, user

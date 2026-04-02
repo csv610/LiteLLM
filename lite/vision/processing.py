@@ -185,9 +185,7 @@ def remove_exif(image_path: str) -> Image.Image:
     """Remove all EXIF and metadata from an image."""
     with Image.open(image_path) as img:
         img = _convert_to_rgb(img)
-        clean_image = Image.new(img.mode, img.size)
-        clean_image.putdata(list(img.getdata()))
-        return clean_image
+        return Image.frombytes(img.mode, img.size, img.tobytes())
 
 def resize_to_max_size(
     image_path: str,

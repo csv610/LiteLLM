@@ -38,13 +38,39 @@ Guidelines:
 
     @staticmethod
     def create_user_prompt(implant: str) -> str:
-        """
-        Create the user prompt for medical implant information.
-
-        Args:
-            implant: The name of the medical implant
-
-        Returns:
-            str: Formatted user prompt
-        """
+        """Create the user prompt for medical implant information."""
         return f"Generate comprehensive information for the medical implant: {implant}."
+
+    @staticmethod
+    def get_implant_auditor_prompts(implant: str, implant_content: str) -> tuple[str, str]:
+        """Create prompts for the Implant Compliance Auditor (JSON output)."""
+        system = (
+            "You are a Medical Device Compliance Auditor. Your role is to audit "
+            "information about medical implants for technical accuracy, safety warnings, "
+            "and regulatory compliance. Output a structured JSON report identifying "
+            "any errors or missing critical safety information."
+        )
+        user = (
+            f"Audit the following medical implant information for '{implant}' and "
+            f"output a structured JSON report:\n\n{implant_content}"
+        )
+        return system, user
+
+    @staticmethod
+    def get_output_synthesis_prompts(implant: str, specialist_data: str, compliance_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Device Editor. Your role is to take raw "
+            "implant technical data and a structured compliance audit, then synthesize "
+            "them into a FINAL, polished, and safe Markdown report. You MUST apply all "
+            "fixes identified in the audit and ensure all safety disclaimers and "
+            "MRI compatibility information are prominently featured."
+        )
+        user = (
+            f"Synthesize the final medical implant report for '{implant}'.\n\n"
+            f"IMPLANT DATA:\n{specialist_data}\n\n"
+            f"COMPLIANCE AUDIT:\n{compliance_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with safety guidelines."
+        )
+        return system, user

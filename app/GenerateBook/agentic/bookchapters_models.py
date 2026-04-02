@@ -79,3 +79,15 @@ class ReviewedBookChaptersModel(BaseModel):
     revision_count: int = Field(..., description="Count of meaningful fixes made by the reviewer.")
     issues_found: list[ReviewIssue] = Field(default_factory=list, description="Issues discovered during review.")
     final_curriculum: BookChaptersModel = Field(..., description="The corrected final curriculum.")
+
+
+BookChapters = BookChaptersModel
+
+
+from typing import Any
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

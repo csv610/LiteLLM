@@ -20,33 +20,39 @@ Rules:
 
     @staticmethod
     def create_user_prompt(herb: str) -> str:
-        """Create the user prompt for herbal information generation.
+        """Create the user prompt for herbal information generation."""
+        return f"Generate a structured herbal monograph for: {herb}"
 
-        Args:
-            herb: The name of the herb to generate information for.
-        """
-        return f"""
-Generate a structured herbal monograph for: {herb}
+    @staticmethod
+    def create_compliance_auditor_prompts(herb: str, content: str) -> tuple[str, str]:
+        """Create prompts for the JSON Compliance Auditor."""
+        system = (
+            "You are a Senior Herbal Safety & Compliance Auditor. Your role is to "
+            "audit herbal monographs for accuracy, dangerous claims, and missing "
+            "drug interaction warnings. Output a structured JSON report identifying "
+            "any unsubstantiated cures or critical safety omissions."
+        )
+        user = (
+            f"Audit the following herbal information for '{herb}' and output a "
+            f"structured JSON report:\n\n{content}"
+        )
+        return system, user
 
-Include the following sections:
-
-1. Botanical Name and Family  
-2. Common Names  
-3. Parts Used  
-4. Active Compounds (major phytochemicals)  
-5. Traditional Uses (Ayurveda, TCM, Western herbalism if applicable)  
-6. Pharmacological Actions (mechanisms where known)  
-7. Modern Scientific Evidence (human, animal, or in vitro)  
-8. Common Preparations and Dosage Forms (not prescriptions)  
-9. Safety Profile  
-10. Contraindications  
-11. Drug Interactions  
-12. Pregnancy and Lactation Safety  
-13. Toxicity and Overdose Risk  
-
-Formatting rules:
-- Use clear section headings.
-- Use complete, medically precise sentences.
-- Do not invent clinical evidence.
-- If data is unknown or insufficient, write: "Insufficient reliable data available."
-"""
+    @staticmethod
+    def create_output_synthesis_prompts(herb: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Herbal Monograph Editor. Your role is to take raw "
+            "botanical and pharmacological data and a structured safety audit, "
+            "then synthesize them into a FINAL, polished, and safe Markdown monograph. "
+            "You MUST apply all safety fixes identified in the audit and ensure "
+            "all drug interactions are clearly highlighted."
+        )
+        user = (
+            f"Synthesize the final herbal monograph for: '{herb}'\n\n"
+            f"HERBAL DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown monograph. Ensure it is accurate, professional, "
+            "and 100% compliant with evidence-based safety standards."
+        )
+        return system, user

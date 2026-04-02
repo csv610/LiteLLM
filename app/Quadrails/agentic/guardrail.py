@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
 """
-Guardrail System - Analyzes text and images for safety violations.
-Uses LiteClient to perform content moderation.
+Guardrail System - Analyzes text and images for safety violations using 3-tier approach.
 """
 
 import asyncio
 import hashlib
 import logging
 import re
+import sys
+import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .guardrail_models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError
+from .guardrail_models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError, ModelOutput
 from .guardrail_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
+sys.modules.setdefault("guardrail", sys.modules[__name__])
 
 
 def configure_module_logging() -> None:
-    """Configure module logging explicitly instead of at import time."""
+    """Configure module logging explicitly."""
     logging_config.configure_logging(str(Path(__file__).parent / "logs" / "guardrail.log"))
 
 
@@ -29,18 +31,15 @@ class BaseGuardrailAgent:
     """Shared functionality for guardrail agents."""
 
     def __init__(self, config: Optional[ModelConfig] = None, max_length: int = 4000):
-        """Initialize the agent."""
         self.config = config or ModelConfig(model="ollama/gemma3", temperature=0.1)
         self.client = LiteClient(self.config)
         self.max_length = max_length
         self._cache: Dict[str, Any] = {}
 
     def _get_cache_key(self, data: str) -> str:
-        """Generate a stable hash for caching."""
         return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
     def _preprocess_text(self, text: str) -> str:
-        """Clean and truncate input text."""
         try:
             if not text:
                 return ""
@@ -56,8 +55,8 @@ class BaseGuardrailAgent:
 class TextGuardrailAgent(BaseGuardrailAgent):
     """Agent responsible for text safety analysis."""
 
-    async def analyze_text(self, text: str, use_cache: bool = True) -> GuardrailResponse:
-        """Asynchronously analyze text for safety violations."""
+    async def analyze_text(self, text: str, use_cache: bool = True) -> ModelOutput:
+        """Asynchronously analyze text using 3-tier artifact approach."""
         cleaned_text = self._preprocess_text(text)
         if not cleaned_text:
             raise PreprocessingError("Input text is empty after pre-processing.")
@@ -67,6 +66,7 @@ class TextGuardrailAgent(BaseGuardrailAgent):
             return self._cache[cache_key]
 
         try:
+            # Tier 1: Specialist Analysis (JSON)
             model_input = ModelInput(
                 system_prompt=PromptBuilder.get_system_prompt(),
                 user_prompt=PromptBuilder.get_user_prompt(cleaned_text),
@@ -74,33 +74,44 @@ class TextGuardrailAgent(BaseGuardrailAgent):
             )
 
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, self.client.generate, model_input)
+            spec_res = await loop.run_in_executor(None, self.client.generate_text, model_input)
+            spec_data: GuardrailResponse = spec_res.data
+            spec_data.text = cleaned_text
 
-            if isinstance(response, GuardrailResponse):
-                response.text = cleaned_text
-                if use_cache:
-                    self._cache[cache_key] = response
-                return response
-            else:
-                raise AnalysisError("No structured output received from model.")
-        except AnalysisError:
-            raise
+            # Tier 3: Output Synthesis (Markdown Closer)
+            synth_prompt = f"Synthesize a professional safety audit report for the following text analysis.\n\nDATA:\n{spec_data.model_dump_json(indent=2)}"
+            synth_input = ModelInput(
+                system_prompt="You are a Lead Safety Compliance Editor. Synthesize raw guardrail data into a clear Markdown report with Verdict and Severity sections.",
+                user_prompt=synth_prompt,
+                response_format=None
+            )
+            final_markdown_res = await loop.run_in_executor(None, self.client.generate_text, synth_input)
+            final_markdown = final_markdown_res.markdown
+
+            output = ModelOutput(
+                data=spec_data,
+                markdown=final_markdown,
+                metadata={"type": "text_guardrail", "raw_cleaned_text": cleaned_text}
+            )
+
+            if use_cache:
+                self._cache[cache_key] = output
+            return output
         except Exception as e:
-            raise AnalysisError(f"Analysis failed: {str(e)}")
+            raise AnalysisError(f"Text analysis failed: {str(e)}")
 
 
 class ImageGuardrailAgent(BaseGuardrailAgent):
     """Agent responsible for image safety analysis."""
 
     def _get_image_cache_key(self, path: Path) -> str:
-        """Cache based on file identity and content metadata, not just path."""
         resolved_path = path.resolve()
         stats = resolved_path.stat()
         cache_input = f"{resolved_path}:{stats.st_size}:{stats.st_mtime_ns}"
         return self._get_cache_key(cache_input)
 
-    async def analyze_image(self, image_path: str, use_cache: bool = True) -> ImageGuardrailResponse:
-        """Asynchronously analyze an image for safety violations."""
+    async def analyze_image(self, image_path: str, use_cache: bool = True) -> ModelOutput:
+        """Asynchronously analyze an image using 3-tier artifact approach."""
         path = Path(image_path)
         if not path.exists():
             raise PreprocessingError(f"Image file not found: {image_path}")
@@ -110,9 +121,7 @@ class ImageGuardrailAgent(BaseGuardrailAgent):
             return self._cache[cache_key]
 
         try:
-            logger.info(f"Starting async image analysis: {image_path}")
-
-            # Using image_path directly in ModelInput as per lite/config.py
+            # Tier 1: Specialist Analysis (JSON)
             model_input = ModelInput(
                 system_prompt=PromptBuilder.get_image_system_prompt(),
                 user_prompt=PromptBuilder.get_image_user_prompt(),
@@ -121,19 +130,30 @@ class ImageGuardrailAgent(BaseGuardrailAgent):
             )
 
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, self.client.generate, model_input)
+            spec_res = await loop.run_in_executor(None, self.client.generate_text, model_input)
+            spec_data: ImageGuardrailResponse = spec_res.data
+            spec_data.image_path = str(path.absolute())
 
-            if isinstance(response, ImageGuardrailResponse):
-                response.image_path = str(path.absolute())
-                if use_cache:
-                    self._cache[cache_key] = response
-                return response
-            else:
-                raise AnalysisError("No structured output received for image analysis.")
-        except AnalysisError:
-            raise
+            # Tier 3: Output Synthesis (Markdown Closer)
+            synth_prompt = f"Synthesize a professional image safety audit report.\n\nDATA:\n{spec_data.model_dump_json(indent=2)}"
+            synth_input = ModelInput(
+                system_prompt="You are a Lead Visual Safety Editor. Synthesize raw image guardrail data into a clear Markdown report with Verdict and Category sections.",
+                user_prompt=synth_prompt,
+                response_format=None
+            )
+            final_markdown_res = await loop.run_in_executor(None, self.client.generate_text, synth_input)
+            final_markdown = final_markdown_res.markdown
+
+            output = ModelOutput(
+                data=spec_data,
+                markdown=final_markdown,
+                metadata={"type": "image_guardrail", "image_path": str(path.absolute())}
+            )
+
+            if use_cache:
+                self._cache[cache_key] = output
+            return output
         except Exception as e:
-            logger.error(f"Image analysis error: {str(e)}")
             raise AnalysisError(f"Image analysis failed: {str(e)}")
 
 
@@ -145,42 +165,21 @@ class GuardrailAnalyzer:
         self.text_agent = TextGuardrailAgent(config=config, max_length=max_length)
         self.image_agent = ImageGuardrailAgent(config=config, max_length=max_length)
 
-    async def analyze_text(self, text: str, use_cache: bool = True) -> GuardrailResponse:
-        """Delegate text analysis to the text guardrail agent."""
+    async def analyze_text(self, text: str, use_cache: bool = True) -> ModelOutput:
         return await self.text_agent.analyze_text(text, use_cache=use_cache)
 
-    async def analyze_image(self, image_path: str, use_cache: bool = True) -> ImageGuardrailResponse:
-        """Delegate image analysis to the image guardrail agent."""
+    async def analyze_image(self, image_path: str, use_cache: bool = True) -> ModelOutput:
         return await self.image_agent.analyze_image(image_path, use_cache=use_cache)
 
     @staticmethod
-    def display_results(result: Any):
-        """Display analysis results (Text or Image)."""
-        if not result:
+    def display_results(output: ModelOutput):
+        """Display synthesized Markdown results."""
+        if not output or not output.markdown:
             print("\n❌ Error: No analysis result available.")
             return
 
-        is_image = isinstance(result, ImageGuardrailResponse)
-        
         print(f"\n{'='*80}")
-        print(f"GUARDRAIL {'IMAGE ' if is_image else ''}ANALYSIS RESULTS")
+        print(f"GUARDRAIL ANALYSIS REPORT")
         print(f"{'='*80}")
-        
-        if is_image:
-            print(f"\nIMAGE PATH: {result.image_path}")
-        else:
-            print(f"\nINPUT TEXT: \"{result.text[:100]}{'...' if len(result.text) > 100 else ''}\"")
-            
-        print(f"\nOVERALL SAFETY: {'✅ SAFE' if result.is_safe else '⚠️  FLAGGED'}")
-        print(f"\nSUMMARY: {result.summary}")
-        
-        if result.flagged_categories:
-            print("\nFLAGGED CATEGORIES:")
-            for category_result in result.flagged_categories:
-                print(f"  - {category_result.category.value.upper()}:")
-                print(f"    Confidence: {category_result.score:.2f}")
-                print(f"    Reasoning: {category_result.reasoning}")
-        else:
-            print("\nNO SAFETY VIOLATIONS DETECTED.")
-            
+        print(output.markdown)
         print(f"\n{'='*80}\n")

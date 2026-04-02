@@ -2,7 +2,7 @@
 periodic_table_element.py - PeriodicTableElement class for element information
 
 Contains the PeriodicTableElement class for fetching and managing
-periodic table element information with comprehensive data validation.
+periodic table element information with a 3-tier artifact-based approach.
 """
 
 import json
@@ -12,7 +12,7 @@ from typing import Optional
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from periodic_table_models import ElementInfo, ElementResponse
+from .periodic_table_models import ElementInfo, ElementResponse, ModelOutput
 
 
 # List of all 118 elements by atomic number
@@ -49,65 +49,55 @@ class PeriodicTableElement:
         self.client = LiteClient(model_config=model_config)
         self.logger = logging.getLogger(__name__)
     
-    def fetch_element_info(self, element: str) -> Optional[ElementInfo]:
-        """Fetch information for a single element.
+    def fetch_element_info(self, element: str) -> Optional[ModelOutput]:
+        """Fetch information for a single element using a 3-tier approach.
         
         Args:
             element: Name of the element to fetch information for
             
         Returns:
-            ElementInfo object with detailed element data, or None if failed
+            ModelOutput object containing structured data and markdown synthesis.
         """
         try:
-            prompt = f"Provide detailed information about the periodic table element {element}."
-            model_input = ModelInput(user_prompt=prompt, response_format=ElementResponse)
-            response_content = self.client.generate_text(model_input=model_input)
+            self.logger.info(f"Fetching 3-tier info for element: {element}")
 
-            if isinstance(response_content, ElementResponse):
-                return response_content.element
-            elif isinstance(response_content, str):
-                data = json.loads(response_content)
-                return ElementInfo(**data.get("element", {}))
-            return None
+            # Tier 1: Specialist (JSON)
+            prompt = f"Provide detailed technical information about the periodic table element {element}."
+            model_input = ModelInput(user_prompt=prompt, response_format=ElementResponse)
+            res = self.client.generate_text(model_input=model_input)
+            element_data: ElementInfo = res.data.element
+
+            # Tier 3: Output Synthesis (Markdown Closer)
+            synth_prompt = f"Synthesize a beautiful, educational Markdown report for the element {element}.\n\nDATA:\n{element_data.model_dump_json(indent=2)}"
+            synth_input = ModelInput(
+                system_prompt="You are a Lead Science Editor. Synthesize raw element data into a professional and engaging Markdown report.",
+                user_prompt=synth_prompt,
+                response_format=None
+            )
+            final_markdown = self.client.generate_text(synth_input).markdown
+
+            return ModelOutput(
+                data=element_data,
+                markdown=final_markdown,
+                metadata={"process": "2-stage fetch-and-synthesize"}
+            )
         except Exception as e:
             self.logger.error(f"Error fetching {element}: {str(e)}")
             return None
     
-    def fetch_multiple_elements(self, elements: list[str]) -> dict[str, Optional[ElementInfo]]:
-        """Fetch information for multiple elements.
-        
-        Args:
-            elements: List of element names to fetch information for
-            
-        Returns:
-            Dictionary mapping element names to ElementInfo objects (or None if failed)
-        """
+    def fetch_multiple_elements(self, elements: list[str]) -> dict[str, Optional[ModelOutput]]:
+        """Fetch information for multiple elements."""
         results = {}
         for element in elements:
             results[element] = self.fetch_element_info(element)
         return results
     
     def validate_element_name(self, element: str, valid_elements: list[str]) -> bool:
-        """Validate that an element name is in the list of valid elements.
-        
-        Args:
-            element: Element name to validate
-            valid_elements: List of valid element names
-            
-        Returns:
-            True if element is valid, False otherwise
-        """
+        """Validate that an element name is in the list of valid elements."""
         return element in valid_elements
     
     def get_element_summary(self, element_info: ElementInfo) -> dict:
-        """Get a summary dictionary of key element information.
-        
-        Args:
-            element_info: ElementInfo object containing full element data
-            
-        Returns:
-            Dictionary with key element information
-        """
+        """Get a summary dictionary of key element information."""
         return {
             "name": element_info.name,
             "symbol": element_info.symbol,
@@ -124,59 +114,24 @@ class PeriodicTableElement:
         }
     
     def get_uses_list(self, element_info: ElementInfo) -> list[str]:
-        """Get the list of uses for an element.
-        
-        Args:
-            element_info: ElementInfo object containing full element data
-            
-        Returns:
-            List of element uses
-        """
+        """Get the list of uses for an element."""
         return element_info.uses
     
     def get_properties_list(self, element_info: ElementInfo) -> list[str]:
-        """Get the list of key properties for an element.
-        
-        Args:
-            element_info: ElementInfo object containing full element data
-            
-        Returns:
-            List of element properties
-        """
+        """Get the list of key properties for an element."""
         return element_info.properties
     
     def get_isotope_info(self, element_info: ElementInfo) -> Optional[list]:
-        """Get isotope information for an element.
-        
-        Args:
-            element_info: ElementInfo object containing full element data
-            
-        Returns:
-            List of isotope information or None if not available
-        """
+        """Get isotope information for an element."""
         return element_info.isotopes
     
     def get_discovery_info(self, element_info: ElementInfo) -> dict:
-        """Get discovery information for an element.
-        
-        Args:
-            element_info: ElementInfo object containing full element data
-            
-        Returns:
-            Dictionary with discovery information
-        """
+        """Get discovery information for an element."""
         return {
             "discovered_by": element_info.discovered_by,
             "year_discovered": element_info.year_discovered
         }
     
     def get_safety_info(self, element_info: ElementInfo) -> Optional[str]:
-        """Get safety and toxicity information for an element.
-        
-        Args:
-            element_info: ElementInfo object containing full element data
-            
-        Returns:
-            Safety information string or None if not available
-        """
+        """Get safety and toxicity information for an element."""
         return element_info.toxicity_and_safety

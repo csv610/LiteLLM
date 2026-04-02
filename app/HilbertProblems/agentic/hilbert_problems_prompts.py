@@ -102,8 +102,9 @@ Review Rules:
 1. Preserve the canonical Hilbert problem number and title.
 2. Correct any factual, historical, or mathematical inaccuracies.
 3. Tighten vague wording when needed, but do not add speculation.
-4. Keep the output in the exact requested structured schema.
-5. If the draft is already accurate, return a cleaned and validated version with only necessary edits."""
+4. Return the final corrected response in a well-formatted Markdown structure.
+5. Use headers, bullet points, and bold text for readability.
+6. If the draft is already accurate, return a cleaned and validated version with only necessary edits."""
 
     @staticmethod
     def get_reviewer_prompt(problem_number: int, draft_problem_json: str) -> str:
@@ -123,15 +124,22 @@ Review Rules:
 
 Canonical title: {title}
 
-Draft entry:
+Draft entry (JSON):
 {draft_problem_json}
 
 Tasks:
 1. Verify that the number and title match the canonical Hilbert problem.
 2. Correct any inaccurate status, solver attribution, year, description, method, related fields, or notes.
 3. Keep the content historically precise and mathematically rigorous.
-4. Return the final corrected response using these exact field names only:
-number, title, description, status, solved_by, solution_year, solution_method, related_fields, notes"""
+4. Format the final output as a clean Markdown report with the following sections:
+- # Hilbert's Problem #{problem_number}: {title}
+- **Status**: (solved, unsolved, partially solved)
+- **Solved By**: (if applicable)
+- **Year**: (if applicable)
+- **Description**: (clear mathematical formulation)
+- **Solution Method**: (detailed explanation)
+- **Related Fields**: (list of mathematical areas)
+- **Notes**: (historical context or modern relevance)"""
 
 
     @staticmethod

@@ -43,7 +43,9 @@ class PromptBuilder:
         system_part = PromptBuilder.get_system_prompt(level)
         user_part = PromptBuilder.get_user_prompt(subject, level, num_chapters)
         
-        return f"{system_part}\n\n{user_part}"
+        return f"""{system_part}
+
+{user_part}"""
 
     @staticmethod
     def get_system_prompt(level: str = None) -> str:
@@ -154,7 +156,8 @@ General Public Guidelines (All Ages):
 - Assessment through engagement, feedback, and participation
 - Reading level: General audience accessible material"""
 
-        return f"{system_prompt}\n{level_specific_guidelines}"
+        return f"""{system_prompt}
+{level_specific_guidelines}"""
 
     @staticmethod
     def get_user_prompt(subject: str, level: str = None, num_chapters: int = 12) -> str:
@@ -215,7 +218,8 @@ Quality Requirements:
 - Use inclusive and culturally responsive content
 - Align with educational standards for the target level
 
-Make sure that learning is truly incremental and builds naturally. For General Public, emphasize engaging storytelling, real-world examples, and the "wow factor" of the subject. Adapt all content to be age-appropriate and feasible for the education level."""
+Make sure that learning is truly incremental and builds naturally. For General Public, emphasize engaging storytelling, real-world examples, and the "wow factor" of the subject. Adapt all content to be age-appropriate and feasible for the education level.
+Ensure your entire response is a valid JSON object conforming to the BookChaptersModel schema, with top-level keys: 'subject', 'description', and 'education_levels'."""
     
     @staticmethod
     def get_level_code(level: str) -> str:

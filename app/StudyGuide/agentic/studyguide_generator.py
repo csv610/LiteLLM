@@ -1,12 +1,14 @@
 """Direct-streaming book summary generator: prevents truncation by writing batches directly to disk."""
 
 import json
+import logging
 from pathlib import Path
 import sys
-from typing import List
+from typing import List, Optional
 
 # Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.modules["studyguide_generator"] = sys.modules[__name__]
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
@@ -23,8 +25,11 @@ from .studyguide_models import (
     ChapterQuiz,
     ChapterSummaryAndAnalysis,
     FollowUpModel,
+    ModelOutput,
 )
 from .studyguide_prompts import PromptBuilder
+
+logger = logging.getLogger(__name__)
 
 
 class StudyGuideGenerator:
@@ -39,37 +44,31 @@ class StudyGuideGenerator:
         self.client = LiteClient(model_config=model_config)
 
     def _run_planner_agent(self, book_input: BookInput) -> SummaryPlanModel:
-        """Run the planner agent."""
+        """Run the planner agent (Tier 1 Specialist)."""
         model_input = ModelInput(
             user_prompt=PromptBuilder.get_planner_prompt(book_input.title, book_input.author),
             response_format=SummaryPlanModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, SummaryPlanModel):
-            return response
-        raise ValueError(f"Expected SummaryPlanModel, got {type(response).__name__}")
+        return response.data
 
     def _run_research_agent(self, book_input: BookInput) -> ResearchModel:
-        """Run the research agent."""
+        """Run the research agent (Tier 1 Specialist)."""
         model_input = ModelInput(
             user_prompt=PromptBuilder.get_research_prompt(book_input.title, book_input.author, "Live academic search results 2024-2026."),
             response_format=ResearchModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, ResearchModel):
-            return response
-        return ResearchModel(latest_updates=[], academic_critiques=[])
+        return response.data
 
     def _run_prerequisite_agent(self, book_input: BookInput) -> PrerequisiteModel:
-        """Run the prerequisite agent."""
+        """Run the prerequisite agent (Tier 1 Specialist)."""
         model_input = ModelInput(
             user_prompt=PromptBuilder.get_prerequisite_prompt(book_input.title, book_input.author),
             response_format=PrerequisiteModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, PrerequisiteModel):
-            return response
-        raise ValueError(f"Expected PrerequisiteModel, got {type(response).__name__}")
+        return response.data
 
     def _run_batch_generator(self, book_input: BookInput, chapters: List[str], plan: SummaryPlanModel) -> List[ChapterSummaryAndAnalysis]:
         """Run the generator agent for a batch."""
@@ -78,9 +77,7 @@ class StudyGuideGenerator:
             response_format=BatchSummaryResponse,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, BatchSummaryResponse):
-            return response.chapters
-        raise ValueError(f"Expected BatchSummaryResponse, got {type(response).__name__}")
+        return response.data.chapters
 
     def _run_batch_quiz(self, book_input: BookInput, batch_content: List[ChapterSummaryAndAnalysis]) -> List[ChapterQuiz]:
         """Run the quiz agent for a batch."""
@@ -89,9 +86,7 @@ class StudyGuideGenerator:
             response_format=BatchQuizResponse,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, BatchQuizResponse):
-            return response.quizzes
-        raise ValueError(f"Expected BatchQuizResponse, got {type(response).__name__}")
+        return response.data.quizzes
 
     def _run_mindmap_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> MindMapModel:
         """Run the mindmap agent."""
@@ -100,9 +95,7 @@ class StudyGuideGenerator:
             response_format=MindMapModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, MindMapModel):
-            return response
-        raise ValueError(f"Expected MindMapModel, got {type(response).__name__}")
+        return response.data
 
     def _run_relevancy_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> RelevancyModel:
         """Run the relevancy agent."""
@@ -111,9 +104,7 @@ class StudyGuideGenerator:
             response_format=RelevancyModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, RelevancyModel):
-            return response
-        raise ValueError(f"Expected RelevancyModel, got {type(response).__name__}")
+        return response.data
 
     def _run_essay_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> EssayArchitectModel:
         """Run the essay agent."""
@@ -122,9 +113,7 @@ class StudyGuideGenerator:
             response_format=EssayArchitectModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, EssayArchitectModel):
-            return response
-        raise ValueError(f"Expected EssayArchitectModel, got {type(response).__name__}")
+        return response.data
 
     def _run_followup_agent(self, book_input: BookInput, plan: SummaryPlanModel) -> FollowUpModel:
         """Run the follow-up agent."""
@@ -133,12 +122,10 @@ class StudyGuideGenerator:
             response_format=FollowUpModel,
         )
         response = self.client.generate_text(model_input=model_input)
-        if isinstance(response, FollowUpModel):
-            return response
-        raise ValueError(f"Expected FollowUpModel, got {type(response).__name__}")
+        return response.data
 
-    def generate_and_save(self, book_input: BookInput) -> str:
-        """Main orchestrator: Streams content directly to Markdown file."""
+    def generate_and_save(self, book_input: BookInput) -> ModelOutput:
+        """Main orchestrator: Streams content directly to Markdown file and returns artifact."""
         output_dir = Path(__file__).parent / "outputs"
         output_dir.mkdir(exist_ok=True)
 
@@ -276,4 +263,17 @@ class StudyGuideGenerator:
             f.write("- **Status:** Completed successfully\n")
 
         print(f"Academic Deconstruction Complete: {filename}")
-        return str(filename)
+        
+        # Read the full file content for the markdown member
+        with open(filename, 'r', encoding='utf-8') as f:
+            full_markdown = f.read()
+
+        return ModelOutput(
+            data=plan,
+            markdown=full_markdown,
+            metadata={
+                "file_path": str(filename),
+                "model": self.model,
+                "author": book_input.author
+            }
+        )

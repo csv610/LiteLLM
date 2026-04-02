@@ -65,17 +65,30 @@ Provide your findings in a clear, organized format. Do NOT list specific drugs u
 
     @staticmethod
     def create_reviewer_system_prompt() -> str:
-        """System prompt for the Medical Reviewer & Orchestrator Agent."""
-        return """You are a Chief Medical Officer and Reviewer. Your role is to synthesize research from a Clinical Pharmacologist and a Safety Specialist into a final, medically sound report.
+        """Create prompts for the JSON Compliance Auditor."""
+        return """You are a Senior Medical Reviewer and Quality Auditor. 
+Your role is to audit symptom-to-drug treatment lists for clinical accuracy, 
+regulatory compliance, and patient safety. Output your findings as a 
+structured JSON report."""
 
-Your responsibilities:
-1. Review the drug list for accuracy and ensure no drug names are fabricated.
-2. Integrate safety warnings and contraindications with the recommended drugs.
-3. Provide non-pharmacological/lifestyle recommendations.
-4. Ensure the final report is professional, concise, and follows the required structure.
-5. Summarize the technical pharmacological approach.
-
-Verify all information and ensure a cohesive, safe response. Do NOT include any introductory preamble."""
+    @staticmethod
+    def create_output_synthesis_prompts(config: SymptomInput, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Clinical Treatment Editor. Your role is to take raw "
+            "symptom-to-drug research data and a structured safety audit, then "
+            "synthesize them into a FINAL, polished, and safe Markdown report. "
+            "You MUST apply all fixes identified in the audit and ensure the "
+            "treatment options are diverse and medically sound."
+        )
+        user = (
+            f"Synthesize the final symptom-to-drug treatment report for: '{config.symptom_name}'\n\n"
+            f"TREATMENT DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with safety standards."
+        )
+        return system, user
 
     @staticmethod
     def create_researcher_user_prompt(config: SymptomInput) -> str:

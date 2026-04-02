@@ -201,11 +201,11 @@ class FAQGenerator:
 
         raise RuntimeError(f"{stage_name} failed unexpectedly")
 
-    def generate_text(self, faq_input: FAQInput) -> list[FAQ]:
+    def generate_text(self, faq_input: FAQInput) -> ModelOutput:
         """
-        Generate FAQs with a generator stage and a reviewer stage.
+        Generate FAQs with a 3-tier agent system (JSON -> Audit -> Markdown).
         """
-        logger.info(f"Starting FAQ generation for: {faq_input.input_source}")
+        logger.info(f"Starting 3-tier FAQ generation for: {faq_input.input_source}")
         prompt_builder = PromptBuilder(faq_input.num_faqs, faq_input.difficulty)
 
         content = None
@@ -213,30 +213,41 @@ class FAQGenerator:
             content = self._read_content_file(faq_input.input_source)
 
         try:
+            # Tier 1: Specialist Stage (JSON)
             generation_prompt = (
                 prompt_builder.build_content_prompt(content)
                 if content else
                 prompt_builder.build_topic_prompt(faq_input.input_source)
             )
-            generated_response = self._run_stage(
+            generated_response: FAQResponse = self._run_stage(
                 prompt=generation_prompt,
                 response_format=FAQResponse,
                 stage_name="Generator agent"
             )
 
+            # Tier 3: Output Synthesis Stage (Markdown Closer)
+            # Note: The reviewer prompt acts as the synthesis instructions here.
             review_prompt = prompt_builder.build_review_prompt(
                 source=faq_input.input_source,
                 faqs=generated_response.faqs,
                 content=content
             )
-            reviewed_response = self._run_stage(
-                prompt=review_prompt,
-                response_format=ReviewedFAQResponse,
-                stage_name="Reviewer agent"
+            
+            logger.debug("Reviewer agent (Final stage) synthesizing Markdown...")
+            model_input = ModelInput(
+                user_prompt=review_prompt + "\n\nFINAL INSTRUCTION: Output the final reviewed FAQs in a well-formatted Markdown structure for human consumption. Include a title, brief reviewer notes, and clearly listed Question/Answer pairs.",
+                response_format=None
             )
+            reviewed_markdown_res = self.client.generate_text(model_input=model_input)
+            reviewed_markdown = reviewed_markdown_res.markdown
 
-            logger.info(f"Successfully generated and reviewed {len(reviewed_response.faqs)} FAQs")
-            return reviewed_response.faqs
+            logger.info("Successfully generated 3-tier FAQ artifact")
+            
+            return ModelOutput(
+                data=generated_response,
+                markdown=reviewed_markdown,
+                metadata={"process": "2-agent sequential generator-reviewer"}
+            )
 
         except Exception as e:
             logger.error(f"Critical failure in generate_text: {e}", exc_info=True)
@@ -251,12 +262,12 @@ class DataExporter:
     """Handles the persistence of generated FAQs to the filesystem."""
 
     @staticmethod
-    def export_to_json(faqs: list[FAQ], faq_input: FAQInput) -> str:
+    def export_to_markdown(markdown_content: str, faq_input: FAQInput) -> str:
         """
-        Save FAQs to a JSON file with path sanitization.
+        Save FAQs to a Markdown file with path sanitization.
 
         Args:
-            faqs: List of generated FAQ objects
+            markdown_content: The final Markdown string from the reviewer agent
             faq_input: Input configuration used for generation
 
         Returns:
@@ -264,7 +275,7 @@ class DataExporter:
         """
         # Sanitize filename
         safe_source = re.sub(r'[^a-zA-Z0-9_-]', '_', Path(faq_input.input_source).name.lower())
-        output_filename = f"faq_{safe_source}_{faq_input.difficulty}_{len(faqs)}.json"
+        output_filename = f"faq_{safe_source}_{faq_input.difficulty}.md"
         
         # Ensure output_dir is treated safely
         base_dir = Path(faq_input.output_dir).resolve()
@@ -273,19 +284,9 @@ class DataExporter:
             
         output_path = base_dir / output_filename
 
-        data_to_save = {
-            "metadata": {
-                "source": faq_input.input_source,
-                "difficulty": faq_input.difficulty,
-                "count": len(faqs),
-                "timestamp": Path(faq_input.output_dir).stat().st_mtime # Placeholder for real timestamp
-            },
-            "faqs": [faq.model_dump() for faq in faqs]
-        }
-
         try:
             with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(data_to_save, f, indent=4)
+                f.write(markdown_content)
             output_path.chmod(0o644)
             logger.info(f"Results archived to {output_path}")
             return str(output_path)

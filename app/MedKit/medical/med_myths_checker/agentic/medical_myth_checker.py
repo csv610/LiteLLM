@@ -29,38 +29,59 @@ class MedicalMythsChecker:
         self.myth: Optional[str] = None
 
     def generate_text(self, myth: str, structured: bool = False) -> ModelOutput:
-        """
-        Analyze a medical myth and determine its status.
-
-        Args:
-            myth: The myth/claim to analyze.
-
-        Returns:
-            The generated MythAnalysisResponse object.
-
-        Raises:
-            ValueError: If myth is empty.
-        """
+        """Analyze a medical myth using a 3-tier agent system."""
         if not myth or not myth.strip():
             raise ValueError("Myth statement cannot be empty")
 
         self.myth = myth
-        logger.debug(f"Starting medical myth analysis for: {myth}")
+        logger.info(f"Starting 3-tier myth analysis for: {myth}")
 
-        response_format = None
-        if structured:
-            response_format = MedicalMythAnalysisModel
+        try:
+            # 1. Specialist Stage (JSON)
+            logger.debug("[Specialist] Analyzing myth evidence...")
+            spec_input = ModelInput(
+                system_prompt=PromptBuilder.system_prompt(),
+                user_prompt=PromptBuilder.user_prompt(myth),
+                response_format=MedicalMythAnalysisModel if structured else None,
+            )
+            spec_res = self._ask_llm(spec_input)
+            
+            if structured:
+                spec_json = spec_res.data.model_dump_json(indent=2)
+            else:
+                spec_json = spec_res.markdown
 
-        model_input = ModelInput(
-            system_prompt=PromptBuilder.system_prompt(),
-            user_prompt=PromptBuilder.user_prompt(myth),
-            response_format=response_format,
-        )
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug("[Auditor] Auditing evidence...")
+            audit_sys, audit_usr = PromptBuilder.get_evidence_auditor_prompts(myth, spec_json)
+            audit_input = ModelInput(
+                system_prompt=audit_sys,
+                user_prompt=audit_usr,
+                response_format=None # Audit result
+            )
+            audit_res = self._ask_llm(audit_input)
+            audit_json = audit_res.markdown
 
-        logger.debug("Calling LiteClient.generate_text()...")
-        result = self._ask_llm(model_input)
-        logger.debug("✓ Successfully analyzed medical myth")
-        return result
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug("[Output] Synthesizing final report...")
+            out_sys, out_usr = PromptBuilder.get_output_synthesis_prompts(myth, spec_json, audit_json)
+            out_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self._ask_llm(out_input)
+
+            logger.info("✓ Successfully generated 3-tier myth analysis")
+            return ModelOutput(
+                data=spec_res.data, 
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
+
+        except Exception as e:
+            logger.error(f"✗ 3-tier Myth generation failed: {e}")
+            raise
 
     def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """

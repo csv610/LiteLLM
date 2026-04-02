@@ -1,3 +1,4 @@
+from typing import Any
 """
 faq_generator_models.py - Pydantic models for FAQ generation
 
@@ -6,7 +7,7 @@ with comprehensive validation and structured data organization.
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Literal
+from typing import List, Literal, Optional, Any, Dict
 
 # Centralized list of valid difficulty levels
 VALID_DIFFICULTIES = ["simple", "medium", "hard", "research"]
@@ -33,3 +34,10 @@ class ReviewedFAQResponse(FAQResponse):
         ...,
         description="Short summary of what the reviewer agent corrected or validated"
     )
+
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

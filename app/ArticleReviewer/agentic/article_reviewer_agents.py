@@ -96,9 +96,9 @@ class MultiAgentReviewer:
         modifications: List[ModifyModel],
         insertions: List[InsertModel],
         proofreading_rules_applied: List[str],
-    ) -> ArticleReviewModel:
+    ) -> str:
         manager_prompt = f"""
-You are the lead article reviewer. Synthesize specialist feedback into one final report.
+You are the lead article reviewer. Synthesize specialist feedback into one final report in Markdown format.
 
 ARTICLE TO REVIEW:
 <article>
@@ -116,18 +116,18 @@ SPECIALIST FEEDBACK:
 INSTRUCTIONS:
 1. Merge the specialist findings without inventing contradictory edits.
 2. Remove duplicates if multiple specialists imply the same issue.
-3. Provide one overall score from 0-100.
+3. Provide one overall score from 0-100 prominently.
 4. Provide a concise summary of overall article quality.
-5. Set total_issues to the total number of retained deletions, modifications, and insertions.
+5. List all retained deletions, modifications, and insertions in a well-formatted Markdown structure.
+6. Use headers, bullet points, and bold text for readability.
 """
         model_input = ModelInput(
             user_prompt=manager_prompt,
-            response_format=ArticleReviewModel,
+            response_format=None, # Markdown output
         )
-        response = self.client.generate_text(model_input=model_input)
-        return _parse_model_response(response, ArticleReviewModel)
+        return self.client.generate_text(model_input=model_input)
 
-    async def review(self, article_text: str) -> ArticleReviewModel:
+    async def review(self, article_text: str) -> ModelOutput:
         """Review an article using LiteClient-only multi-stage orchestration."""
         deletions_task = asyncio.to_thread(
             self._run_specialist,
@@ -168,7 +168,7 @@ INSTRUCTIONS:
             )
         )
 
-        review = await asyncio.to_thread(
+        final_markdown = await asyncio.to_thread(
             self._run_manager,
             article_text,
             deletions,
@@ -176,10 +176,25 @@ INSTRUCTIONS:
             insertions,
             proofreading_rules_applied,
         )
-        review.total_issues = (
-            len(review.deletions) + len(review.modifications) + len(review.insertions)
+
+        # Create intermediate data for the .data member
+        # (This preserves the structured facts from Tier 1)
+        review_data = ArticleReviewModel(
+            score=0, # The manager's markdown has the score now, 
+                     # but we can extract it or leave as 0 if not critical for .data here
+            summary="Synthesized review",
+            total_issues=len(deletions) + len(modifications) + len(insertions),
+            deletions=deletions,
+            modifications=modifications,
+            insertions=insertions,
+            proofreading_rules_applied=proofreading_rules_applied
         )
-        return review
+
+        return ModelOutput(
+            data=review_data,
+            markdown=final_markdown,
+            metadata={"process": "3-tier specialist-auditor-synthesis"}
+        )
 
 
 if __name__ == "__main__":

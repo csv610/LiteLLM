@@ -60,10 +60,11 @@ class MultiAgentMedicalDecisionGuideGenerator:
         self.synthesizer = Agent(self.client, "SynthesisCoordinator")
         self.compliance_officer = Agent(self.client, "ComplianceOfficer")
 
-    def generate(self, symptom: str) -> MedicalDecisionGuideModel:
-        """Orchestrates the multi-agent generation process."""
-        logger.info(f"Starting multi-agent generation for: {symptom}")
+    def generate(self, symptom: str) -> ModelOutput:
+        """Orchestrates the 3-tier multi-agent generation process."""
+        logger.info(f"Starting 3-tier multi-agent generation for: {symptom}")
 
+        # --- Tier 1: Specialist Stages (JSON) ---
         # Step 1: Analyze symptom metadata
         metadata: SymptomMetadataModel = self.analyzer.run(
             MultiAgentPrompts.get_analyzer_system_prompt(),
@@ -79,7 +80,6 @@ class MultiAgentMedicalDecisionGuideGenerator:
         )
 
         # Step 3: Design decision tree logic
-        # Pass metadata for context
         logic_context = f"Symptom: {metadata.primary_symptom}, Scope: {metadata.scope}"
         tree_logic: DecisionLogicModel = self.architect.run(
             MultiAgentPrompts.get_logic_architect_system_prompt(),
@@ -95,10 +95,6 @@ class MultiAgentMedicalDecisionGuideGenerator:
             OutcomeListModel
         )
 
-        # Step 5: Final Synthesis (Manual or LLM-assisted)
-        # For simplicity, we assemble it manually here using the structured data from all agents.
-        # But we could also pass everything to a Synthesis agent if we wanted.
-        
         final_guide = MedicalDecisionGuideModel(
             guide_name=metadata.guide_name,
             primary_symptom=metadata.primary_symptom,
@@ -111,23 +107,36 @@ class MultiAgentMedicalDecisionGuideGenerator:
             warning_signs=triage_info.warning_signs,
             emergency_indicators=triage_info.emergency_indicators
         )
+        specialist_json = final_guide.model_dump_json(indent=2)
 
-        # Step 6: Compliance Audit
+        # --- Tier 2: Compliance Audit Stage (JSON Audit) ---
         audit_report: ComplianceReportModel = self.compliance_officer.run(
             MultiAgentPrompts.get_compliance_system_prompt(),
-            MultiAgentPrompts.get_compliance_user_prompt(final_guide.model_dump_json()),
+            MultiAgentPrompts.get_compliance_user_prompt(specialist_json),
             ComplianceReportModel
         )
+        compliance_json = audit_report.model_dump_json(indent=2)
+
+        # --- Tier 3: Final Output Synthesis (Markdown Closer) ---
+        logger.info("Agent: Output synthesis starting...")
+        out_sys, out_usr = MultiAgentPrompts.get_output_synthesis_prompts(
+            symptom, specialist_json, compliance_json
+        )
         
-        if not audit_report.is_safe:
-            logger.warning(f"Compliance audit identified safety concerns for {symptom}: {audit_report.safety_concerns}")
-        else:
-            logger.info(f"✓ Compliance audit passed for {symptom} (Score: {audit_report.compliance_score})")
+        output_input = ModelInput(
+            system_prompt=out_sys,
+            user_prompt=out_usr,
+            response_format=None,
+        )
+        final_markdown = self.client.generate_text(model_input=output_input).markdown
 
-        logger.info("✓ Multi-agent generation complete")
-        return final_guide
+        logger.info("✓ 3-tier multi-agent generation complete")
+        return ModelOutput(
+            data=final_guide, 
+            markdown=final_markdown,
+            metadata={"audit": compliance_json}
+        )
 
-    def save(self, result: MedicalDecisionGuideModel, output_path: Path) -> Path:
+    def save(self, result: ModelOutput, output_path: Path) -> Path:
         """Saves the final guide."""
-        model_output = ModelOutput(data=result)
-        return save_model_response(model_output, output_path)
+        return save_model_response(result, output_path)

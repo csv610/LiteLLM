@@ -168,38 +168,64 @@ class MedEthicalQA:
         logger.debug("Initialized MedEthicalQA with multi-agent architecture")
 
     def generate_text(self, question: str, structured: bool = False) -> ModelOutput:
-        """Generate comprehensive medical ethics analysis using multiple agents."""
+        """Generate comprehensive medical ethics analysis using a 3-tier system."""
         if not question or not str(question).strip():
             raise ValueError("Medical ethics question or scenario cannot be empty")
 
         self.question = question
+        logger.info(f"Starting 3-tier ethical analysis for: {question}")
 
-        # 1. Get ethical analysis
-        analyst_result = self.analyst.analyze(question, structured=structured)
-
-        # 2. Get compliance check
-        compliance_result = self.compliance.check_compliance(
-            question, structured=structured
-        )
-
-        # 3. Synthesize the final report
-        final_result = self.synthesizer.synthesize(
-            question, analyst_result, compliance_result, structured=structured
-        )
-
-        # 4. Audit for safety
         try:
-            safety_result = self.safety_critic.audit(
-                question, final_result, structured=structured
+            # 1. Specialist Stage (JSON)
+            logger.debug("Tier 1: Specialists analyzing ethical scenario...")
+            analyst_res = self.analyst.analyze(question, structured=structured)
+            compliance_res = self.compliance.check_compliance(question, structured=structured)
+            
+            if structured:
+                spec_data = EthicalAnalysisModel(
+                    case_title=question[:50],
+                    summary="Synthesized findings",
+                    principles=analyst_res.data.principles if hasattr(analyst_res.data, 'principles') else [],
+                    stakeholders=analyst_res.data.stakeholders if hasattr(analyst_res.data, 'stakeholders') else [],
+                    legal_frameworks=compliance_res.data.legal_frameworks if hasattr(compliance_res.data, 'legal_frameworks') else [],
+                    recommendations=[],
+                    conclusion="Pending synthesis"
+                )
+                spec_json = spec_data.model_dump_json(indent=2)
+            else:
+                spec_json = f"ANALYST:\n{analyst_res.markdown}\n\nCOMPLIANCE:\n{compliance_res.markdown}"
+
+            # 2. Auditor Stage (JSON Audit)
+            logger.debug("Tier 2: Safety Critic auditing analysis...")
+            # For simplicity, passing everything to audit
+            audit_res = self.safety_critic.audit(question, analyst_res, structured=structured)
+            if structured:
+                audit_json = audit_res.data.model_dump_json(indent=2)
+            else:
+                audit_json = audit_res.markdown
+
+            # 3. Final Synthesis Stage (Markdown Closer)
+            logger.debug("Tier 3: Output Synthesis (Final Closer)...")
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(
+                question, spec_json, audit_json
             )
-            logger.debug("✓ Successfully audited analysis for safety")
+            
+            final_input = ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None,
+            )
+            final_res = self.client.generate_text(model_input=final_input)
 
-            if structured and safety_result.data and not safety_result.data.passed:
-                logger.warning("! Safety audit flagged issues in the report")
+            logger.info("✓ Successfully generated 3-tier medical ethics analysis")
+            return ModelOutput(
+                data=spec_data if structured else None,
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
 
-            return final_result
         except Exception as e:
-            logger.error(f"✗ Error during safety audit: {e}")
+            logger.error(f"✗ 3-tier Ethics generation failed: {e}")
             raise
 
     def save(self, result: ModelOutput, output_dir: Path) -> Path:

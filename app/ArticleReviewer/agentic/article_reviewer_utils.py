@@ -6,97 +6,62 @@ import json
 import time
 import os
 from pathlib import Path
-from .article_reviewer_models import ArticleReviewModel
+from .article_reviewer_models import ArticleReviewModel, ModelOutput
 
-def save_review(review: ArticleReviewModel, output_filename: str = None, input_filename: str = None, output_dir: str = "outputs") -> str:
-    """Save the review to a JSON file.
+def save_review(output: ModelOutput, output_filename: str = None, input_filename: str = None, output_dir: str = "outputs") -> str:
+    """Save the review artifact to files (.md and .json).
 
     Args:
-        review: The ArticleReviewModel to save
-        output_filename: Optional filename for the output file. If not provided, uses input_filename.
+        output: The ModelOutput artifact
+        output_filename: Optional base filename for the output files.
         input_filename: The input filename to use as base for output filename.
         output_dir: The directory where the output file should be saved. Default is "outputs".
 
     Returns:
-        str: The path to the saved file
+        str: The path to the saved Markdown file
     """
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
 
     if output_filename is None:
         if input_filename:
-            # Extract base filename without extension
             base_name = Path(input_filename).stem
-            output_filename = f"{base_name}_review.json"
+            output_filename = f"{base_name}_review"
         else:
-            output_filename = f"article_review_{int(time.time())}.json"
-    else:
-        if not output_filename.endswith('.json'):
-            output_filename = f"{output_filename}_review.json"
+            output_filename = f"article_review_{int(time.time())}"
+    
+    # Final paths
+    md_path = os.path.join(output_dir, f"{output_filename}.md")
+    json_path = os.path.join(output_dir, f"{output_filename}.json")
 
-    # Final path should be in the output_dir
-    # If output_filename is just a name, join it with output_dir
-    # If output_filename has a path component, still place it in output_dir unless it's absolute
-    if os.path.isabs(output_filename):
-        output_path = output_filename
-    else:
-        file_name = os.path.basename(output_filename)
-        output_path = os.path.join(output_dir, file_name)
+    # Save Markdown
+    if output.markdown:
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(output.markdown)
 
-    # Create the directory for output_path if it doesn't exist
-    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    # Save Data (JSON)
+    if output.data:
+        data_to_save = {
+            "data": output.data.model_dump() if hasattr(output.data, 'model_dump') else output.data,
+            "metadata": output.metadata
+        }
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save, f, indent=4)
 
-    with open(output_path, 'w') as f:
-        json.dump(review.model_dump(), f, indent=4)
+    return md_path
 
-    return output_path
-
-def print_review(review: ArticleReviewModel) -> None:
-    """Print a formatted review report to the console.
-
-    Args:
-        review: The ArticleReviewModel to print
-    """
+def print_review(output: ModelOutput) -> None:
+    """Print the synthesized Markdown review to the console."""
     print(f"\n{'='*80}")
     print("MULTI-AGENT ARTICLE REVIEW REPORT")
     print(f"{'='*80}\n")
-    print(f"Overall Score: {review.score}/100")
-    print(f"Summary: {review.summary}\n")
-    print(f"Total Issues Found: {review.total_issues}")
-    print(f"  - Deletions: {len(review.deletions)}")
-    print(f"  - Modifications: {len(review.modifications)}")
-    print(f"  - Insertions: {len(review.insertions)}")
-
-    # Print deletions
-    if review.deletions:
-        print(f"{'─'*80}")
-        print("DELETIONS (Content to Remove)")
-        print(f"{'─'*80}")
-        for deletion in review.deletions:
-            print(f"\n[{deletion.severity.upper()}] Line {deletion.line_number}")
-            print(f"Content: \"{deletion.content}\"")
-            print(f"Reason: {deletion.reason}")
-
-    # Print modifications
-    if review.modifications:
-        print(f"\n{'─'*80}")
-        print("MODIFICATIONS (Content to Improve)")
-        print(f"{'─'*80}")
-        for mod in review.modifications:
-            print(f"\n[{mod.severity.upper()}] Line {mod.line_number}")
-            print(f"Original: \"{mod.original_content}\"")
-            print(f"Suggested: \"{mod.suggested_modification}\"")
-            print(f"Reason: {mod.reason}")
-
-    # Print insertions
-    if review.insertions:
-        print(f"\n{'─'*80}")
-        print("INSERTIONS (Content to Add)")
-        print(f"{'─'*80}")
-        for insertion in review.insertions:
-            print(f"\n[{insertion.severity.upper()}] After Line {insertion.line_number}")
-            print(f"Section: {insertion.section}")
-            print(f"Suggested Content: \"{insertion.suggested_content}\"")
-            print(f"Reason: {insertion.reason}")
+    
+    if output.markdown:
+        print(output.markdown)
+    else:
+        print("No Markdown synthesis available.")
+        if output.data:
+            print(f"Structured Data Score: {output.data.score}/100")
+            print(f"Summary: {output.data.summary}")
 
     print(f"\n{'='*80}\n")

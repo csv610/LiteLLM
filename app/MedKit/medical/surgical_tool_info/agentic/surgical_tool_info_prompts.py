@@ -40,10 +40,10 @@ Provide context on where the tool came from, how surgeons learn to use it, and h
 
     @staticmethod
     def create_orchestrator_system_prompt() -> str:
-        """Create the system prompt for the Orchestrator agent."""
-        return """You are the Chief Medical Information Officer. Your role is to synthesize specialized reports 
-from multiple surgical experts into a single, cohesive, and comprehensive surgical tool profile.
-Ensure consistency, remove redundancies, and ensure the final report meets the highest medical standards."""
+        """Create the system prompt for the JSON Compliance Auditor."""
+        return """You are the Chief Medical Information Auditor. Your role is to audit 
+specialized surgical tool reports for technical accuracy, safety standards, 
+and clinical consistency. Output your findings as a structured JSON report."""
 
     @staticmethod
     def create_technical_expert_user_prompt(tool: str) -> str:
@@ -83,8 +83,24 @@ Focus on:
 
     @staticmethod
     def create_orchestrator_user_prompt(tool: str, expert_reports: str) -> str:
-        return f"""Synthesize the following expert reports for the surgical tool: {tool}.
-Expert Reports:
-{expert_reports}
+        """Create the user prompt for the JSON Compliance Auditor."""
+        return f"Audit the following expert reports for the surgical tool '{tool}' and output a structured JSON report:\n\n{expert_reports}"
 
-Combine these into a single comprehensive profile following the standard surgical tool information model."""
+    @staticmethod
+    def create_output_synthesis_prompts(tool: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Surgical Instrument Editor. Your role is to take raw "
+            "specialist tool data and a structured quality audit, then synthesize "
+            "them into a FINAL, polished, and safe Markdown report for OR staff. "
+            "You MUST apply all fixes identified in the audit and ensure all "
+            "sterilization and safety protocols are prominent."
+        )
+        user = (
+            f"Synthesize the final surgical tool report for: '{tool}'\n\n"
+            f"TOOL DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with OR safety standards."
+        )
+        return system, user

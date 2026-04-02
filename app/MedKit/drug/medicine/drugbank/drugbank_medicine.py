@@ -11,7 +11,10 @@ import re
 from pathlib import Path
 from typing import Union
 
-from .drugbank_medicine_models import MedicineInfo
+try:
+    from .drugbank_medicine_models import MedicineInfo
+except ImportError:
+    from drugbank_medicine_models import MedicineInfo
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from lite.utils import save_model_response

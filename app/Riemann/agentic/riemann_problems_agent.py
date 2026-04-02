@@ -76,40 +76,37 @@ class MultiAgentRiemannGuide:
         )
         return self.client.generate_text(model_input)
 
-    async def critic_agent(self, report: RiemannTheoryModel) -> str:
-        print(f"🧐 Critic Agent: Reviewing integrated dossier...")
+    async def critic_agent(self, theory_name: str, overview: RiemannOverviewModel, technical: RiemannTechnicalModel, applied: RiemannAppliedImpactModel) -> str:
+        print(f"🧐 Critic Agent: Synthesizing final Markdown dossier for {theory_name}...")
+        dossier_data = {
+            "theory": theory_name,
+            "overview": overview.model_dump(),
+            "technical": technical.model_dump(),
+            "applied": applied.model_dump()
+        }
         model_input = ModelInput(
             system_prompt=AgentPersonas.get_critic_prompt(),
-            user_prompt=f"Review this dossier:\n{report.model_dump_json(indent=2)}"
+            user_prompt=f"Review and synthesize this dossier data into a final Markdown report:\n{json.dumps(dossier_data, indent=2)}"
         )
         return self.client.generate_text(model_input)
 
-    def _merge(self, ov: RiemannOverviewModel, tech: RiemannTechnicalModel, app: RiemannAppliedImpactModel) -> RiemannTheoryModel:
-        merged = {**ov.model_dump(), **tech.model_dump(), **app.model_dump()}
-        return RiemannTheoryModel.model_validate(merged)
-
-    async def run_pipeline(self, theory_name: str) -> RiemannTheoryModel:
+    async def run_pipeline(self, theory_name: str) -> str:
         # 1. Fact-finding
         brief = await self.researcher_agent(theory_name)
         
-        # 2. Parallelizable Creation (though we run sequentially for CLI logs)
+        # 2. Parallelizable Creation
         overview = await self.overview_agent(theory_name, brief)
         technical = await self.technical_agent(theory_name, brief)
         
         # 3. Contextual Application Analysis
         applied = await self.app_expert_agent(theory_name, technical)
         
-        # 4. Integration
-        final_report = self._merge(overview, technical, applied)
-        
-        # 5. Peer Review
-        review = await self.critic_agent(final_report)
-        if "PASS" not in review.upper():
-            print(f"⚠️  Critic Feedback: {review[:100]}...")
+        # 4. Peer Review & Synthesis
+        final_markdown = await self.critic_agent(theory_name, overview, technical, applied)
             
         print(f"✅ 5-Agent dossier complete for '{theory_name}'.")
-        return final_report
+        return final_markdown
 
-async def run_riemann_agent(theory_name: str, model: str = "ollama/gemma3") -> RiemannTheoryModel:
+async def run_riemann_agent(theory_name: str, model: str = "ollama/gemma3") -> str:
     orchestrator = MultiAgentRiemannGuide(model=model)
     return await orchestrator.run_pipeline(theory_name)

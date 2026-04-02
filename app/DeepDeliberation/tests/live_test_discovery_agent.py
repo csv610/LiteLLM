@@ -4,8 +4,8 @@ live_test_discovery_agent.py - Live tests for DiscoveryAgent using real LLM.
 
 import unittest
 import os
-from deep_deliberation_agents import DiscoveryAgent
-from deep_deliberation_models import DiscoveryFAQ
+from DeepDeliberation.noagentic.deep_deliberation_agents import DiscoveryAgent
+from DeepDeliberation.noagentic.deep_deliberation_models import DiscoveryFAQ
 from lite import LiteClient, ModelConfig
 
 class LiveTestDiscoveryAgent(unittest.TestCase):
@@ -41,7 +41,7 @@ class LiveTestDiscoveryAgent(unittest.TestCase):
 
     def test_live_verify(self):
         """Test DiscoveryAgent.verify with real LLM."""
-        from deep_deliberation_models import DiscoveryInsight
+        from DeepDeliberation.noagentic.deep_deliberation_models import DiscoveryInsight
         insight = DiscoveryInsight(
             analysis="Hawking radiation causes black holes to lose mass.",
             evidence=["Hawking, S. W. (1974). Black hole explosions?. Nature, 248(5443), 30-31."],

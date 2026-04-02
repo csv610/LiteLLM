@@ -1,61 +1,85 @@
 """
 scholar_work_generator.py - Multi-agent orchestration engine for scholar work
 
-Orchestrates a 3-agent pipeline (Researcher -> Journalist -> Editor) using 
-specialized prompts to produce high-quality narratives about a scholar's major work.
+Orchestrates a 3-agent pipeline (Researcher -> Synthesizer -> Editor) using 
+specialized prompts to produce high-quality contribution lists.
 """
 
+import logging
 from typing import Callable, Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig
 
-from .scholar_work_models import ScholarMajorWork, ResearchBrief
+from .scholar_work_models import ResearchBrief, SynthesizedReport, ScholarMajorWork, ModelOutput
 from . import scholar_work_prompts as prompts
+
+logger = logging.getLogger(__name__)
 
 
 class ScholarWorkGenerator:
-    """Multi-agent generator class for creating stories about a scholar's major work."""
+    """Multi-agent generator class for creating structured lists of a scholar's major work."""
     
-    def __init__(self, model_name: str = "ollama/gemma3", temperature: float = 0.7):
+    def __init__(self, model_name: str = "ollama/gemma3", temperature: float = 0.0):
         """Initialize the generator with specified model configuration."""
         self.model_name = model_name
         self.model_config = ModelConfig(model=model_name, temperature=temperature)
         self.client = LiteClient(model_config=self.model_config)
     
-    def generate_text(self, scholar_name: str, major_contribution: str = "their most significant work", progress_callback: Optional[Callable[[int, str], None]] = None) -> ScholarMajorWork:
-        """Execute the 3-agent pipeline to generate a high-quality story.
+    def generate_text(self, scholar_name: str, major_contribution: str = "their most significant work", progress_callback: Optional[Callable[[int, str], None]] = None) -> ModelOutput:
+        """Execute the 3-agent pipeline to generate a ModelOutput artifact.
 
         Args:
             scholar_name: The name of the scholar.
-            major_contribution: The name of the major work or breakthrough.
+            major_contribution: (Optional) A specific contribution to focus on.
             progress_callback: Optional callback receiving (step_number, message).
 
         Returns:
-            ScholarMajorWork: The final polished output.
+            ModelOutput: The final standardized artifact.
         """
         
-        # --- AGENT 1: THE RESEARCHER ---
+        # --- AGENT 1: THE RESEARCHER (Tier 1 Specialist) ---
         if progress_callback:
-            progress_callback(1, f"Conducting deep research on {scholar_name}'s work...")
-        brief: ResearchBrief = self.client.generate_text(
-            model_input=prompts.get_researcher_input(scholar_name, major_contribution)
+            progress_callback(1, f"Researching major contributions of {scholar_name}...")
+        brief_res = self.client.generate_text(
+            model_input=prompts.get_researcher_input(scholar_name)
         )
+        brief: ResearchBrief = brief_res.data
 
-        # --- AGENT 2: THE JOURNALIST ---
+        # --- AGENT 2: THE SYNTHESIZER (Tier 1 Specialist) ---
         if progress_callback:
-            progress_callback(2, "Writing the narrative profile...")
-        story_text: str = self.client.generate_text(
+            progress_callback(2, "Synthesizing research into a comprehensive list...")
+        synth_res = self.client.generate_text(
             model_input=prompts.get_journalist_input(brief)
         )
+        synthesized_report: SynthesizedReport = synth_res.data
 
-        # --- AGENT 3: THE EDITOR ---
+        # --- AGENT 3: THE EDITOR (Tier 3 Closer) ---
         if progress_callback:
-            progress_callback(3, "Finalizing and packaging the story...")
-        final_story: ScholarMajorWork = self.client.generate_text(
-            model_input=prompts.get_editor_input(scholar_name, major_contribution, story_text)
+            progress_callback(3, "Polishing and packaging the contribution report...")
+        final_markdown_res = self.client.generate_text(
+            model_input=prompts.get_editor_input(scholar_name, synthesized_report)
+        )
+        final_markdown = final_markdown_res.markdown
+
+        # Create structured data for the .data member
+        final_data = ScholarMajorWork(
+            scholar_name=scholar_name,
+            title=f"Major Works of {scholar_name}",
+            subtitle="Synthesized Research Report",
+            contribution_list="\n".join(synthesized_report.contributions),
+            key_terms=brief.scientific_core,
+            impact_summary=brief.revolutionary_impact,
+            discussion_questions=[]
         )
 
-        return final_story
+        return ModelOutput(
+            data=final_data,
+            markdown=final_markdown,
+            metadata={
+                "research_brief": brief.model_dump() if hasattr(brief, 'model_dump') else {},
+                "technical_report": synthesized_report.model_dump() if hasattr(synthesized_report, 'model_dump') else {}
+            }
+        )
     
     def update_model(self, model_name: str, temperature: float = 0.7) -> None:
         """Update the model configuration."""

@@ -1,3 +1,4 @@
+from typing import Any
 """
 article_reviewer_models.py - Pydantic models for article review data structures
 
@@ -6,7 +7,7 @@ on deletions, modifications, and insertions.
 """
 
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 
 class DeleteModel(BaseModel):
@@ -44,3 +45,10 @@ class ArticleReviewModel(BaseModel):
     modifications: List[ModifyModel] = Field(default=[], description="List of content to modify")
     insertions: List[InsertModel] = Field(default=[], description="List of content to insert")
     proofreading_rules_applied: List[str] = Field(default=[], description="List of proofreading rule categories that were applied during the review")
+
+
+class ModelOutput(BaseModel):
+    """Standardized artifact envelope for the application."""
+    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
+    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
+    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

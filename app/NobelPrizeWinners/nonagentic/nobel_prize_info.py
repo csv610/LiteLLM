@@ -8,8 +8,13 @@ from typing import Optional
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from lite.config import ModelConfig
-from .nobel_prize_models import PrizeWinner
-from .nobel_prize_explorer import NobelPrizeWinnerInfo
+
+try:
+    from .nobel_prize_models import PrizeWinner
+    from .nobel_prize_explorer import NobelPrizeWinnerInfo
+except ImportError:
+    from nobel_prize_models import PrizeWinner
+    from nobel_prize_explorer import NobelPrizeWinnerInfo
 
 # logger = setup_logging(str(Path(__file__).parent / "logs" / "nobel_prize_info.log"))
 

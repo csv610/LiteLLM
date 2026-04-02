@@ -110,14 +110,14 @@ class ResearchAgent(BaseAgent):
 
 
 class ComplianceAgent(BaseAgent):
-    """Agent for final compliance and regulatory review."""
+    """Agent for final compliance and regulatory review (Outputs JSON)."""
 
     def run(self, topic: str, content: str, structured: bool) -> ModelOutput:
-        """Run the compliance review on the provided content."""
+        """Run the compliance review on the provided content and return structured JSON."""
         system_prompt, user_prompt = PromptBuilder.create_compliance_agent_prompts(
             topic, content
         )
-        logger.debug("ComplianceAgent starting validation.")
+        logger.debug("ComplianceAgent starting validation (JSON output).")
 
         model_input = ModelInput(
             system_prompt=system_prompt,
@@ -129,4 +129,27 @@ class ComplianceAgent(BaseAgent):
             return self.client.generate_text(model_input=model_input)
         except Exception as e:
             logger.error(f"Error in ComplianceAgent: {e}")
+            raise
+
+
+class OutputAgent(BaseAgent):
+    """The Final Closer Agent. Synthesizes all specialists and compliance data into Markdown."""
+
+    def run(self, topic: str, specialist_data: str, compliance_data: str) -> str:
+        """Synthesize all inputs into a final, polished Markdown report."""
+        system_prompt, user_prompt = PromptBuilder.create_output_agent_prompts(
+            topic, specialist_data, compliance_data
+        )
+        logger.debug("OutputAgent starting final synthesis (Markdown).")
+
+        model_input = ModelInput(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            response_format=None, # Always Markdown for the absolute final stage
+        )
+
+        try:
+            return self.client.generate_text(model_input=model_input)
+        except Exception as e:
+            logger.error(f"Error in OutputAgent: {e}")
             raise

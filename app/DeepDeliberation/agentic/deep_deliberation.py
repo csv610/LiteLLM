@@ -61,8 +61,8 @@ class DeepDeliberation:
             logger.error(f"Error executing probe '{faq.question}': {e}")
             return None
 
-    def run(self, topic: str, num_rounds: int, num_faqs: int = 5, output_path: Optional[str] = None) -> KnowledgeSynthesis:
-        """Run the multi-wave discovery mission."""
+    def run(self, topic: str, num_rounds: int, num_faqs: int = 5, output_path: Optional[str] = None) -> ModelOutput:
+        """Run the multi-wave discovery mission and return a ModelOutput artifact."""
         archive = MissionArchive(topic, output_path)
         analysis_list: List[str] = []
         summary_history: List[str] = []
@@ -73,7 +73,7 @@ class DeepDeliberation:
             user_prompt=PromptBuilder.get_initial_prompt(topic, num_faqs),
             response_format=InitialKnowledgeMap
         )
-        initial_map: InitialKnowledgeMap = self.client.generate_text(init_input)
+        initial_map: InitialKnowledgeMap = self.client.generate_text(init_input).data
         
         base_analysis = f"Core Pillars: {', '.join(initial_map.core_pillars)}"
         archive.record_step(0, "Base Knowledge Map", base_analysis, initial_map.core_pillars)
@@ -112,12 +112,24 @@ class DeepDeliberation:
             current_faqs = new_faqs
 
         # Synthesis
-        print("\n[3/3] Synthesizing Final Strategic Map...")
+        print("\n[3/3] Synthesizing Final Strategic Map (Markdown)...")
         synthesis_input = ModelInput(
-            user_prompt=PromptBuilder.get_synthesis_prompt(topic, analysis_list),
-            response_format=KnowledgeSynthesis
+            user_prompt=PromptBuilder.get_synthesis_prompt(topic, analysis_list) + "\n\nFINAL INSTRUCTION: Output the final strategic knowledge map in a comprehensive Markdown format for human readers. Include an Executive Summary, Hidden Connections, and Research Frontiers.",
+            response_format=None # Final output is Markdown
         )
-        final_map = self.client.generate_text(synthesis_input)
-        archive.set_final_map(final_map)
+        final_markdown = self.client.generate_text(synthesis_input).markdown
+        archive.set_final_map(final_markdown)
 
-        return final_map
+        # Create structured data for the .data member
+        final_data = KnowledgeSynthesis(
+            topic=topic,
+            executive_summary="See markdown for full details",
+            hidden_connections=[],
+            research_frontiers=[]
+        )
+
+        return ModelOutput(
+            data=final_data,
+            markdown=final_markdown,
+            metadata={"mission_history": archive.history}
+        )

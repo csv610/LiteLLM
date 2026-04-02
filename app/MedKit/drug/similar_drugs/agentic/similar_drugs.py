@@ -50,11 +50,12 @@ class SimilarDrugsOrchestrator:
         self,
         medicine_name: str,
         context: str,
-    ) -> SimilarMedicinesModel:
-        """Run the multi-agent orchestration flow."""
-        logger.info(f"Starting orchestrated search for medicines similar to {medicine_name}")
+    ) -> ModelOutput:
+        """Run the 3-tier multi-agent orchestration flow (Specialists -> Auditor -> Closer)."""
+        logger.info(f"Starting 3-tier orchestrated search for medicines similar to {medicine_name}")
 
-        # Step 1: Triage
+        # Tier 1: Specialists (JSON)
+        # 1.1 Triage
         triage_data = await self.triage_agent.run_async(
             medicine_name, context, response_format=TriageResultModel
         )
@@ -62,35 +63,41 @@ class SimilarDrugsOrchestrator:
         if not triage_data.is_real_medicine:
             logger.warning(f"Triage determined '{medicine_name}' may not be a valid medicine.")
 
-        # Step 2: Detailed Research
+        # 1.2 Research
         research_data = await self.research_agent.run_async(
             medicine_name, context, response_format=SimilarMedicinesResult
         )
+        spec_json = research_data.model_dump_json(indent=2)
 
-        # Step 3: Compliance Review
-        draft_report = research_data.model_dump_json(indent=2)
+        # Tier 2: Compliance Auditor (JSON Audit)
         compliance_user_prompt = PromptBuilder.create_compliance_review_user_prompt(
-            medicine_name, draft_report
+            medicine_name, spec_json
         )
-
         compliance_data = await self.compliance_agent.run_async(
             medicine_name,
             context,
             response_format=ComplianceInfoModel,
             custom_user_prompt=compliance_user_prompt,
         )
+        audit_json = compliance_data.model_dump_json(indent=2)
 
-        # Step 4: Consolidation
-        audit_log = AuditLogModel(
-            triage_raw=triage_data,
-            research_raw=research_data,
-            compliance_raw=compliance_data,
+        # Tier 3: Final Output Synthesis (Markdown Closer)
+        logger.info("Tier 3: Output synthesis starting...")
+        out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(
+            medicine_name, spec_json, audit_json
         )
+        
+        final_markdown = await self.research_agent.client.generate_text_async(ModelInput(
+            system_prompt=out_sys,
+            user_prompt=out_usr,
+            response_format=None
+        ))
 
-        return SimilarMedicinesModel(
-            main_result=research_data,
-            compliance_info=compliance_data,
-            audit_log=audit_log,
+        logger.info("✓ Successfully generated 3-tier similar medicines report")
+        return ModelOutput(
+            data=research_data, 
+            markdown=final_markdown.markdown,
+            metadata={"audit": audit_json}
         )
 
 

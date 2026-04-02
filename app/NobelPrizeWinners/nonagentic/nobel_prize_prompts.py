@@ -21,7 +21,8 @@ class PromptBuilder:
         """
         return f"""Provide detailed, objective information about Nobel Prize winners in {category} for {year}.
 
-IMPORTANT: Focus on factual, educational content. Avoid subjective language and superlatives.
+IMPORTANT: You MUST respond with valid JSON that strictly adheres to the provided JSON schema (PrizeResponse model).
+Focus on factual, educational content. Avoid subjective language and superlatives.
 
 For each winner, provide:
 
@@ -64,7 +65,9 @@ EDUCATIONAL CONTENT:
 16. Glossary: Dictionary of key terms and concepts with clear, concise definitions (specialized vocabulary, technical terminology, important concepts needed to understand the work)
 
 Use objective language. Avoid words like "revolutionary," "profound," "amazing," "transformed."
-Instead, describe what specifically changed and how we know it changed."""
+Instead, describe what specifically changed and how we know it changed.
+
+Return the information as a JSON object matching the PrizeResponse schema."""
     
     @staticmethod
     def create_validation_prompt() -> str:

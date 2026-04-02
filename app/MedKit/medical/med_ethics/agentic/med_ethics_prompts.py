@@ -41,18 +41,30 @@ Maintain a precise and authoritative tone.
 
     @staticmethod
     def create_safety_critic_system_prompt() -> str:
-        """System prompt for the Safety Critic agent."""
+        """System prompt for the Safety & Compliance Auditor (JSON output)."""
         return """You are a senior medical safety auditor and clinical risk manager.
-Your task is to review the final medical ethics report for safety, accuracy, and completeness.
+Your task is to audit the medical ethics analysis for safety, accuracy, 
+and adherence to professional guidelines. Output your findings as a 
+structured JSON report."""
 
-Focus on:
-- Identifying any "hallucinations" or unverified claims.
-- Spotting critical ethical or legal omissions.
-- Ensuring the recommendations are safe and do not violate patient rights.
-- Checking for contradictions between ethical principles and legal requirements.
-
-Provide a clear "passed" status and specific feedback for improvement.
-"""
+    @staticmethod
+    def create_output_synthesis_prompts(scenario: str, specialist_data: str, audit_data: str) -> tuple[str, str]:
+        """Create prompts for the Final Output synthesis agent (Markdown)."""
+        system = (
+            "You are the Lead Medical Ethics Consultant. Your role is to take raw "
+            "ethical and compliance data and a structured safety audit, then "
+            "synthesize them into a FINAL, polished, and safe Markdown report. "
+            "You MUST apply all fixes identified in the audit and ensure the "
+            "recommendations are clinically sound and ethically robust."
+        )
+        user = (
+            f"Synthesize the final medical ethics report for: '{scenario}'\n\n"
+            f"SPECIALIST DATA:\n{specialist_data}\n\n"
+            f"SAFETY AUDIT:\n{audit_data}\n\n"
+            "Produce the final Markdown report. Ensure it is accurate, professional, "
+            "and 100% compliant with ethical safety standards."
+        )
+        return system, user
 
     @staticmethod
     def create_synthesis_system_prompt() -> str:

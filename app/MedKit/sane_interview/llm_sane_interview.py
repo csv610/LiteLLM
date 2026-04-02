@@ -53,7 +53,7 @@ KEY FEATURES:
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sane_interview_chatbot import SANEInterviewer
 from sane_interview_models import SexualContactType, YesNoUnsure
 
@@ -61,14 +61,8 @@ from sane_interview_models import SexualContactType, YesNoUnsure
 class QuestionSuggestion(BaseModel):
     """Model for LLM-generated question suggestions"""
 
-    question: str = Field(description="The suggested follow-up question")
-    rationale: str = Field(description="Why this question is relevant")
-    priority: str = Field(description="high, medium, or low priority")
-    medical_relevance: bool = Field(description="Has medical/safety implications")
-    forensic_relevance: bool = Field(description="Has forensic/evidence implications")
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "question": "How long after the incident did you shower?",
                 "rationale": "Timeline affects forensic evidence collection viability",
@@ -77,6 +71,13 @@ class QuestionSuggestion(BaseModel):
                 "forensic_relevance": True,
             }
         }
+    )
+
+    question: str = Field(description="The suggested follow-up question")
+    rationale: str = Field(description="Why this question is relevant")
+    priority: str = Field(description="high, medium, or low priority")
+    medical_relevance: bool = Field(description="Has medical/safety implications")
+    forensic_relevance: bool = Field(description="Has forensic/evidence implications")
 
 
 class InterviewContext(BaseModel):

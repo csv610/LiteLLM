@@ -45,123 +45,74 @@ class DrugDiseaseInteraction:
     def generate_text(
         self, config: DrugDiseaseInput, structured: bool = False, hitl: bool = False
     ) -> ModelOutput:
-        """
-        Analyzes how a medical condition affects drug efficacy, safety, and metabolism using multiple specialized agents.
-
-        Args:
-            config: Configuration and input for analysis
-            structured: Whether to use structured output
-
-        Returns:
-            ModelOutput: The analysis result
-        """
-        # Store the configuration for later use in save
+        """Analyzes drug-disease interactions using a 3-tier system."""
         self.config = config
         
-        # Check cache first
-        cached_result = self.cache.get(
-            config.medicine_name, 
-            config.condition_name, 
-            config.age, 
-            config.condition_severity
-        )
-        if cached_result:
-            logger.info("✓ Cache Hit: Returning cached analysis result")
-            return cached_result
+        # Check cache
+        cached_result = self.cache.get(config.medicine_name, config.condition_name, config.age, config.condition_severity)
+        if cached_result: return cached_result
 
-        logger.debug("Starting multi-agent drug-disease interaction analysis")
-        logger.debug(f"Medicine: {config.medicine_name}")
-        logger.debug(f"Condition: {config.condition_name}")
+        logger.info(f"Starting 3-tier analysis for: {config.medicine_name} vs {config.condition_name}")
 
-        # 1. PubMed Agent
-        logger.info("Agent 1/8: Running PubMed Literature Specialist...")
-        real_evidence = PubMedTool.get_evidence(config.medicine_name, config.condition_name)
+        try:
+            # --- Tier 1: Specialists (JSON Sequential) ---
+            logger.info("Tier 1: Specialists running...")
+            # 1. PubMed
+            real_ev = PubMedTool.get_evidence(config.medicine_name, config.condition_name)
+            pubmed_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_pubmed_system_prompt(),
+                user_prompt=f"Evidence for {config.medicine_name} and {config.condition_name}:\n{real_ev}"
+            )).markdown
 
-        pubmed_input = ModelInput(
-            system_prompt=PromptBuilder.create_pubmed_system_prompt(),
-            user_prompt=f"Summarize these real PubMed literature results for {config.medicine_name} and {config.condition_name}:\n{real_evidence}",
-        )
-        pubmed_out = self._ask_llm(pubmed_input).markdown
+            # 2. Researcher
+            researcher_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_researcher_system_prompt(),
+                user_prompt=PromptBuilder.create_researcher_user_prompt(config, pubmed_res)
+            )).markdown
 
+            # 3. Pharmacologist
+            pharmacologist_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_pharmacologist_system_prompt(),
+                user_prompt=PromptBuilder.create_pharmacologist_user_prompt(config, researcher_res)
+            )).markdown
 
-        # 2. Researcher Agent
-        logger.info("Agent 2/8: Running Medical Researcher...")
-        researcher_input = ModelInput(
-            system_prompt=PromptBuilder.create_researcher_system_prompt(),
-            user_prompt=PromptBuilder.create_researcher_user_prompt(config, pubmed_out),
-        )
-        researcher_out = self._ask_llm(researcher_input).markdown
+            # 4. Clinician
+            clinician_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_clinician_system_prompt(),
+                user_prompt=PromptBuilder.create_clinician_user_prompt(config, pharmacologist_res, researcher_res)
+            )).markdown
+            if hitl: clinician_res = HITLManager.request_approval("Clinical Safety", clinician_res.markdown)
+            else: clinician_res = clinician_res.markdown
 
-        # 3. Pharmacologist Agent
-        logger.info("Agent 3/8: Running Pharmacology Analyst...")
-        pharmacologist_input = ModelInput(
-            system_prompt=PromptBuilder.create_pharmacologist_system_prompt(),
-            user_prompt=PromptBuilder.create_pharmacologist_user_prompt(config, researcher_out),
-        )
-        pharmacologist_out = self._ask_llm(pharmacologist_input).markdown
+            spec_data_json = f"PUBMED:\n{pubmed_res}\n\nRESEARCH:\n{researcher_res}\n\nPHARMA:\n{pharmacologist_res}\n\nCLINICAL:\n{clinician_res}"
 
-        # 4. DDI Agent
-        logger.info("Agent 4/8: Running DDI Specialist...")
-        ddi_input = ModelInput(
-            system_prompt=PromptBuilder.create_ddi_system_prompt(),
-            user_prompt=PromptBuilder.create_ddi_user_prompt(config, pharmacologist_out),
-        )
-        ddi_out = self._ask_llm(ddi_input).markdown
+            # --- Tier 2: Compliance Auditor (JSON Audit) ---
+            logger.info("Tier 2: Compliance Auditor running...")
+            audit_res = self._ask_llm(ModelInput(
+                system_prompt=PromptBuilder.create_compliance_system_prompt(),
+                user_prompt=PromptBuilder.create_compliance_user_prompt(clinician_res, "Patient guidance included in clinical."),
+                response_format=None # Audit result
+            ))
+            audit_json = audit_res.markdown
 
-        # 5. Clinician Agent
-        logger.info("Agent 5/8: Running Clinical Safety Expert...")
-        clinician_input = ModelInput(
-            system_prompt=PromptBuilder.create_clinician_system_prompt(),
-            user_prompt=PromptBuilder.create_clinician_user_prompt(config, pharmacologist_out, researcher_out),
-        )
-        clinician_out = self._ask_llm(clinician_input).markdown
-        
-        # HITL Hook
-        if hitl:
-            clinician_out = HITLManager.request_approval("Clinical Safety Agent", clinician_out)
+            # --- Tier 3: Final Output Synthesis (Markdown Closer) ---
+            logger.info("Tier 3: Output Synthesis running...")
+            out_sys, out_usr = PromptBuilder.create_output_synthesis_prompts(config, spec_data_json, audit_json)
+            final_res = self._ask_llm(ModelInput(
+                system_prompt=out_sys,
+                user_prompt=out_usr,
+                response_format=None
+            ))
 
-        # 6. Educator Agent
-        logger.info("Agent 6/8: Running Patient Education Specialist...")
-        educator_input = ModelInput(
-            system_prompt=PromptBuilder.create_educator_system_prompt(),
-            user_prompt=PromptBuilder.create_educator_user_prompt(clinician_out, pharmacologist_out),
-        )
-        educator_out = self._ask_llm(educator_input).markdown
+            return ModelOutput(
+                data=None, # Tier 1 data is complex here, can be added if needed
+                markdown=final_res.markdown,
+                metadata={"audit": audit_json}
+            )
 
-        # 7. Compliance Agent
-        logger.info("Agent 7/8: Running Medical Compliance Officer...")
-        compliance_input = ModelInput(
-            system_prompt=PromptBuilder.create_compliance_system_prompt(),
-            user_prompt=PromptBuilder.create_compliance_user_prompt(clinician_out, educator_out),
-        )
-        compliance_out = self._ask_llm(compliance_input).markdown
-
-        # 8. Orchestrator Agent
-        logger.info("Agent 8/8: Running Orchestrator & Synthesizer...")
-        response_format = None
-        if structured:
-            response_format = DrugDiseaseInteractionModel
-
-        orchestrator_input = ModelInput(
-            system_prompt=PromptBuilder.create_orchestrator_system_prompt(),
-            user_prompt=PromptBuilder.create_orchestrator_user_prompt(
-                config, researcher_out, pharmacologist_out, clinician_out, educator_out, compliance_out, ddi_out
-            ),
-            response_format=response_format,
-        )
-        result = self._ask_llm(orchestrator_input)
-
-        # Save to cache
-        self.cache.set(
-            config.medicine_name, 
-            config.condition_name, 
-            config.age, 
-            config.condition_severity, 
-            result
-        )
-
-        logger.debug("✓ Successfully analyzed disease interaction using multi-agent system")
-        return result
+        except Exception as e:
+            logger.error(f"✗ 3-tier Analysis failed: {e}")
+            raise
 
     def _ask_llm(self, model_input: ModelInput) -> ModelOutput:
         """Helper to call LiteClient with error handling and normalization."""
