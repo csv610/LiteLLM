@@ -1,9 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Union
+from typing import TYPE_CHECKING, Optional, Type, Union
 
 from lite.config import ModelConfig, ModelInput
 from lite.lite_client import LiteClient
 from pydantic import BaseModel
+
+from .models import ModelOutput
+
+if TYPE_CHECKING:
+    from .models import ModelOutput
 
 
 class BaseRecognizer(ABC):
@@ -20,7 +25,7 @@ class BaseRecognizer(ABC):
         self.client = LiteClient(model_config)
 
     @abstractmethod
-    def identify(self, name: str, structured: bool = False) -> Union[str, BaseModel]:
+    def identify(self, name: str, structured: bool = False) -> ModelOutput:
         """
         Identify a medical entity by name.
 
@@ -29,7 +34,7 @@ class BaseRecognizer(ABC):
             structured: Whether to return a structured Pydantic model or raw text.
 
         Returns:
-            The identification result as a string or Pydantic model.
+            The identification result as ModelOutput.
         """
         pass
 

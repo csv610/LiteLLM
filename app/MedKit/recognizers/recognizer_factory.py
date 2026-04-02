@@ -27,8 +27,6 @@ class RecognizerFactory:
         Returns:
             An instance of the requested recognizer.
         """
-        # Ensure all are registered - this is a simple way for now
-        # Ideally this would be done via dynamic discovery or in __init__.py
         if not cls._registry:
             cls._initialize_registry()
 
@@ -43,37 +41,49 @@ class RecognizerFactory:
     @classmethod
     def _initialize_registry(cls):
         """Initialize the registry with all available recognizers."""
-        from .clinical_sign.clinical_sign_recognizer import ClinicalSignIdentifier
-        from .disease.disease_recognizer import DiseaseIdentifier
-        from .drug.drug_recognizer import DrugIdentifier
-        from .genetic_variant.genetic_variant_recognizer import GeneticVariantIdentifier
-        from .imaging_finding.imaging_finding_recognizer import ImagingFindingIdentifier
-        from .lab_unit.lab_unit_recognizer import LabUnitIdentifier
-        from .med_abbreviation.medical_abbreviation_recognizer import (
+        from .clinical_sign.nonagentic.clinical_sign_recognizer import (
+            ClinicalSignIdentifier,
+        )
+        from .disease.nonagentic.disease_recognizer import DiseaseIdentifier
+        from .drug.nonagentic.drug_recognizer import DrugIdentifier
+        from .genetic_variant.nonagentic.genetic_variant_recognizer import (
+            GeneticVariantIdentifier,
+        )
+        from .imaging_finding.nonagentic.imaging_finding_recognizer import (
+            ImagingFindingIdentifier,
+        )
+        from .lab_unit.nonagentic.lab_unit_recognizer import LabUnitIdentifier
+        from .med_abbreviation.nonagentic.med_abbreviation_recognizer import (
             MedicalAbbreviationIdentifier,
         )
-        from .medical_anatomy.medical_anatomy_identifier import MedicalAnatomyIdentifier
-        from .medical_coding.medical_coding_recognizer import MedicalCodingIdentifier
-        from .medical_condition.medical_condition_identifier import (
+        from .med_anatomy.nonagentic.med_anatomy_identifier import (
+            MedicalAnatomyIdentifier,
+        )
+        from .med_coding.nonagentic.med_coding_recognizer import MedicalCodingIdentifier
+        from .med_condition.nonagentic.med_condition_identifier import (
             MedicalConditionIdentifier,
         )
-        from .medical_device.medical_device_identifier import MedicalDeviceIdentifier
-        from .medical_pathogen.medical_pathogen_identifier import (
+        from .med_device.nonagentic.med_device_identifier import MedicalDeviceIdentifier
+        from .med_pathogen.nonagentic.med_pathogen_identifier import (
             MedicalPathogenIdentifier,
         )
-        from .medical_procedure.medical_procedure_identifier import (
+        from .med_procedure.nonagentic.med_procedure_identifier import (
             MedicalProcedureIdentifier,
         )
-        from .medical_specialty.medical_specialty_identifier import (
+        from .med_specialty.nonagentic.med_specialty_identifier import (
             MedicalSpecialtyIdentifier,
         )
-        from .medical_supplement.medical_supplement_identifier import (
+        from .med_supplement.nonagentic.med_supplement_identifier import (
             MedicalSupplementIdentifier,
         )
-        from .medical_symptom.medical_symptom_identifier import MedicalSymptomIdentifier
-        from .medical_test.medical_test_identifier import MedicalTestIdentifier
-        from .medical_vaccine.medical_vaccine_identifier import MedicalVaccineIdentifier
-        from .medication_class.medication_class_recognizer import (
+        from .med_symptom.nonagentic.med_symptom_identifier import (
+            MedicalSymptomIdentifier,
+        )
+        from .med_test.nonagentic.med_test_identifier import MedicalTestIdentifier
+        from .med_vaccine.nonagentic.med_vaccine_identifier import (
+            MedicalVaccineIdentifier,
+        )
+        from .medication_class.nonagentic.medication_class_recognizer import (
             MedicationClassIdentifier,
         )
 
