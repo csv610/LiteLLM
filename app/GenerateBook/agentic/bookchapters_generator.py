@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .bookchapters_models import (
+from app.GenerateBook.shared.models import (
     AgentTrace,
     BookChaptersModel,
     BookInput,
@@ -19,7 +19,7 @@ from .bookchapters_models import (
     ReviewedBookChaptersModel,
     ModelOutput
 )
-from .bookchapters_prompts import PromptBuilder
+from app.GenerateBook.shared.prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

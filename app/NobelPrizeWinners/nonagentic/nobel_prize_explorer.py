@@ -18,8 +18,8 @@ from lite.config import ModelConfig, ModelInput
 from lite import logging_config
 
 try:
-    from .nobel_prize_models import PrizeWinner, PrizeResponse
-    from .nobel_prize_prompts import PromptBuilder
+    from app.NobelPrizeWinners.shared.models import PrizeWinner, PrizeResponse
+    from app.NobelPrizeWinners.shared.prompts import PromptBuilder
 except ImportError:
     from nobel_prize_models import PrizeWinner, PrizeResponse
     from nobel_prize_prompts import PromptBuilder

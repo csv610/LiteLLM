@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Any
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .paradox_models import (
+from app.Paradox.shared.models import (
     Paradox, ParadoxResponse, AudienceLevel, 
     ResearchData, LogicData, DomainData, ParadoxExplanation, 
     ParadoxResolution, ModelOutput

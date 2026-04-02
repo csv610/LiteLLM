@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .bookchapters_models import BookChaptersModel, BookInput
-from .bookchapters_prompts import PromptBuilder
+from app.GenerateBook.shared.models import BookChaptersModel, BookInput
+from app.GenerateBook.shared.prompts import PromptBuilder
 
 
 class BookChaptersGenerator:

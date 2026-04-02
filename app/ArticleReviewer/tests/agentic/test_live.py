@@ -10,8 +10,8 @@ if str(root) not in sys.path:
     sys.path.insert(0, str(root))
 
 from lite.config import ModelConfig  # noqa: E402
-from ArticleReviewer.agentic.article_reviewer_agents import MultiAgentReviewer  # noqa: E402
-from ArticleReviewer.agentic.article_reviewer_models import ArticleReviewModel  # noqa: E402
+from app.ArticleReviewer.agentic.article_reviewer_agents import MultiAgentReviewer  # noqa: E402
+from app.ArticleReviewer.agentic.article_reviewer_models import ArticleReviewModel  # noqa: E402
 
 @pytest.mark.anyio
 async def test_live_agentic():

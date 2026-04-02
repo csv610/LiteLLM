@@ -12,7 +12,7 @@ sys.modules["studyguide_generator"] = sys.modules[__name__]
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .studyguide_models import (
+from app.StudyGuide.shared.models import (
     BookInput,
     SummaryPlanModel,
     ResearchModel,
@@ -27,7 +27,7 @@ from .studyguide_models import (
     FollowUpModel,
     ModelOutput,
 )
-from .studyguide_prompts import PromptBuilder
+from app.StudyGuide.shared.prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

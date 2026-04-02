@@ -8,8 +8,8 @@ of mathematical equations using LiteLLM models.
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-from .math_equation_story_models import MathematicalEquationStory
-from .math_equation_story_prompts import PromptBuilder
+from app.MathEquationStory.shared.models import MathematicalEquationStory
+from app.MathEquationStory.shared.prompts import PromptBuilder
 
 
 class MathEquationStoryGenerator:

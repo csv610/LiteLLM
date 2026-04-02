@@ -5,8 +5,6 @@ Provides CLI functionality for reviewing articles with detailed feedback
 on deletions, modifications, and insertions.
 """
 
-import json
-import argparse
 import sys
 from pathlib import Path
 
@@ -21,6 +19,7 @@ if path.name == "app":
 
 from lite.config import ModelConfig  # noqa: E402
 from app.ArticleReviewer.nonagentic.article_reviewer import ArticleReviewer  # noqa: E402
+from app.ArticleReviewer.shared.cli_base import get_base_parser, load_article_text  # noqa: E402
 
 
 def cli(article_text, model_name=None, output_filename=None, input_filename=None):
@@ -48,65 +47,20 @@ def cli(article_text, model_name=None, output_filename=None, input_filename=None
 
 def main():
     """Main CLI entry point"""
-    parser = argparse.ArgumentParser(
-        description="Review an article and provide detailed feedback on deletions, modifications, and insertions.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
+    description = "Review an article and provide detailed feedback on deletions, modifications, and insertions."
+    parser = get_base_parser(description)
+    
+    # Custom epilog
+    parser.epilog = """
 Examples:
   python article_reviewer_cli.py "path/to/article.txt"
   python article_reviewer_cli.py "path/to/article.txt" -m "gpt-4"
   python article_reviewer_cli.py "The history of computers..." -m "claude-3-sonnet"
-        """,
-    )
-
-    parser.add_argument(
-        "article", help="The article text to review (can be file path or direct text)"
-    )
-    parser.add_argument(
-        "-m",
-        "--model",
-        default=None,
-        help="Model to use for review (default: 'ollama/gemma3')",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default=None,
-        help="Output filename for the review (default: {input_filename}_review.json or article_review_{timestamp}.json)",
-    )
+    """
 
     args = parser.parse_args()
 
-    # Try to load from file first, otherwise treat as direct text
-    article_text = args.article
-    input_filename = None
-    try:
-        with open(args.article, "r", encoding="utf-8") as f:
-            input_filename = args.article
-            if args.article.endswith(".json"):
-                data = json.load(f)
-                # Handle various JSON structures - look for common article fields
-                if isinstance(data, dict):
-                    # Try common article field names
-                    for field in ["content", "article", "text", "body", "data"]:
-                        if field in data:
-                            article_text = data[field]
-                            break
-                    else:
-                        # If no known field found, use the whole JSON as text
-                        article_text = json.dumps(data, indent=2)
-                elif isinstance(data, list):
-                    # If JSON is a list, concatenate items
-                    article_text = "\n".join(str(item) for item in data)
-            elif args.article.endswith((".md", ".markdown")):
-                # For markdown files, read as-is
-                article_text = f.read()
-            else:
-                article_text = f.read()
-    except (FileNotFoundError, IsADirectoryError):
-        # If file doesn't exist, treat input as direct article text
-        article_text = args.article
-
+    article_text, input_filename = load_article_text(args.article)
     cli(article_text, args.model, args.output, input_filename)
 
 

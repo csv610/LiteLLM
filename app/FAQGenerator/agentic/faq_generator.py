@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-from .faq_generator_models import FAQ, FAQResponse, ReviewedFAQResponse, VALID_DIFFICULTIES
-from .faq_generator_prompts import PromptBuilder
+from app.FAQGenerator.shared.models import FAQ, FAQResponse, ReviewedFAQResponse, VALID_DIFFICULTIES
+from app.FAQGenerator.shared.prompts import PromptBuilder
 
 # Global logger for the application
 logger = logging.getLogger(__name__)

@@ -6,10 +6,10 @@ Encapsulates the specialized LLM logic for Inquiry, Analysis, and Verification.
 
 from lite import LiteClient
 from lite.config import ModelInput
-from .deep_deliberation_models import (
+from app.DeepDeliberation.shared.models import (
     DiscoveryFAQ, DiscoveryInsight, DiscoveryCheck, VerificationResult, SummaryResponse
 )
-from .deep_deliberation_prompts import PromptBuilder
+from app.DeepDeliberation.shared.prompts import PromptBuilder
 
 
 class DiscoveryAgent:

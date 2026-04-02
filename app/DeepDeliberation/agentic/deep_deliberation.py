@@ -11,10 +11,10 @@ from typing import List, Optional, Dict
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .deep_deliberation_models import (
+from app.DeepDeliberation.shared.models import (
     DiscoveryFAQ, InitialKnowledgeMap, KnowledgeSynthesis
 )
-from .deep_deliberation_prompts import PromptBuilder
+from app.DeepDeliberation.shared.prompts import PromptBuilder
 from .deep_deliberation_agents import DiscoveryAgent
 from .deep_deliberation_archive import MissionArchive
 

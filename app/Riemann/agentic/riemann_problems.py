@@ -15,8 +15,8 @@ from lite.config import ModelConfig, ModelInput
 from lite import logging_config
 
 try:
-    from .riemann_problems_models import RiemannTheoryModel, ModelOutput
-    from .riemann_problems_prompts import PromptBuilder
+    from app.Riemann.shared.models import RiemannTheoryModel, ModelOutput
+    from app.Riemann.shared.prompts import PromptBuilder
 except ImportError:
     import sys
 

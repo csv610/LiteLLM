@@ -9,7 +9,7 @@ from typing import Callable, Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
-from .math_equation_story_models import MathematicalEquationStory, ResearchBrief, ModelOutput
+from app.MathEquationStory.shared.models import MathematicalEquationStory, ResearchBrief, ModelOutput
 from . import math_equation_story_prompts as prompts
 
 

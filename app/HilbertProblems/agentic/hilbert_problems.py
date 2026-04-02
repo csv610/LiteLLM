@@ -14,8 +14,8 @@ from typing import Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .hilbert_problems_models import HilbertProblemModel, ModelOutput
-from .hilbert_problems_prompts import PromptBuilder
+from app.HilbertProblems.shared.models import HilbertProblemModel, ModelOutput
+from app.HilbertProblems.shared.prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

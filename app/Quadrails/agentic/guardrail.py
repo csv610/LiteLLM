@@ -15,8 +15,8 @@ from typing import Any, Dict, Optional, Union
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .guardrail_models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError, ModelOutput
-from .guardrail_prompts import PromptBuilder
+from app.Quadrails.shared.models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError, ModelOutput
+from app.Quadrails.shared.prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 sys.modules.setdefault("guardrail", sys.modules[__name__])

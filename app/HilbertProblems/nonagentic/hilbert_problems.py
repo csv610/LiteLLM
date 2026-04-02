@@ -13,8 +13,8 @@ from typing import Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .hilbert_problems_models import HilbertProblemModel
-from .hilbert_problems_prompts import PromptBuilder
+from app.HilbertProblems.shared.models import HilbertProblemModel
+from app.HilbertProblems.shared.prompts import PromptBuilder
 
 # Setup logging
 logging_config.configure_logging(str(Path(__file__).parent / "logs" / "hilbert_problems.log"))

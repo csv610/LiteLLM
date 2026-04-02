@@ -1,8 +1,9 @@
-try:
-    from .nonagentic.article_reviewer_models import *
-except ImportError:
-    from app.ArticleReviewer.nonagentic.article_reviewer_models import *
+from .riemann_problems_models import RiemannTheoryModel as RiemannProblemResponse
 
+__all__ = ["RiemannProblemResponse"]
+
+
+from typing import Any
 
 class ModelOutput(BaseModel):
     """Standardized artifact envelope for the application."""

@@ -10,8 +10,8 @@ from typing import Optional
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .deep_intuition_models import DeepIntuitionStory
-from .deep_intuition_prompts import PromptBuilder
+from app.DeepIntuition.shared.models import DeepIntuitionStory
+from app.DeepIntuition.shared.prompts import PromptBuilder
 from .deep_intuition_archive import MissionArchive
 
 logger = logging.getLogger(__name__)

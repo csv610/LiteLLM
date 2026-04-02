@@ -10,7 +10,7 @@ from typing import Callable, Optional
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig
 
-from .scholar_work_models import ResearchBrief, SynthesizedReport, ScholarMajorWork, ModelOutput
+from app.ScholarWork.shared.models import ResearchBrief, SynthesizedReport, ScholarMajorWork, ModelOutput
 from . import scholar_work_prompts as prompts
 
 logger = logging.getLogger(__name__)

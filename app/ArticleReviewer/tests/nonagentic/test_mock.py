@@ -3,9 +3,9 @@ import pytest
 from unittest.mock import patch
 import os
 
-from ArticleReviewer.nonagentic.article_reviewer_models import DeleteModel, ModifyModel, InsertModel, ArticleReviewModel
-from ArticleReviewer.nonagentic.article_reviewer_prompts import PromptBuilder
-from ArticleReviewer.nonagentic.article_reviewer import ArticleReviewer
+from app.ArticleReviewer.nonagentic.article_reviewer_models import DeleteModel, ModifyModel, InsertModel, ArticleReviewModel
+from app.ArticleReviewer.nonagentic.article_reviewer_prompts import PromptBuilder
+from app.ArticleReviewer.nonagentic.article_reviewer import ArticleReviewer
 from lite.config import ModelConfig
 
 # Test Models
@@ -77,7 +77,7 @@ def test_prompt_builder_rules():
 # Test ArticleReviewer
 @pytest.fixture
 def mock_lite_client():
-    with patch('ArticleReviewer.nonagentic.article_reviewer.LiteClient') as mock:
+    with patch('app.ArticleReviewer.nonagentic.article_reviewer.LiteClient') as mock:
         yield mock
 
 def test_article_reviewer_init(mock_lite_client):
@@ -176,7 +176,7 @@ def test_article_reviewer_print_review(capsys):
     assert "DELETIONS" in captured.out
 
 # Test CLI functionality (article_reviewer_cli.py)
-from ArticleReviewer.nonagentic.article_reviewer_cli import main  # noqa: E402
+from app.ArticleReviewer.nonagentic.ui.cli import main  # noqa: E402
 
 def test_cli_load_from_file(tmp_path):
     article_file = tmp_path / "article.txt"
@@ -184,7 +184,7 @@ def test_cli_load_from_file(tmp_path):
     article_file.write_text(article_content)
     
     with patch('sys.argv', ['article_reviewer_cli.py', str(article_file)]), \
-         patch('ArticleReviewer.nonagentic.article_reviewer_cli.cli') as mock_cli:
+         patch('app.ArticleReviewer.nonagentic.ui.cli.cli') as mock_cli:
         main()
         mock_cli.assert_called_once()
         # The first argument to cli should be the content of the file
@@ -198,7 +198,7 @@ def test_cli_load_from_json(tmp_path):
     article_file.write_text(json.dumps(article_data))
     
     with patch('sys.argv', ['article_reviewer_cli.py', str(article_file)]), \
-         patch('ArticleReviewer.nonagentic.article_reviewer_cli.cli') as mock_cli:
+         patch('app.ArticleReviewer.nonagentic.ui.cli.cli') as mock_cli:
         main()
         mock_cli.assert_called_once()
         assert mock_cli.call_args[0][0] == "Article from JSON"
@@ -206,7 +206,7 @@ def test_cli_load_from_json(tmp_path):
 def test_cli_direct_text():
     direct_text = "This is direct text"
     with patch('sys.argv', ['article_reviewer_cli.py', direct_text]), \
-         patch('ArticleReviewer.nonagentic.article_reviewer_cli.cli') as mock_cli:
+         patch('app.ArticleReviewer.nonagentic.ui.cli.cli') as mock_cli:
         main()
         mock_cli.assert_called_once()
         assert mock_cli.call_args[0][0] == direct_text

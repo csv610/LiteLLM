@@ -10,7 +10,7 @@ the number of questions needed to identify the object.
 
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
-from .object_guessing_prompts import PromptBuilder
+from app.ObjectGuesser.shared.prompts import PromptBuilder
 
 
 class ObjectGuessingGame:

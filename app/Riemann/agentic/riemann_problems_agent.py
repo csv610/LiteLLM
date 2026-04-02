@@ -7,13 +7,13 @@ from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 
 try:
-    from .riemann_problems_models import (
+    from app.Riemann.shared.models import (
         RiemannTheoryModel,
         RiemannOverviewModel,
         RiemannTechnicalModel,
         RiemannAppliedImpactModel,
     )
-    from .riemann_problems_prompts import AgentPersonas, PromptBuilder
+    from app.Riemann.shared.prompts import AgentPersonas, PromptBuilder
 except ImportError:
     import sys
 

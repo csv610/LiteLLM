@@ -12,13 +12,13 @@ from typing import List, Optional
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .unsolved_problems_models import (
+from app.UnsolvedProblems.shared.models import (
     ReviewedUnsolvedProblemsResponse,
     UnsolvedProblem,
     UnsolvedProblemsResponse,
     ModelOutput
 )
-from .unsolved_problems_prompts import PromptBuilder
+from app.UnsolvedProblems.shared.prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

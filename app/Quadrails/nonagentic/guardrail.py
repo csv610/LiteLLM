@@ -14,8 +14,8 @@ from typing import Optional, Dict
 from lite.lite_client import LiteClient
 from lite.config import ModelConfig, ModelInput
 from lite import logging_config
-from .guardrail_models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError
-from .guardrail_prompts import PromptBuilder
+from app.Quadrails.shared.models import GuardrailResponse, ImageGuardrailResponse, PreprocessingError, AnalysisError
+from app.Quadrails.shared.prompts import PromptBuilder
 
 # Setup logging
 logging_config.configure_logging(str(Path(__file__).parent / "logs" / "guardrail.log"))

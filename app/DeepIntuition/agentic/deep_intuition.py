@@ -11,7 +11,7 @@ from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 from pydantic import BaseModel
 
-from .deep_intuition_models import (
+from app.DeepIntuition.shared.models import (
     DeepIntuitionStory, 
     HistoricalResearch, 
     IntuitionInsight, 
@@ -19,7 +19,7 @@ from .deep_intuition_models import (
     StruggleNarrative,
     ModelOutput
 )
-from .deep_intuition_prompts import AgentPrompts
+from app.DeepIntuition.shared.prompts import AgentPrompts
 from .deep_intuition_archive import MissionArchive
 
 logger = logging.getLogger(__name__)

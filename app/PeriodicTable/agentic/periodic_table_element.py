@@ -12,7 +12,7 @@ from typing import Optional
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .periodic_table_models import ElementInfo, ElementResponse, ModelOutput
+from app.PeriodicTable.shared.models import ElementInfo, ElementResponse, ModelOutput
 
 
 # List of all 118 elements by atomic number

@@ -11,8 +11,8 @@ from typing import Optional, List
 from lite import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .unsolved_problems_models import UnsolvedProblem, UnsolvedProblemsModel
-from .unsolved_problems_prompts import PromptBuilder
+from app.UnsolvedProblems.shared.models import UnsolvedProblem, UnsolvedProblemsModel
+from app.UnsolvedProblems.shared.prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 

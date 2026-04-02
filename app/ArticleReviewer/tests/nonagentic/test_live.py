@@ -1,7 +1,7 @@
 import unittest
 import os
 from lite.config import ModelConfig
-from .article_reviewer import ArticleReviewer
+from app.ArticleReviewer.nonagentic.article_reviewer import ArticleReviewer
 
 class LiveTestArticleReviewer(unittest.TestCase):
     def test_live_review(self):

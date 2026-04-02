@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch
 
-from ArticleReviewer.agentic.article_reviewer_agents import MultiAgentReviewer
-from ArticleReviewer.agentic.article_reviewer_models import (
+from app.ArticleReviewer.agentic.article_reviewer_agents import MultiAgentReviewer
+from app.ArticleReviewer.agentic.article_reviewer_models import (
     ArticleReviewModel,
     DeleteModel,
 )
@@ -50,34 +50,22 @@ async def test_multi_agent_reviewer_review():
         insertions=[],
         proofreading_rules_applied=["Content & Structure"],
     )
-    final_review = ArticleReviewModel(
-        score=95,
-        total_issues=999,
-        summary="Excellent work.",
-        deletions=specialist_deletions.deletions,
-        modifications=[],
-        insertions=[],
-        proofreading_rules_applied=[
-            "Style & Clarity",
-            "Grammar & Syntax",
-            "Content & Structure",
-        ],
-    )
+    final_markdown = "# Final Review\nScore: 95\nExcellent work."
 
     with patch(
-        "ArticleReviewer.agentic.article_reviewer_agents.LiteClient.generate_text",
+        "app.ArticleReviewer.agentic.article_reviewer_agents.LiteClient.generate_text",
         side_effect=[
             specialist_deletions,
             specialist_modifications,
             specialist_insertions,
-            final_review,
+            final_markdown,
         ],
     ) as mock_generate:
         reviewer = MultiAgentReviewer(ModelConfig(model="gpt-4"))
         review = await reviewer.review("Some article text")
 
-    assert isinstance(review, ArticleReviewModel)
-    assert review.score == 95
-    assert len(review.deletions) == 1
-    assert review.total_issues == 1
+    from app.ArticleReviewer.shared.models import ModelOutput
+    assert isinstance(review, ModelOutput)
+    assert review.markdown == final_markdown
+    assert review.data.total_issues == 1
     assert mock_generate.call_count == 4

@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from lite.config import ModelConfig
 
 try:
-    from .nobel_prize_models import PrizeWinner
+    from app.NobelPrizeWinners.shared.models import PrizeWinner
     from .nobel_prize_explorer import NobelPrizeWinnerInfo
 except ImportError:
     from nobel_prize_models import PrizeWinner

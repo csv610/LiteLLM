@@ -23,7 +23,7 @@ if path.name == "app":
 from lite.lite_client import LiteClient, ModelConfig
 from lite.config import ModelInput
 
-from .periodic_table_models import ElementInfo, ElementResponse
+from app.PeriodicTable.shared.models import ElementInfo, ElementResponse
 
 
 # List of all 118 elements by atomic number

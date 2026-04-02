@@ -1,7 +1,7 @@
 from lite.config import ModelConfig
 
 from .unsolved_problems_explorer import LiteClient, UnsolvedProblemsExplorer
-from .unsolved_problems_models import ProblemStatus, UnsolvedProblemModel
+from app.UnsolvedProblems.shared.models import ProblemStatus, UnsolvedProblemModel
 
 
 class UnsolvedProblemsGuide(UnsolvedProblemsExplorer):
