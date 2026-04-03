@@ -3,11 +3,11 @@
 # =========================
 import json
 import os
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from lite import LiteClient, ModelConfig
+from lite import LiteClient, ModelConfig, ModelOutput
 from lite.config import ModelInput
 from pydantic import BaseModel, Field, field_validator
 
@@ -406,10 +406,3 @@ class GraphVisualizer:
         )
         nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels)
         plt.show()
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

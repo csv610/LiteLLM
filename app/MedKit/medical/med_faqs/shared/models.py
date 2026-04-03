@@ -1,6 +1,6 @@
 """Pydantic models for medical FAQ generation."""
 
-from typing import Any, Dict, List, Optional
+from app.MedKit.medical.base.models import ModelOutput
 
 from pydantic import BaseModel, Field
 
@@ -79,10 +79,18 @@ class ResearchInfoModel(BaseModel):
 class ComplianceReviewModel(BaseModel):
     """Compliance and regulatory review results."""
 
-    is_compliant: bool = Field(description="Whether the content meets medical compliance standards")
-    issues_found: List[str] = Field(description="List of compliance or safety issues identified")
-    required_disclaimers: List[str] = Field(description="Mandatory disclaimers to include")
-    suggested_edits: Optional[str] = Field(default=None, description="Suggested edits for compliance")
+    is_compliant: bool = Field(
+        description="Whether the content meets medical compliance standards"
+    )
+    issues_found: List[str] = Field(
+        description="List of compliance or safety issues identified"
+    )
+    required_disclaimers: List[str] = Field(
+        description="Mandatory disclaimers to include"
+    )
+    suggested_edits: Optional[str] = Field(
+        default=None, description="Suggested edits for compliance"
+    )
 
 
 class PatientFAQModel(BaseModel):
@@ -133,10 +141,3 @@ class MedicalFAQModel(BaseModel):
     compliance_review: Optional[ComplianceReviewModel] = Field(
         default=None, description="Final compliance and safety review"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

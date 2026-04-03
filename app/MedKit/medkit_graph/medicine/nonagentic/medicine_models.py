@@ -2,10 +2,12 @@
 # Imports
 # =========================
 import os
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional
 
 import networkx as nx
 from pydantic import BaseModel, Field, field_validator
+
+from lite import ModelOutput
 
 try:
     from . import medicine_prompts as prompts
@@ -281,10 +283,3 @@ class MedicineKnowledgeGraph:
                 f.write(f'  "{u}" -> "{v}" [label="{rel}"];\n')
             f.write("}\n")
         print(f"✅ Graph exported to {path}")
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

@@ -1,4 +1,5 @@
 from typing import Any
+
 """
 medical_test_info_models.py - Pydantic models for medical test information
 
@@ -8,7 +9,7 @@ documentation.
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from lite import ModelOutput
 
 # ============================================================================
 # PYDANTIC MODELS FOR TEST INFORMATION STRUCTURE
@@ -412,10 +413,3 @@ class MedicalTestInfoModel(BaseModel):
     common_misconceptions: str = Field(
         description="Common myths about this test, comma-separated"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

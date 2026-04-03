@@ -1,16 +1,9 @@
-from typing import Any
-"""
-symptom_drugs_models.py - Data Models for Symptom-to-Drug Recommendations
-
-This module contains all Pydantic models and Enums used for listing drugs
-prescribed for specific symptoms, including drug types, rationale, and
-safety information.
-"""
+from typing import Any, List, Optional
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class DrugType(str, Enum):
@@ -66,10 +59,3 @@ class SymptomDrugAnalysisModel(BaseModel):
     technical_summary: str = Field(
         description="Technical summary of pharmacological approach to this symptom"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

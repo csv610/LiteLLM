@@ -1,4 +1,3 @@
-from typing import Any
 """
 medical_device_models.py - Data Models for Medical Device Identification
 
@@ -9,6 +8,7 @@ is well-known in the healthcare field and providing basic information about it.
 from typing import Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class MedicalDeviceIdentificationModel(BaseModel):
@@ -43,10 +43,3 @@ class MedicalDeviceIdentifierModel(BaseModel):
     data_available: bool = Field(
         description="Whether information about this device was found"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

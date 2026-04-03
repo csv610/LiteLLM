@@ -9,17 +9,36 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from lite import ModelOutput
+
 
 class UnsolvedProblem(BaseModel):
     """Represents an unsolved problem in a given field."""
+
     title: str = Field(..., description="The name or title of the unsolved problem")
-    description: str = Field(..., description="Brief description of the problem and why it's important")
-    field: str = Field(..., description="The specific field or subfield the problem belongs to")
-    difficulty: str = Field(..., description="Estimated difficulty level (Elementary, Moderate, or Advanced)")
-    first_posed: Optional[str] = Field(None, description="When or by whom the problem was first posed, if known")
-    prize_money: Optional[str] = Field(None, description="Any prize money associated with solving this problem, if applicable")
-    significance: str = Field(..., description="Why solving this problem would be significant for the field")
-    current_status: str = Field(..., description="The best known results or current status as of today")
+    description: str = Field(
+        ..., description="Brief description of the problem and why it's important"
+    )
+    field: str = Field(
+        ..., description="The specific field or subfield the problem belongs to"
+    )
+    difficulty: str = Field(
+        ...,
+        description="Estimated difficulty level (Elementary, Moderate, or Advanced)",
+    )
+    first_posed: Optional[str] = Field(
+        None, description="When or by whom the problem was first posed, if known"
+    )
+    prize_money: Optional[str] = Field(
+        None,
+        description="Any prize money associated with solving this problem, if applicable",
+    )
+    significance: str = Field(
+        ..., description="Why solving this problem would be significant for the field"
+    )
+    current_status: str = Field(
+        ..., description="The best known results or current status as of today"
+    )
 
 
 class UnsolvedProblemsResponse(BaseModel):
@@ -57,12 +76,3 @@ class UnsolvedProblemModel(BaseModel):
 
 
 UnsolvedProblemResponse = UnsolvedProblemsResponse
-
-
-from typing import Any
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

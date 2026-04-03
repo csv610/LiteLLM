@@ -1,5 +1,5 @@
 from typing import Any, List, Optional, Union
-
+from lite import ModelOutput
 from pydantic import BaseModel, Field
 
 
@@ -255,6 +255,7 @@ class ProcedureEvidence(BaseModel):
 
 class ClinicalAgentOutput(BaseModel):
     """Output for the Clinical Diagnostician Agent."""
+
     metadata: ProcedureMetadata
     purpose: ProcedurePurpose
     indications: ProcedureIndications
@@ -263,6 +264,7 @@ class ClinicalAgentOutput(BaseModel):
 
 class TechnicalAgentOutput(BaseModel):
     """Output for the Procedure Specialist Agent."""
+
     details: ProcedureDetails
     technical: TechnicalDetails
     evidence: ProcedureEvidence
@@ -270,11 +272,13 @@ class TechnicalAgentOutput(BaseModel):
 
 class RiskAgentOutput(BaseModel):
     """Output for the Risk Analyst Agent."""
+
     risks: DiscomfortAndRisks
 
 
 class RecoveryAgentOutput(BaseModel):
     """Output for the Care Coordinator Agent."""
+
     preparation: PreparationRequirements
     recovery: RecoveryInformation
     outcomes: OutcomesAndEffectiveness
@@ -283,6 +287,7 @@ class RecoveryAgentOutput(BaseModel):
 
 class AdminAgentOutput(BaseModel):
     """Output for the Patient Liaison Agent."""
+
     cost_and_insurance: CostAndInsurance
     education: ProcedureEducation
 
@@ -310,15 +315,17 @@ class MedicalProcedureInfoModel(BaseModel):
 
 class ComplianceReport(BaseModel):
     """Report from the Compliance Agent."""
-    is_compliant: bool = Field(description="Whether the documentation meets clinical and safety standards.")
-    safety_concerns: List[str] = Field(description="List of safety-related issues or missing contraindications.")
-    readability_issues: List[str] = Field(description="Issues with plain language or technical jargon in education sections.")
-    tone_violations: List[str] = Field(description="Instances of prescriptive/medical advice instead of informative language.")
+
+    is_compliant: bool = Field(
+        description="Whether the documentation meets clinical and safety standards."
+    )
+    safety_concerns: List[str] = Field(
+        description="List of safety-related issues or missing contraindications."
+    )
+    readability_issues: List[str] = Field(
+        description="Issues with plain language or technical jargon in education sections."
+    )
+    tone_violations: List[str] = Field(
+        description="Instances of prescriptive/medical advice instead of informative language."
+    )
     suggestions: List[str] = Field(description="Suggested improvements for compliance.")
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

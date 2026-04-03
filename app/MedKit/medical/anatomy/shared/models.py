@@ -5,7 +5,7 @@ This module contains all the structured data models used to represent
 anatomical information in a standardized format.
 """
 
-from typing import Any, List, Optional
+from app.MedKit.medical.base.models import ModelOutput
 
 from pydantic import BaseModel, Field
 
@@ -282,12 +282,6 @@ class MedicalAnatomyModel(BaseModel):
     # Metadata
     metadata: AnatomyMetadataModel
 
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)
 
 class FactClaimModel(BaseModel):
     """An individual anatomical claim to be verified."""

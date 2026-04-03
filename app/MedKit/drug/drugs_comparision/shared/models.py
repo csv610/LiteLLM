@@ -4,10 +4,12 @@ Defines all data structures for medicines comparison including clinical metrics,
 regulatory information, practical details, and comprehensive comparison results.
 """
 
+from typing import Any, Optional
+
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class EffectivenessRating(str, Enum):
@@ -91,10 +93,13 @@ class RegulatoryMetrics(BaseModel):
 
 class PracticalMetrics(BaseModel):
     """Cost, availability, and practical information for a medicine."""
+
     # ... (rest of class)
+
 
 class ComplianceMetrics(BaseModel):
     """Legal, ethical, and adherence-related compliance metrics."""
+
     medicine_name: str = Field(description="Name of the medicine")
     controlled_substance_schedule: str = Field(
         description="DEA schedule (e.g., Schedule II, Non-controlled)"
@@ -114,7 +119,6 @@ class ComplianceMetrics(BaseModel):
 
 
 class ComparisonSummary(BaseModel):
-
     """Summary of key differences between two medicines."""
 
     more_effective: str = Field(description="Which medicine is more effective and why")
@@ -156,15 +160,17 @@ class RecommendationContext(BaseModel):
 
 class SafetyAudit(BaseModel):
     """Medical safety and standards audit results."""
+
     medical_disclaimer: str = Field(
         default="This report is for informational purposes only and does not constitute medical advice. Always consult a licensed healthcare professional before making medication decisions.",
-        description="Mandatory medical safety disclaimer"
+        description="Mandatory medical safety disclaimer",
     )
     black_box_warning_verified: bool = Field(
         description="Whether black box warnings were cross-verified across agents"
     )
     critical_safety_conflicts: Optional[str] = Field(
-        default=None, description="Any conflicting safety information found between specialist reports"
+        default=None,
+        description="Any conflicting safety information found between specialist reports",
     )
     evidence_citations: str = Field(
         description="List of medical sources, clinical trials, or FDA labels cited (e.g., NCT numbers, PubMed IDs)"
@@ -232,12 +238,3 @@ class MedicinesComparisonResult(BaseModel):
     limitations: str = Field(
         description="Limitations of this comparison and factors to consider, comma-separated"
     )
-
-
-from typing import Any
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

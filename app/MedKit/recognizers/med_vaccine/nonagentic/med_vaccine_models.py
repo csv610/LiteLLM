@@ -1,4 +1,3 @@
-from typing import Any
 """
 medical_vaccine_models.py - Data Models for Vaccine Identification
 
@@ -9,6 +8,7 @@ vaccines and immunization agents.
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class VaccineIdentificationModel(BaseModel):
@@ -43,10 +43,3 @@ class VaccineIdentifierModel(BaseModel):
     data_available: bool = Field(
         description="Whether information about this vaccine was found"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

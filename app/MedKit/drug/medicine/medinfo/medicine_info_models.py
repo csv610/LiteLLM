@@ -1,14 +1,7 @@
-from typing import Any
-"""
-medicine_info_models.py - Pydantic Models for Medicine Information
-
-Defines all data models used for generating and validating comprehensive
-pharmaceutical medicine information.
-"""
-
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 # ============================================================================
 # PYDANTIC MODELS
@@ -304,10 +297,3 @@ class MedicineInfoModel(BaseModel):
 
     # Research and innovation
     research: MedicineResearch
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

@@ -6,13 +6,14 @@ This module provides a builder class for generating system and user prompts
 for medical specialist recommendation using AI models.
 """
 
-
 from typing import List, Optional
+from lite import ModelOutput
 from pydantic import BaseModel, Field
 
 
 class SymptomAnalysis(BaseModel):
     """Structured analysis of patient symptoms."""
+
     symptoms: List[str] = Field(description="List of identified symptoms")
     severity: str = Field(description="Overall severity: Low, Medium, High, or Urgent")
     affected_body_parts: List[str] = Field(description="Body parts or systems affected")
@@ -20,24 +21,20 @@ class SymptomAnalysis(BaseModel):
 
 class SpecialistList(BaseModel):
     """List of recommended medical specialists."""
+
     specialists: List[str] = Field(description="List of recommended specialists")
     reasoning: str = Field(description="Brief explanation for the recommendations")
 
 
 class Recommendation(BaseModel):
     """Final medical referral recommendation."""
+
     analysis: SymptomAnalysis
     referrals: SpecialistList
     disclaimer: str = Field(
         default="This is an AI-generated recommendation and should not replace professional medical advice. Please consult a healthcare professional immediately for urgent symptoms.",
-        description="Medical disclaimer"
+        description="Medical disclaimer",
     )
-
-
-class ModelOutput(BaseModel):
-    """Standard output model for the application."""
-    data: Optional[Recommendation] = None
-    markdown: Optional[str] = None
 
 
 class PromptBuilder:
@@ -48,7 +45,7 @@ class PromptBuilder:
         """Create prompts for the Symptom Analyst agent."""
         system_prompt = """You are a medical symptom analyst. Your task is to extract symptoms, assess severity, and identify affected body parts from the patient's description.
 Be precise and professional. Categorize severity based on typical clinical urgency."""
-        user_prompt = f"Analyze the following patient question: \"{question}\""
+        user_prompt = f'Analyze the following patient question: "{question}"'
         return system_prompt, user_prompt
 
     @staticmethod
@@ -61,7 +58,9 @@ verify if the severity assessment is clinically sound. Output a structured JSON 
         return system_prompt, user_prompt
 
     @staticmethod
-    def get_output_synthesis_prompts(question: str, specialist_data: str, compliance_data: str) -> tuple[str, str]:
+    def get_output_synthesis_prompts(
+        question: str, specialist_data: str, compliance_data: str
+    ) -> tuple[str, str]:
         """Create prompts for the Final Output synthesis agent (Markdown)."""
         system = (
             "You are the Lead Medical Referral Editor and Triage Director. Your role is to "
@@ -71,7 +70,7 @@ verify if the severity assessment is clinically sound. Output a structured JSON 
             "medical disclaimers are prominently included."
         )
         user = (
-            f"Synthesize the final medical referral report for: \"{question}\"\n\n"
+            f'Synthesize the final medical referral report for: "{question}"\n\n'
             f"SYMPTOM ANALYSIS:\n{specialist_data}\n\n"
             f"SPECIALIST MATCHING AUDIT:\n{compliance_data}\n\n"
             "Produce the final Markdown report. Ensure it is accurate, professional, "

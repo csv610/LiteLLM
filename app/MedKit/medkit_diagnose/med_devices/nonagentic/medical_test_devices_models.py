@@ -1,4 +1,5 @@
 from typing import Any
+
 """
 Pydantic models for medical device information structure.
 
@@ -8,7 +9,7 @@ medical device information across different categories and specifications.
 
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class DeviceBasicInfoModel(BaseModel):
@@ -424,10 +425,3 @@ class MedicalDeviceInfoModel(BaseModel):
     common_misconceptions: str = Field(
         description="Common myths or misunderstandings about this device, comma-separated"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

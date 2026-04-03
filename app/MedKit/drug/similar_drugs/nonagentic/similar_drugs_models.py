@@ -7,9 +7,10 @@ Defines data structures for similar medicine search and comparison results.
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 @dataclass
@@ -151,12 +152,3 @@ class SimilarMedicinesResult(BaseModel):
     clinical_notes: str = Field(
         description="Important clinical notes and evidence-based considerations for switching"
     )
-
-
-from typing import Any
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

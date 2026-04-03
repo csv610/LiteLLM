@@ -1,4 +1,5 @@
 from typing import Any
+
 """Pydantic models for synthetic medical case reports following CARE Guidelines.
 
 This module defines the structured data models used for generating comprehensive
@@ -6,7 +7,7 @@ synthetic medical case reports with schema-aware prompting.
 """
 
 from typing import Optional
-
+from lite import ModelOutput
 from pydantic import BaseModel, Field
 
 
@@ -288,10 +289,3 @@ class SyntheticCaseReportModel(BaseModel):
     discussion: DiscussionModel
     patient_perspective: PatientPerspectiveModel
     informed_consent: InformedConsentModel
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

@@ -1,15 +1,9 @@
-from typing import Any
-"""
-drug_drug_interaction_models.py - Pydantic data models for drug-drug interaction analysis
-
-Defines the structured data models for drug interaction analysis, including
-interaction details, patient summaries, and result aggregation.
-"""
+from typing import Any, Optional
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class DrugInteractionSeverity(str, Enum):
@@ -186,10 +180,3 @@ class DrugInteractionModel(BaseModel):
     data_availability: DataAvailabilityInfoModel = Field(
         description="Status of data availability for this interaction check"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

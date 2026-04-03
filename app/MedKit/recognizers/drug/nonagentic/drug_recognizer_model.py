@@ -5,9 +5,10 @@ This module contains Pydantic models used for identifying if a drug
 is well-known in the industry and providing basic information about it.
 """
 
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class DrugIdentificationModel(BaseModel):
@@ -42,10 +43,3 @@ class DrugIdentifierModel(BaseModel):
     data_available: bool = Field(
         description="Whether information about this drug was found"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

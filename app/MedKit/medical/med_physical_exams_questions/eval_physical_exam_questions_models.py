@@ -1,8 +1,8 @@
 """Pydantic models for physical exam question evaluation."""
 
 from typing import List, Literal
-
-from pydantic import BaseModel
+from lite import ModelOutput
+from pydantic import BaseModel, Field
 
 
 class CriteriaEvaluation(BaseModel):
@@ -48,10 +48,3 @@ class QualityEvaluation(BaseModel):
     areas_for_improvement: List[str]
     recommendations: List[str]
     pass_fail: Literal["pass", "conditional_pass", "fail"]
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

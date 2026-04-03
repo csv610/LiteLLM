@@ -5,7 +5,7 @@ This module defines the data models used to represent comprehensive surgical pat
 positioning information with validation and structured schema generation.
 """
 
-from typing import Any, Optional
+from app.MedKit.medical.base.models import ModelOutput
 
 from pydantic import BaseModel, Field
 
@@ -120,10 +120,3 @@ class SurgicalPoseInfoModel(BaseModel):
     physiological_effects: PhysiologicalEffectsModel
     contraindications_and_modifications: ContraindicationsAndModificationsModel
     post_operative_care: PostOperativeCareModel
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

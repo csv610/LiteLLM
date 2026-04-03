@@ -1,10 +1,9 @@
-from typing import Any
-"""Pydantic models and enums for drug addiction analysis."""
+from typing import Any, List, Optional
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class AddictionPotential(str, Enum):
@@ -78,7 +77,8 @@ class DrugAddictionDetailsModel(BaseModel):
         default=None, description="Alternative names, brand names, or street names"
     )
     dea_schedule: Optional[DEASchedule] = Field(
-        default=None, description="DEA Controlled Substance Schedule (e.g., Schedule I, II, etc.)"
+        default=None,
+        description="DEA Controlled Substance Schedule (e.g., Schedule I, II, etc.)",
     )
     addiction_potential: AddictionPotential = Field(
         description="Overall potential for addiction"
@@ -137,10 +137,3 @@ class DrugAddictionModel(BaseModel):
     patient_friendly_summary: Optional[PatientFriendlyAddictionSummaryModel] = Field(
         default=None, description="Patient-friendly explanation"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

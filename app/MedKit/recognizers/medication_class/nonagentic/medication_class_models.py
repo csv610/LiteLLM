@@ -1,4 +1,3 @@
-from typing import Any
 """
 medication_class_models.py - Data Models for Medication Class Identification
 
@@ -9,6 +8,7 @@ classes of medications.
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class MedicationClassIdentificationModel(BaseModel):
@@ -43,10 +43,3 @@ class MedicationClassIdentifierModel(BaseModel):
     data_available: bool = Field(
         description="Whether information about this class was found"
     )
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

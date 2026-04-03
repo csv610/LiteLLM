@@ -1,4 +1,5 @@
-from typing import Any
+from app.MedKit.medical.base.models import ModelOutput
+
 """Pydantic models for medical decision guides.
 
 Defines the schema for decision trees used in medical symptom assessment.
@@ -110,14 +111,15 @@ class ComplianceReportModel(BaseModel):
     """Clinical safety and compliance audit report."""
 
     is_safe: bool = Field(description="Whether the guide meets safety standards")
-    safety_concerns: str = Field(description="Specific clinical safety risks identified, comma-separated")
-    guideline_adherence: str = Field(description="Assessment of adherence to clinical standards")
-    required_corrections: str = Field(description="Mandatory changes needed for safety/compliance")
-    compliance_score: int = Field(description="Numerical score from 0-100 for overall compliance")
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)
+    safety_concerns: str = Field(
+        description="Specific clinical safety risks identified, comma-separated"
+    )
+    guideline_adherence: str = Field(
+        description="Assessment of adherence to clinical standards"
+    )
+    required_corrections: str = Field(
+        description="Mandatory changes needed for safety/compliance"
+    )
+    compliance_score: int = Field(
+        description="Numerical score from 0-100 for overall compliance"
+    )

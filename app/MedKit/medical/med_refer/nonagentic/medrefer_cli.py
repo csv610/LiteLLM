@@ -11,7 +11,6 @@ if str(project_root) not in sys.path:
 
 import argparse
 import logging
-from pathlib import Path
 
 from lite.config import ModelConfig
 from lite.logging_config import configure_logging

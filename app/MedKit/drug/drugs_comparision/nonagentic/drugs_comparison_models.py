@@ -4,10 +4,12 @@ Defines all data structures for medicines comparison including clinical metrics,
 regulatory information, practical details, and comprehensive comparison results.
 """
 
+from typing import Any, Optional
+
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
+from lite import ModelOutput
 
 
 class EffectivenessRating(str, Enum):
@@ -201,12 +203,3 @@ class MedicinesComparisonResult(BaseModel):
     limitations: str = Field(
         description="Limitations of this comparison and factors to consider, comma-separated"
     )
-
-
-from typing import Any
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

@@ -1,10 +1,5 @@
-from typing import Any
-"""
-organ_disease_info_models.py - Pydantic Models for Organ-specific Disease Information
-"""
-
-from typing import List, Optional
-
+from typing import Any, List, Optional
+from lite import ModelOutput
 from pydantic import BaseModel, Field
 
 
@@ -99,10 +94,3 @@ class OrganDiseasesModel(BaseModel):
     common_diseases: List[str] = Field(description="Common diseases associated.")
     rare_diseases: List[str] = Field(description="Rare diseases associated.")
     educational_points: List[str] = Field(description="Key educational points.")
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)

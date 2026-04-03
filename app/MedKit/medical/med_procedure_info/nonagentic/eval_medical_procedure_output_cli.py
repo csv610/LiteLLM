@@ -12,7 +12,6 @@ if str(project_root) not in sys.path:
 import argparse
 import logging
 import sys
-from pathlib import Path
 
 from tqdm import tqdm
 

@@ -1,4 +1,5 @@
-from typing import Any
+from app.MedKit.medical.base.models import ModelOutput
+
 """
 Pydantic models for surgical tool information structure.
 
@@ -388,10 +389,3 @@ class SurgicalToolInfoModel(BaseModel):
     regulatory_and_standards: RegulatoryAndStandardsModel
     cost_and_procurement: CostAndProcurementModel
     educational_content: EducationalContentModel
-
-
-class ModelOutput(BaseModel):
-    """Standardized artifact envelope for the application."""
-    data: Optional[Any] = None      # Tier 1: Specialists Facts (JSON Object)
-    markdown: Optional[str] = None  # Tier 3: Final Synthesized Report (Markdown String)
-    metadata: Optional[dict] = Field(default_factory=dict) # Tier 2: Process Artifacts (Audit/Reasoning)
