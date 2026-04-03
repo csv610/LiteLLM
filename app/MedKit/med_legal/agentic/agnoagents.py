@@ -11,6 +11,8 @@ from typing import Optional
 
 from agno.agent import Agent
 from agno.models.ollama import Ollama
+from agno.tools.pubmed import PubmedTools
+from agno.tools.websearch import WebSearchTools
 
 try:
     from med_legal.legal_rights_models import LegalRightsModel, ModelOutput
@@ -31,7 +33,7 @@ class LegalRightsAgnoAgent:
         self.model_id = model_id
         self.system_prompt = PromptBuilder.create_system_prompt()
         self.host = "http://localhost:11434"
-        
+
         # Initialize the Agno Agent with Ollama
         self.agent = Agent(
             model=Ollama(id=self.model_id, host=self.host),
@@ -41,8 +43,11 @@ class LegalRightsAgnoAgent:
                 "Ensure the output strictly follows the requested structure and jurisdictional focus.",
             ],
             markdown=True,
+            tools=[PubmedTools(), WebSearchTools()],
         )
-        logger.debug(f"Initialized LegalRightsAgnoAgent with Ollama model: {self.model_id} at {self.host}")
+        logger.debug(
+            f"Initialized LegalRightsAgnoAgent with Ollama model: {self.model_id} at {self.host}"
+        )
 
     def generate(
         self, topic: str, country: str, structured: bool = False
@@ -56,8 +61,10 @@ class LegalRightsAgnoAgent:
             raise ValueError("Country cannot be empty")
 
         user_prompt = PromptBuilder.create_user_prompt(topic, country)
-        
-        logger.debug(f"Generating legal rights for: {topic} in {country} (structured={structured})")
+
+        logger.debug(
+            f"Generating legal rights for: {topic} in {country} (structured={structured})"
+        )
 
         if structured:
             # For structured output, we use the output_schema feature of Agno
@@ -67,12 +74,13 @@ class LegalRightsAgnoAgent:
                 instructions=[self.system_prompt],
                 output_schema=LegalRightsModel,
                 structured_outputs=True,
+                tools=[PubmedTools(), WebSearchTools()],
             )
             response = structured_agent.run(user_prompt)
             return ModelOutput(
                 data=response.content,
                 markdown=None,
-                metadata={"model": self.model_id, "agent": "agno_ollama_structured"}
+                metadata={"model": self.model_id, "agent": "agno_ollama_structured"},
             )
         else:
             # For regular markdown output
@@ -80,7 +88,7 @@ class LegalRightsAgnoAgent:
             return ModelOutput(
                 data=None,
                 markdown=response.content,
-                metadata={"model": self.model_id, "agent": "agno_ollama_markdown"}
+                metadata={"model": self.model_id, "agent": "agno_ollama_markdown"},
             )
 
 
@@ -88,16 +96,18 @@ if __name__ == "__main__":
     # Example usage
     logging.basicConfig(level=logging.INFO)
     agent = LegalRightsAgnoAgent()
-    
+
     # Test generation
     try:
         print("Testing Agno Agent (Markdown)...")
         result = agent.generate("Informed Consent", "USA", structured=False)
         print("\nMarkdown Result Preview:")
         print(result.markdown[:500] + "...")
-        
+
         print("\nTesting Agno Agent (Structured)...")
-        result_structured = agent.generate("Medical Records Access", "India", structured=True)
+        result_structured = agent.generate(
+            "Medical Records Access", "India", structured=True
+        )
         print("\nStructured Result (Data Type):", type(result_structured.data))
         if result_structured.data:
             print("Topic Name:", result_structured.data.overview.topic_name)

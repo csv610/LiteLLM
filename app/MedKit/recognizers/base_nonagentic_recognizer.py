@@ -10,6 +10,7 @@ from typing import Any, Optional, Type
 
 from agno.agent import Agent
 from agno.models.ollama import Ollama
+from agno.tools.pubmed import PubmedTools
 from agno.tools.websearch import WebSearchTools
 from pydantic import BaseModel
 
@@ -71,7 +72,7 @@ class BaseAgenticRecognizer(BaseRecognizer):
         enable_memory: bool = True,
         custom_tools: Optional[list] = None,
     ) -> Agent:
-        tools: list = [WebSearchTools()]
+        tools: list = [PubmedTools(), WebSearchTools()]
         if custom_tools:
             tools.extend(custom_tools)
         return Agent(
